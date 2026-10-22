@@ -108,6 +108,7 @@ for (const file of files) {
     if (errs.length) masalah.push('error JS: ' + errs[0]);
   } catch (e) {
     masalah.push(String(e.message || e).split('\n')[0]);
+    if (errs.length) masalah.push('error JS: ' + errs[0]);   // tanpa ini timeout menyembunyikan penyebabnya
   }
   await page.close();
   if (masalah.length) { gagal++; console.log(`GAGAL  ${name}\n       - ${masalah.join('\n       - ')}`); }

@@ -27,8 +27,9 @@ const files = args.length ? args
   : readdirSync(join(ROOT, 'assets')).filter(f => f.endsWith('.html')).map(f => join(ROOT, 'assets', f));
 
 // --enable-unsafe-swiftshader: runner CI tanpa GPU tidak bisa membuat konteks WebGL (starter opener) tanpa
-// renderer perangkat lunak — dan render perangkat lunak lambat, karena itu batas tunggu halaman 120 dtk.
 // renderer perangkat lunak; di mesin ber-GPU flag ini tidak terpakai.
+// Halaman ditunggu sampai 'load' lalu OPENER.ready — BUKAN networkidle0: di render perangkat lunak loop
+// render menyita setiap frame dan Chrome tidak pernah melaporkan "jaringan diam", walau halaman sudah siap.
 const browser = await puppeteer.launch({
   headless: 'new',
   executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
@@ -44,8 +45,8 @@ for (const file of files) {
   page.on('console', m => { if (m.type() === 'error') errs.push('console: ' + m.text()); });
   const masalah = [];
   try {
-    await page.goto(pathToFileURL(file).href, { waitUntil: 'networkidle0', timeout: 120000 });
-    await page.waitForFunction('window.OPENER && window.OPENER.ready', { timeout: 120000 });
+    await page.goto(pathToFileURL(file).href, { waitUntil: 'load', timeout: 60000 });
+    await page.waitForFunction('window.OPENER && window.OPENER.ready', { timeout: 60000 });
 
     const kontrak = await page.evaluate(() => {
       const O = window.OPENER;
@@ -91,8 +92,8 @@ for (const file of files) {
     // supaya pemeriksaan di atas tetap menguji jalur default deliverable.
     let cam = null;
     if (await page.evaluate(() => !!window.CAM_UJI)) {
-      await page.goto(pathToFileURL(file).href + '?demo=1', { waitUntil: 'networkidle0', timeout: 120000 });
-      await page.waitForFunction('window.OPENER && window.OPENER.ready', { timeout: 120000 });
+      await page.goto(pathToFileURL(file).href + '?demo=1', { waitUntil: 'load', timeout: 60000 });
+      await page.waitForFunction('window.OPENER && window.OPENER.ready', { timeout: 60000 });
       cam = await page.evaluate(() => window.CAM_UJI());
     }
     if (cam) {

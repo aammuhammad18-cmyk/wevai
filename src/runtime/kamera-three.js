@@ -2,15 +2,25 @@
    renderer, composer SEBELUM blok ini; render() starter memanggil applyCam() lalu composer.render(0).
    Di sini fx/fy/fz = koordinat dunia Three (Y ke atas), dist dalam unit dunia, yaw/pitch/roll derajat. */
 CAM.mode='three';
-camDefaults({fx:0,fy:0,fz:0,dist:10,yaw:0,pitch:0,mm:35,zoom:1});
+camDefaults({fx:0,fy:0,fz:0,dist:10,yaw:0,pitch:0,mm:35,zoom:1,rail:-1,railU:0});
 /* warna dari token CSS ('--accent'), hex, atau THREE.Color — dunia 3D ikut style brief, tanpa hardcode */
 const warna=c=>new THREE.Color(typeof c==='string'&&c.startsWith('--')?getComputedStyle(document.documentElement).getPropertyValue(c).trim():c);
 
 /* ---------- KAMERA ---------- */
 /* satu jalur untuk kamera render DAN kamera bayangan cek3: pose, lookAt, roll, lensa */
-function arahkan(cam,c,dx=0,dy=0,dz=0,roll=c.roll){const p=pose(c);
-  cam.position.set(p.x+dx,p.y+dy,p.z+dz);cam.lookAt(c.fx,c.fy,c.fz);cam.rotateZ(roll*Math.PI/180);
+const RAILS=[];   // {curve,look} — dibuat saat setup; keadaan rail hanya CAM.rail (indeks, -1 = mati) dan CAM.railU (0..1)
+function arahkan(cam,c,dx=0,dy=0,dz=0,roll=c.roll){let p,f;
+  if(c.rail>=0){const R=RAILS[c.rail];p=R.curve.getPointAt(c.railU);f=R.look;}else{p=pose(c);f=[c.fx,c.fy,c.fz];}
+  cam.position.set(p.x+dx,p.y+dy,p.z+dz);cam.lookAt(f[0],f[1],f[2]);cam.rotateZ(roll*Math.PI/180);
   cam.zoom=c.zoom;cam.filmGauge=36;cam.setFocalLength(c.mm);}   // setFocalLength = updateProjectionMatrix (zoom sudah terpasang)
+/* rail: kamera meluncur sepanjang Catmull-Rom (≥ 3 titik) sambil menatap titik `look`. Di ujung, CAM kembali ke pose bola
+   yang tepat di titik terakhir (kebalikan pose()), jadi camTo/shot sesudahnya berlanjut tanpa lompatan. */
+function rail(at,dur,pts,{look=null,ease='sine.inOut'}={}){
+  if(pts.length<3)throw new Error('rail: butuh ≥ 3 titik (CatmullRomCurve3 2 titik rusak di r161)');
+  const f=look||[PLAN.fx,PLAN.fy,PLAN.fz],curve=new THREE.CatmullRomCurve3(pts.map(q=>new THREE.Vector3(...q)),false,'centripetal'),
+    e=curve.getPointAt(1),dx=e.x-f[0],dy=e.y-f[1],dz=e.z-f[2],d=Math.hypot(dx,dy,dz),i=RAILS.push({curve,look:f})-1;
+  return[cutTo(at,{rail:i,railU:0}),camTo(at,dur,{railU:1},ease),
+    cutTo(at+dur,{rail:-1,fx:f[0],fy:f[1],fz:f[2],dist:d,pitch:-Math.asin(dy/d)*180/Math.PI,yaw:Math.atan2(dx,dz)*180/Math.PI})];}
 /* handheld: noise ber-seed dari tl.time() → goyangan sama di putar, scrub, dan ekspor. Tidak me-render. */
 function applyCam(){let dx=0,dy=0,dz=0,roll=CAM.roll;
   if(CAM.shake){const t=tl.time(),a=CAM.shake,s=CAM.seed;
@@ -117,4 +127,10 @@ window.CAM3_UJI=()=>{const r={},c0={...CAM},V=()=>new THREE.Vector3();tl.pause(0
   CAM.aperture=0;applyCam();r.bokehSaatNol=bokeh.enabled;CAM.aperture=6;applyCam();r.bokehSaatEnam=bokeh.enabled;
   const jp=pose(PLAN),jc=kotak3(objek3('subjek')).getCenter(V());r.jarakHarapan=Math.hypot(jc.x-jp.x,jc.y-jp.y,jc.z-jp.z);r.jarakFokus=jarakFokus('subjek');
   Object.assign(LUX,nilaiLux('day'));applyLux();const kx=key.target.position.x;CAM.fx+=10;applyCam();r.keyIkutKamera=Math.abs(key.target.position.x-kx-10)<1e-6;Object.assign(LUX,L0);
+  const P1={...PLAN},pa1=planAt,nR=RAILS.length,tA=Math.max(planAt,0)+1,pts=[[0,2,12],[6,3,8],[10,4,0]];
+  try{rail(tA,2,pts.slice(0,2));r.railDuaDitolak=false;}catch(e){r.railDuaDitolak=/≥ 3/.test(e.message);}
+  const tws=rail(tA,2,pts,{look:[0,1,0],ease:'none'}),cv=RAILS[nR].curve;
+  tl.time(tA+1);applyCam();r.railTengah=camera.position.distanceTo(cv.getPointAt(.5));
+  tl.time(tA+2+1e-3);applyCam();r.railSambung=camera.position.distanceTo(V().set(10,4,0));
+  tl.time(0);for(const w of tws){w.kill();tl.remove(w);}RAILS.length=nR;Object.assign(PLAN,P1);planAt=pa1;
   Object.assign(CAM,c0);applyCam();composer.render(0);return r;};

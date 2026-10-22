@@ -26,10 +26,12 @@ const args = process.argv.slice(2);
 const files = args.length ? args
   : readdirSync(join(ROOT, 'assets')).filter(f => f.endsWith('.html')).map(f => join(ROOT, 'assets', f));
 
+// --enable-unsafe-swiftshader: runner CI tanpa GPU tidak bisa membuat konteks WebGL (starter opener) tanpa
+// renderer perangkat lunak; di mesin ber-GPU flag ini tidak terpakai.
 const browser = await puppeteer.launch({
   headless: 'new',
   executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
-  args: ['--autoplay-policy=no-user-gesture-required', '--use-gl=angle', '--ignore-gpu-blocklist'],
+  args: ['--autoplay-policy=no-user-gesture-required', '--enable-unsafe-swiftshader', '--use-gl=angle', '--ignore-gpu-blocklist'],
 });
 
 let gagal = 0;

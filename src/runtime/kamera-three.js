@@ -16,6 +16,7 @@ function arahkan(cam,c,dx=0,dy=0,dz=0,roll=c.roll){let p,f;
 /* rail: kamera meluncur sepanjang Catmull-Rom (≥ 3 titik) sambil menatap titik `look`. Di ujung, CAM kembali ke pose bola
    yang tepat di titik terakhir (kebalikan pose()), jadi camTo/shot sesudahnya berlanjut tanpa lompatan. */
 function rail(at,dur,pts,{look=null,ease='sine.inOut'}={}){
+  if(at<planAt)throw new Error('gerak relatif harus dipanggil urut waktu (detik '+at+' setelah '+planAt+')');
   if(pts.length<3)throw new Error('rail: butuh ≥ 3 titik (CatmullRomCurve3 2 titik rusak di r161)');
   const f=look||[PLAN.fx,PLAN.fy,PLAN.fz],curve=new THREE.CatmullRomCurve3(pts.map(q=>new THREE.Vector3(...q)),false,'centripetal'),
     e=curve.getPointAt(1),dx=e.x-f[0],dy=e.y-f[1],dz=e.z-f[2],d=Math.hypot(dx,dy,dz),i=RAILS.push({curve,look:f})-1;
@@ -132,5 +133,6 @@ window.CAM3_UJI=()=>{const r={},c0={...CAM},V=()=>new THREE.Vector3();tl.pause(0
   const tws=rail(tA,2,pts,{look:[0,1,0],ease:'none'}),cv=RAILS[nR].curve;
   tl.time(tA+1);applyCam();r.railTengah=camera.position.distanceTo(cv.getPointAt(.5));
   tl.time(tA+2+1e-3);applyCam();r.railSambung=camera.position.distanceTo(V().set(10,4,0));
+  const nR2=RAILS.length;try{rail(planAt-1,2,pts);r.railUrutDitolak=false;}catch(e){r.railUrutDitolak=/urut waktu/.test(e.message)&&RAILS.length===nR2;}
   tl.time(0);for(const w of tws){w.kill();tl.remove(w);}RAILS.length=nR;Object.assign(PLAN,P1);planAt=pa1;
   Object.assign(CAM,c0);applyCam();composer.render(0);return r;};

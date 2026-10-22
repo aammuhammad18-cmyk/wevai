@@ -109,6 +109,25 @@ for (const file of files) {
       if (!(cam.demoAkhir > 0 && cam.demoAkhir < cam.DUR)) masalah.push(`kamera: ?demo=1 harus selesai sebelum DUR (${cam.demoAkhir} vs ${cam.DUR})`);
     }
 
+    // kamera 3D (src/runtime/kamera-three.js): pose, shot terpusat & ukuran bingkai, zona aman HUD, warna brand
+    // tepat, penolakan input salah. Field null = tidak berlaku di halaman itu (opener) → dilewati.
+    let cam3 = null;
+    if (await page.evaluate(() => !!window.CAM3_UJI)) {
+      await page.goto(pathToFileURL(file).href + '?demo=1', { waitUntil: 'load', timeout: 60000 });
+      await page.waitForFunction('window.OPENER && window.OPENER.ready', { timeout: 60000 });
+      cam3 = await page.evaluate(() => window.CAM3_UJI());
+    }
+    if (cam3) {
+      const ada = k => cam3[k] != null;
+      if (ada('poseCocok') && !(cam3.poseCocok)) masalah.push('kamera3: camera.position ≠ pose(CAM)');
+      if (ada('ndc') && !(Math.abs(cam3.ndc[0]) < .01 && Math.abs(cam3.ndc[1]) < .01)) masalah.push(`kamera3: shot MS tidak memusatkan subjek (${cam3.ndc})`);
+      if (ada('isiTinggi') && !(Math.abs(cam3.isiTinggi - .45) < .01)) masalah.push(`kamera3: shot WS pada bidang 1,6 mengisi ${cam3.isiTinggi} tinggi frame, harus 0,45`);
+      if (ada('hudTabrakDitolak') && !cam3.hudTabrakDitolak) masalah.push('kamera3: shot yang membawa subjek ke kantong teks HUD harus ditolak');
+      if (ada('pikselBrand') && cam3.pikselBrand !== '238,28,37') masalah.push(`kamera3: mat('flat','#EE1C25') keluar ${cam3.pikselBrand}`);
+      if (ada('kosongDitolak') && !cam3.kosongDitolak) masalah.push('kamera3: shot pada Group kosong harus ditolak');
+      if (ada('familyDitolak') && !cam3.familyDitolak) masalah.push("kamera3: mat('neon') harus ditolak");
+    }
+
     if (errs.length) masalah.push('error JS: ' + errs[0]);
   } catch (e) {
     masalah.push(String(e.message || e).split('\n')[0]);

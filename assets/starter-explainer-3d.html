@@ -271,7 +271,8 @@ CAM.cek3=(at,dur,o,v)=>{const hs=HUD.filter(h=>!(at+dur<h.at||at>h.to));if(!hs.l
       throw new Error('zona aman: subjek shot pada detik '+at+' masuk kantong teks '+h.sel+' — geser fokus, ganti ukuran shot, atau pindahkan teks');}};
 
 /* ---------- MATERIAL & ASET ---------- */
-/* toneMapped:false di SEMUA family: warna brand keluar tepat (#EE1C25 → 238,28,37) apa pun tone mapping-nya */
+/* warna brand tepat lewat composer WAJIB renderer.toneMapping=NoToneMapping: OutputPass menerapkan tone mapping ke
+   seluruh frame dan mengabaikan toneMapped:false. Flag itu tetap dipasang untuk render langsung (renderer.render). */
 const TOON=new THREE.DataTexture(new Uint8Array([90,170,255]),3,1,THREE.RedFormat);   // 3 tingkat bayangan kartun
 TOON.minFilter=TOON.magFilter=THREE.NearestFilter;TOON.needsUpdate=true;
 const MAT={

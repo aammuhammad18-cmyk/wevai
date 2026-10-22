@@ -129,6 +129,7 @@ for (const file of files) {
       if (ada('keyGolden') && !cam3.lightUrutDitolak) masalah.push("kamera3: light() dengan 'at' mundur harus ditolak");
       if (ada('keyGolden') && (cam3.bokehSaatNol !== false || cam3.bokehSaatEnam !== true)) masalah.push('kamera3: BokehPass harus mati saat aperture 0 dan hidup saat > 0');
       if (ada('keyGolden') && !(cam3.jarakFokus > 0 && Math.abs(cam3.jarakFokus - cam3.jarakHarapan) < 1e-6)) masalah.push('kamera3: focus() tidak menghitung jarak ke subjek');
+      if (ada('keyIkutKamera') && !cam3.keyIkutKamera) masalah.push('kamera3: lampu key harus dihitung ulang tiap applyCam (ikut CAM.fx tanpa tween cahaya)');
       if (ada('familyDitolak') && !cam3.familyDitolak) masalah.push("kamera3: mat('neon') harus ditolak");
     }
 

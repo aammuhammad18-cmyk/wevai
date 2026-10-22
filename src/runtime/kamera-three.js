@@ -15,7 +15,7 @@ function arahkan(cam,c,dx=0,dy=0,dz=0,roll=c.roll){const p=pose(c);
 function applyCam(){let dx=0,dy=0,dz=0,roll=CAM.roll;
   if(CAM.shake){const t=tl.time(),a=CAM.shake,s=CAM.seed;
     dx=(noise(t*1.7,s)-.5)*.1*a;dy=(noise(t*1.3,s+1)-.5)*.1*a;dz=(noise(t*1.1,s+3)-.5)*.1*a;roll+=(noise(t*.9,s+2)-.5)*.6*a;}
-  arahkan(camera,CAM,dx,dy,dz,roll);
+  arahkan(camera,CAM,dx,dy,dz,roll);applyLux();   // lampu dihitung ulang tiap render/seek dari LUX+CAM
   bokeh.enabled=CAM.aperture>0;Object.assign(bokeh.uniforms,{focus:{value:CAM.focus},aperture:{value:CAM.aperture*.0007},maxblur:{value:.01}});}
 const objek3=o=>{if(typeof o==='string'){const n=o;o=scene.getObjectByName(n);if(!o)throw new Error('shot: subjek 3D '+n+' tidak ada');}return o;};
 const kotak3=o=>{const b=new THREE.Box3().setFromObject(o);if(b.isEmpty())throw new Error('shot: subjek 3D kosong — '+(o.name||o.type));return b;};
@@ -59,7 +59,7 @@ function nilaiLux(n){const [kAz,kEl,k,kI,s,g,fI,rI]=CAHAYA3[n],K=new THREE.Color
 let lampAt=-Infinity;
 function light(at,dur,preset,o={}){if(!CAHAYA3[preset])throw new Error('preset cahaya tidak dikenal: '+preset+' ('+Object.keys(CAHAYA3).join(' ')+')');
   if(at<lampAt)throw new Error('light(): panggil urut waktu (detik '+at+' setelah '+lampAt+')');lampAt=at;
-  return tl.to(LUX,{...nilaiLux(preset),...o,duration:dur,ease:'sine.inOut',onUpdate:applyLux},at);}
+  return tl.to(LUX,{...nilaiLux(preset),...o,duration:dur,ease:'sine.inOut'},at);}
 /* lampu praktis: PointLight di posisi dunia mesh + bahan berpendar (tidak kena tone mapping) */
 function practical(mesh,color,intensity=2,distance=8){const c=warna(color),L=new THREE.PointLight(c,intensity,distance);
   mesh.getWorldPosition(L.position);scene.add(L);
@@ -116,4 +116,5 @@ window.CAM3_UJI=()=>{const r={},c0={...CAM},V=()=>new THREE.Vector3();tl.pause(0
   tw.kill();tl.remove(tw);tl.time(0);Object.assign(LUX,L0);lampAt=la0;applyLux();
   CAM.aperture=0;applyCam();r.bokehSaatNol=bokeh.enabled;CAM.aperture=6;applyCam();r.bokehSaatEnam=bokeh.enabled;
   const jp=pose(PLAN),jc=kotak3(objek3('subjek')).getCenter(V());r.jarakHarapan=Math.hypot(jc.x-jp.x,jc.y-jp.y,jc.z-jp.z);r.jarakFokus=jarakFokus('subjek');
+  Object.assign(LUX,nilaiLux('day'));applyLux();const kx=key.target.position.x;CAM.fx+=10;applyCam();r.keyIkutKamera=Math.abs(key.target.position.x-kx-10)<1e-6;Object.assign(LUX,L0);
   Object.assign(CAM,c0);applyCam();composer.render(0);return r;};

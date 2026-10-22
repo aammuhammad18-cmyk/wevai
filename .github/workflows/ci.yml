@@ -40,5 +40,8 @@ jobs:
 
       - name: Uji browser — loop, kontrak OPENER, error halaman
         run: |
+          # Ubuntu 24.04 mematikan user namespace tanpa hak istimewa → sandbox Chrome gagal ("No usable sandbox").
+          # Jalan keluar resmi puppeteer: izinkan lagi untuk runner ini saja, bukan --no-sandbox di skrip.
+          echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns
           cd scripts && npm install --no-audit --no-fund && cd ..
           node scripts/test-starters.mjs

@@ -1,0 +1,23 @@
+{
+  "name": "wevai",
+  "displayName": "WeVai",
+  "version": "1.0.0",
+  "description": "Build motion graphics in the browser — product openers and promos, bumpers and idents, channel intros, kinetic typography, lower thirds, and six explainer styles — that move like video instead of reading like a slide deck. Output is a single index.html that autoplays and loops.",
+  "author": {
+    "name": "aammuhammad18",
+    "url": "https://github.com/aammuhammad18-cmyk/wevai"
+  },
+  "homepage": "https://github.com/aammuhammad18-cmyk/wevai",
+  "repository": "https://github.com/aammuhammad18-cmyk/wevai",
+  "license": "MIT",
+  "keywords": [
+    "motion-graphics",
+    "explainer",
+    "opener",
+    "promo",
+    "animation",
+    "kinetic-typography",
+    "gsap",
+    "video"
+  ]
+}

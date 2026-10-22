@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="id">
+<!-- Made with the WeVai skill v1.0.0 by aammuhammad18 (https://github.com/aammuhammad18-cmyk/wevai) - MIT - https://github.com/aammuhammad18-cmyk/wevai -->
+<head>
+<meta charset="utf-8">
+<title>WeVai — Starter Explainer Aksi Kontinu (aliran + contoh kolase)</title>
+<!--
+  STARTER EXPLAINER satu-berkas, 16:9 — gaya AKSI KONTINU (vektor). Gaya kolase punya starter
+  sendiri (-kartun/-jurnalisme/-katalog/-sketsa) dan kartun panggung memakai -panggung; berkas ini
+  menunjukkan dua MODE gerak dunia yang bisa dipakai bergantian:
+    - MODE ALIRAN  (view #side): dunia mengalir lewat strip parallax dari profil kecepatan; subjek diam di frame.
+    - MODE KOLASE  (view #collage): dunia diam berisi cutout/foto; KAMERA yang berkoreografi
+      (push-through ke aset -> meluncur ke aset lain -> zoom out, lalu diam; teks baru muncul setelah zoom out).
+  Yang penting di sini adalah RIG-nya, bukan isinya:
+    - dunia yang terus mengalir (strip parallax looping) dari profil kecepatan → jarak D(t)
+    - satu SUBJEK (hero) yang tidak pernah keluar frame
+    - objek dunia (angka/papan/bangunan) yang masuk pada detik tertentu dan bergerak ikut dunia
+    - beberapa VIEW (sudut pandang) berganti lewat whip: samping → peta → samping
+    - kamera bernapas (keyframe zoom/geser) — framing tidak pernah beku
+    - autoplay + loop, TANPA player; panel scrub hanya bila ?debug=1; ?clean=1 untuk export
+  Ganti: hero, strip latar, objek dunia, view tambahan, dan angka-angka di #ui.
+  Buka dengan klik dua kali. Hanya butuh browser + internet (GSAP & font dari CDN).
+-->
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@900&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{--sky:#cfe0f5;--sky2:#f5efe3;--far:#a7bedf;--hill:#9cc27e;--hill2:#7fb06a;--field:#cfe19c;--ink:#1c2a4a;--accent:#d7262c}
+html,body{margin:0;height:100%;background:#0a0f1e;overflow:hidden}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;overflow:hidden;background:var(--sky);
+  font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--ink)}   /* diposisikan absolut + translate(-50%,-50%): grid center akan terpotong */
+#stage svg{position:absolute;inset:0;width:1920px;height:1080px;overflow:visible}
+.view{position:absolute;inset:0}
+.view.off{visibility:hidden}
+.big{font-family:'Unbounded',sans-serif;font-weight:900}
+#ui{position:absolute;inset:0;pointer-events:none}
+.top{position:absolute;left:0;right:0;top:80px;text-align:center;opacity:0}
+.kick{font-weight:800;font-size:44px;letter-spacing:.18em}
+#vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(90% 90% at 50% 50%,transparent 60%,rgba(10,15,30,.28))}
+/* panel developer: hanya tampil dengan ?debug=1 */
+#dbg{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);display:none;gap:12px;align-items:center;padding:10px 16px;border-radius:14px;
+  background:rgba(14,16,22,.9);color:#cfd5e3;font:13px system-ui;z-index:50}
+#dbg input{width:360px}#dbg span{font-variant-numeric:tabular-nums;min-width:6ch}
+</style>
+</head>
+<body>
+<div id="stage">
+  <!-- VIEW 1: samping — dunia mengalir, hero diam di frame -->
+  <div id="side" class="view"><svg viewBox="0 0 1920 1080"><g id="sideCam">
+    <rect x="-300" y="-300" width="2520" height="1680" fill="var(--sky)"/>
+    <g id="far"></g><g id="hills"></g><g id="ground"></g><g id="deepObjs"></g>
+    <rect x="-200" y="700" width="2320" height="40" fill="#c9d0da"/>
+    <g id="hero"></g><g id="frontObjs"></g>
+  </g></svg></div>
+  <!-- VIEW 2: MODE KOLASE — dunia diam (kertas/foto/putih), kamera menyusuri aset -->
+  <div id="collage" class="view off"><div id="colWorld" style="position:absolute;inset:0;transform-origin:0 0">
+    <div class="paper" style="position:absolute;inset:-1400px;background:#f1ead8"></div>
+    <!-- aset kolase: cutout PNG / foto / SVG, posisi absolut di panggung 1920x1080; boleh lebih besar dari frame -->
+    <div class="cut" id="cutA" style="position:absolute;left:260px;top:220px;width:520px;height:520px;border-radius:24px;background:#c9d0da;opacity:0"></div>
+    <div class="cut" id="cutB" style="position:absolute;left:1100px;top:300px;width:600px;height:440px;border-radius:24px;background:#b9d386;opacity:0"></div>
+    <div class="hand" id="noteA" style="position:absolute;left:300px;top:790px;font-size:52px;font-weight:800;color:var(--accent);opacity:0">anotasi tangan &ge; 48 px</div>
+  </div></div>
+  <!-- VIEW 3: peta simulasi rute — pemecah monotoni -->
+  <div id="map" class="view off"><svg viewBox="0 0 1920 1080"><g id="mapCam"><rect x="-1500" y="-1500" width="5000" height="4000" fill="#bcd9ee"/><g id="mapArt"></g></g></svg></div>
+  <div id="vig"></div>
+  <div id="ui">
+    <!-- angka besar yang menempel kamera: satu blok per fakta, muncul SETELAH kamera selesai bergerak -->
+    <div class="top" id="numA"><div class="kick">JARAK</div><div class="big" style="font-size:210px;color:var(--accent);line-height:1.05">142<span style="font-size:100px;color:var(--ink)"> km</span></div></div>
+  </div>
+  <div id="dbg"><button id="dPlay">Pause</button><input id="dScrub" type="range" min="0" max="1000" value="0"><span id="dClock">0.00s</span></div>
+</div>
+<!-- suara opsional: isi src bila ada VO/musik; kosong = diabaikan -->
+<audio id="vo" src="" preload="auto"></audio>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha384-g4NTh/Iv5PPU4xPyhEWqPcwtNXOvdaDI8LLnyYfyNZOjKJeYQyjzQ9X5275eBjpt" crossorigin="anonymous"></script>
+<script>
+const W=1920,H=1080,DUR=22;
+const $=s=>document.querySelector(s), NS='http://www.w3.org/2000/svg';
+function S(tag,attrs={},parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
+const T=(txt,x,y,attrs,parent)=>{const e=S('text',{x,y,...attrs},parent);e.textContent=txt;return e;};
+const mod=(a,n)=>((a%n)+n)%n, smooth=x=>x<=0?0:x>=1?1:x*x*(3-2*x);
+function fit(){const s=Math.min(innerWidth/W,innerHeight/H);$('#stage').style.transform=`translate(-50%,-50%) scale(${s})`;}
+addEventListener('resize',fit);fit();
+
+/* ---------- profil kecepatan (px/dtk di bidang subjek) → jarak D(t); semuanya fungsi waktu ---------- */
+const VK=[[0,600],[1.2,900],[15,900],[19,0],[DUR+1,0]];   // [detik, kecepatan]; ubah untuk berhenti/melaju
+const vAt=t=>{for(let i=1;i<VK.length;i++){if(t<=VK[i][0]){const [t0,v0]=VK[i-1],[t1,v1]=VK[i];return v0+(v1-v0)*(t-t0)/(t1-t0);}}return 0;};
+const DT=1/240,DA=[0];for(let i=1;i<=(DUR+1)/DT;i++)DA[i]=DA[i-1]+vAt(i*DT)*DT;
+const D=t=>{const i=Math.max(0,Math.min(DA.length-2,t/DT)),k=Math.floor(i);return DA[k]+(DA[k+1]-DA[k])*(i-k);};
+
+/* ---------- strip latar looping (parallax) & objek dunia ---------- */
+const strips=[],objs=[],P=2400;
+function strip(parent,f,draw){const g=S('g',{},parent);for(let c=0;c<2;c++)draw(S('g',{transform:`translate(${c*P} 0)`},g));strips.push({el:g,f});}
+/* objek dunia: masuk dari x0 pada detik t0, bergerak dengan faktor f, dibuang setelah t1 */
+function wobj(parent,f,x0,t0,w,t1=1e9){const g=S('g',{visibility:'hidden'},parent);objs.push({el:g,f,x0,t0,w,t1,d0:D(t0)});return g;}
+
+strip($('#far'),.18,g=>{S('path',{d:'M0 640 L0 520 L200 430 L400 500 L600 400 L800 490 L1000 420 L1200 510 L1400 430 L1600 500 L1800 420 L2000 520 L2200 450 L2400 520 L2400 640 Z',fill:'var(--far)'},g);});
+strip($('#hills'),.38,g=>{S('path',{d:'M0 700 L0 620 C300 570 500 660 800 610 C1100 560 1300 660 1600 610 C1900 560 2200 650 2400 620 L2400 700 Z',fill:'var(--hill2)'},g);});
+strip($('#ground'),.62,g=>{S('rect',{x:0,y:740,width:2400,height:400,fill:'var(--field)'},g);for(let i=0;i<14;i++)S('rect',{x:i*180,y:880+(i%3)*30,width:150,height:30,rx:8,fill:'var(--hill)',opacity:.6},g);});
+
+/* hero placeholder: ganti dengan subjekmu (kendaraan/atlet/kurir...). Nose di x=0, dasar di y=0 */
+const hero=S('g',{},$('#hero'));
+S('rect',{x:-900,y:-150,width:960,height:120,rx:40,fill:'#ffffff',stroke:'var(--ink)','stroke-width':6},hero);
+S('rect',{x:-900,y:-95,width:960,height:14,fill:'var(--accent)'},hero);
+const wheels=[];[-780,-620,-260,-100].forEach(x=>{const w=S('g',{transform:`translate(${x} -18)`},hero);S('circle',{r:18,fill:'#dfe3ea',stroke:'#2b3346','stroke-width':5},w);S('rect',{x:-2,y:-14,width:4,height:28,fill:'#2b3346'},w);wheels.push(w);});
+const HX=1380,HY=700;
+
+/* objek dunia contoh: papan angka berdiri di latar (f<1 = lebih jauh), subjek melintas di depannya */
+{const g=wobj($('#deepObjs'),.8,W+80,3,1100);T('350',0,480,{class:'big','font-size':400,fill:'var(--ink)','letter-spacing':'-.04em'},g);T('km/jam',830,478,{'font-size':96,'font-weight':800,fill:'var(--accent)'},g);}
+
+/* ---------- VIEW peta: rute tergambar, penanda mengikuti path, kamera zoom awal → seluruh rute ---------- */
+const mapArt=$('#mapArt'),mapCam=$('#mapCam');
+S('path',{d:'M-1500 700 C-400 560 300 380 860 190 C1300 60 1800 -60 3500 -200 L3500 2500 L-1500 2500 Z',fill:'#ece6d2'},mapArt);
+const ROUTE='M460 330 C720 380 1120 560 1300 700 C1380 760 1470 780 1560 790';
+const routeEl=S('path',{d:ROUTE,fill:'none',stroke:'var(--accent)','stroke-width':10,'stroke-linecap':'round'},mapArt);
+const RL=routeEl.getTotalLength();routeEl.setAttribute('stroke-dasharray',RL);
+const marker=S('circle',{r:16,fill:'#fff',stroke:'var(--accent)','stroke-width':6},mapArt);
+const MAP_T0=9;   // detik penanda mulai berjalan
+function renderMap(t){const q=smooth((t-MAP_T0)/3.2),e=smooth((t-MAP_T0)/3.4);routeEl.setAttribute('stroke-dashoffset',RL*(1-q));
+  const pt=routeEl.getPointAtLength(RL*q);marker.setAttribute('cx',pt.x);marker.setAttribute('cy',pt.y);
+  const cx=pt.x+(1000-pt.x)*e,cy=pt.y+(560-pt.y)*e,z=2.3+(1-2.3)*e;mapCam.setAttribute('transform',`translate(960 540) scale(${z}) translate(${-cx} ${-cy})`);}
+
+/* ---------- MODE KOLASE: kamera berkoreografi di atas dunia diam ---------- */
+const colWorld=$('#colWorld'),rig=colWorld;
+/* <wv:kamera> dibangun dari src/runtime/kamera.js — JANGAN edit di sini;
+   ubah sumbernya lalu jalankan: node scripts/build-starters.mjs */
+/* KAMERA — satu objek keadaan, fungsi murni dari tl.time() (SKILL.md Hukum #2).
+   Inti ini TIDAK menyentuh DOM/WebGL: ia hanya menulis angka ke CAM lewat tween GSAP berdetik
+   absolut. Backend (kamera-dom / kamera-three) mendefinisikan applyCam() yang membaca CAM dan
+   menggambar. Kosakata: techniques.md §3b. */
+const CAM={mode:'dom',          // 'dom' (2.5D) | 'three' — diisi backend
+  fx:W/2,fy:H/2,fz:0,           // titik fokus (koordinat dunia)
+  zoom:1,                       // 2.5D: skala rig; 3D: camera.zoom
+  dist:10,yaw:0,pitch:0,roll:0, // kamera relatif ke fokus (derajat); 2.5D: yaw/pitch kecil = tilt/paralaks
+  mm:35,                        // lensa (filmGauge 36); 2.5D: perspective = W*mm/36 px
+  focus:0,aperture:0,           // rack focus (aperture 0 = mati)
+  shake:0,seed:1,               // handheld: value-noise ber-seed, bukan Math.random
+  blur:0};                      // blur berarah saat whip
+/* RENCANA: bayangan CAM saat setup. Nilai relatif ('+=220', '*=1.4') diselesaikan DI SINI menjadi angka
+   absolut — GSAP menyelesaikan nilai relatif saat tween pertama kali dirender, sehingga hasilnya bergantung
+   jalur seek (putar ≠ lompat ≠ worker export). Karena itu gerak relatif wajib dipanggil urut waktu. */
+const PLAN={...CAM},P0=W*35/36;let planAt=-Infinity;
+const mutlak=(at,v)=>{const o={};for(const k in v){let x=v[k];
+  if(typeof x==='string'){if(at<planAt)throw new Error('gerak relatif harus dipanggil urut waktu (detik '+at+' setelah '+planAt+')');
+    x=x[0]==='*'?PLAN[k]*parseFloat(x.slice(2)):PLAN[k]+parseFloat(x.slice(2));}
+  o[k]=PLAN[k]=x;}planAt=Math.max(planAt,at);return o;};
+const camTo=(at,dur,v,ease='power2.inOut')=>tl.to(CAM,{...mutlak(at,v),duration:dur,ease,onUpdate:applyCam},at);
+const cutTo=(at,v)=>tl.set(CAM,{...mutlak(at,v),onUpdate:applyCam},at);                       // lompat di titik cut
+const camReset=()=>{gsap.killTweensOf(CAM);Object.assign(PLAN,CAM);planAt=-Infinity;};       // buang semua gerak kamera yang sudah ditulis
+/* alias kamera KOLASE (explainer.md "Resep kamera kolase") — angka & easing persis yang lama */
+const look=(at,x,y,z,dur=1.6,ease='sine.inOut')=>camTo(at,dur,{fx:x,fy:y,zoom:z},ease);     // meluncur ke aset lain
+const home=(at,x=W/2,y=H/2,dur=1.2)=>look(at,x,y,1,dur,'power2.inOut');                     // zoom out ke frame adegan, lalu DIAM
+const into=(cutAt,x,y,z)=>camTo(cutAt-.9,.9,{fx:x,fy:y,zoom:z},'power2.in');                // push-through sebelum cut
+const settle=(cutAt,x,y,z)=>camTo(cutAt,1.1,{fx:x,fy:y,zoom:z*.94},'power3.out');           // mendarat setelah cut
+const breath=(a,b,z)=>camTo(a,b-a,{zoom:z},'sine.inOut');                                   // napas halus saat "diam"
+/* value-noise 1D ber-seed: hash bilangan bulat → interpolasi smoothstep. Dipakai handheld.
+   Bukan Math.random: t yang sama selalu memberi nilai yang sama (scrub & export reproducible). */
+const hash=(i,s)=>{let x=(Math.imul(i,374761393)+Math.imul(s,668265263))|0;x=Math.imul(x^x>>>13,1274126177);return((x^x>>>16)>>>0)/4294967296;};
+const noise=(t,s=1)=>{const i=Math.floor(t),f=t-i,u=f*f*(3-2*f),a=hash(i,s);return a+(hash(i+1,s)-a)*u;};
+
+/* UKURAN SHOT (techniques.md §3b): berapa bagian frame yang diisi subjek. ECU 6,7× frame … EWS 0,1×. */
+const SHOT={ECU:6.7,CU:2.86,MCU:1.67,MS:1.11,WS:.45,EWS:.1};
+/* kotak elemen dalam koordinat root (dunia tanpa transform kamera, atau #stage untuk HUD). HTML: rantai
+   offset. Elemen tanpa offsetLeft (SVG — bersarang, ber-viewBox, ber-transform): kotak layarnya relatif ke
+   root, dibagi skala panggung. ponytail: mengandaikan root belum di-transform kamera — benar saat setup. */
+function rectIn(el,root){
+  if(typeof el.offsetLeft!=='number'){const a=el.getBoundingClientRect(),b=root.getBoundingClientRect(),k=b.width/root.offsetWidth||1;
+    return{x:(a.left-b.left)/k,y:(a.top-b.top)/k,w:a.width/k,h:a.height/k};}
+  let x=0,y=0,n=el;while(n&&n!==root){x+=n.offsetLeft;y+=n.offsetTop;n=n.offsetParent;}
+  return{x,y,w:el.offsetWidth,h:el.offsetHeight};}
+let lastShot=null;
+function shot(at,dur,size,el,{ease='power2.inOut',fill=SHOT[size]}={}){
+  if(!fill)throw new Error('ukuran shot tidak dikenal: '+size+' (ECU CU MCU MS WS EWS)');
+  if(typeof el==='string'){const sel=el;el=$(sel);if(!el)throw new Error('shot: subjek '+sel+' tidak ada');}
+  if(CAM.mode==='three'&&CAM.frame3d){const v=CAM.frame3d(fill,el);camTo(at,dur,v,ease);return v;}
+  const r=rectIn(el,rig);let cx=r.x+r.w/2,cy=r.y+r.h/2;
+  /* subjek di dalam bidang [data-z]: bidang diskalakan (P0-z)/P0 dari pusatnya, jadi titik fokusnya ikut bergeser (tepat di 35 mm) */
+  for(let n=el.parentNode;n&&n!==rig;n=n.parentNode)if(n.dataset&&n.dataset.z!=null){
+    const p=rectIn(n,rig),s0=(P0-n.dataset.z)/P0,ox=p.x+p.w/2,oy=p.y+p.h/2;cx=ox+s0*(cx-ox);cy=oy+s0*(cy-oy);break;}
+  const v={fx:cx,fy:cy,zoom:Math.max(.1,Math.min(6,Math.min(W*fill/r.w,H*fill/r.h)))};
+  hud.check(at,dur,r,v);
+  if(dur===0&&lastShot&&lastShot.el===el&&lastShot.size===size&&Math.abs(lastShot.yaw-PLAN.yaw)<30)
+    console.warn('aturan 30°: cut ke subjek yang sama dengan ukuran '+size+' tanpa beda sudut ≥ 30° terasa jump cut (detik '+at+')');
+  lastShot={el,size,yaw:PLAN.yaw};
+  camTo(at,dur,v,ease);return v;}
+
+/* SUDUT KAMERA. 2.5D: sudut kecil (dunia pipih); 3D: sudut film sungguhan. */
+const ANGLE={
+  dom:{eye:{pitch:0,yaw:0,roll:0},high:{pitch:-8},low:{pitch:8},overhead:{pitch:-8,zoom:'*=.8'},worm:{pitch:8,zoom:'*=1.3'},
+       dutch:{roll:12},ots:{yaw:6,pitch:-3},pov:{pitch:0,yaw:0,roll:0,shake:.6}},
+  three:{eye:{pitch:0,roll:0},high:{pitch:-30},low:{pitch:25,mm:24},overhead:{pitch:-89.9},worm:{pitch:60,mm:16},
+         dutch:{roll:15},ots:{yaw:35,pitch:-8,mm:50},pov:{pitch:0,roll:0,mm:28,shake:.5}}};
+const angle=(at,dur,name,o={},ease='power2.inOut')=>{const p=ANGLE[CAM.mode][name];
+  if(!p)throw new Error('sudut tidak dikenal: '+name+' ('+Object.keys(ANGLE[CAM.mode]).join(' ')+')');
+  return camTo(at,dur,{...p,...o},ease);};
+
+/* GERAK — relatif terhadap RENCANA ('+=', '*=' diselesaikan saat setup), jadi bisa dirantai tanpa tahu nilai sebelumnya */
+const dolly=(at,dur,k,ease)=>camTo(at,dur,CAM.mode==='three'?{dist:'*='+(1/k)}:{zoom:'*='+k},ease);   // k>1 mendekat
+const truck=(at,dur,dx,ease)=>camTo(at,dur,{fx:'+='+dx},ease);
+const pedestal=(at,dur,dy,ease)=>camTo(at,dur,{fy:'+='+dy},ease);                                      // dy>0 = turun (sumbu layar)
+const pan=(at,dur,dYaw,ease)=>camTo(at,dur,{yaw:'+='+dYaw},ease);
+const tilt=(at,dur,dPitch,ease)=>camTo(at,dur,{pitch:'+='+dPitch},ease);
+const crane=(at,dur,{dy=0,dPitch=0}={},ease)=>camTo(at,dur,{fy:'+='+dy,pitch:'+='+dPitch},ease);
+let AXIS=null;const rule180=a=>{AXIS=a;};                                                             // garis aksi (yaw); null = bebas
+const arc=(at,dur,toYaw,ease='sine.inOut')=>camTo(at,dur,{yaw:AXIS==null?toYaw:Math.max(AXIS-89,Math.min(AXIS+89,toYaw))},ease);
+const lens=(at,dur,mm,ease)=>camTo(at,dur,{mm},ease);
+/* vertigo. 2.5D: subjek di z=0 tidak terpengaruh perspective, bidang data-z bergeser → cukup tween mm. */
+const dollyZoom=(at,dur,mm,ease)=>camTo(at,dur,{mm},ease);
+/* whip pan (techniques.md §4c #6; bernama whipPan karena starter aksi kontinu sudah punya whip(t,dari,ke) antar-view): dunia bergeser 180 px + blur 0,28 dtk; panggil cutTo(at+.28, …) untuk shot berikutnya */
+const whipPan=(at,dir=1)=>{camTo(at,.28,{fx:'+='+(-180*dir)},'power2.in');cutTo(at,{blur:18});cutTo(at+.28,{blur:0});};
+/* handheld: backend memanggil applyCam dari ticker selama CAM.shake ≠ 0, jadi goyangan hidup saat diputar DAN saat seek */
+const handheld=(a,b,amp=.5)=>{camTo(a,.3,{shake:amp},'sine.out');camTo(b-.3,.3,{shake:0},'sine.in');};
+/* ZONA AMAN HUD: kamera tahu kantong teks, sehingga shot() tidak membawa subjek ke bawah label.
+   Elemen di dalam rig = koordinat dunia; di luar rig (HUD #stage) = koordinat layar, dikonversi
+   ke dunia memakai kamera shot itu. */
+const HUD=[];
+const hud={
+  reserve(sel,at,dur){const e=$(sel);if(!e)throw new Error('hud.reserve: '+sel+' tidak ada');HUD.push({sel,el:e,at,to:at+dur});},
+  check(at,dur,r,v){for(const h of HUD){if(at+dur<h.at||at>h.to)continue;
+    const dalam=rig.contains(h.el);let p=rectIn(h.el,dalam?rig:$('#stage'));
+    if(!dalam)p={x:(p.x-W/2)/v.zoom+v.fx,y:(p.y-H/2)/v.zoom+v.fy,w:p.w/v.zoom,h:p.h/v.zoom};   // layar → dunia
+    if(r.x<p.x+p.w&&r.x+r.w>p.x&&r.y<p.y+p.h&&r.y+r.h>p.y)
+      throw new Error('zona aman: subjek shot pada detik '+at+' masuk kantong teks '+h.sel+' — geser fokus, ganti ukuran shot, atau pindahkan teks');}}};
+/* </wv:kamera> */
+/* <wv:kamera-dom> dibangun dari src/runtime/kamera-dom.js — JANGAN edit di sini;
+   ubah sumbernya lalu jalankan: node scripts/build-starters.mjs */
+/* BACKEND 2.5D — membaca CAM, menulis transform ke rig (#world/#colWorld), bidang [data-z], dan
+   overlay cahaya. Jalur 2D murni (tanpa pitch/yaw/roll/shake/bidang) memakai string yang PERSIS
+   sama dengan kamera kolase lama dan tidak menyentuh gaya lain.
+   BIDANG: pembungkus [data-z="-300"] (elemen <div>/<svg> sendiri — transform 3D DI DALAM svg diratakan
+   Chrome). GSAP menganimasikan ANAK pembungkus, bukan pembungkusnya. scale((P0-z)/P0) membuat ukuran
+   pada lensa 35 mm sama dengan 2D; paralaks muncul saat kamera bergerak/miring, dan lens()/dollyZoom()
+   mengubah ukuran bidang relatif terhadap z=0. */
+CAM.mode='dom';
+const BIDANG=[...rig.querySelectorAll('[data-z]')].map(e=>({el:e,z:+e.dataset.z}));
+let blurKu=0;
+function applyCam(){
+  const P=W*CAM.mm/36;let fx=CAM.fx,fy=CAM.fy,roll=CAM.roll;
+  if(CAM.shake){const t=tl.time(),a=CAM.shake;fx+=(noise(t*1.7,CAM.seed)-.5)*40*a;fy+=(noise(t*1.3,CAM.seed+1)-.5)*30*a;roll+=(noise(t*.9,CAM.seed+2)-.5)*1.2*a;}
+  if(!CAM.pitch&&!CAM.yaw&&!roll&&!CAM.shake&&!BIDANG.length)
+    rig.style.transform=`translate(${W/2-CAM.fx*CAM.zoom}px,${H/2-CAM.fy*CAM.zoom}px) scale(${CAM.zoom})`;
+  else rig.style.transform=`translate(${W/2}px,${H/2}px) perspective(${P}px) rotateX(${CAM.pitch}deg) rotateY(${CAM.yaw}deg) rotateZ(${roll}deg) scale(${CAM.zoom}) translate(${-fx}px,${-fy}px)`;
+  if(BIDANG.length)rig.style.transformStyle='preserve-3d';
+  for(const b of BIDANG){b.el.style.transform=`translateZ(${b.z}px) scale(${(P0-b.z)/P0})`;
+    b.el.style.filter=CAM.aperture?`blur(${Math.min(24,Math.abs(b.z-CAM.focus)*CAM.aperture/100).toFixed(2)}px)`:'';}
+  if(CAM.blur||blurKu){rig.style.filter=CAM.blur?`blur(${CAM.blur}px)`:'';blurKu=CAM.blur;}}   // hanya filter milik kamera yang dihapus
+gsap.ticker.add(()=>{if(CAM.shake)applyCam();});   // handheld/pov: noise dibaca dari tl.time() tiap frame, bukan hanya saat ada tween CAM
+/* rack focus: fokus = z bidang yang berisi subjek; aperture>0 mengaburkan bidang lain sebanding jaraknya */
+const bidangDari=el=>{if(typeof el==='string'){const sel=el;el=$(sel);if(!el)throw new Error('focus: subjek '+sel+' tidak ada');}
+  for(let n=el;n&&n!==rig;n=n.parentNode)if(n.dataset&&n.dataset.z!=null)return +n.dataset.z;return 0;};
+const focus=(at,dur,el,aperture=6,ease='sine.inOut')=>camTo(at,dur,{focus:bidangDari(el),aperture},ease);
+const rackFocus=(at,dur,a,b)=>{cutTo(at,{focus:bidangDari(a),aperture:6});focus(at,dur,b);};
+
+/* CAHAYA 2.5D: overlay gradien di atas rig. Dua div bergantian supaya pergantian bisa di-tween.
+   ponytail: urutan panggilan = urutan waktu — light() dengan 'at' lebih kecil dari panggilan sebelumnya ditolak. */
+const CAHAYA={
+  day:   {bg:'none',blend:'normal',op:0},
+  golden:{bg:'linear-gradient(200deg,#ffd38a 0%,#ffb05a 45%,#5a3a6e 100%)',blend:'multiply',op:.55},
+  blue:  {bg:'linear-gradient(180deg,#7fa6ff 0%,#4a63b8 60%,#1b2244 100%)',blend:'multiply',op:.6},
+  night: {bg:'linear-gradient(180deg,#2a3560,#0c1020)',blend:'multiply',op:.8},
+  lowkey:{bg:'radial-gradient(60% 60% at 50% 50%,transparent 15%,rgba(0,0,0,.92) 70%)',blend:'normal',op:1},
+  studio:{bg:'radial-gradient(50% 50% at 30% 20%,rgba(255,255,255,.35),transparent 70%)',blend:'screen',op:1}};
+const LAMP=[0,1].map(()=>{const d=document.createElement('div');
+  d.style.cssText='position:absolute;inset:0;pointer-events:none;opacity:0';rig.insertAdjacentElement('afterend',d);return d;});
+let lamp=0,lampAt=-Infinity;
+function light(at,dur,preset,o={}){if(!CAHAYA[preset])throw new Error('preset cahaya tidak dikenal: '+preset+' ('+Object.keys(CAHAYA).join(' ')+')');
+  if(at<lampAt)throw new Error('light(): panggil urut waktu (detik '+at+' setelah '+lampAt+')');lampAt=at;
+  const p={...CAHAYA[preset],...o},n=LAMP[1-lamp],c=LAMP[lamp];
+  tl.set(n,{background:p.bg,mixBlendMode:p.blend,opacity:0},at);
+  tl.to(n,{opacity:p.op,duration:dur,ease:'sine.inOut'},at);tl.to(c,{opacity:0,duration:dur,ease:'sine.inOut'},at);lamp=1-lamp;}
+
+/* ?demo=1 — katalog kosakata (bukan rundown). Dipanggil starter SETELAH koreografi contoh:
+   tween kamera contoh dimatikan, isinya tetap. 28 entri × DUR/30 → selesai sebelum penjaga loop. */
+function demoKamera(){camReset();const O={pitch:0,yaw:0,roll:0,shake:0};cutTo(0,{fx:W/2,fy:H/2,zoom:1,...O});
+  const s=rig.querySelector('[data-subjek],.cut,img,svg')||rig.firstElementChild,step=DUR/30;let t=0;
+  for(const k in SHOT){shot(t,step*.7,k,s);t+=step;}home(t,W/2,H/2,step*.7);t+=step;
+  for(const k in ANGLE.dom){cutTo(t,O);angle(t,step*.7,k);t+=step;}cutTo(t,O);
+  for(const [f,a] of [[dolly,1.4],[truck,220],[pedestal,-120],[pan,6],[tilt,5]]){f(t,step*.8,a);t+=step;}cutTo(t,O);home(t,W/2,H/2,step*.7);t+=step;
+  for(const k in CAHAYA){light(t,step*.5,k);t+=step;}handheld(t,t+step,.8);t+=step;
+  window.DEMO_AKHIR=t;}
+/* kait untuk scripts/test-starters.mjs — tidak dipanggil deliverable */
+window.CAM_UJI=()=>{const r={};tl.pause(0);
+  Object.assign(CAM,{fx:W/2,fy:H/2,zoom:1,pitch:0,yaw:0,roll:0,shake:0,blur:0,aperture:0});applyCam();
+  r.gayaLain=[rig.style.filter&&'filter',rig.style.transformStyle&&'transform-style',/perspective|rotate/.test(rig.style.transform)&&'transform 3D'].filter(Boolean).join(',');
+  CAM.yaw=5;applyCam();r.t3d=rig.style.transform;CAM.yaw=0;
+  const b=document.createElement('div');b.dataset.z='-300';b.style.cssText='position:absolute;left:0;top:0;width:10px;height:10px';rig.appendChild(b);BIDANG.push({el:b,z:-300});
+  applyCam();const kiri=()=>b.getBoundingClientRect().left-rig.getBoundingClientRect().left,k0=kiri();
+  CAM.fx+=300;CAM.yaw=6;applyCam();r.paralaks=Math.abs(kiri()-k0)>1;
+  CAM.fx=W/2;CAM.yaw=0;CAM.mm=20;applyCam();const w20=b.getBoundingClientRect().width;CAM.mm=85;applyCam();r.lensa=Math.abs(b.getBoundingClientRect().width-w20)>.01;CAM.mm=35;
+  BIDANG.pop();b.remove();rig.style.transformStyle='';applyCam();
+  rig.style.filter='blur(6px)';applyCam();r.filterAsing=rig.style.filter==='blur(6px)';rig.style.filter='';
+  const h=document.createElement('div');h.style.cssText='position:absolute;left:0;top:900px;width:100px;height:50px';$('#stage').appendChild(h);
+  const hr=rectIn(h,$('#stage'));r.hudStage=hr.x===0&&hr.y===900;h.remove();
+  CAM.shake=.6;tl.time(.2);gsap.ticker.tick();const g1=rig.style.transform;tl.time(.4);gsap.ticker.tick();r.shakeHidup=g1!==rig.style.transform;CAM.shake=0;applyCam();
+  const t0=Math.max(0,lampAt)+1;light(t0,.1,'golden');tl.time(t0+.2);r.lampu=getComputedStyle(LAMP[lamp]).mixBlendMode;
+  try{light(t0-1,.1,'day');r.urutanDitolak=false;}catch(e){r.urutanDitolak=true;}
+  r.DUR=DUR;r.demoAkhir=window.DEMO_AKHIR||0;return r;};
+/* </wv:kamera-dom> */
+/* aset masuk dengan blur berarah lalu TETAP hidup (ayunan +-25 px / 1,5 dtk + putaran) */
+function fly(at,sel,{from='left',dur=.7}={}){const dx=from==='left'?-260:from==='right'?260:0,dy=from==='top'?-220:from==='bottom'?220:0;
+  tl.fromTo(sel,{opacity:0,x:dx,y:dy,filter:'blur(14px)',rotation:from==='left'?-6:6},{opacity:1,x:0,y:0,filter:'blur(0px)',rotation:0,duration:dur,ease:'power4.out'},at);
+  tl.to(sel,{y:'+=25',rotation:'+=1.5',duration:1.5,yoyo:true,repeat:-1,ease:'sine.inOut'},at+dur);}
+const flyOut=(at,sel)=>tl.to(sel,{opacity:0,y:-120,filter:'blur(12px)',duration:.4,ease:'power2.in'},at);
+
+/* ---------- kamera samping bernapas: [detik, zoom, cx, cy] ---------- */
+const CAMK=[[0,1,960,540],[2,1.06,900,470],[6,1,960,540],[DUR+1,1,960,540]];
+function camAt(t){for(let i=1;i<CAMK.length;i++){if(t<=CAMK[i][0]){const A=CAMK[i-1],B=CAMK[i],u=smooth((t-A[0])/(B[0]-A[0]));return [A[1]+(B[1]-A[1])*u,A[2]+(B[2]-A[2])*u,A[3]+(B[3]-A[3])*u];}}const L=CAMK.at(-1);return [L[1],L[2],L[3]];}
+
+/* ---------- timeline: hanya hal-hal diskrit (ganti view, teks kamera) ---------- */
+const tl=gsap.timeline({paused:true});
+const view={side:$('#side'),map:$('#map'),collage:$('#collage')};
+function whip(t,from,to,dir=1){tl.to(from,{y:-120*dir,filter:'blur(18px)',duration:.28,ease:'power2.in'},t);
+  tl.set(from,{className:'view off'},t+.28);tl.set(to,{className:'view',y:120*dir,filter:'blur(18px)'},t+.28);tl.to(to,{y:0,filter:'blur(0px)',duration:.36,ease:'power3.out'},t+.28);}
+const fadeUp=(t,sel)=>tl.fromTo(sel,{opacity:0,y:30,filter:'blur(6px)'},{opacity:1,y:0,filter:'blur(0px)',duration:.5,ease:'power3.out'},t);
+const fadeOut=(t,sel)=>tl.to(sel,{opacity:0,y:-30,filter:'blur(8px)',duration:.35,ease:'power2.in'},t);
+whip(8.6,view.side,view.map,1);
+fadeUp(12.6,'#numA');fadeOut(14.6,'#numA');     // angka muncul SETELAH zoom-out peta selesai
+whip(15,view.map,view.collage,1);
+/* contoh MODE KOLASE: close-up aset A -> meluncur ke aset B -> zoom out -> baru anotasi */
+cutTo(15.3,{fx:520,fy:480,zoom:1.9});
+fly(15.4,'#cutA',{from:'left'});
+look(16.6,1400,520,1.7,1.4);fly(16.9,'#cutB',{from:'right'});
+home(18.2,960,540,1.2);
+tl.fromTo('#noteA',{opacity:0,y:20},{opacity:1,y:0,duration:.4},19.5);   // teks setelah zoom out SELESAI
+tl.to({},{duration:.01},DUR);
+
+/* ---------- render: fungsi murni dari tl.time() ---------- */
+function render(){const t=tl.time(),d=D(t);
+  for(const s of strips)gsap.set(s.el,{x:-mod(d*s.f,P)});
+  for(const o of objs){if(t<o.t0||t>o.t1){o.el.setAttribute('visibility','hidden');continue;}const x=o.x0-(d-o.d0)*o.f;
+    if(x+o.w<-100||x>W+240){o.el.setAttribute('visibility','hidden');continue;}o.el.removeAttribute('visibility');gsap.set(o.el,{x});}   // removeAttribute, bukan 'visible' (menembus view yang disembunyikan)
+  hero.setAttribute('transform',`translate(${HX} ${HY+Math.sin(t*9)*2.5}) rotate(${Math.sin(t*3.1)*.25})`);   // atribut transform langsung: titik asal (0,0) lokal
+  const rot=(d/18)*57.3;wheels.forEach(w=>{if(!w.__b)w.__b=w.getAttribute('transform');w.setAttribute('transform',`${w.__b} rotate(${rot%360})`);});
+  const [z,cx,cy]=camAt(t);$('#sideCam').setAttribute('transform',`translate(960 540) scale(${z*(1+Math.sin(t*.9)*.006)}) translate(${-cx} ${-cy})`);
+  renderMap(t);}
+gsap.ticker.add(render);
+
+/* ---------- kontrol: autoplay + loop, tanpa player. ?debug=1 = panel scrub, ?clean=1 = untuk export (tidak autoplay) ---------- */
+const q=new URLSearchParams(location.search),vo=$('#vo'),hasVO=!!vo.getAttribute('src');let audioOn=false;
+function start(){tl.play(0);if(hasVO){vo.currentTime=0;vo.play().then(()=>audioOn=true).catch(()=>{});}}
+/* loop dari jam, BUKAN onComplete: satu tween repeat:-1 (ayunan, kedip, kipas) membuat durasi timeline tak hingga sehingga onComplete tidak pernah terpicu */
+gsap.ticker.add(()=>{if(!tl.paused()&&tl.time()>=DUR)start();});
+gsap.ticker.add(()=>{if(!audioOn||tl.paused())return;if(Math.abs(vo.currentTime-tl.time())>.12)vo.currentTime=tl.time();});
+/* <wv:seek> dibangun dari src/runtime/seek.js — JANGAN edit di sini;
+   ubah sumbernya lalu jalankan: node scripts/build-starters.mjs */
+/* seek sinkron untuk snap.mjs / export-frames.mjs / konsol: GSAP menulis gaya secara
+   lazy di tick berikutnya dan kanvas menunggu rAF (yang dithrottle di tab tersembunyi),
+   jadi tanpa ini screenshot tertinggal satu langkah. pause(t,false) sengaja TIDAK menekan
+   callback: onUpdate (applyCam/render) harus ikut jalan saat scrub. apply() = cara starter
+   ini menggambar ulang dirinya (kamera, render loop, atau keduanya). */
+function makeSeek(tl, apply){ return t => { tl.pause(t, false);
+  if (gsap.ticker.tick) gsap.ticker.tick(); if (apply) apply(t); }; }
+/* </wv:seek> */
+if(q.has('demo'))demoKamera();   // ?demo=1: katalog kosakata kamera (shot, sudut, gerak, cahaya) — bukan rundown
+window.OPENER={W,H,DURATION:DUR,tl,ready:false,seek:makeSeek(tl,()=>{applyCam();render();}),play:start};
+/* <wv:footage> dibangun dari src/runtime/footage.js — JANGAN edit di sini;
+   ubah sumbernya lalu jalankan: node scripts/build-starters.mjs */
+/* ================= FOOTAGE — layer video yang terikat timeline (seperti footage di After Effects) =================
+   Markup : <div class="clipbox"><video class="clip" src="assets/klip.mp4" muted playsinline preload="auto"></video></div>
+   Pasang : const k = clip($('#v1'), {at:4, in:1.5, out:6, rate:1, hold:false});
+            at = detik timeline klip mulai · in/out = potongan sumber (dtk) · rate = kecepatan · hold = tahan frame akhir
+   Animasi: tween PEMBUNGKUSNYA dengan tl (posisi, skala, mask, opacity, filter). Isi video mengikuti jam timeline,
+            bukan jamnya sendiri — scrub ?debug=1, snap.mjs, dan export-frames.mjs (OPENER.seekFrame) tetap presisi.
+   Format : MP4 H.264 (yuv420p, +faststart) atau WebM VP9, tanpa suara, 720p–1080p, 3–8 dtk per klip. */
+var CLIPS = CLIPS || [];
+function clip(el, o){ o = o || {}; el.muted = true; el.playsInline = true; el.preload = 'auto'; el.loop = false;
+  try { el.pause(); } catch(e) {}
+  var c = { el: el, at: o.at || 0, inT: o.in || 0, out: (o.out == null ? null : o.out), rate: o.rate || 1, hold: !!o.hold };
+  (CLIPS = CLIPS || []).push(c); return c; }
+function clipTime(c, t){ var end = c.out != null ? c.out : (isFinite(c.el.duration) ? c.el.duration : 1e9);
+  var lt = (t - c.at) * c.rate; if (lt < 0) return null; var vt = c.inT + lt;
+  if (vt > end - 1/120) { if (!c.hold) return null; vt = end - 1/60; } return vt; }
+function syncClips(t, playing){ for (var i = 0; i < CLIPS.length; i++){ var c = CLIPS[i], v = c.el, vt = clipTime(c, t);
+  if (vt === null) { if (!v.paused) v.pause(); continue; }
+  if (playing) { if (v.playbackRate !== c.rate) v.playbackRate = c.rate; if (v.paused) v.play().catch(function(){});
+    if (Math.abs(v.currentTime - vt) > .2) v.currentTime = vt; }
+  else { if (!v.paused) v.pause(); if (Math.abs(v.currentTime - vt) > 1/90) v.currentTime = vt; } } }
+function seekClips(t){ return Promise.all(CLIPS.map(function(c){ return new Promise(function(res){
+  var v = c.el, vt = clipTime(c, t); try { v.pause(); } catch(e) {}
+  if (vt === null) return res();
+  var fin = function(){ requestAnimationFrame(function(){ requestAnimationFrame(res); }); };
+  if (Math.abs(v.currentTime - vt) < 1/240 && v.readyState >= 2) return fin();
+  var to = setTimeout(res, 4000);
+  v.addEventListener('seeked', function h(){ v.removeEventListener('seeked', h); clearTimeout(to); fin(); });
+  v.currentTime = vt; }); })); }
+gsap.ticker.add(function(){ if (CLIPS.length) syncClips(window.OPENER.tl.time(), !window.OPENER.tl.paused()); });
+window.OPENER.clipsReady = function(){ return CLIPS.every(function(c){ return c.el.readyState >= 2; }); };
+window.OPENER.seekFrame = function(t){ window.OPENER.seek(t); return seekClips(t); };   // ekspor/snap: tunggu frame klip
+/* </wv:footage> */
+/* <wv:explainer-controls> dibangun dari src/runtime/explainer-controls.js — JANGAN edit di sini;
+   ubah sumbernya lalu jalankan: node scripts/build-starters.mjs */
+addEventListener('keydown',e=>{if(/^[rR]$/.test(e.key))start();if(e.code==='Space'){e.preventDefault();tl.paused()?tl.play():tl.pause();}});
+if(q.has('debug')){const dbg=$('#dbg');dbg.style.display='flex';const sc=$('#dScrub'),ck=$('#dClock');let drag=false;
+  gsap.ticker.add(()=>{if(!drag)sc.value=String(tl.time()/DUR*1000);ck.textContent=tl.time().toFixed(2)+'s';$('#dPlay').textContent=tl.paused()?'Play':'Pause';});
+  sc.addEventListener('pointerdown',()=>{drag=true;tl.pause();});addEventListener('pointerup',()=>drag=false);
+  sc.addEventListener('input',()=>{tl.pause();tl.time(sc.value/1000*DUR);});$('#dPlay').onclick=()=>tl.paused()?tl.play():tl.pause();}
+/* </wv:explainer-controls> */
+document.fonts.ready.then(()=>{render();window.OPENER.ready=true;if(q.has('clean'))return;
+  if(!hasVO){start();return;}
+  /* ada suara: coba mulai langsung; bila autoplay diblokir, tahan frame 0 dan mulai pada klik/tombol pertama (tanpa teks petunjuk) */
+  vo.play().then(()=>{audioOn=true;vo.currentTime=0;tl.play(0);}).catch(()=>{const go=()=>{removeEventListener('pointerdown',go);removeEventListener('keydown',go);start();};addEventListener('pointerdown',go);addEventListener('keydown',go);});});
+</script>
+</body>
+</html>

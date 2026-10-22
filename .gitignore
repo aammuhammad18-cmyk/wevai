@@ -1,0 +1,10 @@
+node_modules/
+package-lock.json
+# keluaran alat kerja bila dijalankan di dalam repo
+frames/
+shots/
+aset/
+manifest.json
+__pycache__/
+*.mp4
+.superpowers/

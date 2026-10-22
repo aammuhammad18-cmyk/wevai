@@ -1,0 +1,9 @@
+{
+  "name": "wevai-scripts",
+  "private": true,
+  "description": "Alat kerja opsional WeVai: snap.mjs (verifikasi), export-frames.mjs (MP4), ae/bridge/svg2png.cjs. Deliverable tidak butuh ini.",
+  "license": "MIT",
+  "dependencies": {
+    "puppeteer": "^25.11.0"
+  }
+}

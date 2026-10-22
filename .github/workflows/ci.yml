@@ -1,0 +1,44 @@
+name: ci
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  periksa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+
+      - name: Sintaks skrip
+        run: |
+          for f in scripts/*.mjs; do node --check "$f"; done
+          node --check scripts/ae/bridge/svg2png.cjs
+          python -m py_compile scripts/*.py scripts/ae/bridge/*.py
+
+      - name: Uji inti kamera (node:test, tanpa browser)
+        run: node --test scripts/test-kamera.mjs
+
+      - name: Starter sinkron dengan src/runtime
+        run: node scripts/build-starters.mjs --check
+
+      - name: Versi seragam di semua berkas
+        run: node scripts/bump-version.mjs --check
+
+      - name: Anggaran konteks per jalur baca
+        run: node scripts/context-budget.mjs --check
+
+      - name: Lint starter (aturan yang bisa diperiksa mekanis)
+        run: node scripts/lint-motion.mjs assets/*.html
+
+      - name: SRI library CDN masih cocok
+        run: node scripts/cdn-integrity.mjs --check assets/*.html
+
+      - name: Uji browser — loop, kontrak OPENER, error halaman
+        run: |
+          cd scripts && npm install --no-audit --no-fund && cd ..
+          node scripts/test-starters.mjs

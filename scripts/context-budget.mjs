@@ -24,7 +24,7 @@ const INTI = ['SKILL.md', 'references/anti-ppt.md'];
 // [nama jalur, berkas tambahan, batas KB untuk seluruh jalur]
 const JALUR = [
   ['Inti (selalu dibaca)', [], 60],
-  ['Opener / promo / bumper', ['references/opener-konsep.md', 'references/techniques.md', 'assets/starter-opener.html'], 190],
+  ['Opener / promo / bumper', ['references/opener-konsep.md', 'references/techniques.md', 'assets/starter-opener.html'], 220],   // +30: blok kamera bersama di starter (perkakas, bukan aturan)
   ['Explainer (kolase / aliran)', ['references/explainer.md', 'references/techniques.md', 'assets/starter-explainer-kartun.html'], 170],   // +10: blok kamera bersama di starter (perkakas, bukan aturan)
   ['Explainer kartun panggung', ['references/explainer.md', 'references/kartun-panggung.md', 'assets/starter-explainer-panggung.html'], 130],
   ['Build di After Effects', ['references/kartun-panggung.md', 'references/ae-bridge-higgsfield.md'], 95],

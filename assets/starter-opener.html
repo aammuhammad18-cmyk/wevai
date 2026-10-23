@@ -25,6 +25,9 @@
   Permukaan latar (menu §7d)  : ____________________   (gradien/cahaya/tekstur, bukan flat)
   Transisi (menu §4c, per batas) : ____________________   (batas mana butuh efek, mana cukup cut; tanpa balok/persegi datar menyapu)
   Momen istimewa              : ____________________
+  Lensa default (mm)          : ____   (35 netral · 24 lebar/dramatis · 50–85 potret/kompresi)
+  Sudut & gerak pembuka       : ____________________   (mis. WS high angle → dolly in ke MS)
+  Preset cahaya per segmen + pemicu pergantian : ____________________
   ==========================================================================
 
   Semua warna di bawah sengaja ABU-ABU dan fontnya font sistem: kalau masih
@@ -168,6 +171,8 @@ import { EffectComposer }  from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass }      from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass }      from 'three/addons/postprocessing/OutputPass.js';
+import { BokehPass }       from 'three/addons/postprocessing/BokehPass.js';
+import { SVGLoader }       from 'three/addons/loaders/SVGLoader.js';
 
 /* ============ UTIL: split per huruf + motion blur berarah ============ */
 const $=(s,r=document)=>r.querySelector(s);
@@ -213,7 +218,7 @@ function splitChars(el){
 const W=1920,H=1080;
 const renderer=new THREE.WebGLRenderer({canvas:$('#gl'),antialias:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.setSize(W,H,false);
-renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMapping=THREE.NoToneMapping;   // warna brand tepat lewat composer+OutputPass (mat() juga toneMapped:false)
 /* SEMUA warna WebGL diturunkan dari token CSS (style brief). Tidak ada warna hardcode di lapisan 3D:
    ganti --accent/--accent-lit/--base di :root, seluruh dunia ikut. Bentuk ornamen (bintang 4 sudut) juga
    placeholder — turunkan dari logo/tema (starShape) atau ganti geometrinya. */
@@ -222,8 +227,8 @@ const ACC=new THREE.Color(cssVar('--accent')),ACL=new THREE.Color(cssVar('--acce
 const scene=new THREE.Scene(); scene.fog=new THREE.FogExp2(BASE.getHex(),.012);
 const camera=new THREE.PerspectiveCamera(50,W/H,.1,400);
 
-const S={ grid:.3, dust:.5, stars:0, camX:0,camY:0,camZ:16,camRoll:0,
-          bloom:.85, shake:0, heroO:0,heroS:1,heroX:0,heroY:0,heroZ:6 };
+const S={ grid:.3, dust:.5, stars:0,
+          bloom:.85, heroO:0,heroS:1,heroX:0,heroY:0,heroZ:6 };
 
 /* acak BER-SEED: tata letak sama di setiap muat → snapshot & MP4 identik (Math.random berbeda tiap muat) */
 const rng=(s=>()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;})(1337);
@@ -261,8 +266,6 @@ const grid=new THREE.Mesh(new THREE.PlaneGeometry(170,170),gridMat);
 grid.rotation.x=-Math.PI/2; grid.position.y=-6.4; scene.add(grid);
 
 /* ornamen 3D: extrude + cahaya (Basic = flat = rasa PPT) */
-scene.add(new THREE.AmbientLight(ACC.clone().multiplyScalar(.45).getHex(),1.1));
-const key=new THREE.DirectionalLight(ACL.getHex(),2.6); key.position.set(5,7,9); scene.add(key);
 function starShape(){const s=new THREE.Shape(),R=1,c=.09; // c kecil = ujung runcing
  s.moveTo(0,R);s.quadraticCurveTo(c,c,R,0);s.quadraticCurveTo(c,-c,0,-R);
  s.quadraticCurveTo(-c,-c,-R,0);s.quadraticCurveTo(-c,c,0,R);return s;}
@@ -295,10 +298,7 @@ function render(t){ // t = tl.time(); TIDAK ADA jam lain di file ini
   heroStar.position.set(S.heroX,S.heroY,S.heroZ);
   heroStar.scale.setScalar(1.6*S.heroS);
   heroStar.rotation.z=t*.45; heroStar.rotation.y=Math.sin(t*.7)*.6;
-  const sh=S.shake;
-  camera.position.set(S.camX+Math.sin(t*.41)*.22+Math.sin(t*137.2)*sh, // sinus,
-    S.camY+Math.cos(t*.33)*.16+Math.cos(t*111.7)*sh, S.camZ);          // bukan random
-  camera.lookAt(S.camX*.35,S.camY*.35,0); camera.rotation.z+=S.camRoll;
+  applyCam();   // kamera dari CAM (kamera-three), bukan dari S
   bloom.strength=S.bloom;
   composer.render(0);   // 0: tanpa argumen, composer membaca Clock sendiri
 }
@@ -308,6 +308,294 @@ const Q=new URLSearchParams(location.search);
 const DURATION=8.0;                       // GANTI: dari rundown konsep
 const tl=gsap.timeline({paused:true});
 const rig=$('#world'), leak=$('#leak');
+const DUR=DURATION;   // blok kamera-three membaca DUR
+/* <wv:kamera> dibangun dari src/runtime/kamera.js — JANGAN edit di sini;
+   ubah sumbernya lalu jalankan: node scripts/build-starters.mjs */
+/* KAMERA — satu objek keadaan, fungsi murni dari tl.time() (SKILL.md Hukum #2).
+   Inti ini TIDAK menyentuh DOM/WebGL: ia hanya menulis angka ke CAM lewat tween GSAP berdetik
+   absolut. Backend (kamera-dom / kamera-three) mendefinisikan applyCam() yang membaca CAM dan
+   menggambar. Kosakata: techniques.md §3b. */
+const CAM={mode:'dom',          // 'dom' (2.5D) | 'three' — diisi backend
+  fx:W/2,fy:H/2,fz:0,           // titik fokus (koordinat dunia)
+  zoom:1,                       // 2.5D: skala rig; 3D: camera.zoom
+  dist:10,yaw:0,pitch:0,roll:0, // kamera relatif ke fokus (derajat); 2.5D: yaw/pitch kecil = tilt/paralaks
+  mm:35,                        // lensa (filmGauge 36); 2.5D: perspective = W*mm/36 px
+  focus:0,aperture:0,           // rack focus (aperture 0 = mati)
+  shake:0,seed:1,               // handheld: value-noise ber-seed, bukan Math.random
+  blur:0};                      // blur berarah saat whip
+/* RENCANA: bayangan CAM saat setup. Nilai relatif ('+=220', '*=1.4') diselesaikan DI SINI menjadi angka
+   absolut — GSAP menyelesaikan nilai relatif saat tween pertama kali dirender, sehingga hasilnya bergantung
+   jalur seek (putar ≠ lompat ≠ worker export). Karena itu gerak relatif wajib dipanggil urut waktu. */
+const PLAN={...CAM},P0=W*35/36;let planAt=-Infinity;
+const camDefaults=v=>{Object.assign(CAM,v);Object.assign(PLAN,v);};                          // nilai awal dari backend 3D, CAM dan PLAN harus kembar
+const mutlak=(at,v)=>{const o={};for(const k in v){let x=v[k];
+  if(typeof x==='string'){if(at<planAt)throw new Error('gerak relatif harus dipanggil urut waktu (detik '+at+' setelah '+planAt+')');
+    x=x[0]==='*'?PLAN[k]*parseFloat(x.slice(2)):PLAN[k]+parseFloat(x.slice(2));}
+  o[k]=PLAN[k]=x;}planAt=Math.max(planAt,at);return o;};
+const camTo=(at,dur,v,ease='power2.inOut')=>tl.to(CAM,{...mutlak(at,v),duration:dur,ease,onUpdate:applyCam},at);
+const cutTo=(at,v)=>tl.set(CAM,{...mutlak(at,v),onUpdate:applyCam},at);                       // lompat di titik cut
+const camReset=()=>{gsap.killTweensOf(CAM);Object.assign(PLAN,CAM);planAt=-Infinity;};       // buang semua gerak kamera yang sudah ditulis
+/* alias kamera KOLASE (explainer.md "Resep kamera kolase") — angka & easing persis yang lama */
+const look=(at,x,y,z,dur=1.6,ease='sine.inOut')=>camTo(at,dur,{fx:x,fy:y,zoom:z},ease);     // meluncur ke aset lain
+const home=(at,x=W/2,y=H/2,dur=1.2)=>look(at,x,y,1,dur,'power2.inOut');                     // zoom out ke frame adegan, lalu DIAM
+const into=(cutAt,x,y,z)=>camTo(cutAt-.9,.9,{fx:x,fy:y,zoom:z},'power2.in');                // push-through sebelum cut
+const settle=(cutAt,x,y,z)=>camTo(cutAt,1.1,{fx:x,fy:y,zoom:z*.94},'power3.out');           // mendarat setelah cut
+const breath=(a,b,z)=>camTo(a,b-a,{zoom:z},'sine.inOut');                                   // napas halus saat "diam"
+/* value-noise 1D ber-seed: hash bilangan bulat → interpolasi smoothstep. Dipakai handheld.
+   Bukan Math.random: t yang sama selalu memberi nilai yang sama (scrub & export reproducible). */
+const hash=(i,s)=>{let x=(Math.imul(i,374761393)+Math.imul(s,668265263))|0;x=Math.imul(x^x>>>13,1274126177);return((x^x>>>16)>>>0)/4294967296;};
+const noise=(t,s=1)=>{const i=Math.floor(t),f=t-i,u=f*f*(3-2*f),a=hash(i,s);return a+(hash(i+1,s)-a)*u;};
+
+/* UKURAN SHOT (techniques.md §3b): berapa bagian frame yang diisi subjek. ECU 6,7× frame … EWS 0,1×. */
+const SHOT={ECU:6.7,CU:2.86,MCU:1.67,MS:1.11,WS:.45,EWS:.1};
+/* kotak elemen dalam koordinat root (dunia tanpa transform kamera, atau #stage untuk HUD). HTML: rantai
+   offset. Elemen tanpa offsetLeft (SVG — bersarang, ber-viewBox, ber-transform): kotak layarnya relatif ke
+   root, dibagi skala panggung. ponytail: mengandaikan root belum di-transform kamera — benar saat setup. */
+function rectIn(el,root){
+  if(typeof el.offsetLeft!=='number'){const a=el.getBoundingClientRect(),b=root.getBoundingClientRect(),k=b.width/root.offsetWidth||1;
+    return{x:(a.left-b.left)/k,y:(a.top-b.top)/k,w:a.width/k,h:a.height/k};}
+  let x=0,y=0,n=el;while(n&&n!==root){x+=n.offsetLeft;y+=n.offsetTop;n=n.offsetParent;}
+  return{x,y,w:el.offsetWidth,h:el.offsetHeight};}
+let lastShot=null;
+function shot(at,dur,size,el,{ease='power2.inOut',fill=SHOT[size]}={}){
+  if(!fill)throw new Error('ukuran shot tidak dikenal: '+size+' (ECU CU MCU MS WS EWS)');
+  if(CAM.mode==='three'&&CAM.frame3d){const v=CAM.frame3d(fill,el);CAM.cek3&&CAM.cek3(at,dur,el,v);camTo(at,dur,v,ease);return v;}   // 3D: el = Object3D atau nama, bukan selector DOM
+  if(typeof el==='string'){const sel=el;el=$(sel);if(!el)throw new Error('shot: subjek '+sel+' tidak ada');}
+  const r=rectIn(el,rig);let cx=r.x+r.w/2,cy=r.y+r.h/2;
+  /* subjek di dalam bidang [data-z]: bidang diskalakan (P0-z)/P0 dari pusatnya, jadi titik fokusnya ikut bergeser (tepat di 35 mm) */
+  for(let n=el.parentNode;n&&n!==rig;n=n.parentNode)if(n.dataset&&n.dataset.z!=null){
+    const p=rectIn(n,rig),s0=(P0-n.dataset.z)/P0,ox=p.x+p.w/2,oy=p.y+p.h/2;cx=ox+s0*(cx-ox);cy=oy+s0*(cy-oy);break;}
+  const v={fx:cx,fy:cy,zoom:Math.max(.1,Math.min(6,Math.min(W*fill/r.w,H*fill/r.h)))};
+  hud.check(at,dur,r,v);
+  if(dur===0&&lastShot&&lastShot.el===el&&lastShot.size===size&&Math.abs(lastShot.yaw-PLAN.yaw)<30)
+    console.warn('aturan 30°: cut ke subjek yang sama dengan ukuran '+size+' tanpa beda sudut ≥ 30° terasa jump cut (detik '+at+')');
+  lastShot={el,size,yaw:PLAN.yaw};
+  camTo(at,dur,v,ease);return v;}
+
+/* SUDUT KAMERA. 2.5D: sudut kecil (dunia pipih); 3D: sudut film sungguhan. */
+const ANGLE={
+  dom:{eye:{pitch:0,yaw:0,roll:0},high:{pitch:-8},low:{pitch:8},overhead:{pitch:-8,zoom:'*=.8'},worm:{pitch:8,zoom:'*=1.3'},
+       dutch:{roll:12},ots:{yaw:6,pitch:-3},pov:{pitch:0,yaw:0,roll:0,shake:.6}},
+  three:{eye:{pitch:0,roll:0},high:{pitch:-30},low:{pitch:25,mm:24},overhead:{pitch:-89.9},worm:{pitch:60,mm:16},
+         dutch:{roll:15},ots:{yaw:35,pitch:-8,mm:50},pov:{pitch:0,roll:0,mm:28,shake:.5}}};
+const angle=(at,dur,name,o={},ease='power2.inOut')=>{const p=ANGLE[CAM.mode][name];
+  if(!p)throw new Error('sudut tidak dikenal: '+name+' ('+Object.keys(ANGLE[CAM.mode]).join(' ')+')');
+  return camTo(at,dur,{...p,...o},ease);};
+
+/* GERAK — relatif terhadap RENCANA ('+=', '*=' diselesaikan saat setup), jadi bisa dirantai tanpa tahu nilai sebelumnya */
+const dolly=(at,dur,k,ease)=>camTo(at,dur,CAM.mode==='three'?{dist:'*='+(1/k)}:{zoom:'*='+k},ease);   // k>1 mendekat
+const truck=(at,dur,dx,ease)=>{if(CAM.mode!=='three')return camTo(at,dur,{fx:'+='+dx},ease);
+  const y=PLAN.yaw*Math.PI/180;return camTo(at,dur,{fx:'+='+dx*Math.cos(y),fz:'+='+-dx*Math.sin(y)},ease);};   // 3D: geser sepanjang vektor kanan kamera
+const pedestal=(at,dur,dy,ease)=>camTo(at,dur,{fy:'+='+dy},ease);                                      // dy>0 = turun (sumbu layar)
+const pan=(at,dur,dYaw,ease)=>camTo(at,dur,{yaw:'+='+dYaw},ease);
+const tilt=(at,dur,dPitch,ease)=>camTo(at,dur,{pitch:'+='+dPitch},ease);
+const crane=(at,dur,{dy=0,dPitch=0}={},ease)=>camTo(at,dur,{fy:'+='+dy,pitch:'+='+dPitch},ease);
+let AXIS=null;const rule180=a=>{AXIS=a;};                                                             // garis aksi (yaw); null = bebas
+const arc=(at,dur,toYaw,ease='sine.inOut')=>camTo(at,dur,{yaw:AXIS==null?toYaw:Math.max(AXIS-89,Math.min(AXIS+89,toYaw))},ease);
+const lens=(at,dur,mm,ease)=>camTo(at,dur,{mm},ease);
+/* vertigo. 2.5D: subjek di z=0 tidak terpengaruh perspective, bidang data-z bergeser → cukup tween mm. */
+const dollyZoom=(at,dur,mm,ease)=>camTo(at,dur,CAM.mode==='three'?{mm,dist:PLAN.dist*mm/PLAN.mm}:{mm},ease);   // 3D: dist/mm konstan → subjek di fokus tetap sebesar semula
+/* whip pan (techniques.md §4c #6; bernama whipPan karena starter aksi kontinu sudah punya whip(t,dari,ke) antar-view): dunia bergeser 180 px + blur 0,28 dtk; panggil cutTo(at+.28, …) untuk shot berikutnya */
+const whipPan=(at,dir=1)=>{if(CAM.mode==='three')return camTo(at,.28,{yaw:'+='+(70*dir)},'power2.in');   // 3D: putar yaw, tanpa blur rig
+  camTo(at,.28,{fx:'+='+(-180*dir)},'power2.in');cutTo(at,{blur:18});cutTo(at+.28,{blur:0});};
+/* handheld: backend memanggil applyCam dari ticker selama CAM.shake ≠ 0, jadi goyangan hidup saat diputar DAN saat seek */
+const handheld=(a,b,amp=.5)=>{camTo(a,.3,{shake:amp},'sine.out');camTo(b-.3,.3,{shake:0},'sine.in');};
+/* ZONA AMAN HUD: kamera tahu kantong teks, sehingga shot() tidak membawa subjek ke bawah label.
+   Elemen di dalam rig = koordinat dunia; di luar rig (HUD #stage) = koordinat layar, dikonversi
+   ke dunia memakai kamera shot itu. */
+const HUD=[];
+const hud={
+  reserve(sel,at,dur){const e=$(sel);if(!e)throw new Error('hud.reserve: '+sel+' tidak ada');HUD.push({sel,el:e,at,to:at+dur});},
+  check(at,dur,r,v){for(const h of HUD){if(at+dur<h.at||at>h.to)continue;
+    const dalam=rig.contains(h.el);let p=rectIn(h.el,dalam?rig:$('#stage'));
+    if(!dalam)p={x:(p.x-W/2)/v.zoom+v.fx,y:(p.y-H/2)/v.zoom+v.fy,w:p.w/v.zoom,h:p.h/v.zoom};   // layar → dunia
+    if(r.x<p.x+p.w&&r.x+r.w>p.x&&r.y<p.y+p.h&&r.y+r.h>p.y)
+      throw new Error('zona aman: subjek shot pada detik '+at+' masuk kantong teks '+h.sel+' — geser fokus, ganti ukuran shot, atau pindahkan teks');}}};
+
+/* posisi kamera dari koordinat bola di sekitar fokus (derajat); pitch negatif = kamera di atas fokus, menunduk */
+const pose=c=>{const y=c.yaw*Math.PI/180,p=c.pitch*Math.PI/180;
+  return{x:c.fx+c.dist*Math.cos(p)*Math.sin(y),y:c.fy-c.dist*Math.sin(p),z:c.fz+c.dist*Math.cos(p)*Math.cos(y)};};
+/* jarak agar subjek h×w mengisi `fill` frame; sisi panjang sensor 36 mm menentukan (filmGauge 36) */
+const jarakBingkai=(h,w,fill,mm,aspect=W/H)=>{if(!(Math.max(h,w)>0))throw new Error('jarakBingkai: ukuran subjek 0');
+  const d=Math.max(h,w/aspect)/fill*mm*Math.max(aspect,1)/36;if(!isFinite(d))throw new Error('jarakBingkai: ukuran subjek 0');return d;};
+/* </wv:kamera> */
+/* <wv:kamera-three> dibangun dari src/runtime/kamera-three.js — JANGAN edit di sini;
+   ubah sumbernya lalu jalankan: node scripts/build-starters.mjs */
+/* BACKEND 3D — membaca CAM, menulis ke `camera` Three.js (r161). Starter menyediakan THREE, scene, camera,
+   renderer, composer SEBELUM blok ini; render() starter memanggil applyCam() lalu composer.render(0).
+   Di sini fx/fy/fz = koordinat dunia Three (Y ke atas), dist dalam unit dunia, yaw/pitch/roll derajat. */
+CAM.mode='three';
+camDefaults({fx:0,fy:0,fz:0,dist:10,yaw:0,pitch:0,mm:35,zoom:1,rail:-1,railU:0});
+/* warna dari token CSS ('--accent'), hex, atau THREE.Color — dunia 3D ikut style brief, tanpa hardcode */
+const warna=c=>new THREE.Color(typeof c==='string'&&c.startsWith('--')?getComputedStyle(document.documentElement).getPropertyValue(c).trim():c);
+
+/* ---------- KAMERA ---------- */
+/* satu jalur untuk kamera render DAN kamera bayangan cek3: pose, lookAt, roll, lensa */
+const RAILS=[];   // {curve,look} — dibuat saat setup; keadaan rail hanya CAM.rail (indeks, -1 = mati) dan CAM.railU (0..1)
+function arahkan(cam,c,dx=0,dy=0,dz=0,roll=c.roll){let p,f;
+  if(c.rail>=0){const R=RAILS[c.rail];p=R.curve.getPointAt(c.railU);f=R.look;}else{p=pose(c);f=[c.fx,c.fy,c.fz];}
+  cam.position.set(p.x+dx,p.y+dy,p.z+dz);cam.lookAt(f[0],f[1],f[2]);cam.rotateZ(roll*Math.PI/180);
+  cam.zoom=c.zoom;cam.filmGauge=36;cam.setFocalLength(c.mm);}   // setFocalLength = updateProjectionMatrix (zoom sudah terpasang)
+/* rail: kamera meluncur sepanjang Catmull-Rom (≥ 3 titik) sambil menatap titik `look`. Di ujung, CAM kembali ke pose bola
+   yang tepat di titik terakhir (kebalikan pose()), jadi camTo/shot sesudahnya berlanjut tanpa lompatan. */
+function rail(at,dur,pts,{look=null,ease='sine.inOut'}={}){
+  if(at<planAt)throw new Error('gerak relatif harus dipanggil urut waktu (detik '+at+' setelah '+planAt+')');
+  if(pts.length<3)throw new Error('rail: butuh ≥ 3 titik (CatmullRomCurve3 2 titik rusak di r161)');
+  const f=look||[PLAN.fx,PLAN.fy,PLAN.fz],curve=new THREE.CatmullRomCurve3(pts.map(q=>new THREE.Vector3(...q)),false,'centripetal'),
+    e=curve.getPointAt(1),dx=e.x-f[0],dy=e.y-f[1],dz=e.z-f[2],d=Math.hypot(dx,dy,dz),i=RAILS.push({curve,look:f})-1;
+  return[cutTo(at,{rail:i,railU:0}),camTo(at,dur,{railU:1},ease),
+    cutTo(at+dur,{rail:-1,fx:f[0],fy:f[1],fz:f[2],dist:d,pitch:-Math.asin(dy/d)*180/Math.PI,yaw:Math.atan2(dx,dz)*180/Math.PI})];}
+/* handheld: noise ber-seed dari tl.time() → goyangan sama di putar, scrub, dan ekspor. Tidak me-render. */
+function applyCam(){let dx=0,dy=0,dz=0,roll=CAM.roll;
+  if(CAM.shake){const t=tl.time(),a=CAM.shake,s=CAM.seed;
+    dx=(noise(t*1.7,s)-.5)*.1*a;dy=(noise(t*1.3,s+1)-.5)*.1*a;dz=(noise(t*1.1,s+3)-.5)*.1*a;roll+=(noise(t*.9,s+2)-.5)*.6*a;}
+  arahkan(camera,CAM,dx,dy,dz,roll);applyLux();   // lampu dihitung ulang tiap render/seek dari LUX+CAM
+  bokeh.enabled=CAM.aperture>0;Object.assign(bokeh.uniforms,{focus:{value:CAM.focus},aperture:{value:CAM.aperture*.0007},maxblur:{value:.01}});}
+const objek3=o=>{if(typeof o==='string'){const n=o;o=scene.getObjectByName(n);if(!o)throw new Error('shot: subjek 3D '+n+' tidak ada');}return o;};
+const kotak3=o=>{const b=new THREE.Box3().setFromObject(o);if(b.isEmpty())throw new Error('shot: subjek 3D kosong — '+(o.name||o.type));return b;};
+/* shot() di inti memanggil ini: fokus = pusat Box3, jarak dari tinggi/lebar kotak pada lensa RENCANA */
+CAM.frame3d=(fill,o)=>{const b=kotak3(objek3(o)),c=b.getCenter(new THREE.Vector3()),s=b.getSize(new THREE.Vector3());
+  /* jarakBingkai = jarak ke bidang yang mengisi frame; bidang itu adalah permukaan DEPAN subjek, bukan pusatnya:
+     tambah setengah rentang kotak searah pandang (bidang tanpa kedalaman = 0, tidak berubah) */
+  const v=pose({fx:0,fy:0,fz:0,dist:1,yaw:PLAN.yaw,pitch:PLAN.pitch}),dalam=(Math.abs(v.x)*s.x+Math.abs(v.y)*s.y+Math.abs(v.z)*s.z)/2;
+  return{fx:c.x,fy:c.y,fz:c.z,dist:jarakBingkai(s.y,s.x,fill,PLAN.mm)+dalam};};
+/* ZONA AMAN HUD 3D: proyeksikan 8 sudut kotak subjek dari pose AKHIR shot ke piksel panggung, bandingkan
+   dengan kotak elemen HUD di #stage. Sudut di belakang kamera = subjek menelan frame. */
+CAM.cek3=(at,dur,o,v)=>{const hs=HUD.filter(h=>!(at+dur<h.at||at>h.to));if(!hs.length)return;
+  const b=kotak3(objek3(o)),c=new THREE.PerspectiveCamera(35,W/H,.01,1e4);arahkan(c,{...PLAN,...v});c.updateMatrixWorld();
+  let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;
+  for(let i=0;i<8;i++){const p=new THREE.Vector3(i&1?b.max.x:b.min.x,i&2?b.max.y:b.min.y,i&4?b.max.z:b.min.z);
+    if(p.clone().applyMatrix4(c.matrixWorldInverse).z>-c.near){x0=y0=-Infinity;x1=y1=Infinity;break;}
+    p.project(c);const px=(p.x+1)/2*W,py=(1-p.y)/2*H;x0=Math.min(x0,px);x1=Math.max(x1,px);y0=Math.min(y0,py);y1=Math.max(y1,py);}
+  for(const h of hs){const r=rectIn(h.el,$('#stage'));
+    if(x0<r.x+r.w&&x1>r.x&&y0<r.y+r.h&&y1>r.y)
+      throw new Error('zona aman: subjek shot pada detik '+at+' masuk kantong teks '+h.sel+' — geser fokus, ganti ukuran shot, atau pindahkan teks');}};
+
+/* ---------- CAHAYA, LAMPU PRAKTIS, FOKUS ---------- */
+/* rig key/fill/rim: satu set lampu, nilainya di-tween di LUX (fungsi murni tl.time() lewat onUpdate). */
+const LUX={kAz:45,kEl:50,kI:0,kR:1,kG:1,kB:1,fI:0,fsR:1,fsG:1,fsB:1,fgR:1,fgG:1,fgB:1,rI:0};
+const key=new THREE.DirectionalLight(0xffffff,0),fill=new THREE.HemisphereLight(0xffffff,0xffffff,0),rim=new THREE.DirectionalLight(0xffffff,0);
+key.name='key';key.castShadow=true;key.shadow.mapSize.set(2048,2048);
+Object.assign(key.shadow.camera,{left:-20,right:20,top:20,bottom:-20,near:1,far:80});
+scene.add(key,key.target,fill,rim,rim.target);
+function applyLux(){const a=LUX.kAz*Math.PI/180,e=LUX.kEl*Math.PI/180,R=30,c=new THREE.Vector3(CAM.fx,0,CAM.fz);
+  key.position.set(c.x+R*Math.cos(e)*Math.sin(a),R*Math.sin(e),c.z+R*Math.cos(e)*Math.cos(a));key.target.position.copy(c);
+  key.color.setRGB(LUX.kR,LUX.kG,LUX.kB);key.intensity=LUX.kI;
+  fill.color.setRGB(LUX.fsR,LUX.fsG,LUX.fsB);fill.groundColor.setRGB(LUX.fgR,LUX.fgG,LUX.fgB);fill.intensity=LUX.fI;
+  rim.position.set(c.x-R*.5,R*.6,c.z-R*.8);rim.target.position.copy(c);rim.intensity=LUX.rI;}
+/* [key az, el, warna, I | fill sky, ground, I | rim I] — heuristik riset §Pencahayaan */
+const CAHAYA3={
+  day:   [45,50,'#FFF6E8',2.5,'#DDEBFF','#C9B79C',1.0,.6],
+  golden:[60,6,'#FFB46B',2.8,'#FFD9A8','#6B4A3A',.5,1.2],
+  blue:  [0,30,'#6FA8FF',0,'#6FA8FF','#1B2244',.8,.4],
+  night: [200,40,'#9DB7FF',.3,'#2A3560','#0C1020',.25,.5],
+  lowkey:[80,12,'#FFFFFF',1.4,'#FFFFFF','#000000',.12,0],
+  studio:[45,35,'#FFFFFF',2.5,'#FFFFFF','#B0B0B0',.7,1.5]};
+function nilaiLux(n){const [kAz,kEl,k,kI,s,g,fI,rI]=CAHAYA3[n],K=new THREE.Color(k),S=new THREE.Color(s),G=new THREE.Color(g);
+  return{kAz,kEl,kI,kR:K.r,kG:K.g,kB:K.b,fI,fsR:S.r,fsG:S.g,fsB:S.b,fgR:G.r,fgG:G.g,fgB:G.b,rI};}
+let lampAt=-Infinity;
+function light(at,dur,preset,o={}){if(!CAHAYA3[preset])throw new Error('preset cahaya tidak dikenal: '+preset+' ('+Object.keys(CAHAYA3).join(' ')+')');
+  if(at<lampAt)throw new Error('light(): panggil urut waktu (detik '+at+' setelah '+lampAt+')');lampAt=at;
+  return tl.to(LUX,{...nilaiLux(preset),...o,duration:dur,ease:'sine.inOut'},at);}
+/* lampu praktis: PointLight di posisi dunia mesh + bahan berpendar (tidak kena tone mapping) */
+function practical(mesh,color,intensity=2,distance=8){const c=warna(color),L=new THREE.PointLight(c,intensity,distance);
+  mesh.getWorldPosition(L.position);scene.add(L);
+  Object.assign(mesh.material,{emissive:c,emissiveIntensity:1,toneMapped:false});mesh.material.emissive.copy(c);return L;}
+/* DOF: BokehPass dibuat sekali, sebelum OutputPass; hidup hanya bila CAM.aperture>0.
+   ponytail: CAM.focus dihitung saat setup dari pose(PLAN) — tidak mengikuti kamera yang bergerak sesudahnya. */
+const bokeh=new BokehPass(scene,camera,{focus:0,aperture:0,maxblur:.01});bokeh.enabled=false;
+composer.insertPass(bokeh,composer.passes.length-1);
+const jarakFokus=o=>{const p=pose(PLAN),c=kotak3(objek3(o)).getCenter(new THREE.Vector3());return Math.hypot(c.x-p.x,c.y-p.y,c.z-p.z);};
+const focus=(at,dur,obj,aperture=6,ease='sine.inOut')=>camTo(at,dur,{focus:jarakFokus(obj),aperture},ease);
+const rackFocus=(at,dur,a,b)=>{cutTo(at,{focus:jarakFokus(a),aperture:6});focus(at,dur,b);};
+
+/* ---------- MATERIAL & ASET ---------- */
+/* warna brand tepat lewat composer WAJIB renderer.toneMapping=NoToneMapping: OutputPass menerapkan tone mapping ke
+   seluruh frame dan mengabaikan toneMapped:false. Flag itu tetap dipasang untuk render langsung (renderer.render). */
+const TOON=new THREE.DataTexture(new Uint8Array([90,170,255]),3,1,THREE.RedFormat);   // 3 tingkat bayangan kartun
+TOON.minFilter=TOON.magFilter=THREE.NearestFilter;TOON.needsUpdate=true;
+const MAT={
+  flat:     c=>new THREE.MeshBasicMaterial({color:c,toneMapped:false}),
+  toon:     c=>new THREE.MeshToonMaterial({color:c,gradientMap:TOON,toneMapped:false}),
+  clay:     c=>new THREE.MeshStandardMaterial({color:c,roughness:.9,metalness:0,toneMapped:false}),
+  glossy:   c=>new THREE.MeshPhysicalMaterial({color:c,roughness:.25,clearcoat:1,toneMapped:false}),
+  realistis:c=>new THREE.MeshStandardMaterial({color:c,roughness:.5,metalness:.1,toneMapped:false})};
+function mat(family,color){if(!MAT[family])throw new Error('mat: family tidak dikenal: '+family+' ('+Object.keys(MAT).join(' ')+')');return MAT[family](warna(color));}
+/* logo/ikon SVG (string, bukan berkas — file:// memblokir loader) → grup 3D. depth/bevel dalam unit DUNIA
+   (dibagi scale karena geometri dibangun dalam unit SVG). Geometri dipusatkan, jadi grup.position bebas dipakai. */
+function fromSVG(svg,{depth=.2,bevel=.02,family='toon',scale=.01}={}){const g=new THREE.Group();
+  for(const p of new SVGLoader().parse(svg).paths){if(p.userData&&p.userData.style&&p.userData.style.fill==='none')continue;   // garis saja: tak punya isi untuk diekstrusi
+    const m=mat(family,p.color);
+    for(const s of SVGLoader.createShapes(p))
+      g.add(new THREE.Mesh(new THREE.ExtrudeGeometry(s,{depth:depth/scale,bevelEnabled:bevel>0,bevelSize:bevel/scale,bevelThickness:bevel/scale}),m));}
+  const c=kotak3(g).getCenter(new THREE.Vector3());for(const m of g.children)m.geometry.translate(-c.x,-c.y,-c.z);
+  g.scale.set(scale,-scale,scale);return g;}   // SVG y ke bawah → balik
+
+/* ?demo=1 — katalog kosakata 3D (bukan rundown). Starter memanggilnya SETELAH koreografi contoh: semua gerak kamera
+   & cahaya contoh dibuang (camReset tidak mereset lampAt/LUX, jadi dikerjakan di sini). 29 entri × DUR/30. */
+function demoKamera3(){camReset();gsap.killTweensOf(LUX);lampAt=-Infinity;HUD.length=0;gsap.killTweensOf('#hud>*');tl.set('#hud',{opacity:0},0);   // kantong teks contoh tidak berlaku di katalog
+  const P0={fx:0,fy:0,fz:0,dist:14,yaw:0,pitch:-12,roll:0,mm:35,zoom:1,shake:0,rail:-1,railU:0},step=DUR/30,d=step*.7;let t=0;
+  light(0,0,'day');cutTo(0,P0);
+  for(const k in SHOT){shot(t,d,k,'subjek');t+=step;}cutTo(t,P0);t+=step;
+  for(const k in ANGLE.three){cutTo(t,P0);angle(t,d,k);t+=step;}cutTo(t,P0);
+  for(const [f,a] of [[dolly,1.5],[truck,2],[pedestal,1],[pan,15],[tilt,-8],[arc,40]]){f(t,step*.8,a);t+=step;}cutTo(t,P0);
+  rail(t,step*.9,[[8,2,10],[0,3,12],[-8,2,10]],{look:[0,.8,0]});t+=step;cutTo(t,P0);
+  cutTo(t,{yaw:-55,pitch:-18});   // cahaya samping: pose 3/4 supaya bayangan & sisi teduh terbaca
+  for(const k in CAHAYA3){light(t,step*.5,k);t+=step;}cutTo(t,P0);handheld(t,t+step,.8);t+=step;
+  window.DEMO_AKHIR=t;}
+/* ---------- kait untuk scripts/test-starters.mjs — tidak dipanggil deliverable ---------- */
+window.CAM3_UJI=()=>{const r={},c0={...CAM},V=()=>new THREE.Vector3();tl.pause(0);
+  /* halaman tanpa 'subjek' (opener) / tanpa #hud: kubus pengganti sementara supaya langkah yang butuh subjek tidak melempar;
+     field yang bermakna hanya dengan dunia starter 3D (subjek, HUD, lantai, katalog) dikembalikan null di akhir */
+  const pinjam=!scene.getObjectByName('subjek')?new THREE.Mesh(new THREE.BoxGeometry(1.6,1.6,1.6)):null,adaHud=!!$('#hud .lbl');
+  if(pinjam){pinjam.name='subjek';pinjam.position.y=.8;scene.add(pinjam);}
+  Object.assign(CAM,{yaw:30,pitch:-15,roll:0,shake:0,zoom:1,mm:PLAN.mm},CAM.frame3d(SHOT.MS,'subjek'));applyCam();composer.render(0);
+  const p=pose(CAM);r.poseCocok=camera.position.distanceTo(new THREE.Vector3(p.x,p.y,p.z))<1e-6;
+  const n=kotak3(objek3('subjek')).getCenter(V()).project(camera);r.ndc=[n.x,n.y];
+  const bid=new THREE.Mesh(new THREE.PlaneGeometry(1.6,1.6));scene.add(bid);   // datar: tanpa distorsi perspektif kedalaman
+  {const py=PLAN.yaw,pp=PLAN.pitch;PLAN.yaw=PLAN.pitch=0;Object.assign(CAM,{yaw:0,pitch:0},CAM.frame3d(SHOT.WS,bid));PLAN.yaw=py;PLAN.pitch=pp;}   // frame3d membaca sudut dari PLAN
+  applyCam();camera.updateMatrixWorld();
+  const y=v=>new THREE.Vector3(0,v,0).project(camera).y;r.isiTinggi=(y(.8)-y(-.8))/2;scene.remove(bid);bid.geometry.dispose();
+  if(adaHud){hud.reserve('#hud .lbl',0,99);
+  try{shot(0,.1,'CU','subjek');r.hudTabrakDitolak=false;}catch(e){r.hudTabrakDitolak=/zona aman/.test(e.message);}HUD.pop();}
+  /* piksel dibaca di task yang SAMA dengan render: tanpa preserveDrawingBuffer buffer kosong setelah komposit */
+  const m=new THREE.Mesh(new THREE.PlaneGeometry(10,10),mat('flat','#EE1C25'));
+  m.position.copy(camera.position);m.quaternion.copy(camera.quaternion);m.translateZ(-1);scene.add(m);composer.render(0);
+  const gl=renderer.getContext(),px=new Uint8Array(4);gl.readPixels(W/2,H/2,1,1,gl.RGBA,gl.UNSIGNED_BYTE,px);
+  r.pikselBrand=[px[0],px[1],px[2]].join(',');scene.remove(m);m.geometry.dispose();m.material.dispose();
+  try{shot(0,0,'MS',new THREE.Group());r.kosongDitolak=false;}catch(e){r.kosongDitolak=/kosong/.test(e.message);}
+  try{mat('neon','#fff');r.familyDitolak=false;}catch(e){r.familyDitolak=/neon/.test(e.message);}
+  const L0={...LUX},la0=lampAt,t0=lampAt+1,tw=light(t0,.1,'golden');tl.time(t0+.2);r.keyGolden=LUX.kI;r.elGolden=LUX.kEl;
+  try{light(t0-1,.1,'day');r.lightUrutDitolak=false;}catch(e){r.lightUrutDitolak=/urut/.test(e.message);}
+  tw.kill();tl.remove(tw);tl.time(0);Object.assign(LUX,L0);lampAt=la0;applyLux();
+  CAM.aperture=0;applyCam();r.bokehSaatNol=bokeh.enabled;CAM.aperture=6;applyCam();r.bokehSaatEnam=bokeh.enabled;
+  const jp=pose(PLAN),jc=kotak3(objek3('subjek')).getCenter(V());r.jarakHarapan=Math.hypot(jc.x-jp.x,jc.y-jp.y,jc.z-jp.z);r.jarakFokus=jarakFokus('subjek');
+  Object.assign(LUX,nilaiLux('day'));applyLux();const kx=key.target.position.x;CAM.fx+=10;applyCam();r.keyIkutKamera=Math.abs(key.target.position.x-kx-10)<1e-6;Object.assign(LUX,L0);
+  const P1={...PLAN},pa1=planAt,nR=RAILS.length,tA=Math.max(planAt,0)+1,pts=[[0,2,12],[6,3,8],[10,4,0]];
+  try{rail(tA,2,pts.slice(0,2));r.railDuaDitolak=false;}catch(e){r.railDuaDitolak=/≥ 3/.test(e.message);}
+  const tws=rail(tA,2,pts,{look:[0,1,0],ease:'none'}),cv=RAILS[nR].curve;
+  tl.time(tA+1);applyCam();r.railTengah=camera.position.distanceTo(cv.getPointAt(.5));
+  tl.time(tA+2+1e-3);applyCam();r.railSambung=camera.position.distanceTo(V().set(10,4,0));
+  const nR2=RAILS.length;try{rail(planAt-1,2,pts);r.railUrutDitolak=false;}catch(e){r.railUrutDitolak=/urut waktu/.test(e.message)&&RAILS.length===nR2;}
+  tl.time(0);for(const w of tws){w.kill();tl.remove(w);}RAILS.length=nR;Object.assign(PLAN,P1);planAt=pa1;
+  {const h=[];for(const k of ['ECU','CU']){Object.assign(CAM,{yaw:30,pitch:-15,roll:0,shake:0,zoom:1,mm:PLAN.mm,rail:-1},CAM.frame3d(SHOT[k],'subjek'));applyCam();camera.updateMatrixWorld();
+    const bx=kotak3(objek3('subjek')),n=bx.getCenter(V()).project(camera);h.push({k,dalam:bx.containsPoint(camera.position),ndc:[n.x,n.y]});}
+   r.dekatDiLuar={hasil:h,ok:h.every(e=>!e.dalam&&Math.abs(e.ndc[0])<.05&&Math.abs(e.ndc[1])<.05)};}
+  /* lowkey harus tampak lowkey: dari pose 3/4 (cahaya samping) lantai & sisi membelakangi key jauh lebih gelap daripada day */
+  {const L1={...LUX},lum=()=>{const gl=renderer.getContext(),o=[];   // piksel layar (dari atas): lantai kanan-bawah, sisi kubus kiri (= -x, membelakangi key az 80)
+    for(const [x,y] of [[1750,850],[800,600]]){const px=new Uint8Array(4);gl.readPixels(x,H-y,1,1,gl.RGBA,gl.UNSIGNED_BYTE,px);o.push(px[0]+px[1]+px[2]);}return o;};
+   Object.assign(CAM,{yaw:-55,pitch:-18,roll:0,shake:0,zoom:1,mm:PLAN.mm,rail:-1},CAM.frame3d(SHOT.WS,'subjek'));
+   Object.assign(LUX,nilaiLux('day'));applyCam();composer.render(0);const d=lum();
+   Object.assign(LUX,nilaiLux('lowkey'));applyCam();composer.render(0);const k=lum();
+   r.lowkeyGelap={lantai:k[0]/Math.max(1,d[0]),wajah:k[1]/Math.max(1,d[1]),d,k};Object.assign(LUX,L1);}
+  Object.assign(CAM,c0);
+  if(pinjam){scene.remove(pinjam);pinjam.geometry.dispose();pinjam.material.dispose();for(const k of ['ndc','jarakFokus','jarakHarapan','dekatDiLuar','lowkeyGelap','demoAkhir'])r[k]=null;}
+  if(!adaHud)r.hudTabrakDitolak=null;
+  applyCam();composer.render(0);if(r.demoAkhir!==null)r.demoAkhir=window.DEMO_AKHIR||0;r.DUR=DUR;return r;};
+/* </wv:kamera-three> */
+/* cahaya: rig key/fill/rim dari kamera-three. 'studio' = putih netral, key az 45 el 35 (lama: key dari (5,7,9) = az ~29 el ~35); ganti per segmen dengan light(at,dur,preset) */
+camDefaults({fx:0,fy:0,fz:0,dist:13.2,yaw:0,pitch:0,mm:21.7});   // = PerspectiveCamera(50) lama: 21,7 mm pada filmGauge 36, 16:9
+Object.assign(LUX,nilaiLux('studio'));applyLux();light(0,0,'studio');
 
 /* ---- TRANSISI OPSIONAL (menu techniques.md §4c). SENGAJA tidak dipanggil di starter.
    Push-through dan light leak termasuk komponen kanonik: pakai hanya bila konsep menuntut,
@@ -367,7 +655,9 @@ const popDot=(el,at)=>tl.fromTo(el,{opacity:0,yPercent:60},{opacity:1,yPercent:0
 
 /* ---- LATAR: keadaan awal dunia. PLACEHOLDER — turunkan dari style brief, matikan WebGL bila arahnya lain. ---- */
 tl.set('#paper',{autoAlpha:0},0); tl.set(['#gl','.vignette','.bgfx'],{opacity:1},0);
-tl.set(S,{grid:.25,dust:.6,stars:.85,heroO:0,camZ:13.2,camRoll:0,bloom:.85},0);
+tl.set(S,{grid:.25,dust:.6,stars:.85,heroO:0,bloom:.85},0);
+cutTo(0,{dist:13.2,roll:0});   // kamera lama: z 13,2 menatap asal
+handheld(0,DURATION,.3);       // gantikan sinus sway lama (noise ber-seed)
 breathe(0,DURATION);
 
 /* ================= RUNDOWN — tulis adegan dari KONSEP di sini =================

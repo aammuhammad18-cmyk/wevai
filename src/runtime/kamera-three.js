@@ -122,6 +122,10 @@ function demoKamera3(){camReset();gsap.killTweensOf(LUX);lampAt=-Infinity;HUD.le
   window.DEMO_AKHIR=t;}
 /* ---------- kait untuk scripts/test-starters.mjs — tidak dipanggil deliverable ---------- */
 window.CAM3_UJI=()=>{const r={},c0={...CAM},V=()=>new THREE.Vector3();tl.pause(0);
+  /* halaman tanpa 'subjek' (opener) / tanpa #hud: kubus pengganti sementara supaya langkah yang butuh subjek tidak melempar;
+     field yang bermakna hanya dengan dunia starter 3D (subjek, HUD, lantai, katalog) dikembalikan null di akhir */
+  const pinjam=!scene.getObjectByName('subjek')?new THREE.Mesh(new THREE.BoxGeometry(1.6,1.6,1.6)):null,adaHud=!!$('#hud .lbl');
+  if(pinjam){pinjam.name='subjek';pinjam.position.y=.8;scene.add(pinjam);}
   Object.assign(CAM,{yaw:30,pitch:-15,roll:0,shake:0,zoom:1,mm:PLAN.mm},CAM.frame3d(SHOT.MS,'subjek'));applyCam();composer.render(0);
   const p=pose(CAM);r.poseCocok=camera.position.distanceTo(new THREE.Vector3(p.x,p.y,p.z))<1e-6;
   const n=kotak3(objek3('subjek')).getCenter(V()).project(camera);r.ndc=[n.x,n.y];
@@ -129,8 +133,8 @@ window.CAM3_UJI=()=>{const r={},c0={...CAM},V=()=>new THREE.Vector3();tl.pause(0
   {const py=PLAN.yaw,pp=PLAN.pitch;PLAN.yaw=PLAN.pitch=0;Object.assign(CAM,{yaw:0,pitch:0},CAM.frame3d(SHOT.WS,bid));PLAN.yaw=py;PLAN.pitch=pp;}   // frame3d membaca sudut dari PLAN
   applyCam();camera.updateMatrixWorld();
   const y=v=>new THREE.Vector3(0,v,0).project(camera).y;r.isiTinggi=(y(.8)-y(-.8))/2;scene.remove(bid);bid.geometry.dispose();
-  hud.reserve('#hud .lbl',0,99);
-  try{shot(0,.1,'CU','subjek');r.hudTabrakDitolak=false;}catch(e){r.hudTabrakDitolak=/zona aman/.test(e.message);}HUD.pop();
+  if(adaHud){hud.reserve('#hud .lbl',0,99);
+  try{shot(0,.1,'CU','subjek');r.hudTabrakDitolak=false;}catch(e){r.hudTabrakDitolak=/zona aman/.test(e.message);}HUD.pop();}
   /* piksel dibaca di task yang SAMA dengan render: tanpa preserveDrawingBuffer buffer kosong setelah komposit */
   const m=new THREE.Mesh(new THREE.PlaneGeometry(10,10),mat('flat','#EE1C25'));
   m.position.copy(camera.position);m.quaternion.copy(camera.quaternion);m.translateZ(-1);scene.add(m);composer.render(0);
@@ -161,4 +165,7 @@ window.CAM3_UJI=()=>{const r={},c0={...CAM},V=()=>new THREE.Vector3();tl.pause(0
    Object.assign(LUX,nilaiLux('day'));applyCam();composer.render(0);const d=lum();
    Object.assign(LUX,nilaiLux('lowkey'));applyCam();composer.render(0);const k=lum();
    r.lowkeyGelap={lantai:k[0]/Math.max(1,d[0]),wajah:k[1]/Math.max(1,d[1]),d,k};Object.assign(LUX,L1);}
-  Object.assign(CAM,c0);applyCam();composer.render(0);r.demoAkhir=window.DEMO_AKHIR||0;r.DUR=DUR;return r;};
+  Object.assign(CAM,c0);
+  if(pinjam){scene.remove(pinjam);pinjam.geometry.dispose();pinjam.material.dispose();for(const k of ['ndc','jarakFokus','jarakHarapan','dekatDiLuar','lowkeyGelap','demoAkhir'])r[k]=null;}
+  if(!adaHud)r.hudTabrakDitolak=null;
+  applyCam();composer.render(0);if(r.demoAkhir!==null)r.demoAkhir=window.DEMO_AKHIR||0;r.DUR=DUR;return r;};

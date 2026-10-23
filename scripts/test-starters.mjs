@@ -145,8 +145,10 @@ for (const file of files) {
       await page.waitForFunction('window.OPENER && window.OPENER.ready', { timeout: 60000 });
       cam3 = await page.evaluate(() => window.CAM3_UJI());
     }
+    if (name === 'starter-opener.html' && !cam3) masalah.push('kamera3: opener harus mendefinisikan window.CAM3_UJI');
     if (cam3) {
       const ada = k => cam3[k] != null;
+      if (name === 'starter-opener.html' && cam3.poseCocok == null) masalah.push('kamera3: opener harus punya poseCocok non-null');
       if (ada('poseCocok') && !(cam3.poseCocok)) masalah.push('kamera3: camera.position ≠ pose(CAM)');
       if (ada('ndc') && !(Math.abs(cam3.ndc[0]) < .01 && Math.abs(cam3.ndc[1]) < .01)) masalah.push(`kamera3: shot MS tidak memusatkan subjek (${cam3.ndc})`);
       if (ada('isiTinggi') && !(Math.abs(cam3.isiTinggi - .45) < .01)) masalah.push(`kamera3: shot WS pada bidang 1,6 mengisi ${cam3.isiTinggi} tinggi frame, harus 0,45`);
@@ -156,7 +158,7 @@ for (const file of files) {
       if (ada('keyGolden') && !(Math.abs(cam3.keyGolden - 2.8) < 1e-6 && cam3.elGolden === 6)) masalah.push(`kamera3: light('golden') tidak menyetel key (${cam3.keyGolden}, ${cam3.elGolden})`);
       if (ada('keyGolden') && !cam3.lightUrutDitolak) masalah.push("kamera3: light() dengan 'at' mundur harus ditolak");
       if (ada('keyGolden') && (cam3.bokehSaatNol !== false || cam3.bokehSaatEnam !== true)) masalah.push('kamera3: BokehPass harus mati saat aperture 0 dan hidup saat > 0');
-      if (ada('keyGolden') && !(cam3.jarakFokus > 0 && Math.abs(cam3.jarakFokus - cam3.jarakHarapan) < 1e-6)) masalah.push('kamera3: focus() tidak menghitung jarak ke subjek');
+      if (ada('jarakFokus') && !(cam3.jarakFokus > 0 && Math.abs(cam3.jarakFokus - cam3.jarakHarapan) < 1e-6)) masalah.push('kamera3: focus() tidak menghitung jarak ke subjek');
       if (ada('keyIkutKamera') && !cam3.keyIkutKamera) masalah.push('kamera3: lampu key harus dihitung ulang tiap applyCam (ikut CAM.fx tanpa tween cahaya)');
       if (ada('railDuaDitolak') && !cam3.railDuaDitolak) masalah.push('kamera3: rail() 2 titik harus ditolak');
       if (ada('railUrutDitolak') && !cam3.railUrutDitolak) masalah.push('kamera3: rail() di luar urutan waktu harus ditolak');

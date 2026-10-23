@@ -56,6 +56,22 @@ for (const file of files) {
     if (!kontrak.tl) masalah.push('OPENER.tl kosong');
     if (!kontrak.seek) masalah.push('OPENER.seek bukan fungsi');
 
+    // t=0 pada halaman SEGAR (jalur export-frames: ?clean=1 tidak autoplay, tl belum pernah bergerak; tl.pause(0) lalu
+    // seek(0)) harus sama dengan seek(0) sesudah seek lain — dulu pause(0) dari playhead 0 tidak menerapkan set() di t=0
+    const segar = await browser.newPage();
+    await segar.goto(pathToFileURL(file).href + '?clean=1', { waitUntil: 'load', timeout: 60000 });
+    await segar.waitForFunction('window.OPENER && window.OPENER.ready', { timeout: 60000 });
+    const nol = await segar.evaluate(() => {
+      const O = window.OPENER, rig = () => document.querySelector('#world, #stage')?.getAttribute('style') || '', c = document.querySelector('canvas');
+      const ambil = () => ({ r: rig(), c: c ? c.toDataURL() : '' });
+      O.tl.pause(0); O.seek(0); const a = ambil();
+      O.seek(Math.min(O.DURATION - .1, 3)); O.seek(0); const b = ambil();
+      return { rig: a.r === b.r, kanvas: a.c === b.c };
+    });
+    await segar.close();
+    if (!nol.rig) masalah.push('seek(0) pada halaman segar ≠ seek(0) sesudah seek lain (transform rig)');
+    if (!nol.kanvas) masalah.push('seek(0) pada halaman segar ≠ seek(0) sesudah seek lain (piksel kanvas)');
+
     // loop: dorong playhead melewati DURATION saat timeline BERMAIN, lalu pastikan
     // ia kembali ke awal. Sengaja tidak menunggu waktu nyata: saat mesin sibuk GSAP
     // meredam lag (lagSmoothing) sehingga timeline maju lebih lambat daripada jam
@@ -87,6 +103,18 @@ for (const file of files) {
     if (!seek.sama) masalah.push('seek(t) dua kali menghasilkan keadaan berbeda');
     if (Math.abs(seek.waktu - seek.t) > 0.001) masalah.push(`seek(t) tidak memindahkan playhead (${seek.waktu} ≠ ${seek.t})`);
 
+    // determinisme PIKSEL kanvas WebGL: t yang sama lewat dua jalur seek berbeda → gambar identik
+    const kanvas = await page.evaluate(() => {
+      const c = document.querySelector('canvas'); if (!c) return null;
+      const O = window.OPENER, t = Math.min(5, O.DURATION * .6), t2 = Math.min(O.DURATION - .1, t + 3);
+      O.tl.pause(); O.seek(t); const a = c.toDataURL();
+      O.seek(t2); O.seek(.1); O.seek(t); const b = c.toDataURL();
+      const kosong = document.createElement('canvas'); kosong.width = c.width; kosong.height = c.height;
+      return { sama: a === b, kosong: a === kosong.toDataURL() };
+    });
+    if (kanvas && !kanvas.sama) masalah.push('kanvas: t yang sama lewat jalur seek berbeda memberi piksel berbeda');
+    if (kanvas && kanvas.kosong) masalah.push('kanvas: hasil render kosong saat dibaca setelah seek');
+
     // kamera 2.5D (src/runtime/kamera-dom.js): jalur 2D tidak menyentuh gaya lain; sudut → transform 3D;
     // bidang data-z berparalaks; cahaya; katalog ?demo=1 selesai sebelum DUR. Halaman dimuat ULANG dengan ?demo=1
     // supaya pemeriksaan di atas tetap menguji jalur default deliverable.
@@ -107,6 +135,47 @@ for (const file of files) {
       if (!cam.shakeHidup) masalah.push('kamera: shake ≠ 0 tanpa tween CAM membeku saat diputar');
       if (!cam.urutanDitolak) masalah.push("kamera: light() dengan 'at' mundur harus ditolak");
       if (!(cam.demoAkhir > 0 && cam.demoAkhir < cam.DUR)) masalah.push(`kamera: ?demo=1 harus selesai sebelum DUR (${cam.demoAkhir} vs ${cam.DUR})`);
+    }
+
+    // kamera 3D (src/runtime/kamera-three.js): pose, shot terpusat & ukuran bingkai, zona aman HUD, warna brand
+    // tepat, penolakan input salah. Field null = tidak berlaku di halaman itu (opener) → dilewati.
+    let cam3 = null;
+    if (await page.evaluate(() => !!window.CAM3_UJI)) {
+      await page.goto(pathToFileURL(file).href + '?demo=1', { waitUntil: 'load', timeout: 60000 });
+      await page.waitForFunction('window.OPENER && window.OPENER.ready', { timeout: 60000 });
+      cam3 = await page.evaluate(() => window.CAM3_UJI());
+    }
+    if (name === 'starter-opener.html' && !cam3) masalah.push('kamera3: opener harus mendefinisikan window.CAM3_UJI');
+    if (cam3) {
+      const ada = k => cam3[k] != null;
+      // null hanya sah di opener (tanpa subjek/#hud); starter 3D lain harus mengisi SEMUA field
+      if (name !== 'starter-opener.html') for (const k of ['poseCocok', 'ndc', 'isiTinggi', 'hudTabrakDitolak', 'pikselBrand', 'kosongDitolak', 'familyDitolak', 'keyGolden', 'elGolden', 'lightUrutDitolak', 'bokehSaatNol', 'bokehSaatEnam', 'jarakFokus', 'jarakHarapan', 'keyIkutKamera', 'railDuaDitolak', 'railUrutDitolak', 'railTengah', 'railSambung', 'dekatDiLuar', 'lowkeyGelap', 'lantaiAman', 'wormTanpaPita', 'bersarangBenar', 'nolDitolak', 'railLookDitolak', 'demoAkhir', 'DUR'])
+        if (cam3[k] == null) masalah.push(`kamera3: field ${k} kosong — subjek/#hud hilang dari starter 3D?`);
+      if (name === 'starter-opener.html' && cam3.poseCocok == null) masalah.push('kamera3: opener harus punya poseCocok non-null');
+      if (ada('poseCocok') && !(cam3.poseCocok)) masalah.push('kamera3: camera.position ≠ pose(CAM)');
+      if (ada('ndc') && !(Math.abs(cam3.ndc[0]) < .01 && Math.abs(cam3.ndc[1]) < .01)) masalah.push(`kamera3: shot MS tidak memusatkan subjek (${cam3.ndc})`);
+      if (ada('isiTinggi') && !(Math.abs(cam3.isiTinggi - .45) < .01)) masalah.push(`kamera3: shot WS pada bidang 1,6 mengisi ${cam3.isiTinggi} tinggi frame, harus 0,45`);
+      if (ada('hudTabrakDitolak') && !cam3.hudTabrakDitolak) masalah.push('kamera3: shot yang membawa subjek ke kantong teks HUD harus ditolak');
+      if (ada('pikselBrand') && cam3.pikselBrand !== '238,28,37') masalah.push(`kamera3: mat('flat','#EE1C25') keluar ${cam3.pikselBrand}`);
+      if (ada('kosongDitolak') && !cam3.kosongDitolak) masalah.push('kamera3: shot pada Group kosong harus ditolak');
+      if (ada('keyGolden') && !(Math.abs(cam3.keyGolden - 2.8) < 1e-6 && cam3.elGolden === 6)) masalah.push(`kamera3: light('golden') tidak menyetel key (${cam3.keyGolden}, ${cam3.elGolden})`);
+      if (ada('keyGolden') && !cam3.lightUrutDitolak) masalah.push("kamera3: light() dengan 'at' mundur harus ditolak");
+      if (ada('keyGolden') && (cam3.bokehSaatNol !== false || cam3.bokehSaatEnam !== true)) masalah.push('kamera3: BokehPass harus mati saat aperture 0 dan hidup saat > 0');
+      if (ada('jarakFokus') && !(cam3.jarakFokus > 0 && Math.abs(cam3.jarakFokus - cam3.jarakHarapan) < 1e-6)) masalah.push('kamera3: focus() tidak menghitung jarak ke subjek');
+      if (ada('keyIkutKamera') && !cam3.keyIkutKamera) masalah.push('kamera3: lampu key harus dihitung ulang tiap applyCam (ikut CAM.fx tanpa tween cahaya)');
+      if (ada('railDuaDitolak') && !cam3.railDuaDitolak) masalah.push('kamera3: rail() 2 titik harus ditolak');
+      if (ada('railUrutDitolak') && !cam3.railUrutDitolak) masalah.push('kamera3: rail() di luar urutan waktu harus ditolak');
+      if (ada('railTengah') && !(cam3.railTengah < 1e-6)) masalah.push(`kamera3: posisi kamera di tengah rail ≠ getPointAt(.5) (selisih ${cam3.railTengah})`);
+      if (ada('railSambung') && !(cam3.railSambung < 1e-6)) masalah.push(`kamera3: kamera melompat saat rail selesai (selisih ${cam3.railSambung})`);
+      if (ada('demoAkhir') && !(cam3.demoAkhir > 0 && cam3.demoAkhir < cam3.DUR)) masalah.push(`kamera3: ?demo=1 harus selesai sebelum DUR (${cam3.demoAkhir} vs ${cam3.DUR})`);
+      if (ada('lowkeyGelap') && !(cam3.lowkeyGelap.lantai <= .5 && cam3.lowkeyGelap.wajah <= .6)) masalah.push(`kamera3: lowkey harus jauh lebih gelap dari day (lantai ${cam3.lowkeyGelap.lantai.toFixed(2)} ≤ .5, wajah teduh ${cam3.lowkeyGelap.wajah.toFixed(2)} ≤ .6)`);
+      if (ada('dekatDiLuar') && !cam3.dekatDiLuar.ok) masalah.push(`kamera3: shot ECU/CU menaruh kamera di dalam subjek atau tidak memusatkannya (${JSON.stringify(cam3.dekatDiLuar.hasil)})`);
+      if (ada('familyDitolak') && !cam3.familyDitolak) masalah.push("kamera3: mat('neon') harus ditolak");
+      if (ada('wormTanpaPita') && !cam3.wormTanpaPita.ok) masalah.push(`kamera3: sudut worm dekat lantai menyingkap latar di dasar frame (piksel ${cam3.wormTanpaPita.dasar} ≈ latar ${cam3.wormTanpaPita.latar}) — near plane memotong lantai`);
+      if (ada('lantaiAman') && !cam3.lantaiAman.ok) masalah.push(`kamera3: angle low/worm sesudah WS menaruh kamera di bawah lantai (y ${cam3.lantaiAman.y.map(v => v.toFixed(2))}) — CAM.lantai`);
+      if (ada('bersarangBenar') && !cam3.bersarangBenar.ok) masalah.push(`kamera3: subjek bersarang (grup di 5,0,-3) dibingkai di ${cam3.bersarangBenar.f.map(v => v.toFixed(2))}, harus 5,1,-3`);
+      if (ada('nolDitolak') && cam3.nolDitolak !== true) masalah.push(`kamera3: subjek berskala 0 harus ditolak dengan namanya (${cam3.nolDitolak})`);
+      if (ada('railLookDitolak') && !cam3.railLookDitolak) masalah.push('kamera3: rail() dengan titik terakhir = look harus ditolak saat setup');
     }
 
     if (errs.length) masalah.push('error JS: ' + errs[0]);

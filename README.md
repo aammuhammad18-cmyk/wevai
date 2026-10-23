@@ -7,7 +7,7 @@
 **An agent skill that turns your AI coding agent into a motion designer.**<br>
 Openers, promos, product demos, kinetic typography, and explainers — built as a single `index.html` that plays like video, not like slides.
 
-[![Version](https://img.shields.io/badge/version-1.0.0-2f6fd6?style=flat-square)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.1.0-2f6fd6?style=flat-square)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-3fa34d?style=flat-square)](LICENSE)
 [![Agent Skills](https://img.shields.io/badge/format-Agent%20Skills-1c2a4a?style=flat-square)](#install)
 [![Works with](https://img.shields.io/badge/works%20with-Claude%20Code%20%C2%B7%20Codex%20%C2%B7%20Gemini%20CLI%20%C2%B7%20Cursor-7a5af5?style=flat-square)](#install)
@@ -35,6 +35,7 @@ It also stops every project from looking the same. The look is **derived from yo
 | 🔤 **Kinetic typography** | lyric-style statements, event announcements, manifestos | 10–30 s |
 | 📺 **Bumpers, idents, channel intros** | short brand moments that loop | 3–10 s |
 | 🧭 **Explainers** | six explainer styles, optional voice-over sync, 16:9 or 9:16 | 30–120 s |
+| 🧊 **3D explainers & hero shots** | a Three.js world with a cinematic camera — shot sizes, angles, dolly/crane/rail, lenses, rack focus, lighting presets | 30–90 s |
 | 🎥 **Video layers** | your own or generated clips placed like footage — inside devices, frames, and masks, locked to the timeline | — |
 | 🎞️ **After Effects builds** | cartoon explainers built directly inside AE through the Higgsfield MCP bridge | — |
 
@@ -258,6 +259,7 @@ references/
   opener-konsep.md               19 opener concepts, UI animation, photos in openers
   anti-ppt.md                    slide patterns → fixes
   techniques.md                  typography, camera, transitions, backgrounds, render families
+  sinematografi.md               cinematic camera & lighting vocabulary, 2.5D vs 3D, 3D pitfalls
   explainer.md                   explainer styles, camera recipes, VO re-timing
   kartun-panggung.md             cartoon stage explainers
   architecture.md                stage, camera rig, determinism, export
@@ -266,6 +268,7 @@ references/
 assets/
   starter-opener.html            opener / promo architecture (GSAP + Three.js)
   starter-explainer*.html        one starter per explainer style
+  starter-explainer-3d.html      3D world explainer (Three.js + shared cinematic camera)
 scripts/
   lint-motion.mjs                check the mechanical rules on a deliverable
   snap.mjs                       verify: capture key seconds

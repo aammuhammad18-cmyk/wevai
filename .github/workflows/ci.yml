@@ -33,7 +33,15 @@ jobs:
         run: node scripts/context-budget.mjs --check
 
       - name: Lint starter (aturan yang bisa diperiksa mekanis)
-        run: node scripts/lint-motion.mjs assets/*.html
+        run: |
+          node scripts/lint-motion.mjs assets/*.html
+          # fixture buruk WAJIB gagal (exit != 0) dan menyebut aturannya — kalau lint berhenti menangkapnya, CI merah
+          st=0; out=$(node scripts/lint-motion.mjs evals/bukti/lint-three-buruk.html) || st=$?
+          [ "$st" -eq 1 ] || { echo "::error::lint-three-buruk.html seharusnya GAGAL (exit 1), dapat $st"; exit 1; }
+          grep -q 'FAIL determinisme-clock' <<<"$out" || { echo '::error::lint-three-buruk.html tidak lagi memicu determinisme-clock'; exit 1; }
+          # fixture relatif hanya WARN: exit 0 dan harus memuat gsap-relatif
+          out=$(node scripts/lint-motion.mjs evals/bukti/lint-relatif-buruk.html)
+          grep -q 'WARN gsap-relatif' <<<"$out" || { echo '::error::lint-relatif-buruk.html tidak lagi memicu gsap-relatif'; exit 1; }
 
       - name: SRI library CDN masih cocok
         run: node scripts/cdn-integrity.mjs --check assets/*.html

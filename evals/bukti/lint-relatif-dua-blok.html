@@ -1,0 +1,12 @@
+<!doctype html><div id="stage"><div id="a"></div></div>
+<script>
+const tl={to(){}};
+/* <wv:kamera> */
+tl.to('#a',{x:'+=10',duration:1},0);
+/* </wv:kamera> */
+/* <wv:kamera> */
+tl.to('#a',{y:'+=10',duration:1},1);
+/* </wv:kamera> */
+tl.to('#a',{x:'+=120',duration:1},2);
+window.OPENER={W:1920,H:1080,DURATION:10,tl,seek(){},ready:true};
+</script>

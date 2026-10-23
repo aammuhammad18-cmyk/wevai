@@ -5,14 +5,14 @@ license: MIT
 metadata:
   author: aammuhammad18
   author_url: https://github.com/aammuhammad18-cmyk/wevai
-  version: "1.0.0"
-  updated: "2026-10-22"
+  version: "1.1.0"
+  updated: "2026-10-23"
   homepage: https://github.com/aammuhammad18-cmyk/wevai
 ---
 
 # WeVai — motion graphic web yang bukan PPT
 
-**v1.0.0 · by [aammuhammad18](https://github.com/aammuhammad18-cmyk/wevai) · MIT.** Riwayat perubahan di `CHANGELOG.md`;
+**v1.1.0 · by [aammuhammad18](https://github.com/aammuhammad18-cmyk/wevai) · MIT.** Riwayat perubahan di `CHANGELOG.md`;
 cara pasang di `README.md`.
 
 Skill ini untuk AI coding agent apa pun (format Agent Skills terbuka).
@@ -30,6 +30,7 @@ menurunkan kepatuhan pada aturan yang penting.
 | **Inti** (selalu) | `SKILL.md` + `references/anti-ppt.md` | hukum, larangan struktural, alur kerja, checklist umum |
 | Opener · promo · bumper · intro · kinetic typography | + `references/opener-konsep.md`, `references/techniques.md`, `assets/starter-opener.html` | menu konsep & sidik jari struktur, resep efek, starter |
 | Explainer (5 gaya kolase/aliran) | + `references/explainer.md`, `references/techniques.md`, starter gaya itu | langkah nol, gaya, kamera kolase, VO, checklist explainer |
+| Explainer 3D & kamera sinematik | + `references/sinematografi.md`, `assets/starter-explainer-3d.html` (opener 3D: jalur opener + `sinematografi.md`) | kosakata shot/sudut/gerak/lensa/cahaya, resep 2.5D & 3D, jebakan |
 | Explainer kartun panggung | + `references/kartun-panggung.md`, `assets/starter-explainer-panggung.html` | satu panggung per adegan, rig sendi, palet flat |
 | Build di After Effects | + `references/ae-bridge-higgsfield.md` | batas bridge, arsitektur CAM, rig native, penyerahan |
 | Scaffold multi-file / alasan struktur | + `references/architecture.md` | panggung, rig kamera, determinisme, export |
@@ -96,8 +97,8 @@ hukum di bawah. Sebelum menyerahkan, cek KODE, bukan perasaan:
    `-jurnalisme`, `-katalog`, `-sketsa` (mode kolase: kamera menyusuri aset
    diam), `starter-explainer` (aksi kontinu: dunia mengalir), atau
    `starter-explainer-panggung` (kartun panggung: satu panggung per adegan,
-   rig sendi, kamera hanya di dalam panggung). Yang kolase satu rig; yang
-   panggung rignya lain. BUKAN dari `assets/starter-opener.html`
+   rig sendi, kamera hanya di dalam panggung), atau `starter-explainer-3d`
+   (dunia 3D). Yang kolase satu rig; yang panggung rignya lain. BUKAN dari `assets/starter-opener.html`
    (opener teks), dan bukan dari nol.
 
 7. **Miniatur adalah slide.** Kamera zoom < 1,08 sehingga rumah sebesar ibu
@@ -246,7 +247,10 @@ gagal: opener adalah wajah produk, dan dua produk tidak boleh berwajah sama.
      opener");
    - transisi: tentukan batas mana yang memerlukan efek dan mana yang cukup cut;
      pilih dari menu §4c sesuai konteks, bukan wajib dua jenis atau wajib 3D;
-   - satu momen istimewa (di mana efek termahal dipakai, sekali).
+   - satu momen istimewa (di mana efek termahal dipakai, sekali);
+   - lensa default (mm) — kosakata kamera di `references/sinematografi.md`;
+   - sudut & gerak kamera pembuka;
+   - preset cahaya per segmen + pemicu pergantiannya.
 2. **Starter adalah arsitektur, bukan gaya.** Warna abu-abu, font sistem,
    dan latar WebGL di `assets/starter-opener.html` adalah PLACEHOLDER. Kalau salah
    satunya masih terlihat di hasil, gaya belum diturunkan. Latar WebGL
@@ -263,7 +267,8 @@ gagal: opener adalah wajah produk, dan dua produk tidak boleh berwajah sama.
    Menjiplak kulit referensi = pelanggaran, walau user yang menyodorkannya —
    sebutkan itu satu kalimat lalu tawarkan versi yang lahir dari tema.
 4. **Berbeda dari proyek sebelumnya — kulit DAN kerangka.** Dua produk berbeda harus berbeda di
-   minimal tiga dari empat: palet, font, bahasa latar, tanda tangan gerak —
+   minimal tiga dari empat: palet, font, bahasa latar, tanda tangan gerak (termasuk
+   sudut pembuka + gerak tanda tangan kamera) —
    termasuk bentuk sorotan kata bila dipakai (pill + bintang milik satu
    proyek tidak boleh muncul lagi di proyek lain). Kerangkanya juga: konsep
    berbeda, atau ≥ 3 dari 5 elemen sidik jari struktur berbeda
@@ -357,7 +362,7 @@ bagian 1 dan 1b. Ringkasnya:
    dari sumber resmi PRODUK yang sedang dibuat — bukan dari referensi, bukan
    dari proyek lain, bukan karangan.
 2. **Tulis rundown dari konsep yang dipilih** — tabel `detik | adegan |
-   kalimat | visual`. Jumlah dan jenis adegan mengikuti konsep
+   kalimat | visual` (`visual` boleh berkosakata kamera: `WS high → dolly in CU`). Jumlah dan jenis adegan mengikuti konsep
    (`references/opener-konsep.md`), bukan pola hook → fitur → fitur → janji →
    logo → CTA. Total 25–40 detik. Minta persetujuan user atas rundown ini
    sebelum menulis kode; merombak rundown murah, merombak kode mahal.
@@ -459,6 +464,8 @@ build di After Effects → `references/ae-bridge-higgsfield.md`.
       perubahan ukuran shot ke elemen (wide ↔ medium close-up ↔ close-up) atau push pelan;
       napas kamera saja tidak dihitung. Label layar di luar rig, tidak terpotong zoom
 - [ ] Motion blur berarah pada semua teks masuk/keluar
+- [ ] Kamera sinematik: tiap dunia ≥ 2 sudut berbeda; cahaya bercerita di ≥ 1 segmen
+      (atau dinyatakan tidak dipakai di style brief); subjek tidak masuk zona aman HUD
 - [ ] Latar lahir dari tema (tidak otomatis gelap; terang bisa gradien,
       warna lembut, blok warna, kertas), punya kedalaman (bukan satu warna
       flat), TIDAK lebih ramai daripada subjek; pergantian latar diputuskan
@@ -522,6 +529,8 @@ dan buat layer dari belakang ke depan. Build 10 panggung ≈ 1 jam, 0 kredit.
 | `references/techniques.md` | saat membangun adegan & efek (termasuk ukuran shot §3b, grainy gradient §7d, menu gaya render objek §7e, dan video sebagai layer footage §9b) |
 | `references/roadmap.md` | saat mengembangkan skill ini lebih lanjut |
 | `assets/starter-opener.html` | titik awal OPENER/promo — arsitektur + perkakas (8 pintu teks, transisi opsional); SENGAJA tanpa urutan adegan contoh, kerangka dari `opener-konsep.md` |
+| `references/sinematografi.md` | KAMERA SINEMATIK 2.5D/3D: memilih dunia, kosakata → panggilan, aturan 180°/30°/cahaya, jebakan 3D |
+| `assets/starter-explainer-3d.html` | EXPLAINER dunia 3D: Three.js r161 + `CAM`, `mat()`, `fromSVG()`, cahaya key/fill/rim, HUD di luar `#world`, `?demo=1` |
 | `assets/starter-explainer.html` | EXPLAINER gaya aksi kontinu (vektor): mode aliran (strip + hero + objek dunia) + view peta + whip + contoh mode kolase |
 | `assets/starter-explainer-kartun.html` | EXPLAINER kartun kolase: kertas krem + grain + noda, cutout ilustrasi, Bricolage + Caveat, pill warna |
 | `assets/starter-explainer-jurnalisme.html` | EXPLAINER jurnalisme visual: hitam + grain, foto asli + tag sumber, Barlow Condensed + Plex Mono, highlighter kuning/merah, anotasi putus |

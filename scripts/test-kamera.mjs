@@ -13,7 +13,7 @@ function load({ W = 1920, H = 1080, dom = {} } = {}) {
   const tl = { to: (o, v, at) => calls.push({ m: 'to', o, v, at }), set: (o, v, at) => calls.push({ m: 'set', o, v, at }), time: () => 0 };
   const $ = s => dom[s] || null;
   const api = new Function('tl', 'W', 'H', '$', 'rig', 'applyCam', 'console', src +
-    ';return {CAM,camTo,cutTo,look,home,into,settle,breath,noise,SHOT,ANGLE,rectIn,shot,angle,dolly,truck,pedestal,pan,tilt,crane,arc,rule180,lens,dollyZoom,whipPan,handheld,hud}')
+    ';return {CAM,camTo,cutTo,look,home,into,settle,breath,noise,SHOT,ANGLE,rectIn,shot,angle,dolly,truck,pedestal,pan,tilt,crane,arc,rule180,lens,dollyZoom,whipPan,handheld,hud,camDefaults,pose,jarakBingkai}')
     (tl, W, H, $, dom.rig || null, () => {}, { warn: m => warns.push(String(m)) });
   return { ...api, calls, warns };
 }
@@ -138,4 +138,41 @@ test('shot() pada subjek di dalam bidang data-z mengoreksi fokus (bidang diskala
   const r = k.shot(1, 1, 'MS', subj);
   assert.ok(Math.abs(r.fx - (1400 + s0 * (1200 - 1400))) < 1e-9, `fx ${r.fx}`);
   assert.ok(Math.abs(r.fy - 200) < 1e-9);
+});
+
+test('pose(): kamera di belakang fokus pada yaw 0, di atas saat pitch negatif, di kanan saat yaw 90', () => {
+  const k = load(), c = { fx: 1, fy: 2, fz: 3, dist: 10, yaw: 0, pitch: 0 };
+  assert.deepEqual(k.pose(c), { x: 1, y: 2, z: 13 });
+  const p = k.pose({ ...c, pitch: -30 });
+  assert.ok(Math.abs(p.y - 7) < 1e-9 && Math.abs(p.z - (3 + 10 * Math.cos(Math.PI / 6))) < 1e-9);
+  const q = k.pose({ ...c, yaw: 90 });
+  assert.ok(Math.abs(q.x - 11) < 1e-9 && Math.abs(q.z - 3) < 1e-9);
+});
+test('jarakBingkai(): rumus filmGauge 36, sisi panjang; subjek 0 ditolak', () => {
+  const k = load();
+  assert.ok(Math.abs(k.jarakBingkai(1.7, .6, .45, 35, 16 / 9) - 6.52949) < 1e-4);
+  assert.ok(Math.abs(k.jarakBingkai(1, 4, 1, 50, 16 / 9) - 4 / (16 / 9) * 50 * (16 / 9) / 36) < 1e-9, 'subjek lebar: lebar yang menentukan');
+  assert.throws(() => k.jarakBingkai(0, 0, .45, 35), /ukuran subjek 0/);
+  assert.throws(() => k.jarakBingkai(1, 1, 0, 35), /fill.*harus > 0/, 'fill 0 (ukuran shot salah) punya pesan sendiri');
+  assert.throws(() => k.jarakBingkai(1, 1, .45, 0), /mm.*harus > 0/, 'lensa 0 mm punya pesan sendiri');
+});
+test('mode three: camDefaults menyinkronkan PLAN; truck mengikuti yaw; dollyZoom menjaga dist/mm', () => {
+  const k = load(); k.CAM.mode = 'three';
+  k.camDefaults({ fx: 0, fy: 0, fz: 0, dist: 10, yaw: 90, mm: 35 });
+  k.truck(0, 1, 2); const v = k.calls.at(-1).v;
+  assert.ok(Math.abs(v.fx - 0) < 1e-9 && Math.abs(v.fz + 2) < 1e-9);
+  k.dollyZoom(1, 2, 70); assert.deepEqual([k.calls.at(-1).v.mm, k.calls.at(-1).v.dist], [70, 20]);
+  k.whipPan(4, 1); assert.deepEqual([k.calls.at(-1).v.yaw, k.calls.at(-1).v.fx], [160, undefined]);
+  let diminta = null; k.CAM.frame3d = (fill, el) => { diminta = el; return { fx: 1, fy: 2, fz: 3, dist: 9 }; };
+  k.shot(5, 1, 'WS', 'subjek'); assert.equal(diminta, 'subjek', 'nama diteruskan ke frame3d, bukan dicari di DOM');
+  const d = load(); d.dollyZoom(0, 1, 85); assert.equal(d.calls.at(-1).v.dist, undefined, 'mode dom tidak menyentuh dist');
+});
+
+test("nilai relatif: '+=', '-=', '*=' diselesaikan; awalan lain ditolak", () => {
+  const k = load();
+  k.cutTo(0, { yaw: 10 });
+  k.camTo(1, 1, { yaw: '-=20' }); assert.equal(k.calls.at(-1).v.yaw, -10, "'-=20' dari 10 → -10");
+  k.camTo(2, 1, { yaw: '+=-5' }); assert.equal(k.calls.at(-1).v.yaw, -15, "'+=-5' tetap mengurangi");
+  k.camTo(3, 1, { zoom: '*=2' }); assert.equal(k.calls.at(-1).v.zoom, 2);
+  assert.throws(() => k.camTo(4, 1, { zoom: '/=2' }), /nilai relatif/);
 });

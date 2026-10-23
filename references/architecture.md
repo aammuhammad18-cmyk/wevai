@@ -57,6 +57,9 @@ bagian dunia.
 `CAM` (`src/runtime/kamera.js`), yang di-tween GSAP pada detik absolut. Jalur 2D murni menghasilkan
 `translate(…) scale(…)` yang sama dengan kamera kolase lama; sudut, goyangan, atau bidang `[data-z]` mengaktifkan
 `perspective/rotateX/Y/Z`. Kamera tidak punya jam: handheld memakai noise ber-seed dari `tl.time()`.
+Di starter 3D dan opener, `CAM` yang sama dibaca backend `kamera-three.js`: `applyCam()` menulis ke kamera Three.js
+(dan menghitung ulang cahaya) di dalam `render(t)`; `#world` tetap rig DOM yang men-zoom kanvas dan teks bersama
+(`camThrough`/`breathe` opener). Bedanya dengan 2.5D: `references/sinematografi.md` §4.
 
 ## State-driven WebGL
 

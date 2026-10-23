@@ -269,7 +269,10 @@ const objek3=o=>{if(typeof o==='string'){const n=o;o=scene.getObjectByName(n);if
 const kotak3=o=>{const b=new THREE.Box3().setFromObject(o);if(b.isEmpty())throw new Error('shot: subjek 3D kosong — '+(o.name||o.type));return b;};
 /* shot() di inti memanggil ini: fokus = pusat Box3, jarak dari tinggi/lebar kotak pada lensa RENCANA */
 CAM.frame3d=(fill,o)=>{const b=kotak3(objek3(o)),c=b.getCenter(new THREE.Vector3()),s=b.getSize(new THREE.Vector3());
-  return{fx:c.x,fy:c.y,fz:c.z,dist:jarakBingkai(s.y,s.x,fill,PLAN.mm)};};
+  /* jarakBingkai = jarak ke bidang yang mengisi frame; bidang itu adalah permukaan DEPAN subjek, bukan pusatnya:
+     tambah setengah rentang kotak searah pandang (bidang tanpa kedalaman = 0, tidak berubah) */
+  const v=pose({fx:0,fy:0,fz:0,dist:1,yaw:PLAN.yaw,pitch:PLAN.pitch}),dalam=(Math.abs(v.x)*s.x+Math.abs(v.y)*s.y+Math.abs(v.z)*s.z)/2;
+  return{fx:c.x,fy:c.y,fz:c.z,dist:jarakBingkai(s.y,s.x,fill,PLAN.mm)+dalam};};
 /* ZONA AMAN HUD 3D: proyeksikan 8 sudut kotak subjek dari pose AKHIR shot ke piksel panggung, bandingkan
    dengan kotak elemen HUD di #stage. Sudut di belakang kamera = subjek menelan frame. */
 CAM.cek3=(at,dur,o,v)=>{const hs=HUD.filter(h=>!(at+dur<h.at||at>h.to));if(!hs.length)return;
@@ -360,7 +363,8 @@ window.CAM3_UJI=()=>{const r={},c0={...CAM},V=()=>new THREE.Vector3();tl.pause(0
   const p=pose(CAM);r.poseCocok=camera.position.distanceTo(new THREE.Vector3(p.x,p.y,p.z))<1e-6;
   const n=kotak3(objek3('subjek')).getCenter(V()).project(camera);r.ndc=[n.x,n.y];
   const bid=new THREE.Mesh(new THREE.PlaneGeometry(1.6,1.6));scene.add(bid);   // datar: tanpa distorsi perspektif kedalaman
-  Object.assign(CAM,{yaw:0,pitch:0},CAM.frame3d(SHOT.WS,bid));applyCam();camera.updateMatrixWorld();
+  {const py=PLAN.yaw,pp=PLAN.pitch;PLAN.yaw=PLAN.pitch=0;Object.assign(CAM,{yaw:0,pitch:0},CAM.frame3d(SHOT.WS,bid));PLAN.yaw=py;PLAN.pitch=pp;}   // frame3d membaca sudut dari PLAN
+  applyCam();camera.updateMatrixWorld();
   const y=v=>new THREE.Vector3(0,v,0).project(camera).y;r.isiTinggi=(y(.8)-y(-.8))/2;scene.remove(bid);bid.geometry.dispose();
   hud.reserve('#hud .lbl',0,99);
   try{shot(0,.1,'CU','subjek');r.hudTabrakDitolak=false;}catch(e){r.hudTabrakDitolak=/zona aman/.test(e.message);}HUD.pop();
@@ -384,6 +388,9 @@ window.CAM3_UJI=()=>{const r={},c0={...CAM},V=()=>new THREE.Vector3();tl.pause(0
   tl.time(tA+2+1e-3);applyCam();r.railSambung=camera.position.distanceTo(V().set(10,4,0));
   const nR2=RAILS.length;try{rail(planAt-1,2,pts);r.railUrutDitolak=false;}catch(e){r.railUrutDitolak=/urut waktu/.test(e.message)&&RAILS.length===nR2;}
   tl.time(0);for(const w of tws){w.kill();tl.remove(w);}RAILS.length=nR;Object.assign(PLAN,P1);planAt=pa1;
+  {const h=[];for(const k of ['ECU','CU']){Object.assign(CAM,{yaw:30,pitch:-15,roll:0,shake:0,zoom:1,mm:PLAN.mm,rail:-1},CAM.frame3d(SHOT[k],'subjek'));applyCam();camera.updateMatrixWorld();
+    const bx=kotak3(objek3('subjek')),n=bx.getCenter(V()).project(camera);h.push({k,dalam:bx.containsPoint(camera.position),ndc:[n.x,n.y]});}
+   r.dekatDiLuar={hasil:h,ok:h.every(e=>!e.dalam&&Math.abs(e.ndc[0])<.05&&Math.abs(e.ndc[1])<.05)};}
   /* lowkey harus tampak lowkey: dari pose 3/4 (cahaya samping) lantai & sisi membelakangi key jauh lebih gelap daripada day */
   {const L1={...LUX},lum=()=>{const gl=renderer.getContext(),o=[];   // piksel layar (dari atas): lantai kanan-bawah, sisi kubus kiri (= -x, membelakangi key az 80)
     for(const [x,y] of [[1750,850],[800,600]]){const px=new Uint8Array(4);gl.readPixels(x,H-y,1,1,gl.RGBA,gl.UNSIGNED_BYTE,px);o.push(px[0]+px[1]+px[2]);}return o;};

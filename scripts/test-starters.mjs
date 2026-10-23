@@ -164,6 +164,7 @@ for (const file of files) {
       if (ada('railSambung') && !(cam3.railSambung < 1e-6)) masalah.push(`kamera3: kamera melompat saat rail selesai (selisih ${cam3.railSambung})`);
       if (ada('demoAkhir') && !(cam3.demoAkhir > 0 && cam3.demoAkhir < cam3.DUR)) masalah.push(`kamera3: ?demo=1 harus selesai sebelum DUR (${cam3.demoAkhir} vs ${cam3.DUR})`);
       if (ada('lowkeyGelap') && !(cam3.lowkeyGelap.lantai <= .5 && cam3.lowkeyGelap.wajah <= .6)) masalah.push(`kamera3: lowkey harus jauh lebih gelap dari day (lantai ${cam3.lowkeyGelap.lantai.toFixed(2)} ≤ .5, wajah teduh ${cam3.lowkeyGelap.wajah.toFixed(2)} ≤ .6)`);
+      if (ada('dekatDiLuar') && !cam3.dekatDiLuar.ok) masalah.push(`kamera3: shot ECU/CU menaruh kamera di dalam subjek atau tidak memusatkannya (${JSON.stringify(cam3.dekatDiLuar.hasil)})`);
       if (ada('familyDitolak') && !cam3.familyDitolak) masalah.push("kamera3: mat('neon') harus ditolak");
     }
 

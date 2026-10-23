@@ -135,7 +135,7 @@ yaw 0, cut ke `cutTo(t,{yaw:180})` — arah gerak terbalik. `rule180(a)` hanya m
 dua kali dengan yaw 0 dan 12. 2.5D: peringatan konsol saat setup; 3D: **tanpa peringatan** — periksa di rundown.
 
 **Lead room.** Ruang kosong di arah subjek menghadap/bergerak. *Kenapa:* subjek yang menempel tepi depan terasa
-akan menabrak bingkai. Geser fokus searah gerak sejauh sepertiga frame: 2.5D `(W/6)/zoom` piksel, 3D
+akan menabrak bingkai. Geser fokus searah gerak 1/6 lebar frame (subjek jatuh di garis sepertiga): 2.5D `(W/6)/zoom` piksel, 3D
 `dist·6/mm` unit sepanjang kanan kamera (lebar frame di jarak `dist` = `dist·36/mm`). *Kegagalan:* kapal
 berangkat ke kanan, kamera membingkainya di tengah lalu menempel di tepi kanan sepanjang shot.
 
@@ -242,7 +242,7 @@ Warna brand tepat WAJIB `renderer.toneMapping = THREE.NoToneMapping` — kedua s
 **`composer.render()` tanpa argumen** membaca jam sendiri → frame berbeda tiap ekspor. Selalu `composer.render(0)`
 (lint `composer-render-jam`). Sama: tanpa `THREE.Clock`, `getDelta`, `mixer.update(` di jalur render.
 
-**`CatmullRomCurve3` dengan 2 titik rusak di r161** — `rail()` menolak < 3 titik. Garis lurus: beri titik tengah.
+**`CatmullRomCurve3` dengan 2 titik rusak di r161** — `rail()` menolak < 3 titik. Garis lurus: beri titik tengah. Titik terakhir = `look` juga ditolak (kamera tanpa arah).
 
 **`new RoomEnvironment(renderer)`** selalu dengan `renderer` (r161).
 
@@ -250,10 +250,13 @@ Warna brand tepat WAJIB `renderer.toneMapping = THREE.NoToneMapping` — kedua s
 kamera, warna memudar ke `--base` (warna brand tidak tepat lagi) dan subjek jauh lenyap di EWS. Dunia besar/EWS
 jauh: besarkan lantai dan naikkan near/far, atau buang kabut dan tutup tepi lantai dengan cara lain.
 
-**Low/worm angle di bawah lantai.** Tinggi kamera = `fy − dist·sin(pitch)`. Pada kubus 1,6 starter, sesudah `shot(…,'WS')` (dist ±7)
-`angle('low')` (pitch 25) menaruh kamera ±2 unit di BAWAH lantai: lantai lenyap (sisi bawahnya tidak digambar)
-beserta bayangannya. Low angle di dunia berlantai: dekatkan kamera (MCU/CU), pakai pitch kecil lewat override,
-atau subjek yang tinggi; `worm` hanya saat kamera hampir menempel subjek.
+**Low/worm angle di bawah lantai → `CAM.lantai`.** Tinggi kamera = `fy − dist·sin(pitch)`; sesudah `shot(…,'WS')`
+pada kubus 1,6 (dist ±7) `angle('low')` menaruh kamera di y −2,2, `worm` −5,3 — lantai lenyap, layar hitam.
+`CAM.lantai` (y bidang tanah) menjepit kamera di `lantai + 0,05` setiap frame (juga dip di tengah tween, kamera
+bayangan zona aman, dan jarak `focus()`); kamera tetap menatap fokus, jadi low angle yang terlalu jauh berubah
+jadi eye level tepat di atas lantai. Opt-in: default `null` (tanpa jepit — opener/luar angkasa). Starter 3D
+memasang `camDefaults({lantai:0})` di samping lantainya; dunia tanpa lantai: hapus baris itu. Low angle yang
+sungguh menengadah: dekatkan kamera (MCU/CU) atau pakai subjek yang tinggi.
 
 **Lensa dari `angle()` bertahan (3D).** `low` 24 mm, `worm` 16, `ots` 50, `pov` 28 — dan `eye` tidak
 mengembalikannya. Shot berikutnya ikut lensa itu. Kembalikan dengan `lens(at,dur,35)` atau `angle(…,{mm:35})`.
@@ -277,12 +280,19 @@ WARN `gsap-relatif`). Gerak kamera relatif (`dolly`, `truck`, `'+='` di `camTo`)
 saat setup.
 
 **Urut waktu.** Gerak kamera relatif, `rail()`, dan `light()` wajib dipanggil urut `at` naik — di luar urutan
-melempar error. Tulis rundown dari detik kecil ke besar; `cutTo`/`camTo` absolut boleh di mana saja.
+melempar error. Tulis rundown dari detik kecil ke besar. Nilai ABSOLUT `camTo`/`cutTo`/`shot` juga memperbarui RENCANA, jadi
+tulis juga urut waktu terhadap gerak relatif: `cutTo` detik 3 yang ditulis SESUDAH `dolly` detik 5 tidak terlihat
+oleh dolly itu, dan gerak relatif berikutnya menghitung dari nilai cut, bukan dari hasil dolly.
 
 **`shot()` 3D menerima nama, bukan selector.** Di opener (`CAM.mode='three'`), `shot(t,1,'CU','#judul')` mencari
 objek 3D bernama `#judul` dan melempar. Teks DOM opener dibingkai rig `#world` (`camThrough`/`breathe`), bukan `CAM`.
 Subjek berupa grup dibingkai seluruh `Box3`-nya (kapal + derek = kotak besar); grup kosong melempar
 `subjek 3D kosong` — termasuk `fromSVG` yang semua path-nya garis.
+
+**`shot`/`focus` membaca kotak subjek saat dipanggil.** `tl.from()` menerapkan nilai awalnya SEGERA — subjek
+yang muncul dengan `tl.from(m.scale,{x:0,y:0,z:0})` berukuran 0 saat `shot()` sesudahnya dipanggil (melempar
+`berukuran 0`), posisi `from` membingkai titik awal. Panggil `shot`/`focus` sebelum `tl.from()` pada subjek itu,
+atau bingkai dengan `camTo` dan angka sendiri.
 
 **Zona aman hanya diperiksa `shot()`.** `camTo`, `angle`, gerak, dan `rail` tidak memeriksa kantong teks —
 potret detiknya (`snap.mjs`).

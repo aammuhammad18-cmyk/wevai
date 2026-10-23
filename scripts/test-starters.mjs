@@ -148,6 +148,9 @@ for (const file of files) {
     if (name === 'starter-opener.html' && !cam3) masalah.push('kamera3: opener harus mendefinisikan window.CAM3_UJI');
     if (cam3) {
       const ada = k => cam3[k] != null;
+      // null hanya sah di opener (tanpa subjek/#hud); starter 3D lain harus mengisi SEMUA field
+      if (name !== 'starter-opener.html') for (const k of ['poseCocok', 'ndc', 'isiTinggi', 'hudTabrakDitolak', 'pikselBrand', 'kosongDitolak', 'familyDitolak', 'keyGolden', 'elGolden', 'lightUrutDitolak', 'bokehSaatNol', 'bokehSaatEnam', 'jarakFokus', 'jarakHarapan', 'keyIkutKamera', 'railDuaDitolak', 'railUrutDitolak', 'railTengah', 'railSambung', 'dekatDiLuar', 'lowkeyGelap', 'demoAkhir', 'DUR'])
+        if (cam3[k] == null) masalah.push(`kamera3: field ${k} kosong — subjek/#hud hilang dari starter 3D?`);
       if (name === 'starter-opener.html' && cam3.poseCocok == null) masalah.push('kamera3: opener harus punya poseCocok non-null');
       if (ada('poseCocok') && !(cam3.poseCocok)) masalah.push('kamera3: camera.position ≠ pose(CAM)');
       if (ada('ndc') && !(Math.abs(cam3.ndc[0]) < .01 && Math.abs(cam3.ndc[1]) < .01)) masalah.push(`kamera3: shot MS tidak memusatkan subjek (${cam3.ndc})`);

@@ -237,7 +237,9 @@ function applyCam(t){
 // contoh: shot(T, .8, ...frameOn($('#judul'), .6)); shot(T + 2, .7, 1, W/2, H/2);
 ```
 **Kosakata bersama (`src/runtime/kamera.js` + `kamera-dom.js`)** — lima starter explainer (kolase dan aksi
-kontinu) sudah memuatnya; opener menyusul. Semua dipanggil dengan detik absolut dan menulis ke satu objek `CAM`:
+kontinu) sudah memuatnya; opener dan starter 3D memakai inti yang sama dengan backend `kamera-three.js`. Kosakata 3D
+& tata bahasa (kapan sudut/lensa/cahaya, aturan, jebakan): `references/sinematografi.md`. Semua dipanggil dengan detik
+absolut dan menulis ke satu objek `CAM`:
 - ukuran shot `shot(at,dur,'ECU|CU|MCU|MS|WS|EWS',el)` — pengganti `frameOn()`;
 - sudut `angle(at,dur,'eye|high|low|overhead|worm|dutch|ots|pov')`;
 - gerak `dolly/truck/pedestal/pan/tilt/crane/arc`, `lens(at,dur,mm)`, `dollyZoom`, `whipPan(at,arah)`,

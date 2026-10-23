@@ -49,12 +49,10 @@ warna, brand, atau kalimat spesifik proyek asalnya.
 7. **Kalibrasi selera lanjut.** Kumpulkan lebih banyak pasangan
    gagal→berhasil dari proyek berikutnya ke tabel di `anti-ppt.md`.
    Tabel itu adalah aset paling berharga skill ini.
-8. **Kamera sinematik, lanjutan.** Inti `kamera.js` dan backend 2.5D `kamera-dom.js` sudah satu sumber untuk lima
-   starter explainer (shot, sudut, gerak, lensa, cahaya, zona aman HUD). Yang belum: backend Three.js
-   (`kamera-three.js`), starter explainer 3D, opener memakai `CAM`, dan `references/sinematografi.md` —
-   spec di `docs/superpowers/specs/2026-10-03-kamera-sinematik-3d-design.md`. Sistem panggung tetap rig sendiri.
+8. ~~**Kamera sinematik, lanjutan.**~~ Selesai di 1.1.0: kamera 2.5D dan 3D satu sumber (lihat "Sudah
+   dikerjakan"). Sistem panggung tetap rig sendiri.
 9. **Eval regresi, lanjutan.** Kerangka dan laporan pertama sudah ada (1 dari 8 brief,
-   `evals/laporan-2026-09-20.md`). Yang belum: menjalankan tujuh brief sisanya di sesi
+   `evals/laporan-2026-09-20.md`). Yang belum: menjalankan brief sisanya (termasuk 09-explainer-3d) di sesi
    baru sebagai baseline sungguhan, lalu membandingkan skor antar rilis.
 
 
@@ -113,3 +111,5 @@ dan berikan `starter-opener.html` sebagai titik awal kode.
   penyeragam versi (`scripts/bump-version.mjs`), dan CI yang menjalankan semuanya.
 - Kamera bersama: `src/runtime/kamera.js` + `kamera-dom.js` menggantikan `kamera-kolase.js` (transform starter
   identik), uji inti `scripts/test-kamera.mjs`, lint `determinisme-clock` / `composer-render-jam`.
+- Kamera 3D (1.1.0): backend `src/runtime/kamera-three.js` di atas inti yang sama, `starter-explainer-3d.html`,
+  opener memakai `CAM`, `references/sinematografi.md`, lint `gsap-relatif`, uji hash kanvas lintas jalur seek.

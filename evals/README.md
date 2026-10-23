@@ -21,4 +21,4 @@ Laporan lama sengaja disimpan di repo supaya bisa dibandingkan antar versi.
 
 `laporan-2026-09-20.md` adalah laporan pertama: baru 1 dari 8 brief (04-bumper) dan
 dibangun di sesi yang sama dengan yang menilai, jadi ia membuktikan alur evalnya jalan —
-bukan baseline penuh. Laporan berikutnya sebaiknya memuat kedelapan brief dari sesi baru.
+bukan baseline penuh. Laporan berikutnya sebaiknya memuat semua brief dari sesi baru.

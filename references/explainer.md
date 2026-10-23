@@ -85,7 +85,9 @@ Explainer SELALU dimulai dari starter gayanya (folder `assets/`):
 `starter-explainer-kartun.html`, `starter-explainer-jurnalisme.html`,
 `starter-explainer-katalog.html`, `starter-explainer-sketsa.html`, atau
 `starter-explainer.html` untuk aksi kontinu — atau `starter-explainer-panggung.html`
-untuk kartun panggung (rig berbeda, lihat `kartun-panggung.md`). Lima starter
+untuk kartun panggung (rig berbeda, lihat `kartun-panggung.md`) — atau
+`starter-explainer-3d.html` bila dunianya butuh volume, sudut sungguhan, dan cahaya
+(`sinematografi.md` §1). Lima starter
 pertama berbagi pola rig; yang beda hanya PERMUKAAN (tekstur latar, jenis aset,
 font, warna). Dua mode gerak:
 

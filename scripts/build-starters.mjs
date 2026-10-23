@@ -30,12 +30,18 @@ for (const file of files) {
   const path = join(ROOT, 'assets', file);
   const before = await readFile(path, 'utf8');
   let after = before;
+  // checkout Windows (core.autocrlf) memberi CRLF: sumber & starter dibandingkan dengan akhir baris starter itu
+  const eol = before.includes('\r\n') ? '\r\n' : '\n';
 
   for (const name of blocks) {
-    const body = (await readFile(join(SRC, name + '.js'), 'utf8')).replace(/\s+$/, '');
-    const re = new RegExp(`(/\\* <wv:${name}>[\\s\\S]*?\\*/\\n)([\\s\\S]*?)(\\n/\\* </wv:${name}> \\*/)`);
+    const body = (await readFile(join(SRC, name + '.js'), 'utf8')).replace(/\s+$/, '').replace(/\r?\n/g, eol);
+    const re = new RegExp(`(/\\* <wv:${name}>[\\s\\S]*?\\*/\\r?\\n)([\\s\\S]*?)(\\r?\\n/\\* </wv:${name}> \\*/)`);
     const m = after.match(re);
-    if (!m) continue;                                  // starter ini memang tidak memakai blok itu
+    if (!m) {
+      if (!after.includes(`<wv:${name}>`)) continue;   // starter ini memang tidak memakai blok itu
+      console.error(`${file}: penanda <wv:${name}> ada tetapi bloknya tidak terbaca (penutup /* </wv:${name}> */ hilang atau rusak)`);
+      process.exit(1);
+    }
     if (m[2] !== body) after = after.replace(re, (_, a, __, c) => a + body + c);
   }
 

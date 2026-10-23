@@ -74,7 +74,7 @@ Pitch negatif = kamera di atas fokus, menunduk. `override` menimpa nilai preset:
 | Whip pan | transisi "pada saat yang sama, di tempat lain" | `whipPan(at,arah)` lalu `cutTo(at+.28,…)` | 0,28 dtk; 2.5D geser 180 px + blur, 3D yaw +70° |
 | Handheld | reportase, "di lapangan" | `handheld(a,b,amp)` | noise ber-seed dari `tl.time()`; amp .3–.8 |
 | Lompat di cut | adegan lahir di posisi baru | `cutTo(at,{…})` | tanpa tween |
-| Tween bebas | apa pun yang tak tercakup | `camTo(at,dur,{fx,fy,fz,dist,yaw,pitch,roll,mm,zoom},ease)` | nilai absolut, `'+=x'`, atau `'*=x'`; mundur ditulis `'+=-x'` (`'-=x'` terbaca +x) |
+| Tween bebas | apa pun yang tak tercakup | `camTo(at,dur,{fx,fy,fz,dist,yaw,pitch,roll,mm,zoom},ease)` | nilai absolut atau relatif `'+=x'`, `'-=x'`, `'*=x'`; awalan lain melempar error |
 
 ### Lensa — `lens(at,dur,mm)`, `dollyZoom(at,dur,mm)`
 

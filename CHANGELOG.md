@@ -30,7 +30,10 @@ baru dan opener.
   GSAP; `walk()` wajib dipanggil urut waktu.
 - **Anggaran konteks**: batas jalur Opener 190 → 220 KB (+30: blok kamera bersama `kamera.js` + `kamera-three.js`
   di starter opener — perkakas, bukan aturan; jalur itu 184 → 210 KB). Jalur baru "Explainer / opener 3D" (batas
-  170 KB). Batas jalur lain tetap.
+  170 KB) dan "Opener 3D" (opener + `sinematografi.md`, batas 240 KB = 190 aturan opener + 30 blok kamera +
+  ±21 `sinematografi.md`, bacaan wajib 3D). Batas jalur lain tetap.
+- **Nilai relatif kamera**: `'-=x'` di `camTo`/`cutTo` kini mengurangi (sebelumnya terbaca `+x`); awalan selain
+  `+=`, `-=`, `*=` melempar error.
 
 ## 1.0.0 — 2026-10-22
 

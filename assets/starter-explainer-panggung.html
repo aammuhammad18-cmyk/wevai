@@ -117,7 +117,8 @@ function idle(ch,from){sway(ch.torso,from,1.1,1.7);sway(ch.head,from+.3,-1.7,2.3
 const face=(ch,e,at)=>{for(const k in ch.faces)tl.to(ch.faces[k].g,{opacity:k===e?1:0,duration:.08},at);
   if(ch.mouth)tl.to(ch.mouth,{attr:{d:e==='cemas'?'M -16 -36 C -6 -46 6 -46 16 -36':e==='kaget'?'M -8 -46 C -8 -30 8 -30 8 -46 Z':'M -16 -46 C -6 -36 6 -36 16 -46'},duration:.1},at);};
 function walk(ch,at,dur,dx){const n=Math.max(1,Math.round(dur/.39));
-  tl.to(ch.root,{x:'+='+dx,duration:dur,ease:'none',onUpdate:ch.root.apply},at);tl.to(ch.sd,{x:'+='+dx*ch.scale,duration:dur,ease:'none'},at);
+  ch.wx=(ch.wx||0)+dx;   // posisi absolut dihitung saat setup (panggil walk() berurutan waktu) — '+=' bergantung jalur seek
+  tl.to(ch.root,{x:ch.wx,duration:dur,ease:'none',onUpdate:ch.root.apply},at);tl.to(ch.sd,{x:ch.wx*ch.scale,duration:dur,ease:'none'},at);
   const leg=(j,a,b)=>tl.fromTo(j,{r:a},{r:b,duration:.39,ease:'sine.inOut',yoyo:true,repeat:n-1,onUpdate:j.apply,immediateRender:false},at);
   leg(ch.Lthigh,-15,15);leg(ch.Rthigh,15,-15);leg(ch.Lshin,0,18);leg(ch.Rshin,18,0);leg(ch.Larm,12,-12);
   tl.fromTo(ch.root,{y:0},{y:-4,duration:.195,ease:'sine.inOut',yoyo:true,repeat:n*2-1,onUpdate:ch.root.apply,immediateRender:false},at);

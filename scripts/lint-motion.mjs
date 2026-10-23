@@ -64,6 +64,14 @@ function lint(file, raw) {
     add('FAIL', 'composer-render-jam', 'composer.render() tanpa argumen membaca Clock internal (FilmPass/efek ber-waktu bergerak sendiri)', idx,
       'composer.render(0) dan tulis uniform waktu dari tl.time()');
 
+  // 2c. Nilai properti relatif ('+=120') diselesaikan GSAP saat render pertama → bergantung jalur seek.
+  //     Blok <wv:kamera> dikecualikan: inti kamera menyelesaikannya sendiri lewat mutlak() saat setup.
+  const kb = raw.indexOf('<wv:kamera>'), ke = raw.indexOf('</wv:kamera>');
+  for (const { idx } of all(src, /\btl\.(?:to|fromTo|from)\s*\([^;]*?:\s*['"`][+\-*]=/g))
+    if (!(kb >= 0 && idx > kb && idx < ke))
+      add('WARN', 'gsap-relatif', 'nilai relatif di tween diselesaikan GSAP saat render pertama — hasilnya bergantung jalur seek (scrub/snap/export bisa berbeda)', idx,
+        'hitung nilai absolut saat setup, atau pakai gerak kamera (dolly/truck/…) yang sudah diselesaikan PLAN');
+
   // 3. Loop: repeat:-1 membuat durasi timeline tak hingga → onComplete tak terpicu
   const inf = all(src, /repeat\s*:\s*-\s*1/g);
   const clockLoop = /tl\.time\s*\(\s*\)\s*>=|\.time\s*\(\s*\)\s*>=\s*(?:DUR|DURATION)/.test(src);

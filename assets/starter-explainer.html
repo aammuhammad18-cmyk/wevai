@@ -307,7 +307,7 @@ window.CAM_UJI=()=>{const r={};tl.pause(0);
 /* aset masuk dengan blur berarah lalu TETAP hidup (ayunan +-25 px / 1,5 dtk + putaran) */
 function fly(at,sel,{from='left',dur=.7}={}){const dx=from==='left'?-260:from==='right'?260:0,dy=from==='top'?-220:from==='bottom'?220:0;
   tl.fromTo(sel,{opacity:0,x:dx,y:dy,filter:'blur(14px)',rotation:from==='left'?-6:6},{opacity:1,x:0,y:0,filter:'blur(0px)',rotation:0,duration:dur,ease:'power4.out'},at);
-  tl.to(sel,{y:'+=25',rotation:'+=1.5',duration:1.5,yoyo:true,repeat:-1,ease:'sine.inOut'},at+dur);}
+  tl.to(sel,{y:25,rotation:1.5,duration:1.5,yoyo:true,repeat:-1,ease:'sine.inOut'},at+dur);}
 const flyOut=(at,sel)=>tl.to(sel,{opacity:0,y:-120,filter:'blur(12px)',duration:.4,ease:'power2.in'},at);
 
 /* ---------- kamera samping bernapas: [detik, zoom, cx, cy] ---------- */

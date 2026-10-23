@@ -63,7 +63,7 @@ const CAHAYA3={
   golden:[60,6,'#FFB46B',2.8,'#FFD9A8','#6B4A3A',.5,1.2],
   blue:  [0,30,'#6FA8FF',0,'#6FA8FF','#1B2244',.8,.4],
   night: [200,40,'#9DB7FF',.3,'#2A3560','#0C1020',.25,.5],
-  lowkey:[35,35,'#FFFFFF',3.0,'#FFFFFF','#000000',.12,.8],
+  lowkey:[80,12,'#FFFFFF',1.4,'#FFFFFF','#000000',.12,0],
   studio:[45,35,'#FFFFFF',2.5,'#FFFFFF','#B0B0B0',.7,1.5]};
 function nilaiLux(n){const [kAz,kEl,k,kI,s,g,fI,rI]=CAHAYA3[n],K=new THREE.Color(k),S=new THREE.Color(s),G=new THREE.Color(g);
   return{kAz,kEl,kI,kR:K.r,kG:K.g,kB:K.b,fI,fsR:S.r,fsG:S.g,fsB:S.b,fgR:G.r,fgG:G.g,fgB:G.b,rI};}
@@ -107,14 +107,15 @@ function fromSVG(svg,{depth=.2,bevel=.02,family='toon',scale=.01}={}){const g=ne
 
 /* ?demo=1 — katalog kosakata 3D (bukan rundown). Starter memanggilnya SETELAH koreografi contoh: semua gerak kamera
    & cahaya contoh dibuang (camReset tidak mereset lampAt/LUX, jadi dikerjakan di sini). 29 entri × DUR/30. */
-function demoKamera3(){camReset();gsap.killTweensOf(LUX);lampAt=-Infinity;HUD.length=0;   // kantong teks contoh tidak berlaku di katalog
+function demoKamera3(){camReset();gsap.killTweensOf(LUX);lampAt=-Infinity;HUD.length=0;gsap.killTweensOf('#hud>*');tl.set('#hud',{opacity:0},0);   // kantong teks contoh tidak berlaku di katalog
   const P0={fx:0,fy:0,fz:0,dist:14,yaw:0,pitch:-12,roll:0,mm:35,zoom:1,shake:0,rail:-1,railU:0},step=DUR/30,d=step*.7;let t=0;
   light(0,0,'day');cutTo(0,P0);
   for(const k in SHOT){shot(t,d,k,'subjek');t+=step;}cutTo(t,P0);t+=step;
   for(const k in ANGLE.three){cutTo(t,P0);angle(t,d,k);t+=step;}cutTo(t,P0);
   for(const [f,a] of [[dolly,1.5],[truck,2],[pedestal,1],[pan,15],[tilt,-8],[arc,40]]){f(t,step*.8,a);t+=step;}cutTo(t,P0);
   rail(t,step*.9,[[8,2,10],[0,3,12],[-8,2,10]],{look:[0,.8,0]});t+=step;cutTo(t,P0);
-  for(const k in CAHAYA3){light(t,step*.5,k);t+=step;}handheld(t,t+step,.8);t+=step;
+  cutTo(t,{yaw:-55,pitch:-18});   // cahaya samping: pose 3/4 supaya bayangan & sisi teduh terbaca
+  for(const k in CAHAYA3){light(t,step*.5,k);t+=step;}cutTo(t,P0);handheld(t,t+step,.8);t+=step;
   window.DEMO_AKHIR=t;}
 /* ---------- kait untuk scripts/test-starters.mjs — tidak dipanggil deliverable ---------- */
 window.CAM3_UJI=()=>{const r={},c0={...CAM},V=()=>new THREE.Vector3();tl.pause(0);
@@ -146,4 +147,11 @@ window.CAM3_UJI=()=>{const r={},c0={...CAM},V=()=>new THREE.Vector3();tl.pause(0
   tl.time(tA+2+1e-3);applyCam();r.railSambung=camera.position.distanceTo(V().set(10,4,0));
   const nR2=RAILS.length;try{rail(planAt-1,2,pts);r.railUrutDitolak=false;}catch(e){r.railUrutDitolak=/urut waktu/.test(e.message)&&RAILS.length===nR2;}
   tl.time(0);for(const w of tws){w.kill();tl.remove(w);}RAILS.length=nR;Object.assign(PLAN,P1);planAt=pa1;
+  /* lowkey harus tampak lowkey: dari pose 3/4 (cahaya samping) lantai & sisi membelakangi key jauh lebih gelap daripada day */
+  {const L1={...LUX},lum=()=>{const gl=renderer.getContext(),o=[];   // piksel layar (dari atas): lantai kanan-bawah, sisi kubus kiri (= -x, membelakangi key az 80)
+    for(const [x,y] of [[1750,850],[800,600]]){const px=new Uint8Array(4);gl.readPixels(x,H-y,1,1,gl.RGBA,gl.UNSIGNED_BYTE,px);o.push(px[0]+px[1]+px[2]);}return o;};
+   Object.assign(CAM,{yaw:-55,pitch:-18,roll:0,shake:0,zoom:1,mm:PLAN.mm,rail:-1},CAM.frame3d(SHOT.WS,'subjek'));
+   Object.assign(LUX,nilaiLux('day'));applyCam();composer.render(0);const d=lum();
+   Object.assign(LUX,nilaiLux('lowkey'));applyCam();composer.render(0);const k=lum();
+   r.lowkeyGelap={lantai:k[0]/Math.max(1,d[0]),wajah:k[1]/Math.max(1,d[1]),d,k};Object.assign(LUX,L1);}
   Object.assign(CAM,c0);applyCam();composer.render(0);r.demoAkhir=window.DEMO_AKHIR||0;r.DUR=DUR;return r;};

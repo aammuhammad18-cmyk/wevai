@@ -56,6 +56,22 @@ for (const file of files) {
     if (!kontrak.tl) masalah.push('OPENER.tl kosong');
     if (!kontrak.seek) masalah.push('OPENER.seek bukan fungsi');
 
+    // t=0 pada halaman SEGAR (jalur export-frames: ?clean=1 tidak autoplay, tl belum pernah bergerak; tl.pause(0) lalu
+    // seek(0)) harus sama dengan seek(0) sesudah seek lain — dulu pause(0) dari playhead 0 tidak menerapkan set() di t=0
+    const segar = await browser.newPage();
+    await segar.goto(pathToFileURL(file).href + '?clean=1', { waitUntil: 'load', timeout: 60000 });
+    await segar.waitForFunction('window.OPENER && window.OPENER.ready', { timeout: 60000 });
+    const nol = await segar.evaluate(() => {
+      const O = window.OPENER, rig = () => document.querySelector('#world, #stage')?.getAttribute('style') || '', c = document.querySelector('canvas');
+      const ambil = () => ({ r: rig(), c: c ? c.toDataURL() : '' });
+      O.tl.pause(0); O.seek(0); const a = ambil();
+      O.seek(Math.min(O.DURATION - .1, 3)); O.seek(0); const b = ambil();
+      return { rig: a.r === b.r, kanvas: a.c === b.c };
+    });
+    await segar.close();
+    if (!nol.rig) masalah.push('seek(0) pada halaman segar ≠ seek(0) sesudah seek lain (transform rig)');
+    if (!nol.kanvas) masalah.push('seek(0) pada halaman segar ≠ seek(0) sesudah seek lain (piksel kanvas)');
+
     // loop: dorong playhead melewati DURATION saat timeline BERMAIN, lalu pastikan
     // ia kembali ke awal. Sengaja tidak menunggu waktu nyata: saat mesin sibuk GSAP
     // meredam lag (lagSmoothing) sehingga timeline maju lebih lambat daripada jam
@@ -93,7 +109,8 @@ for (const file of files) {
       const O = window.OPENER, t = Math.min(5, O.DURATION * .6), t2 = Math.min(O.DURATION - .1, t + 3);
       O.tl.pause(); O.seek(t); const a = c.toDataURL();
       O.seek(t2); O.seek(.1); O.seek(t); const b = c.toDataURL();
-      return { sama: a === b, kosong: a.length < 5000 };
+      const kosong = document.createElement('canvas'); kosong.width = c.width; kosong.height = c.height;
+      return { sama: a === b, kosong: a === kosong.toDataURL() };
     });
     if (kanvas && !kanvas.sama) masalah.push('kanvas: t yang sama lewat jalur seek berbeda memberi piksel berbeda');
     if (kanvas && kanvas.kosong) masalah.push('kanvas: hasil render kosong saat dibaca setelah seek');
@@ -146,6 +163,7 @@ for (const file of files) {
       if (ada('railTengah') && !(cam3.railTengah < 1e-6)) masalah.push(`kamera3: posisi kamera di tengah rail ≠ getPointAt(.5) (selisih ${cam3.railTengah})`);
       if (ada('railSambung') && !(cam3.railSambung < 1e-6)) masalah.push(`kamera3: kamera melompat saat rail selesai (selisih ${cam3.railSambung})`);
       if (ada('demoAkhir') && !(cam3.demoAkhir > 0 && cam3.demoAkhir < cam3.DUR)) masalah.push(`kamera3: ?demo=1 harus selesai sebelum DUR (${cam3.demoAkhir} vs ${cam3.DUR})`);
+      if (ada('lowkeyGelap') && !(cam3.lowkeyGelap.lantai <= .5 && cam3.lowkeyGelap.wajah <= .6)) masalah.push(`kamera3: lowkey harus jauh lebih gelap dari day (lantai ${cam3.lowkeyGelap.lantai.toFixed(2)} ≤ .5, wajah teduh ${cam3.lowkeyGelap.wajah.toFixed(2)} ≤ .6)`);
       if (ada('familyDitolak') && !cam3.familyDitolak) masalah.push("kamera3: mat('neon') harus ditolak");
     }
 

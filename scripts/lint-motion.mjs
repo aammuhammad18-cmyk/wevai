@@ -66,9 +66,9 @@ function lint(file, raw) {
 
   // 2c. Nilai properti relatif ('+=120') diselesaikan GSAP saat render pertama → bergantung jalur seek.
   //     Blok <wv:kamera> dikecualikan: inti kamera menyelesaikannya sendiri lewat mutlak() saat setup.
-  const kb = raw.indexOf('<wv:kamera>'), ke = raw.indexOf('</wv:kamera>');
+  const kam = [...raw.matchAll(/<wv:kamera>[\s\S]*?<\/wv:kamera>/g)].map(m => [m.index, m.index + m[0].length]);   // blok tak tertutup = bukan span (aman: tetap ditandai)
   for (const { idx } of all(src, /\btl\.(?:to|fromTo|from)\s*\([^;]*?:\s*['"`][+\-*]=/g))
-    if (!(kb >= 0 && idx > kb && idx < ke))
+    if (!kam.some(([s, e]) => idx > s && idx < e))
       add('WARN', 'gsap-relatif', 'nilai relatif di tween diselesaikan GSAP saat render pertama — hasilnya bergantung jalur seek (scrub/snap/export bisa berbeda)', idx,
         'hitung nilai absolut saat setup, atau pakai gerak kamera (dolly/truck/…) yang sudah diselesaikan PLAN');
 

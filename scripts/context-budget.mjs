@@ -26,7 +26,7 @@ const JALUR = [
   ['Inti (selalu dibaca)', [], 60],
   ['Opener / promo / bumper', ['references/opener-konsep.md', 'references/techniques.md', 'assets/starter-opener.html'], 220],   // +30: blok kamera bersama di starter (perkakas, bukan aturan)
   ['Explainer (kolase / aliran)', ['references/explainer.md', 'references/techniques.md', 'assets/starter-explainer-kartun.html'], 170],   // +10: blok kamera bersama di starter (perkakas, bukan aturan)
-  ['Explainer / opener 3D', ['references/sinematografi.md', 'references/techniques.md', 'assets/starter-explainer-3d.html'], 170],
+  ['Explainer 3D', ['references/sinematografi.md', 'references/techniques.md', 'assets/starter-explainer-3d.html'], 170],
   ['Opener 3D', ['references/opener-konsep.md', 'references/techniques.md', 'assets/starter-opener.html', 'references/sinematografi.md'], 240],   // 190 aturan opener + 30 blok kamera (perkakas) + ±21 sinematografi.md (bacaan wajib 3D)
   ['Explainer kartun panggung', ['references/explainer.md', 'references/kartun-panggung.md', 'assets/starter-explainer-panggung.html'], 130],
   ['Build di After Effects', ['references/kartun-panggung.md', 'references/ae-bridge-higgsfield.md'], 95],

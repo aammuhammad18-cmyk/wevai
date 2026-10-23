@@ -165,3 +165,12 @@ test('mode three: camDefaults menyinkronkan PLAN; truck mengikuti yaw; dollyZoom
   k.shot(5, 1, 'WS', 'subjek'); assert.equal(diminta, 'subjek', 'nama diteruskan ke frame3d, bukan dicari di DOM');
   const d = load(); d.dollyZoom(0, 1, 85); assert.equal(d.calls.at(-1).v.dist, undefined, 'mode dom tidak menyentuh dist');
 });
+
+test("nilai relatif: '+=', '-=', '*=' diselesaikan; awalan lain ditolak", () => {
+  const k = load();
+  k.cutTo(0, { yaw: 10 });
+  k.camTo(1, 1, { yaw: '-=20' }); assert.equal(k.calls.at(-1).v.yaw, -10, "'-=20' dari 10 → -10");
+  k.camTo(2, 1, { yaw: '+=-5' }); assert.equal(k.calls.at(-1).v.yaw, -15, "'+=-5' tetap mengurangi");
+  k.camTo(3, 1, { zoom: '*=2' }); assert.equal(k.calls.at(-1).v.zoom, 2);
+  assert.throws(() => k.camTo(4, 1, { zoom: '/=2' }), /nilai relatif/);
+});

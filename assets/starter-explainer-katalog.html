@@ -163,7 +163,9 @@ const PLAN={...CAM},P0=W*35/36;let planAt=-Infinity;
 const camDefaults=v=>{Object.assign(CAM,v);Object.assign(PLAN,v);};                          // nilai awal dari backend 3D, CAM dan PLAN harus kembar
 const mutlak=(at,v)=>{const o={};for(const k in v){let x=v[k];
   if(typeof x==='string'){if(at<planAt)throw new Error('gerak relatif harus dipanggil urut waktu (detik '+at+' setelah '+planAt+')');
-    x=x[0]==='*'?PLAN[k]*parseFloat(x.slice(2)):PLAN[k]+parseFloat(x.slice(2));}
+    const op=x.slice(0,2),n=parseFloat(x.slice(2));
+    if(!['+=','-=','*='].includes(op)||isNaN(n))throw new Error('nilai relatif tidak dikenal: '+k+' '+x+' (pakai +=, -=, *=)');
+    x=op==='*='?PLAN[k]*n:op==='-='?PLAN[k]-n:PLAN[k]+n;}
   o[k]=PLAN[k]=x;}planAt=Math.max(planAt,at);return o;};
 const camTo=(at,dur,v,ease='power2.inOut')=>tl.to(CAM,{...mutlak(at,v),duration:dur,ease,onUpdate:applyCam},at);
 const cutTo=(at,v)=>tl.set(CAM,{...mutlak(at,v),onUpdate:applyCam},at);                       // lompat di titik cut

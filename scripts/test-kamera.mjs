@@ -153,6 +153,8 @@ test('jarakBingkai(): rumus filmGauge 36, sisi panjang; subjek 0 ditolak', () =>
   assert.ok(Math.abs(k.jarakBingkai(1.7, .6, .45, 35, 16 / 9) - 6.52949) < 1e-4);
   assert.ok(Math.abs(k.jarakBingkai(1, 4, 1, 50, 16 / 9) - 4 / (16 / 9) * 50 * (16 / 9) / 36) < 1e-9, 'subjek lebar: lebar yang menentukan');
   assert.throws(() => k.jarakBingkai(0, 0, .45, 35), /ukuran subjek 0/);
+  assert.throws(() => k.jarakBingkai(1, 1, 0, 35), /fill.*harus > 0/, 'fill 0 (ukuran shot salah) punya pesan sendiri');
+  assert.throws(() => k.jarakBingkai(1, 1, .45, 0), /mm.*harus > 0/, 'lensa 0 mm punya pesan sendiri');
 });
 test('mode three: camDefaults menyinkronkan PLAN; truck mengikuti yaw; dollyZoom menjaga dist/mm', () => {
   const k = load(); k.CAM.mode = 'three';

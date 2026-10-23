@@ -233,6 +233,7 @@ const pose=c=>{const y=c.yaw*Math.PI/180,p=c.pitch*Math.PI/180;
   return{x:c.fx+c.dist*Math.cos(p)*Math.sin(y),y:c.fy-c.dist*Math.sin(p),z:c.fz+c.dist*Math.cos(p)*Math.cos(y)};};
 /* jarak agar subjek h×w mengisi `fill` frame; sisi panjang sensor 36 mm menentukan (filmGauge 36) */
 const jarakBingkai=(h,w,fill,mm,aspect=W/H)=>{if(!(Math.max(h,w)>0))throw new Error('jarakBingkai: ukuran subjek 0');
+  if(!(fill>0)||!(mm>0))throw new Error('jarakBingkai: fill ('+fill+') dan mm ('+mm+') harus > 0');
   const d=Math.max(h,w/aspect)/fill*mm*Math.max(aspect,1)/36;if(!isFinite(d))throw new Error('jarakBingkai: ukuran subjek 0');return d;};
 /* </wv:kamera> */
 /* <wv:kamera-three> dibangun dari src/runtime/kamera-three.js — JANGAN edit di sini;
@@ -241,15 +242,18 @@ const jarakBingkai=(h,w,fill,mm,aspect=W/H)=>{if(!(Math.max(h,w)>0))throw new Er
    renderer, composer SEBELUM blok ini; render() starter memanggil applyCam() lalu composer.render(0).
    Di sini fx/fy/fz = koordinat dunia Three (Y ke atas), dist dalam unit dunia, yaw/pitch/roll derajat. */
 CAM.mode='three';
-camDefaults({fx:0,fy:0,fz:0,dist:10,yaw:0,pitch:0,mm:35,zoom:1,rail:-1,railU:0});
+camDefaults({fx:0,fy:0,fz:0,dist:10,yaw:0,pitch:0,mm:35,zoom:1,rail:-1,railU:0,lantai:null});   // lantai: tinggi y bidang tanah (null = tanpa jepit)
 /* warna dari token CSS ('--accent'), hex, atau THREE.Color — dunia 3D ikut style brief, tanpa hardcode */
 const warna=c=>new THREE.Color(typeof c==='string'&&c.startsWith('--')?getComputedStyle(document.documentElement).getPropertyValue(c).trim():c);
 
 /* ---------- KAMERA ---------- */
 /* satu jalur untuk kamera render DAN kamera bayangan cek3: pose, lookAt, roll, lensa */
 const RAILS=[];   // {curve,look} — dibuat saat setup; keadaan rail hanya CAM.rail (indeks, -1 = mati) dan CAM.railU (0..1)
+/* lantai: kamera tidak pernah turun di bawah c.lantai+0,05 (low/worm sesudah WS, dip di tengah tween) — dijepit per frame */
+const jepitLantai=(p,c)=>{if(c.lantai!=null&&p.y<c.lantai+.05)p.y=c.lantai+.05;return p;};
 function arahkan(cam,c,dx=0,dy=0,dz=0,roll=c.roll){let p,f;
   if(c.rail>=0){const R=RAILS[c.rail];p=R.curve.getPointAt(c.railU);f=R.look;}else{p=pose(c);f=[c.fx,c.fy,c.fz];}
+  jepitLantai(p,c);
   cam.position.set(p.x+dx,p.y+dy,p.z+dz);cam.lookAt(f[0],f[1],f[2]);cam.rotateZ(roll*Math.PI/180);
   cam.zoom=c.zoom;cam.filmGauge=36;cam.setFocalLength(c.mm);}   // setFocalLength = updateProjectionMatrix (zoom sudah terpasang)
 /* rail: kamera meluncur sepanjang Catmull-Rom (≥ 3 titik) sambil menatap titik `look`. Di ujung, CAM kembali ke pose bola
@@ -258,7 +262,9 @@ function rail(at,dur,pts,{look=null,ease='sine.inOut'}={}){
   if(at<planAt)throw new Error('gerak relatif harus dipanggil urut waktu (detik '+at+' setelah '+planAt+')');
   if(pts.length<3)throw new Error('rail: butuh ≥ 3 titik (CatmullRomCurve3 2 titik rusak di r161)');
   const f=look||[PLAN.fx,PLAN.fy,PLAN.fz],curve=new THREE.CatmullRomCurve3(pts.map(q=>new THREE.Vector3(...q)),false,'centripetal'),
-    e=curve.getPointAt(1),dx=e.x-f[0],dy=e.y-f[1],dz=e.z-f[2],d=Math.hypot(dx,dy,dz),i=RAILS.push({curve,look:f})-1;
+    e=curve.getPointAt(1),dx=e.x-f[0],dy=e.y-f[1],dz=e.z-f[2],d=Math.hypot(dx,dy,dz);
+  if(d<1e-6)throw new Error('rail: titik terakhir sama dengan look — kamera tidak punya arah');
+  const i=RAILS.push({curve,look:f})-1;
   return[cutTo(at,{rail:i,railU:0}),camTo(at,dur,{railU:1},ease),
     cutTo(at+dur,{rail:-1,fx:f[0],fy:f[1],fz:f[2],dist:d,pitch:-Math.asin(dy/d)*180/Math.PI,yaw:Math.atan2(dx,dz)*180/Math.PI})];}
 /* handheld: noise ber-seed dari tl.time() → goyangan sama di putar, scrub, dan ekspor. Tidak me-render. */
@@ -268,7 +274,9 @@ function applyCam(){let dx=0,dy=0,dz=0,roll=CAM.roll;
   arahkan(camera,CAM,dx,dy,dz,roll);applyLux();   // lampu dihitung ulang tiap render/seek dari LUX+CAM
   bokeh.enabled=CAM.aperture>0;Object.assign(bokeh.uniforms,{focus:{value:CAM.focus},aperture:{value:CAM.aperture*.0007},maxblur:{value:.01}});}
 const objek3=o=>{if(typeof o==='string'){const n=o;o=scene.getObjectByName(n);if(!o)throw new Error('shot: subjek 3D '+n+' tidak ada');}return o;};
-const kotak3=o=>{const b=new THREE.Box3().setFromObject(o);if(b.isEmpty())throw new Error('shot: subjek 3D kosong — '+(o.name||o.type));return b;};
+/* updateWorldMatrix(true,true): setFromObject tidak memperbarui rantai induk — sebelum render pertama subjek bersarang terbaca di posisi lokal */
+const kotak3=o=>{o.updateWorldMatrix(true,true);const b=new THREE.Box3().setFromObject(o);if(b.isEmpty())throw new Error('shot: subjek 3D kosong — '+(o.name||o.type));
+  const s=b.getSize(new THREE.Vector3());if(Math.max(s.x,s.y)<=0)throw new Error('shot: subjek 3D berukuran 0 — '+(o.name||o.type)+' (skala 0 dari tl.from?)');return b;};
 /* shot() di inti memanggil ini: fokus = pusat Box3, jarak dari tinggi/lebar kotak pada lensa RENCANA */
 CAM.frame3d=(fill,o)=>{const b=kotak3(objek3(o)),c=b.getCenter(new THREE.Vector3()),s=b.getSize(new THREE.Vector3());
   /* jarakBingkai = jarak ke bidang yang mengisi frame; bidang itu adalah permukaan DEPAN subjek, bukan pusatnya:
@@ -321,7 +329,7 @@ function practical(mesh,color,intensity=2,distance=8){const c=warna(color),L=new
    ponytail: CAM.focus dihitung saat setup dari pose(PLAN) — tidak mengikuti kamera yang bergerak sesudahnya. */
 const bokeh=new BokehPass(scene,camera,{focus:0,aperture:0,maxblur:.01});bokeh.enabled=false;
 composer.insertPass(bokeh,composer.passes.length-1);
-const jarakFokus=o=>{const p=pose(PLAN),c=kotak3(objek3(o)).getCenter(new THREE.Vector3());return Math.hypot(c.x-p.x,c.y-p.y,c.z-p.z);};
+const jarakFokus=o=>{const p=jepitLantai(pose(PLAN),PLAN),c=kotak3(objek3(o)).getCenter(new THREE.Vector3());return Math.hypot(c.x-p.x,c.y-p.y,c.z-p.z);};
 const focus=(at,dur,obj,aperture=6,ease='sine.inOut')=>camTo(at,dur,{focus:jarakFokus(obj),aperture},ease);
 const rackFocus=(at,dur,a,b)=>{cutTo(at,{focus:jarakFokus(a),aperture:6});focus(at,dur,b);};
 
@@ -393,10 +401,23 @@ window.CAM3_UJI=()=>{const r={},c0={...CAM},V=()=>new THREE.Vector3();tl.pause(0
   tl.time(tA+1);applyCam();r.railTengah=camera.position.distanceTo(cv.getPointAt(.5));
   tl.time(tA+2+1e-3);applyCam();r.railSambung=camera.position.distanceTo(V().set(10,4,0));
   const nR2=RAILS.length;try{rail(planAt-1,2,pts);r.railUrutDitolak=false;}catch(e){r.railUrutDitolak=/urut waktu/.test(e.message)&&RAILS.length===nR2;}
+  try{const w2=rail(planAt,1,[[0,2,12],[6,3,8],[0,1,0]],{look:[0,1,0]});r.railLookDitolak=false;for(const w of w2){w.kill();tl.remove(w);}}
+  catch(e){r.railLookDitolak=/sama dengan look/.test(e.message)&&RAILS.length===nR2;}
   tl.time(0);for(const w of tws){w.kill();tl.remove(w);}RAILS.length=nR;Object.assign(PLAN,P1);planAt=pa1;
   {const h=[];for(const k of ['ECU','CU']){Object.assign(CAM,{yaw:30,pitch:-15,roll:0,shake:0,zoom:1,mm:PLAN.mm,rail:-1},CAM.frame3d(SHOT[k],'subjek'));applyCam();camera.updateMatrixWorld();
     const bx=kotak3(objek3('subjek')),n=bx.getCenter(V()).project(camera);h.push({k,dalam:bx.containsPoint(camera.position),ndc:[n.x,n.y]});}
    r.dekatDiLuar={hasil:h,ok:h.every(e=>!e.dalam&&Math.abs(e.ndc[0])<.05&&Math.abs(e.ndc[1])<.05)};}
+  /* low/worm sesudah WS: tanpa lantai kamera turun ke bawah y=0 (layar hitam); dengan CAM.lantai dijepit di atasnya */
+  {const y=[];for(const k of ['low','worm']){Object.assign(CAM,{yaw:0,pitch:PLAN.pitch,roll:0,shake:0,zoom:1,mm:PLAN.mm,rail:-1},CAM.frame3d(SHOT.WS,'subjek'),ANGLE.three[k]);
+    applyCam();y.push(camera.position.y);}
+   r.lantaiAman={y,ok:y.every(v=>v>=0)};}
+  /* subjek bersarang dibingkai di posisi DUNIA, walau matriks induknya belum pernah diperbarui render */
+  {const g=new THREE.Group(),b=new THREE.Mesh(new THREE.BoxGeometry(1,1,1));g.position.set(5,0,-3);b.position.y=1;g.add(b);scene.add(g);
+   const v=CAM.frame3d(SHOT.WS,b);r.bersarangBenar={f:[v.fx,v.fy,v.fz],ok:Math.hypot(v.fx-5,v.fy-1,v.fz+3)<1e-6};
+   scene.remove(g);b.geometry.dispose();b.material.dispose();}
+  {const m=new THREE.Mesh(new THREE.BoxGeometry(1,1,1));m.name='nolUji';m.scale.setScalar(0);scene.add(m);
+   try{CAM.frame3d(SHOT.MS,m);r.nolDitolak=false;}catch(e){r.nolDitolak=/berukuran 0 — nolUji/.test(e.message)||e.message;}
+   scene.remove(m);m.geometry.dispose();m.material.dispose();}
   /* lowkey harus tampak lowkey: dari pose 3/4 (cahaya samping) lantai & sisi membelakangi key jauh lebih gelap daripada day */
   {const L1={...LUX},lum=()=>{const gl=renderer.getContext(),o=[];   // piksel layar (dari atas): lantai kanan-bawah, sisi kubus kiri (= -x, membelakangi key az 80)
     for(const [x,y] of [[1750,850],[800,600]]){const px=new Uint8Array(4);gl.readPixels(x,H-y,1,1,gl.RGBA,gl.UNSIGNED_BYTE,px);o.push(px[0]+px[1]+px[2]);}return o;};
@@ -405,7 +426,7 @@ window.CAM3_UJI=()=>{const r={},c0={...CAM},V=()=>new THREE.Vector3();tl.pause(0
    Object.assign(LUX,nilaiLux('lowkey'));applyCam();composer.render(0);const k=lum();
    r.lowkeyGelap={lantai:k[0]/Math.max(1,d[0]),wajah:k[1]/Math.max(1,d[1]),d,k};Object.assign(LUX,L1);}
   Object.assign(CAM,c0);
-  if(pinjam){scene.remove(pinjam);pinjam.geometry.dispose();pinjam.material.dispose();for(const k of ['ndc','jarakFokus','jarakHarapan','dekatDiLuar','lowkeyGelap','demoAkhir'])r[k]=null;}
+  if(pinjam){scene.remove(pinjam);pinjam.geometry.dispose();pinjam.material.dispose();for(const k of ['ndc','jarakFokus','jarakHarapan','dekatDiLuar','lowkeyGelap','lantaiAman','demoAkhir'])r[k]=null;}
   if(!adaHud)r.hudTabrakDitolak=null;
   applyCam();composer.render(0);if(r.demoAkhir!==null)r.demoAkhir=window.DEMO_AKHIR||0;r.DUR=DUR;return r;};
 /* </wv:kamera-three> */
@@ -417,6 +438,7 @@ scene.environment=new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironme
 Object.assign(LUX,nilaiLux('day'));applyLux();light(0,0,'day');   // nyala sejak frame 0
 scene.fog=new THREE.Fog(warna('--base'),22,40);   // menyembunyikan tepi lantai 60×60
 const lantai=new THREE.Mesh(new THREE.PlaneGeometry(60,60),mat('toon','--floor'));lantai.rotation.x=-Math.PI/2;lantai.receiveShadow=true;scene.add(lantai);
+camDefaults({lantai:0});   // kamera tidak menembus lantai y=0 (low/worm angle); hapus bila dunia tanpa lantai
 const subjek=new THREE.Mesh(new THREE.BoxGeometry(1.6,1.6,1.6),mat('toon','--accent'));
 subjek.name='subjek';subjek.position.y=.8;subjek.castShadow=true;scene.add(subjek);
 

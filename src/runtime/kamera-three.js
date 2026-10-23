@@ -105,6 +105,17 @@ function fromSVG(svg,{depth=.2,bevel=.02,family='toon',scale=.01}={}){const g=ne
   const c=kotak3(g).getCenter(new THREE.Vector3());for(const m of g.children)m.geometry.translate(-c.x,-c.y,-c.z);
   g.scale.set(scale,-scale,scale);return g;}   // SVG y ke bawah → balik
 
+/* ?demo=1 — katalog kosakata 3D (bukan rundown). Starter memanggilnya SETELAH koreografi contoh: semua gerak kamera
+   & cahaya contoh dibuang (camReset tidak mereset lampAt/LUX, jadi dikerjakan di sini). 29 entri × DUR/30. */
+function demoKamera3(){camReset();gsap.killTweensOf(LUX);lampAt=-Infinity;HUD.length=0;   // kantong teks contoh tidak berlaku di katalog
+  const P0={fx:0,fy:0,fz:0,dist:14,yaw:0,pitch:-12,roll:0,mm:35,zoom:1,shake:0,rail:-1,railU:0},step=DUR/30,d=step*.7;let t=0;
+  light(0,0,'day');cutTo(0,P0);
+  for(const k in SHOT){shot(t,d,k,'subjek');t+=step;}cutTo(t,P0);t+=step;
+  for(const k in ANGLE.three){cutTo(t,P0);angle(t,d,k);t+=step;}cutTo(t,P0);
+  for(const [f,a] of [[dolly,1.5],[truck,2],[pedestal,1],[pan,15],[tilt,-8],[arc,40]]){f(t,step*.8,a);t+=step;}cutTo(t,P0);
+  rail(t,step*.9,[[8,2,10],[0,3,12],[-8,2,10]],{look:[0,.8,0]});t+=step;cutTo(t,P0);
+  for(const k in CAHAYA3){light(t,step*.5,k);t+=step;}handheld(t,t+step,.8);t+=step;
+  window.DEMO_AKHIR=t;}
 /* ---------- kait untuk scripts/test-starters.mjs — tidak dipanggil deliverable ---------- */
 window.CAM3_UJI=()=>{const r={},c0={...CAM},V=()=>new THREE.Vector3();tl.pause(0);
   Object.assign(CAM,{yaw:30,pitch:-15,roll:0,shake:0,zoom:1,mm:PLAN.mm},CAM.frame3d(SHOT.MS,'subjek'));applyCam();composer.render(0);
@@ -135,4 +146,4 @@ window.CAM3_UJI=()=>{const r={},c0={...CAM},V=()=>new THREE.Vector3();tl.pause(0
   tl.time(tA+2+1e-3);applyCam();r.railSambung=camera.position.distanceTo(V().set(10,4,0));
   const nR2=RAILS.length;try{rail(planAt-1,2,pts);r.railUrutDitolak=false;}catch(e){r.railUrutDitolak=/urut waktu/.test(e.message)&&RAILS.length===nR2;}
   tl.time(0);for(const w of tws){w.kill();tl.remove(w);}RAILS.length=nR;Object.assign(PLAN,P1);planAt=pa1;
-  Object.assign(CAM,c0);applyCam();composer.render(0);return r;};
+  Object.assign(CAM,c0);applyCam();composer.render(0);r.demoAkhir=window.DEMO_AKHIR||0;r.DUR=DUR;return r;};

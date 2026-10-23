@@ -87,6 +87,17 @@ for (const file of files) {
     if (!seek.sama) masalah.push('seek(t) dua kali menghasilkan keadaan berbeda');
     if (Math.abs(seek.waktu - seek.t) > 0.001) masalah.push(`seek(t) tidak memindahkan playhead (${seek.waktu} ≠ ${seek.t})`);
 
+    // determinisme PIKSEL kanvas WebGL: t yang sama lewat dua jalur seek berbeda → gambar identik
+    const kanvas = await page.evaluate(() => {
+      const c = document.querySelector('canvas'); if (!c) return null;
+      const O = window.OPENER, t = Math.min(5, O.DURATION * .6), t2 = Math.min(O.DURATION - .1, t + 3);
+      O.tl.pause(); O.seek(t); const a = c.toDataURL();
+      O.seek(t2); O.seek(.1); O.seek(t); const b = c.toDataURL();
+      return { sama: a === b, kosong: a.length < 5000 };
+    });
+    if (kanvas && !kanvas.sama) masalah.push('kanvas: t yang sama lewat jalur seek berbeda memberi piksel berbeda');
+    if (kanvas && kanvas.kosong) masalah.push('kanvas: hasil render kosong saat dibaca setelah seek');
+
     // kamera 2.5D (src/runtime/kamera-dom.js): jalur 2D tidak menyentuh gaya lain; sudut → transform 3D;
     // bidang data-z berparalaks; cahaya; katalog ?demo=1 selesai sebelum DUR. Halaman dimuat ULANG dengan ?demo=1
     // supaya pemeriksaan di atas tetap menguji jalur default deliverable.
@@ -134,6 +145,7 @@ for (const file of files) {
       if (ada('railUrutDitolak') && !cam3.railUrutDitolak) masalah.push('kamera3: rail() di luar urutan waktu harus ditolak');
       if (ada('railTengah') && !(cam3.railTengah < 1e-6)) masalah.push(`kamera3: posisi kamera di tengah rail ≠ getPointAt(.5) (selisih ${cam3.railTengah})`);
       if (ada('railSambung') && !(cam3.railSambung < 1e-6)) masalah.push(`kamera3: kamera melompat saat rail selesai (selisih ${cam3.railSambung})`);
+      if (ada('demoAkhir') && !(cam3.demoAkhir > 0 && cam3.demoAkhir < cam3.DUR)) masalah.push(`kamera3: ?demo=1 harus selesai sebelum DUR (${cam3.demoAkhir} vs ${cam3.DUR})`);
       if (ada('familyDitolak') && !cam3.familyDitolak) masalah.push("kamera3: mat('neon') harus ditolak");
     }
 

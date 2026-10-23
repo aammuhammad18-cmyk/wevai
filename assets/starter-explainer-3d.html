@@ -81,7 +81,7 @@ import { SVGLoader }      from 'three/addons/loaders/SVGLoader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
-const W=1920,H=1080,DUR=8;
+const q=new URLSearchParams(location.search),W=1920,H=1080,DUR=q.has('demo')?32:8;   // katalog ?demo=1 butuh waktu untuk dilihat
 function fit(){const s=Math.min(innerWidth/W,innerHeight/H);$('#stage').style.transform=`translate(-50%,-50%) scale(${s})`;}
 addEventListener('resize',fit);fit();
 
@@ -342,6 +342,17 @@ function fromSVG(svg,{depth=.2,bevel=.02,family='toon',scale=.01}={}){const g=ne
   const c=kotak3(g).getCenter(new THREE.Vector3());for(const m of g.children)m.geometry.translate(-c.x,-c.y,-c.z);
   g.scale.set(scale,-scale,scale);return g;}   // SVG y ke bawah → balik
 
+/* ?demo=1 — katalog kosakata 3D (bukan rundown). Starter memanggilnya SETELAH koreografi contoh: semua gerak kamera
+   & cahaya contoh dibuang (camReset tidak mereset lampAt/LUX, jadi dikerjakan di sini). 29 entri × DUR/30. */
+function demoKamera3(){camReset();gsap.killTweensOf(LUX);lampAt=-Infinity;HUD.length=0;   // kantong teks contoh tidak berlaku di katalog
+  const P0={fx:0,fy:0,fz:0,dist:14,yaw:0,pitch:-12,roll:0,mm:35,zoom:1,shake:0,rail:-1,railU:0},step=DUR/30,d=step*.7;let t=0;
+  light(0,0,'day');cutTo(0,P0);
+  for(const k in SHOT){shot(t,d,k,'subjek');t+=step;}cutTo(t,P0);t+=step;
+  for(const k in ANGLE.three){cutTo(t,P0);angle(t,d,k);t+=step;}cutTo(t,P0);
+  for(const [f,a] of [[dolly,1.5],[truck,2],[pedestal,1],[pan,15],[tilt,-8],[arc,40]]){f(t,step*.8,a);t+=step;}cutTo(t,P0);
+  rail(t,step*.9,[[8,2,10],[0,3,12],[-8,2,10]],{look:[0,.8,0]});t+=step;cutTo(t,P0);
+  for(const k in CAHAYA3){light(t,step*.5,k);t+=step;}handheld(t,t+step,.8);t+=step;
+  window.DEMO_AKHIR=t;}
 /* ---------- kait untuk scripts/test-starters.mjs — tidak dipanggil deliverable ---------- */
 window.CAM3_UJI=()=>{const r={},c0={...CAM},V=()=>new THREE.Vector3();tl.pause(0);
   Object.assign(CAM,{yaw:30,pitch:-15,roll:0,shake:0,zoom:1,mm:PLAN.mm},CAM.frame3d(SHOT.MS,'subjek'));applyCam();composer.render(0);
@@ -372,7 +383,7 @@ window.CAM3_UJI=()=>{const r={},c0={...CAM},V=()=>new THREE.Vector3();tl.pause(0
   tl.time(tA+2+1e-3);applyCam();r.railSambung=camera.position.distanceTo(V().set(10,4,0));
   const nR2=RAILS.length;try{rail(planAt-1,2,pts);r.railUrutDitolak=false;}catch(e){r.railUrutDitolak=/urut waktu/.test(e.message)&&RAILS.length===nR2;}
   tl.time(0);for(const w of tws){w.kill();tl.remove(w);}RAILS.length=nR;Object.assign(PLAN,P1);planAt=pa1;
-  Object.assign(CAM,c0);applyCam();composer.render(0);return r;};
+  Object.assign(CAM,c0);applyCam();composer.render(0);r.demoAkhir=window.DEMO_AKHIR||0;r.DUR=DUR;return r;};
 /* </wv:kamera-three> */
 
 /* ---------- isi dunia (ganti isinya, pertahankan polanya) ---------- */
@@ -385,8 +396,9 @@ const lantai=new THREE.Mesh(new THREE.PlaneGeometry(60,60),mat('toon','--floor')
 const subjek=new THREE.Mesh(new THREE.BoxGeometry(1.6,1.6,1.6),mat('toon','--accent'));
 subjek.name='subjek';subjek.position.y=.8;subjek.castShadow=true;scene.add(subjek);
 
-function render(t){applyCam();composer.render(0);}   // 0: tanpa argumen composer membaca Clock sendiri
-(function frame(){render(tl.time());requestAnimationFrame(frame);})();
+let tGambar=NaN;   // detik terakhir yang digambar: loop rAF hanya menggambar bila waktu berubah (seek sudah menggambar sinkron)
+function render(t){tGambar=t;applyCam();composer.render(0);}   // 0: tanpa argumen composer membaca Clock sendiri
+(function frame(){const t=tl.time();if(t!==tGambar)render(t);requestAnimationFrame(frame);})();
 
 /* ---------- contoh minimal (bukan rundown): kamera membingkai subjek, lalu teks HUD masuk ---------- */
 hud.reserve('#hud .lbl',2,DUR-2);                  // kantong teks: shot() menolak subjek yang menabraknya
@@ -396,7 +408,7 @@ tl.fromTo('#hud>*',{opacity:0,y:14},{opacity:1,y:0,duration:.4,ease:'power3.out'
 tl.to({},{duration:.01},DUR);
 
 /* ---------- kontrol: autoplay + loop tanpa player; ?debug=1 panel; ?clean=1 export ---------- */
-const q=new URLSearchParams(location.search),vo=$('#vo'),hasVO=!!vo.getAttribute('src');let audioOn=false;
+const vo=$('#vo'),hasVO=!!vo.getAttribute('src');let audioOn=false;
 function start(){tl.play(0);if(hasVO){vo.currentTime=0;vo.play().then(()=>audioOn=true).catch(()=>{});}}
 /* loop dari jam, BUKAN onComplete: satu tween repeat:-1 membuat durasi timeline tak hingga sehingga onComplete tidak pernah terpicu */
 gsap.ticker.add(()=>{if(!tl.paused()&&tl.time()>=DUR)start();});
@@ -411,7 +423,8 @@ gsap.ticker.add(()=>{if(!audioOn||tl.paused())return;if(Math.abs(vo.currentTime-
 function makeSeek(tl, apply){ return t => { tl.pause(t, false);
   if (gsap.ticker.tick) gsap.ticker.tick(); if (apply) apply(t); }; }
 /* </wv:seek> */
-window.OPENER={W,H,DURATION:DUR,tl,ready:false,seek:makeSeek(tl,t=>render(t)),play:start,syncSeek:false};
+if(q.has('demo'))demoKamera3();
+window.OPENER={W,H,DURATION:DUR,tl,ready:false,seek:makeSeek(tl,t=>render(t)),play:start,syncSeek:true};
 /* <wv:footage> dibangun dari src/runtime/footage.js — JANGAN edit di sini;
    ubah sumbernya lalu jalankan: node scripts/build-starters.mjs */
 /* ================= FOOTAGE — layer video yang terikat timeline (seperti footage di After Effects) =================

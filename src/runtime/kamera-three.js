@@ -9,8 +9,10 @@ const warna=c=>new THREE.Color(typeof c==='string'&&c.startsWith('--')?getComput
 /* ---------- KAMERA ---------- */
 /* satu jalur untuk kamera render DAN kamera bayangan cek3: pose, lookAt, roll, lensa */
 const RAILS=[];   // {curve,look} — dibuat saat setup; keadaan rail hanya CAM.rail (indeks, -1 = mati) dan CAM.railU (0..1)
-/* lantai: kamera tidak pernah turun di bawah c.lantai+0,05 (low/worm sesudah WS, dip di tengah tween) — dijepit per frame */
-const jepitLantai=(p,c)=>{if(c.lantai!=null&&p.y<c.lantai+.05)p.y=c.lantai+.05;return p;};
+/* lantai: kamera tidak pernah turun di bawah c.lantai+margin (low/worm sesudah WS, dip di tengah tween) — dijepit per frame.
+   margin = near·(1+tan(½ fov vertikal)): di bawah itu near plane memotong lantai dan dasar frame menyingkap latar (lensa lebar paling parah) */
+const jepitLantai=(p,c)=>{if(c.lantai==null)return p;
+  const m=Math.max(.05,camera.near*(1+(36/Math.max(W/H,1))/(2*c.mm*(c.zoom||1))));if(p.y<c.lantai+m)p.y=c.lantai+m;return p;};
 function arahkan(cam,c,dx=0,dy=0,dz=0,roll=c.roll){let p,f;
   if(c.rail>=0){const R=RAILS[c.rail];p=R.curve.getPointAt(c.railU);f=R.look;}else{p=pose(c);f=[c.fx,c.fy,c.fz];}
   jepitLantai(p,c);
@@ -170,7 +172,12 @@ window.CAM3_UJI=()=>{const r={},c0={...CAM},V=()=>new THREE.Vector3();tl.pause(0
   /* low/worm sesudah WS: tanpa lantai kamera turun ke bawah y=0 (layar hitam); dengan CAM.lantai dijepit di atasnya */
   {const y=[];for(const k of ['low','worm']){Object.assign(CAM,{yaw:0,pitch:PLAN.pitch,roll:0,shake:0,zoom:1,mm:PLAN.mm,rail:-1},CAM.frame3d(SHOT.WS,'subjek'),ANGLE.three[k]);
     applyCam();y.push(camera.position.y);}
-   r.lantaiAman={y,ok:y.every(v=>v>=0)};}
+   r.lantaiAman={y,ok:y.every(v=>v>=0)};
+   /* worm (16 mm, lebar) dijepit dekat lantai: dasar frame harus lantai, bukan latar yang tersingkap karena near plane memotong lantai */
+   Object.assign(CAM,{fx:0,fy:0,fz:0,dist:14,yaw:0,pitch:-12,roll:0,shake:0,zoom:1,mm:35,rail:-1},ANGLE.three.worm);applyCam();   // pose katalog: fokus di permukaan lantai
+   composer.render(0);const gl=renderer.getContext(),px=new Uint8Array(4);gl.readPixels(W/2,4,1,1,gl.RGBA,gl.UNSIGNED_BYTE,px);
+   const bg=scene.background,lb=bg&&bg.isColor?Math.round(bg.clone().convertLinearToSRGB().r*255+bg.clone().convertLinearToSRGB().g*255+bg.clone().convertLinearToSRGB().b*255):0;
+   r.wormTanpaPita={dasar:px[0]+px[1]+px[2],latar:lb,ok:Math.abs(px[0]+px[1]+px[2]-lb)>12};}
   /* subjek bersarang dibingkai di posisi DUNIA, walau matriks induknya belum pernah diperbarui render */
   {const g=new THREE.Group(),b=new THREE.Mesh(new THREE.BoxGeometry(1,1,1));g.position.set(5,0,-3);b.position.y=1;g.add(b);scene.add(g);
    const v=CAM.frame3d(SHOT.WS,b);r.bersarangBenar={f:[v.fx,v.fy,v.fz],ok:Math.hypot(v.fx-5,v.fy-1,v.fz+3)<1e-6};
@@ -186,6 +193,6 @@ window.CAM3_UJI=()=>{const r={},c0={...CAM},V=()=>new THREE.Vector3();tl.pause(0
    Object.assign(LUX,nilaiLux('lowkey'));applyCam();composer.render(0);const k=lum();
    r.lowkeyGelap={lantai:k[0]/Math.max(1,d[0]),wajah:k[1]/Math.max(1,d[1]),d,k};Object.assign(LUX,L1);}
   Object.assign(CAM,c0);
-  if(pinjam){scene.remove(pinjam);pinjam.geometry.dispose();pinjam.material.dispose();for(const k of ['ndc','jarakFokus','jarakHarapan','dekatDiLuar','lowkeyGelap','lantaiAman','demoAkhir'])r[k]=null;}
+  if(pinjam){scene.remove(pinjam);pinjam.geometry.dispose();pinjam.material.dispose();for(const k of ['ndc','jarakFokus','jarakHarapan','dekatDiLuar','lowkeyGelap','lantaiAman','wormTanpaPita','demoAkhir'])r[k]=null;}
   if(!adaHud)r.hudTabrakDitolak=null;
   applyCam();composer.render(0);if(r.demoAkhir!==null)r.demoAkhir=window.DEMO_AKHIR||0;r.DUR=DUR;return r;};

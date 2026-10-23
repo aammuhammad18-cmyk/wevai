@@ -252,7 +252,7 @@ jauh: besarkan lantai dan naikkan near/far, atau buang kabut dan tutup tepi lant
 
 **Low/worm angle di bawah lantai → `CAM.lantai`.** Tinggi kamera = `fy − dist·sin(pitch)`; sesudah `shot(…,'WS')`
 pada kubus 1,6 (dist ±7) `angle('low')` menaruh kamera di y −2,2, `worm` −5,3 — lantai lenyap, layar hitam.
-`CAM.lantai` (y bidang tanah) menjepit kamera di `lantai + 0,05` setiap frame (juga dip di tengah tween, kamera
+`CAM.lantai` (y bidang tanah) menjepit kamera di `lantai + near·(1 + tan(½ fov vertikal))` (min. 0,05) setiap frame — margin itu menjaga near plane tidak memotong lantai pada lensa lebar (`worm` 16 mm) (juga dip di tengah tween, kamera
 bayangan zona aman, dan jarak `focus()`); kamera tetap menatap fokus, jadi low angle yang terlalu jauh berubah
 jadi eye level tepat di atas lantai. Opt-in: default `null` (tanpa jepit — opener/luar angkasa). Starter 3D
 memasang `camDefaults({lantai:0})` di samping lantainya; dunia tanpa lantai: hapus baris itu. Low angle yang

@@ -149,7 +149,7 @@ for (const file of files) {
     if (cam3) {
       const ada = k => cam3[k] != null;
       // null hanya sah di opener (tanpa subjek/#hud); starter 3D lain harus mengisi SEMUA field
-      if (name !== 'starter-opener.html') for (const k of ['poseCocok', 'ndc', 'isiTinggi', 'hudTabrakDitolak', 'pikselBrand', 'kosongDitolak', 'familyDitolak', 'keyGolden', 'elGolden', 'lightUrutDitolak', 'bokehSaatNol', 'bokehSaatEnam', 'jarakFokus', 'jarakHarapan', 'keyIkutKamera', 'railDuaDitolak', 'railUrutDitolak', 'railTengah', 'railSambung', 'dekatDiLuar', 'lowkeyGelap', 'lantaiAman', 'bersarangBenar', 'nolDitolak', 'railLookDitolak', 'demoAkhir', 'DUR'])
+      if (name !== 'starter-opener.html') for (const k of ['poseCocok', 'ndc', 'isiTinggi', 'hudTabrakDitolak', 'pikselBrand', 'kosongDitolak', 'familyDitolak', 'keyGolden', 'elGolden', 'lightUrutDitolak', 'bokehSaatNol', 'bokehSaatEnam', 'jarakFokus', 'jarakHarapan', 'keyIkutKamera', 'railDuaDitolak', 'railUrutDitolak', 'railTengah', 'railSambung', 'dekatDiLuar', 'lowkeyGelap', 'lantaiAman', 'wormTanpaPita', 'bersarangBenar', 'nolDitolak', 'railLookDitolak', 'demoAkhir', 'DUR'])
         if (cam3[k] == null) masalah.push(`kamera3: field ${k} kosong — subjek/#hud hilang dari starter 3D?`);
       if (name === 'starter-opener.html' && cam3.poseCocok == null) masalah.push('kamera3: opener harus punya poseCocok non-null');
       if (ada('poseCocok') && !(cam3.poseCocok)) masalah.push('kamera3: camera.position ≠ pose(CAM)');
@@ -171,6 +171,7 @@ for (const file of files) {
       if (ada('lowkeyGelap') && !(cam3.lowkeyGelap.lantai <= .5 && cam3.lowkeyGelap.wajah <= .6)) masalah.push(`kamera3: lowkey harus jauh lebih gelap dari day (lantai ${cam3.lowkeyGelap.lantai.toFixed(2)} ≤ .5, wajah teduh ${cam3.lowkeyGelap.wajah.toFixed(2)} ≤ .6)`);
       if (ada('dekatDiLuar') && !cam3.dekatDiLuar.ok) masalah.push(`kamera3: shot ECU/CU menaruh kamera di dalam subjek atau tidak memusatkannya (${JSON.stringify(cam3.dekatDiLuar.hasil)})`);
       if (ada('familyDitolak') && !cam3.familyDitolak) masalah.push("kamera3: mat('neon') harus ditolak");
+      if (ada('wormTanpaPita') && !cam3.wormTanpaPita.ok) masalah.push(`kamera3: sudut worm dekat lantai menyingkap latar di dasar frame (piksel ${cam3.wormTanpaPita.dasar} ≈ latar ${cam3.wormTanpaPita.latar}) — near plane memotong lantai`);
       if (ada('lantaiAman') && !cam3.lantaiAman.ok) masalah.push(`kamera3: angle low/worm sesudah WS menaruh kamera di bawah lantai (y ${cam3.lantaiAman.y.map(v => v.toFixed(2))}) — CAM.lantai`);
       if (ada('bersarangBenar') && !cam3.bersarangBenar.ok) masalah.push(`kamera3: subjek bersarang (grup di 5,0,-3) dibingkai di ${cam3.bersarangBenar.f.map(v => v.toFixed(2))}, harus 5,1,-3`);
       if (ada('nolDitolak') && cam3.nolDitolak !== true) masalah.push(`kamera3: subjek berskala 0 harus ditolak dengan namanya (${cam3.nolDitolak})`);

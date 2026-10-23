@@ -34,7 +34,7 @@ baru dan opener.
   ±21 `sinematografi.md`, bacaan wajib 3D). Batas jalur lain tetap.
 - **Nilai relatif kamera**: `'-=x'` di `camTo`/`cutTo` kini mengurangi (sebelumnya terbaca `+x`); awalan selain
   `+=`, `-=`, `*=` melempar error.
-- **`CAM.lantai`** (3D, opt-in, default `null`): kamera dijepit di `lantai + 0,05` setiap frame — render, kamera
+- **`CAM.lantai`** (3D, opt-in, default `null`): kamera dijepit di `lantai + near·(1 + tan(½ fov vertikal))` (min. 0,05) setiap frame, sehingga lensa lebar (`worm`) tidak menyingkap latar di dasar frame — render, kamera
   bayangan zona aman, dan jarak `focus()`. `angle('low'|'worm')` sesudah WS tidak lagi menembus lantai (layar
   hitam). Starter 3D memasang `camDefaults({lantai:0})`; opener tanpa jepit.
 - **Subjek 3D bersarang**: `shot`/`frame3d`, zona aman, dan `focus()` membaca kotak subjek di posisi dunia walau

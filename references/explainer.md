@@ -32,8 +32,10 @@ bila ada; kalau tidak, tulis daftarnya dan tunggu jawaban) berisi empat hal.
 Lewati bagian yang sudah disebut user; bila ada video referensi, gaya
 diambil dari sana (ritmenya — lihat SKILL.md Hukum #3).
 
-**Gaya** (sertakan satu baris rekomendasi: sejarah → 4 atau 1; berita → 2;
-produk → 3; gerak/rute → 5; sains/edukasi berkarakter → 6; topik ringan → 1):
+**Gaya** (sertakan satu baris rekomendasi: sejarah → 6 kulit ilustrasi sinematik
+atau 5, dan 4/1 hanya bila gambar generate diizinkan; berita → 2; produk → 3;
+gerak/rute → 5; sains/edukasi berkarakter → 6; topik ringan → 1). Gaya 1–4 butuh
+gambar generate atau foto; untuk proyek 100 % kode pilih 5 atau 6:
 
 | # | Gaya | Rasanya | Cocok untuk | Aset |
 |---|---|---|---|---|
@@ -42,7 +44,7 @@ produk → 3; gerak/rute → 5; sains/edukasi berkarakter → 6; topik ringan �
 | 3 | Katalog putih | putih bergrid, cutout foto, tipografi campur, coretan | produk, brand, profil perusahaan | foto produk/orang, latar dihapus |
 | 4 | Sketsa vintage | kertas sepia, ukiran/etsa, serif klasik, anotasi karat | sejarah, biografi, penemuan | ilustrasi gaya ukiran digenerate |
 | 5 | Aksi kontinu (vektor) | dunia mengalir, satu subjek, angka di dalam dunia, ganti sudut | kecepatan, rute, transportasi, olahraga, proses | 100 % SVG digambar, tanpa generate |
-| 6 | Kartun panggung | flat cerah, satu panggung per adegan, tokoh bersendi beraksi, mesin/air/tanaman hidup, tanpa caption | edukasi sains/sosial berkarakter, proses & dampak, cerita | tubuh & dunia vektor; kepala digenerate → ekspresi lokal |
+| 6 | Kartun panggung | flat cerah atau ilustrasi sinematik (siluet ber-rim, cahaya bersumber, kabut), satu panggung per adegan, tokoh bersendi beraksi, mesin/air/tanaman hidup, tanpa caption | edukasi sains/sosial berkarakter, proses & dampak, cerita; sejarah & budaya (kulit sinematik) | tubuh & dunia vektor; kepala digenerate → ekspresi lokal, atau kepala vektor (100 % kode) |
 
 **Tiga hal lain dalam pertanyaan yang sama:**
 
@@ -60,6 +62,11 @@ adegan ditentukan oleh konteks yang berubah. Beberapa kalimat dapat memakai
 satu dunia dengan aktivitas yang berkembang. Materi berlebih dipotong,
 bukan videonya dipanjangkan. Permintaan "10 menit" → konfirmasi, lalu pecah
 per bab ≤ 90 dtk dengan berkas terpisah.
+
+**Video panjang** (dokumenter 25–60 mnt yang memang disepakati): satu berkas per
+babak mengikuti panjang VO babak itu — batas 90 dtk tidak berlaku. Ekspor tiap babak
+dengan `WORKERS=2 MP4=babak-N.mp4` (`alat-kerja.md`), lalu sambung MP4-nya. Shot
+mata elang paling banyak satu per babak (`sinematografi.md` §3).
 
 ## Penyerahan: naskah VO ikut di pesan, user yang mengisi suaranya
 

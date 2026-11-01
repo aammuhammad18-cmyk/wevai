@@ -300,7 +300,8 @@ melengkung; kamera WebGL ikut geser `camX` searah untuk paralaks latar.
 Dua jenis transisi yang terasa murahan: whip translasi yang menyingkap tepi
 dunia (gap hitam, terbaca "pindah halaman" — whip dengan overscan + blur berarah
 di §4c #6 sah), dan spin/yaw/roll kejut (zoom tiba-tiba +
-blur adalah bahasa preset editor video, bukan motion design). Urutan yang benar:
+blur adalah bahasa preset editor video, bukan motion design). Penerbangan yang
+menukik dan berguling hanya sah sebagai shot mata elang (`sinematografi.md` §3). Urutan yang benar:
 
 1. **Kamera bernapas** (fondasi, selalu aktif): rig dunia drift zoom pelan
    `sine.inOut` ±4-5% per adegan, arah bergantian, dirantai tanpa lompatan.
@@ -398,7 +399,7 @@ Lapisan dari belakang ke depan, semua diikat `state`:
   opasitas per adegan 0.2–0.6, jangan lebih.
 - **Ornamen 3D** (bintang ✦, bentuk brand): `Shape` + kurva cekung →
   `ExtrudeGeometry` + bevel, `MeshStandardMaterial` + DirectionalLight —
-  Basic material terlihat flat, dan flat = PPT. Goyangkan sumbu Y dengan
+  Basic material terlihat rata tanpa disengaja — di 3D itu terbaca PPT. Goyangkan sumbu Y dengan
   sinus ±0.55 rad, JANGAN putar penuh (benda pipih dilihat dari samping =
   sebatang garis). Satu ornamen "hero" melintas cepat saat transisi.
 - **Tunnel/rush**: partikel PENDEK (len 0.8–2.5), warna gelap-sedang,
@@ -523,35 +524,27 @@ sekaligus menjadi dither yang mencegah banding (garis tangga) saat video dikompr
   cahaya kecil memandu mata.
 
 **Resep**
-```html
-<svg width="0" height="0" style="position:absolute"><filter id="grain" x="0" y="0" width="100%" height="100%">
-  <feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="3" stitchTiles="stitch"/>
-  <feColorMatrix type="saturate" values="0"/></filter></svg>
-<div class="grain" id="grain"></div>   <!-- lapisan teratas, di atas latar dan objek -->
-```
 ```css
 .shape{background:radial-gradient(60% 60% at 50% 30%,var(--c-lit),var(--c-mid) 45%,var(--c-deep) 100%)}
-.grain{position:absolute;inset:-60px;pointer-events:none;filter:url(#grain);opacity:.22;mix-blend-mode:overlay}
 ```
 ```js
-/* butiran hidup yang deterministik: posisi melompat 12× per detik dari t, bukan Math.random */
-const grainAt=t=>{const k=Math.floor(t*12);grainEl.style.transform=`translate(${k*37%60-30}px,${k*61%60-30}px)`;};
+grainHidup(tl,{opacity:.22,blend:'overlay'});   // sudah ada di setiap starter (src/runtime/grain.js)
 ```
+`grainHidup` memasang lapisan butiran teratas di `#stage` (di atas latar dan objek, di luar `#world`) yang
+melompat 12× per detik dari `tl.time()` — deterministik, tile dirasterisasi sekali, per frame hanya transform.
 - Latar gelap: overlay/soft-light, opacity .15–.3. Latar terang: multiply, opacity .08–.15.
 - `baseFrequency` .65–.9 pada 1920×1080 memberi butiran 1–2 px; lebih halus dari itu
   hilang saat encode.
 - WebGL: tambahkan di akhir fragment shader
   `col += (hash(gl_FragCoord.xy + floor(uTime*12.)) - .5) * .06;` — lebih ringan daripada
   filter SVG layar penuh.
-- Preview real-time berat dengan filter SVG layar penuh: buat sekali tile noise 256 px di
-  canvas lalu pakai sebagai `background-image` berulang. Untuk render per frame keduanya aman.
 
 **Jaga-jaga**
 - Butiran dan gradien halus rusak oleh kompresi: encode dengan `-crf 10–12 -tune grain`
   (libx264) atau bitrate tinggi, lalu periksa MP4-nya — bukan hanya browser. Video yang
   diunggah ulang di resolusi rendah kehilangan butiran dan memperlihatkan banding; butiran
   yang sedikit lebih besar lebih tahan.
-- Kantong teks tetap diuji kontras; teks kecil boleh diletakkan di atas lapisan grain supaya
+- Kantong teks tetap diuji kontras; teks kecil boleh diletakkan di atas lapisan grain (`z-index` > 50) supaya
   hurufnya tidak tampak kotor.
 - Grainy gradient adalah kulit, bukan kerangka: konsep dan transisi tetap dari
   `opener-konsep.md`.

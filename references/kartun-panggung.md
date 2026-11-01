@@ -1,4 +1,4 @@
-# Kartun panggung — explainer kartun edukasi flat, satu panggung per adegan
+# Kartun panggung — explainer berkarakter, satu panggung per adegan
 
 Gaya keenam explainer. Angka acuannya dari dua jenis video: cerita kartun ±40 dtk
 dengan satu tokoh di lima lingkungan, dan explainer ±80 dtk (7 panggung, 2 tokoh,
@@ -7,7 +7,8 @@ hasilnya sudah benar.
 
 **Definisi.** Tiap adegan adalah *panggung* sendiri seukuran frame (1920×1080 +
 overscan), digambar vektor, hidup penuh (≥10 benda bergerak), punya kamera sendiri.
-Kamera hanya bergerak **di dalam** panggung (zoom 1,08–1,95, tidak pernah wide).
+Kamera hanya bergerak **di dalam** panggung (zoom 1,08–1,95, tidak pernah wide —
+kecuali satu shot mata elang per bab, `sinematografi.md` §3).
 Antar panggung: **cut**, atau geser 96 px / 72 px dengan blur ≤10 px. VO membawa
 kalimat; gambar membawa makna; **tidak ada caption**.
 
@@ -18,7 +19,7 @@ Bedakan dari mode lain di skill ini:
 | Dunia | satu kertas besar berisi cutout diam | banyak panggung, tiap panggung satu frame |
 | Gerak utama | kamera menyusuri aset diam | isi panggung beraksi; kamera menemani |
 | Pergantian adegan | push-through kamera | cut / geser 96 px |
-| Latar | kertas krem + grain + noda | flat cerah, tanpa tekstur |
+| Latar | kertas krem + grain + noda | dua kulit (Hukum 7): flat cerah tanpa tekstur, atau ilustrasi sinematik |
 | Teks | kalimat + pill highlighter | nol caption; label diegetik saja |
 | Aset | ilustrasi generate → cutout | vektor digambar + kepala raster bersendi |
 
@@ -62,7 +63,7 @@ TANPA scale bump, TANPA garis-garis sapuan tambahan.
 Offset diterapkan ke rig kamera panggung, bukan dengan menggeser frame yang
 sudah di-crop. Jangan terbang lintas dunia 3 detik (naik ke langit, menyelam ke
 bawah tanah, zoom keluar) — itu pola "tahan → pan jauh sambil zoom → cut → ulangi"
-yang melelahkan.
+yang melelahkan. Satu-satunya pengecualian: shot mata elang (`sinematografi.md` §3).
 
 Cut antar panggung **bukan** pelanggaran "Larangan struktural #1" di SKILL.md
 selama tiap panggung hidup (isinya beraksi). Yang dilarang adalah gambar diam
@@ -154,7 +155,14 @@ VO tidak ditulis ulang di layar — kalau penonton butuh membaca, gambarnya yang
 belum menjelaskan. Kalimat sorotan + pill highlighter milik mode kolase, bukan
 mode ini.
 
-## Hukum 7 — Palet cerah flat; bukan kertas, bukan grain
+## Hukum 7 — Dua kulit, dipilih sadar di style brief
+
+Style brief menulis satu kulit beserta alasannya: **A flat cerah** atau **B ilustrasi
+sinematik**. Sejarah, budaya, drama, malam, api, perang → B. Sains/sosial ringan,
+anak-anak, proses di siang terang → A. Kedua kulit memakai hukum 1–6 yang sama; yang
+berbeda hanya rupa.
+
+### Kulit A — flat cerah; bukan kertas, bukan grain
 
 Kertas krem + grain + noda air adalah kulit *kartun kolase* — di mode ini
 terlihat vintage dan salah. Yang terbukti: langit gradien pucat
@@ -164,6 +172,35 @@ terlihat vintage dan salah. Yang terbukti: langit gradien pucat
 elips kontak di tanah dan sisi gelap bangunan 0,86–0,9× warna dasar. Pilih palet
 dari tema tetap berlaku (Hukum #3 SKILL.md) — yang dikunci di sini hanya
 **tanpa tekstur**.
+
+### Kulit B — ilustrasi sinematik
+
+Patokannya ilustrasi siluet ber-rim light: cahaya yang punya sumber, kabut berlapis,
+bara, satu palet per adegan. Tetap 100 % vektor.
+
+1. **Cahaya bersumber.** Tiap panggung punya satu sumber utama yang terlihat atau
+   tersirat (matahari senja, bulan, obor, api unggun, jendela). Arah dan warnanya
+   menentukan sisi terang setiap benda; sisi yang membelakangi sumber gelap
+   (0,4–0,6× warna dasar), bayangan jatuh menjauhi sumber. Pendar sumber = gradien
+   radial berwarna cahaya.
+2. **Rim pada siluet.** Tokoh dan benda di depan sumber digambar sebagai siluet gelap
+   dengan tepi terang 2–4 px di sisi sumber, warnanya warna sumber.
+3. **Kabut berlapis menurut kedalaman.** ≥ 3 bidang (dekat / tengah / jauh); makin jauh
+   makin pucat dan makin mendekati warna langit (perspektif udara), pita kabut di
+   antara bidang.
+4. **Palet serempak per panggung.** Satu temperatur dominan (senja jingga-ungu; malam
+   biru-teal dengan api jingga); warna benda dicampur ke arah warna cahaya.
+5. **Atmosfer bergerak.** Bara, debu, asap, kunang-kunang, daun — ber-seed dari
+   `tl.time()`; masuk hitungan ≥ 10 benda bergerak (Hukum 3).
+6. **Grain hidup + vignette lembut**: `grainHidup(tl,{opacity:.12})` (baris
+   siap pakai di starter).
+
+Tekstur bata/batu boleh `feDiffuseLighting` asal **dipanggang** — parameternya tidak
+dianimasikan (aturan performa di `architecture.md`).
+
+Kegagalan nyata: style brief babad Mataram menulis "malam + bara", tetapi tanpa
+sumber cahaya dan tanpa rim adegannya keluar sebagai blok biru tua rata. Gelap bukan
+suasana; suasana datang dari kontras sumber cahaya terhadap gelap.
 
 ## Karakter: kepala raster + tubuh vektor
 
@@ -195,7 +232,8 @@ Pipeline yang terbukti (identitas boleh dari foto user, boleh anonim):
 
 Tanpa akses generate: `character()` di starter punya kepala vektor sederhana
 (lingkaran kulit, siluet rambut, dua titik mata, garis mulut) — cukup untuk
-gaya ini.
+gaya ini. Di kulit B tokoh dibingkai sebagai siluet ber-rim, jadi kepala
+vektor sudah cukup.
 
 ## Panggung yang terbukti untuk cerita "proses & dampak"
 
@@ -224,8 +262,10 @@ ada `tl.to(<grup ber-translate>,{x|y})`.
 
 Cek sebelum menyerahkan (bersama checklist umum di `SKILL.md`):
 
-- [ ] Kamera: tidak ada frame dengan zoom < 1,08; kamera hanya bergerak di dalam
-      panggung; antar panggung cut atau geser 96/72 px
+- [ ] Kulit ditulis di style brief beserta alasannya; kulit B: sumber cahaya per
+      panggung, rim pada siluet, ≥ 3 bidang kabut, palet serempak, grain hidup
+- [ ] Kamera: tidak ada frame dengan zoom < 1,08 dan kamera hanya bergerak di dalam
+      panggung (kecuali satu shot mata elang per bab); antar panggung cut atau geser 96/72 px
 - [ ] Kartun panggung: sendi diputar lewat proxy transform manual (tidak ada
       `transformOrigin`/`rotation` GSAP pada sendi, tidak ada tween `x/y`
       pada grup ber-`translate`); tiap panggung ≥10 benda bergerak; nol

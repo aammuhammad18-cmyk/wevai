@@ -130,6 +130,21 @@ berbeda — membandingkan hash PNG antar-proses akan memberi beda palsu (sudah t
 saat menguji refactor). Bandingkan keadaan (nilai tween, transform, opacity) atau
 frame yang dirender dalam SATU proses.
 
+## Performa render — yang statis dipanggang, yang bergerak ringan
+
+Biaya ekspor per frame = capture (±170–200 ms di mesin acuan i3-3217U) + kerja browser
+menggambar frame itu. Hanya yang kedua bisa ditekan:
+
+- Filter SVG berat (`feDiffuseLighting`, `feSpecularLighting`, `feTurbulence`, blur besar)
+  **dipanggang**: atributnya tidak di-tween. Terukur: filter statis ≈ gratis; filter yang
+  parameternya dianimasikan ±358 ms/frame vs ±255 ms statis.
+- Yang bergerak berada di lapisan sendiri (`<div>` ber-`will-change:transform` dengan
+  `<svg>`-nya sendiri) dan hanya digerakkan lewat `transform`/`opacity` — browser
+  menggeser bitmap jadi, filternya tidak dihitung ulang.
+- Cahaya yang berubah (obor berkedip, matahari turun) = opacity/transform lapisan
+  pendar di atas gambar yang dipanggang, bukan tween atribut filter.
+- Video panjang diekspor dengan `WORKERS=2` (`alat-kerja.md`).
+
 ## Dev server wajib no-cache
 
 `python -m http.server` membiarkan browser menahan module JS lama lewat

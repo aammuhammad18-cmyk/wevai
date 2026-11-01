@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.2.0 — 2026-11-01
+
+Fondasi arah sinematik (sub-proyek 1 dari `docs/peta-peningkatan-gaya-2026-11-01.md`): aturan tidak lagi
+mendorong agen ke rupa flat, dan semua starter punya grain hidup.
+
+- **Kartun panggung, Hukum 7 dipecah menjadi dua kulit** yang dipilih sadar di style brief: A flat cerah
+  (aturan lama) dan B ilustrasi sinematik (cahaya bersumber, rim pada siluet, ≥ 3 bidang kabut, palet serempak,
+  atmosfer bergerak, grain), dengan contoh gagal "malam + bara" yang keluar sebagai blok rata.
+- **Kontradiksi diselaraskan**: flat sah hanya bila dipilih sadar di style brief (`SKILL.md`); "flat = PPT" di
+  `techniques.md` dibatasi ke material 3D yang rata tanpa disengaja; rekomendasi gaya sejarah di `explainer.md`
+  kini 6 kulit sinematik atau 5 (gaya 1–4 hanya bila gambar generate diizinkan); jalur video panjang per babak.
+- **Shot mata elang** (`sinematografi.md` §3): satu-satunya pengecualian dari larangan roll/terbang lintas dunia
+  — maksimal satu per bab, termotivasi, ≥ 3 dtk, mendarat di subjek. Ditunjuk dari `anti-ppt.md`,
+  `techniques.md` §4b, dan `kartun-panggung.md`.
+- **Grain hidup** (`src/runtime/grain.js`, `grainHidup(tl,{opacity,blend})`): lapisan butiran teratas di `#stage`,
+  melompat 12×/dtk dari `tl.time()`. Dipasang di tujuh starter; panggung menyiapkan barisnya untuk kulit B. Grain
+  statis 3D dan grain overlay jurnalisme diganti; grain kertas kolase tetap.
+- **Aturan performa** (`architecture.md`): filter berat dipanggang, yang bergerak di lapisan `will-change` lewat
+  transform/opacity; `WORKERS=2` untuk video panjang (terukur ±2× di laptop 2 core).
+
 ## 1.1.0 — 2026-10-23
 
 Kamera sinematik 3D: inti kamera yang sama (`CAM`) kini punya backend Three.js, dipakai starter explainer 3D

@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="id">
-<!-- Made with the WeVai skill v1.1.0 by aammuhammad18 (https://github.com/aammuhammad18-cmyk/wevai) - MIT - https://github.com/aammuhammad18-cmyk/wevai -->
+<!-- Made with the WeVai skill v1.2.0 by aammuhammad18 (https://github.com/aammuhammad18-cmyk/wevai) - MIT - https://github.com/aammuhammad18-cmyk/wevai -->
 <head>
 <meta charset="utf-8">
 <title>WeVai — Starter Opener</title>
@@ -743,6 +743,26 @@ gsap.ticker.add(()=>{ if(!tl.paused()&&tl.time()>=DURATION)tl.play(0); });
 
 /* split diukur SETELAH font termuat — fallback memberi lebar salah */
 /* seek sinkron: paksa GSAP menulis gaya + gambar kanvas sekarang (rAF bisa dithrottle) */
+/* <wv:grain> dibangun dari src/runtime/grain.js — JANGAN edit di sini;
+   ubah sumbernya lalu jalankan: node scripts/build-starters.mjs */
+/* grain hidup (techniques.md §7d): lapisan butiran film teratas di #stage — di luar #world, jadi tidak
+   meratakan paralaks [data-z]. Tile noise dirasterisasi sekali; per frame hanya transform di lapisannya
+   sendiri, melompat 12× per detik dengan posisi fungsi murni tl.time() (bukan Math.random) — sama di
+   play, scrub, dan ekspor. Memakai tl.eventCallback('onUpdate'); callback yang sudah ada tetap dipanggil,
+   jadi pasang onUpdate timeline milik proyek SEBELUM grainHidup(). Latar gelap: overlay .15–.3;
+   latar terang: multiply .06–.15. */
+function grainHidup(tl, {opacity=.14, blend='overlay', freq=.85}={}){
+  const svg=`<svg xmlns='http://www.w3.org/2000/svg' width='256' height='256'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='${freq}' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='2.5 0 0 0 -.75 2.5 0 0 0 -.75 2.5 0 0 0 -.75 0 0 0 0 1'/></filter><rect width='256' height='256' filter='url(%23n)'/></svg>`;
+  const el=document.createElement('div'); el.className='wv-grain';
+  el.style.cssText=`position:absolute;inset:-60px;pointer-events:none;z-index:50;opacity:${opacity};mix-blend-mode:${blend};will-change:transform;transform:translate(-30px,-30px);`+
+    `background-image:url("data:image/svg+xml,${svg.replace(/</g,'%3C').replace(/>/g,'%3E')}")`;
+  document.getElementById('stage').appendChild(el);
+  const prev=tl.eventCallback('onUpdate');
+  tl.eventCallback('onUpdate',function(){const k=Math.floor(tl.time()*12);
+    el.style.transform=`translate(${k*37%60-30}px,${k*61%60-30}px)`;if(prev)prev.apply(this,arguments);});
+  return el;
+}
+/* </wv:grain> */
 /* <wv:seek> dibangun dari src/runtime/seek.js — JANGAN edit di sini;
    ubah sumbernya lalu jalankan: node scripts/build-starters.mjs */
 /* seek sinkron untuk snap.mjs / export-frames.mjs / konsol: GSAP menulis gaya secara
@@ -754,6 +774,7 @@ function makeSeek(tl, apply){ return t => { if (tl.time() === t) tl.pause(t + 1e
   tl.pause(t, false);
   if (gsap.ticker.tick) gsap.ticker.tick(); if (apply) apply(t); }; }
 /* </wv:seek> */
+grainHidup(tl,{opacity:.12});
 const seek=makeSeek(tl,t=>render(t));
 window.OPENER={W,H,tl,DURATION,seek,ready:false};   // dipakai konsol & skrip snap/export
 /* <wv:footage> dibangun dari src/runtime/footage.js — JANGAN edit di sini;

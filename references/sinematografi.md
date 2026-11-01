@@ -146,6 +146,21 @@ hero, dan ECU. *Kegagalan:* subjek di tengah dan label HUD di kiri bawah menumpu
 menekankan angka. Tulis pemicunya di kolom `visual` rundown (`WS high → dolly in CU saat "satu peti"`).
 *Kegagalan:* orbit 360° terus-menerus di bawah seluruh narasi — terasa screensaver, bukan penjelasan.
 
+**Shot mata elang — momen khusus.** Kamera terbang seperti elang: menukik, berguling di tikungan, melintas rendah
+di atas sawah atau sungai, menembus celah gapura atau tajuk pohon. Di shot ini roll, yaw, kecepatan tinggi, dan
+EWS sah — ini satu-satunya pengecualian dari larangan spin/roll kejut (`anti-ppt.md`, `techniques.md` §4b) dan
+dari "kamera tidak pernah wide / tidak terbang lintas dunia" (`kartun-panggung.md`). Sah hanya bila keempatnya
+terpenuhi:
+1. paling banyak **satu per bab/babak**;
+2. **termotivasi**: pembuka bab atau perpindahan tempat yang jauh, pemicunya ditulis di rundown;
+3. **≥ 3 dtk** gerak kontinu tanpa cut;
+4. **mendarat di subjek**: gerak melambat dan berakhir pada shot yang membingkai subjek berikutnya.
+
+*Kenapa:* terbang yang termotivasi memberi skala dan geografi yang tak bisa diberikan cut; terbang di setiap
+transisi menjadi pola "tahan → terbang jauh → cut" yang melelahkan dan terbaca preset editor. Alat sekarang: 3D
+`rail()` dengan roll lewat `camTo({roll})`; 2.5D `camTo` melintasi bidang `[data-z]`. *Kegagalan:* tiga
+penerbangan dalam satu bab, masing-masing berakhir di langit kosong lalu cut.
+
 **≥ 2 sudut per dunia.** Tiap dunia dilihat dari minimal dua sudut berbeda (`angle()` atau yaw ≥ 30°).
 *Kenapa:* satu sudut + dolly in/out = diorama di balik kaca — PPT 3D. *Kegagalan:* 45 detik dari eye-level 3/4
 yang sama, hanya maju-mundur.

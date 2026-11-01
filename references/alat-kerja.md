@@ -50,7 +50,7 @@ proyek supaya `index.html` ketemu.
 |---|---|---|
 | Lint | `node <skill>/scripts/lint-motion.mjs` | aturan yang bisa diukur dari kode; FAIL = perbaiki sebelum menyerahkan. Tanpa dependensi |
 | Snapshot | `node <skill>/scripts/snap.mjs shots 1 3.5 8` | potret detik kunci + `shots/kontak.png` (lembar kontak berlabel detik) untuk dinilai sekali lihat; `--tanpa-sheet` bila tidak perlu |
-| Export MP4 | `MP4=out.mp4 node <skill>/scripts/export-frames.mjs` | render frame-by-frame langsung ke MP4, ukuran dari `OPENER.W/H`, audio `#vo` ikut. Lebih cepat: `FPS=30` (separuh frame), `SYNC=1` (halaman yang `seek` menggambar sinkron — tanpa kanvas rAF/klip); `WORKERS=2` hanya di mesin dengan core/GPU longgar. Master kritis: `FORMAT=png`. Tanpa `MP4=`: folder PNG + perintah ffmpeg |
+| Export MP4 | `MP4=out.mp4 node <skill>/scripts/export-frames.mjs` | render frame-by-frame langsung ke MP4, ukuran dari `OPENER.W/H`, audio `#vo` ikut. Lebih cepat: `FPS=30` (separuh frame), `SYNC=1` (halaman yang `seek` menggambar sinkron — tanpa kanvas rAF/klip); `WORKERS=2` untuk video panjang — terukur ±2× di laptop 2 core (60 mnt: ±8,6 → ±4 jam); lebih dari 2 hanya bila core/GPU longgar. Master kritis: `FORMAT=png`. Tanpa `MP4=`: folder PNG + perintah ffmpeg |
 | Jeda VO | buka `scripts/vo-pauses.html` di browser | `SEG`/`PARA`/`DUR` untuk sinkron VO tanpa ffmpeg |
 | Kunci CDN | `node <skill>/scripts/cdn-integrity.mjs index.html` | memasang `integrity="sha384-…"` pada `<script src>` CDN supaya browser menolak berkas yang isinya berubah (import map Three tidak bisa) |
 | Arsip mandiri | `node <skill>/scripts/vendor-libs.mjs` | menanam GSAP + font ke dalam berkas supaya tetap bisa diputar offline bertahun-tahun (jalur WebGL tetap butuh internet) |

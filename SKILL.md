@@ -5,14 +5,14 @@ license: MIT
 metadata:
   author: aammuhammad18
   author_url: https://github.com/aammuhammad18-cmyk/wevai
-  version: "1.1.0"
-  updated: "2026-10-23"
+  version: "1.2.0"
+  updated: "2026-11-01"
   homepage: https://github.com/aammuhammad18-cmyk/wevai
 ---
 
 # WeVai — motion graphic web yang bukan PPT
 
-**v1.1.0 · by [aammuhammad18](https://github.com/aammuhammad18-cmyk/wevai) · MIT.** Riwayat perubahan di `CHANGELOG.md`;
+**v1.2.0 · by [aammuhammad18](https://github.com/aammuhammad18-cmyk/wevai) · MIT.** Riwayat perubahan di `CHANGELOG.md`;
 cara pasang di `README.md`.
 
 Skill ini untuk AI coding agent apa pun (format Agent Skills terbuka).
@@ -31,7 +31,7 @@ menurunkan kepatuhan pada aturan yang penting.
 | Opener · promo · bumper · intro · kinetic typography | + `references/opener-konsep.md`, `references/techniques.md`, `assets/starter-opener.html` | menu konsep & sidik jari struktur, resep efek, starter |
 | Explainer (5 gaya kolase/aliran) | + `references/explainer.md`, `references/techniques.md`, starter gaya itu | langkah nol, gaya, kamera kolase, VO, checklist explainer |
 | Explainer 3D & kamera sinematik | + `references/sinematografi.md`, `assets/starter-explainer-3d.html` (opener 3D: jalur opener + `sinematografi.md`) | kosakata shot/sudut/gerak/lensa/cahaya, resep 2.5D & 3D, jebakan |
-| Explainer kartun panggung | + `references/kartun-panggung.md`, `assets/starter-explainer-panggung.html` | satu panggung per adegan, rig sendi, palet flat |
+| Explainer kartun panggung | + `references/kartun-panggung.md`, `assets/starter-explainer-panggung.html` | satu panggung per adegan, rig sendi, kulit flat cerah atau ilustrasi sinematik |
 | Build di After Effects | + `references/ae-bridge-higgsfield.md` | batas bridge, arsitektur CAM, rig native, penyerahan |
 | Scaffold multi-file / alasan struktur | + `references/architecture.md` | panggung, rig kamera, determinisme, export |
 | Memasang alat (snap, lint, export, tanpa ffmpeg) | + `references/alat-kerja.md` | perintah dan jalan pintasnya |
@@ -156,11 +156,11 @@ VO, yang berbeda hanya cara produksinya.
 
 ## Explainer dan karakter: baca sebelum menentukan shot
 
-Untuk explainer kartun edukasi flat berkarakter (gaya keenam, **kartun
+Untuk explainer berkarakter (gaya keenam, **kartun
 panggung**), atau revisi yang terasa seperti slideshow/miniatur, baca
 `references/kartun-panggung.md`: satu panggung per adegan, zoom 1,08–1,95,
 kontinu di dalam panggung dan cut/geser 96 px di antaranya, rig sendi dengan
-transform manual, nol caption, palet flat cerah. Bedakan kalimat, beat visual,
+transform manual, nol caption, kulit flat cerah atau ilustrasi sinematik. Bedakan kalimat, beat visual,
 framing, dan pergantian panggung. Untuk membangunnya langsung di After Effects, baca
 `references/ae-bridge-higgsfield.md`. Pedoman khusus explainer ini memperjelas
 aturan opener di bawah; contoh font, jumlah scene, dan efek bukan resep universal.
@@ -238,7 +238,8 @@ gagal: opener adalah wajah produk, dan dua produk tidak boleh berwajah sama.
    - gerak latar: satu bahasa dari menu `techniques.md` §7c — bukan hal yang
      sama dengan tanda tangan gerak, dan bukan otomatis "benda melintas";
    - permukaan latar: dari menu §7d (gradien/cahaya/tekstur/grainy gradient,
-     ≥ 2 lapis) — bukan flat;
+     ≥ 2 lapis) — bukan flat; flat sah hanya bila dipilih sadar di style brief
+     dengan alasannya (mis. kulit flat cerah kartun panggung, keluarga flat §7e);
    - gaya render objek: satu keluarga dari menu `techniques.md` §7e (flat, clay,
      glossy, kaca, isometrik, realistis, garis neon…);
    - aset foto (bila konsep memakai foto orang/tempat/produk): sumbernya — foto
@@ -519,7 +520,7 @@ dan buat layer dari belakang ke depan. Build 10 panggung ≈ 1 jam, 0 kredit.
 
 | Berkas | Kapan dibaca |
 |---|---|
-| `references/kartun-panggung.md` | KARTUN PANGGUNG: satu panggung per adegan, kamera ≥1,08, cut/geser 96 px, rig sendi + transform manual, kepala raster + ekspresi lokal, nol caption, palet flat |
+| `references/kartun-panggung.md` | KARTUN PANGGUNG: satu panggung per adegan, kamera ≥1,08, cut/geser 96 px, rig sendi + transform manual, kepala raster + ekspresi lokal, nol caption, dua kulit (flat cerah / ilustrasi sinematik) |
 | `assets/starter-explainer-panggung.html` | EXPLAINER kartun panggung: sistem panggung + kamera per panggung, `J()` sendi, `character()` (kepala vektor atau raster), whoosh 96 px, contoh dua panggung |
 | `references/ae-bridge-higgsfield.md` | BRIDGE: membangun kartun panggung langsung di AE lewat MCP Higgsfield — batas bridge, jebakan (null 960,540; parent ke CAM berkeyframe; reorder rusak), arsitektur CAM per panggung, rig native, relay contact sheet, penyerahan |
 | `references/anti-ppt.md` | sebelum mendesain adegan |

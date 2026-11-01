@@ -115,6 +115,21 @@ for (const file of files) {
     if (kanvas && !kanvas.sama) masalah.push('kanvas: t yang sama lewat jalur seek berbeda memberi piksel berbeda');
     if (kanvas && kanvas.kosong) masalah.push('kanvas: hasil render kosong saat dibaca setelah seek');
 
+    // atmosfer (src/runtime/atmosfer.js): langit/partikel/kabut sama di dua jalur seek, kabut berparalaks, langit tanpa
+    // WebGL2 jatuh ke gradien CSS, jenis partikel salah ditolak. Kait membangun fixture sendiri lalu membersihkannya.
+    // Field null = butuh CAM (panggung belum punya) → dilewati; di halaman bawaan, sebelum blok kamera memuat ulang.
+    const atm = await page.evaluate(() => window.ATM_UJI ? window.ATM_UJI() : null);
+    if (['starter-explainer.html', 'starter-explainer-panggung.html'].includes(name) && !atm) masalah.push('atmosfer: ATM_UJI tidak ada');
+    if (atm) {
+      const ada = k => atm[k] != null;
+      for (const k of ['seekSama', 'fallback', 'jenisDitolak', ...(name === 'starter-explainer.html' ? ['kabutParalaks'] : [])])
+        if (!ada(k)) masalah.push(`atmosfer: field ${k} kosong`);
+      if (ada('seekSama') && !atm.seekSama) masalah.push('atmosfer: .wv-partikel/#wv-langit/.wv-kabut berbeda antara seek(5) langsung dan seek(9)→seek(.1)→seek(5)');
+      if (ada('kabutParalaks') && !atm.kabutParalaks) masalah.push('atmosfer: .wv-kabut di bidang z −600 dan z 0 tidak bergeser berbeda (> 1 px) saat CAM.fx += 300');
+      if (ada('fallback') && !atm.fallback) masalah.push('atmosfer: tanpa WebGL2 langit() harus mengembalikan <div> bergradien, bukan error');
+      if (ada('jenisDitolak') && !atm.jenisDitolak) masalah.push("atmosfer: partikel({jenis:'salju'}) harus melempar error yang menyebut jenis yang tersedia");
+    }
+
     // kamera 2.5D (src/runtime/kamera-dom.js): jalur 2D tidak menyentuh gaya lain; sudut → transform 3D;
     // bidang data-z berparalaks; cahaya; katalog ?demo=1 selesai sebelum DUR. Halaman dimuat ULANG dengan ?demo=1
     // supaya pemeriksaan di atas tetap menguji jalur default deliverable.

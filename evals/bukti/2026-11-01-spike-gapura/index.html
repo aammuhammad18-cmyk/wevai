@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><title>Spike — Gapura Malam (kode murni)</title>
+<style>
+html,body{margin:0;height:100%;background:#000;overflow:hidden}
+#st{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;overflow:hidden;background:#000}
+svg{display:block}
+.ly{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;will-change:transform}
+.ly svg{overflow:visible}
+</style></head>
+<body><div id="st"><svg id="sv" width="0" height="0" style="position:absolute"></svg></div>
+<script>
+// SPIKE SEKALI PAKAI: seberapa jauh SVG murni (tanpa gambar) mendekati ilustrasi sinematik.
+const Q = new URLSearchParams(location.search);
+const W = 1920, H = 1080, T = 14;
+function mulberry(a){return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const g0 = mulberry(42);
+const r = (a,b,g=g0)=>a+(b-a)*g();
+const n1 = v=>Math.round(v*10)/10;
+const P = p=>n1(p[0])+','+n1(p[1]);
+const poly = (pts,close=true)=>'M'+pts.map(P).join(' L')+(close?'Z':'');
+const hsl = (h,s,l)=>`hsl(${n1(h)} ${n1(s)}% ${n1(l)}%)`;
+// noise halus deterministik untuk kedip obor
+const wob = (t,s)=>Math.sin(t*7.1+s)*.5+Math.sin(t*13.7+s*2.3)*.3+Math.sin(t*23.3+s*.7)*.2;
+
+const TORCH = [[512,598],[778,598]];
+const GUARD = [1430,1012];
+let D = '';   // defs
+
+// ---------- filter: pencahayaan relief (luminans -> tinggi -> diffuse dari obor + bulan) ----------
+function litFilter(id, ox, oy, region, k=1.75, scale=3.5){
+  const lights = TORCH.map((p,i)=>`<feDiffuseLighting in="h" surfaceScale="${scale}" diffuseConstant="2.6" lighting-color="#ffa055" result="L${i}"><fePointLight class="pl" data-i="${i}" data-ox="${ox}" data-oy="${oy}" data-z="38" x="${p[0]-ox}" y="${p[1]-oy}" z="38"/></feDiffuseLighting>`).join('');
+  return `<filter id="${id}" ${region} primitiveUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+   <feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1.5 2.3 .6 0 0" result="hA"/>
+   <feGaussianBlur in="hA" stdDeviation="1.3" result="hB"/>
+   <feTurbulence type="fractalNoise" baseFrequency=".07" numOctaves="3" seed="7" result="nz"/>
+   <feComposite in="hB" in2="nz" operator="arithmetic" k2=".85" k3=".3" k4="-.08" result="h"/>
+   ${lights}
+   <feDiffuseLighting in="h" surfaceScale="${scale}" diffuseConstant=".38" lighting-color="#4b4080" result="Lm"><feDistantLight azimuth="235" elevation="38"/></feDiffuseLighting>
+   <feComposite in="L0" in2="L1" operator="arithmetic" k2="1" k3="1" result="L01"/>
+   <feComposite in="L01" in2="Lm" operator="arithmetic" k2="1" k3="1" result="L"/>
+   <feComposite in="SourceGraphic" in2="L" operator="arithmetic" k1="${k}" result="lit"/>
+   <feComposite in="lit" in2="SourceAlpha" operator="in"/></filter>`;
+}
+// volume: alpha diburamkan = kubah -> bentuk datar terasa pejal; disinari obor dari kiri-belakang
+function volFilter(id, ox, oy, std, add, spec=false){
+  const lights = TORCH.map((p,i)=>`<feDiffuseLighting in="b" surfaceScale="${std*2.6}" diffuseConstant="1.3" lighting-color="#ff9c50" result="L${i}"><fePointLight class="pl" data-i="${i}" data-ox="${ox}" data-oy="${oy}" data-z="26" x="${p[0]-ox}" y="${p[1]-oy}" z="26"/></feDiffuseLighting>`).join('');
+  const sp = spec ? `<feSpecularLighting in="b" surfaceScale="${std*2.6}" specularConstant="1.1" specularExponent="18" lighting-color="#ffd09a" result="S"><fePointLight class="pl" data-i="1" data-ox="${ox}" data-oy="${oy}" data-z="160" x="${TORCH[1][0]-ox}" y="${TORCH[1][1]-oy}" z="160"/></feSpecularLighting>
+     <feComposite in="lit0" in2="S" operator="arithmetic" k2="1" k3=".55" result="lit"/>` : `<feOffset in="lit0" result="lit"/>`;
+  return `<filter id="${id}" x="-15%" y="-15%" width="130%" height="130%" primitiveUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+   <feGaussianBlur in="SourceAlpha" stdDeviation="${std}" result="b"/>${lights}
+   <feComposite in="L0" in2="L1" operator="arithmetic" k2="1" k3="1" result="L"/>
+   <feComposite in="SourceGraphic" in2="L" operator="arithmetic" k2="1" k3="${add}" result="lit0"/>${sp}
+   <feComposite in="lit" in2="SourceAlpha" operator="in"/></filter>`;
+}
+D += litFilter('fLitMid', 0, 0, 'filterUnits="userSpaceOnUse" x="-400" y="40" width="2800" height="1100"');
+D += volFilter('fVolS', GUARD[0], GUARD[1], 7, .32);
+D += volFilter('fVolL', GUARD[0], GUARD[1], 16, .18);
+D += volFilter('fVolM', GUARD[0], GUARD[1], 12, .18, true);
+D += volFilter('fVolTree', 0, 0, 5, .2);
+D += `<filter id="fRim" x="-10%" y="-6%" width="120%" height="112%" primitiveUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+  <feOffset in="SourceAlpha" dx="7" dy="3" result="o"/><feComposite in="SourceAlpha" in2="o" operator="out" result="e"/>
+  <feGaussianBlur in="e" stdDeviation="1.1" result="eb"/><feFlood flood-color="#ffb468"/><feComposite in2="eb" operator="in" result="rim"/>
+  <feGaussianBlur in="rim" stdDeviation="7" result="rimG0"/><feComponentTransfer in="rimG0" result="rimG"><feFuncA type="linear" slope=".6"/></feComponentTransfer>
+  <feOffset in="SourceAlpha" dx="-3" dy="2" result="o2"/><feComposite in="SourceAlpha" in2="o2" operator="out" result="e2"/>
+  <feFlood flood-color="#7f7ad0" flood-opacity=".28"/><feComposite in2="e2" operator="in" result="rim2"/>
+  <feMerge><feMergeNode in="rimG"/><feMergeNode in="SourceGraphic"/><feMergeNode in="rim2"/><feMergeNode in="rim"/></feMerge></filter>`;
+D += `<filter id="fDof" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="3"/></filter>`;
+D += `<filter id="fSoft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>`;
+// awan / kabut / asap: noise -> alpha
+const noiseF = (id,bf,oct,seed,rgb,a,b)=>`<filter id="${id}" filterUnits="userSpaceOnUse" x="-400" y="-300" width="2800" height="1700" primitiveUnits="userSpaceOnUse"><feTurbulence type="fractalNoise" baseFrequency="${bf}" numOctaves="${oct}" seed="${seed}"/><feColorMatrix type="matrix" values="0 0 0 0 ${rgb[0]}  0 0 0 0 ${rgb[1]}  0 0 0 0 ${rgb[2]}  0 0 0 ${a} ${b}"/></filter>`;
+D += noiseF('fCloudD','.0016 .0055',5,11,[.13,.1,.21],3.4,-1.55);
+D += noiseF('fCloudW','.0022 .007',5,23,[.92,.5,.38],3.0,-1.62);
+D += noiseF('fFog','.0035 .018',4,5,[.62,.5,.72],2.6,-1.05);
+D += noiseF('fSmoke','.006 .009',4,9,[.55,.42,.4],2.4,-.95);
+D += `<filter id="fGrain" filterUnits="userSpaceOnUse" x="0" y="0" width="1920" height="1080"><feTurbulence id="grainT" type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="1"/><feColorMatrix type="saturate" values="0"/></filter>`;
+D += `<linearGradient id="gSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a091a"/><stop offset=".36" stop-color="#1f183a"/><stop offset=".58" stop-color="#432d57"/><stop offset=".73" stop-color="#83475a"/><stop offset=".86" stop-color="#c46a4b"/><stop offset="1" stop-color="#e0965a"/></linearGradient>
+<radialGradient id="gGlow"><stop offset="0" stop-color="#ffe2a8" stop-opacity="1"/><stop offset=".25" stop-color="#ff9a3c" stop-opacity=".55"/><stop offset="1" stop-color="#ff6a1a" stop-opacity="0"/></radialGradient>
+<radialGradient id="gEmber"><stop offset="0" stop-color="#fff0c0"/><stop offset=".35" stop-color="#ffa040" stop-opacity=".8"/><stop offset="1" stop-color="#ff5010" stop-opacity="0"/></radialGradient>
+<linearGradient id="gShadeDown" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity=".7"/><stop offset="1" stop-color="#000" stop-opacity="0"/></linearGradient>
+<linearGradient id="gBaseDirt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#05020a" stop-opacity=".6"/></linearGradient>
+<linearGradient id="gHaze" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a3a66" stop-opacity="0"/><stop offset=".6" stop-color="#7a4a62" stop-opacity=".45"/><stop offset="1" stop-color="#c06a50" stop-opacity=".7"/></linearGradient>
+<linearGradient id="gGrade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b2a78"/><stop offset=".55" stop-color="#6a4a8a"/><stop offset="1" stop-color="#ff8a3a"/></linearGradient>
+<radialGradient id="gVig" cx=".5" cy=".5" r=".75"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".78"/></radialGradient>
+<linearGradient id="mBandTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#fff"/><stop offset="1" stop-color="#000"/></linearGradient>
+<mask id="mCloudTop" maskUnits="userSpaceOnUse" x="-400" y="-300" width="2800" height="1100"><rect x="-400" y="-300" width="2800" height="1000" fill="url(#mBandTop)"/></mask>
+<linearGradient id="mBandW" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000"/><stop offset=".45" stop-color="#fff"/><stop offset=".8" stop-color="#fff"/><stop offset="1" stop-color="#000"/></linearGradient>
+<mask id="mCloudW" maskUnits="userSpaceOnUse" x="-400" y="-300" width="2800" height="1100"><rect x="-400" y="250" width="2800" height="480" fill="url(#mBandW)"/></mask>
+<linearGradient id="mBandFog" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000"/><stop offset=".4" stop-color="#fff"/><stop offset=".7" stop-color="#bbb"/><stop offset="1" stop-color="#000"/></linearGradient>
+<radialGradient id="gHole"><stop offset="0" stop-color="#000"/><stop offset=".35" stop-color="#333"/><stop offset="1" stop-color="#fff"/></radialGradient><mask id="mDark" maskUnits="userSpaceOnUse" x="-400" y="0" width="2800" height="1200"><rect x="-400" y="0" width="2800" height="1200" fill="#fff"/><g style="mix-blend-mode:multiply"><ellipse cx="512" cy="640" rx="470" ry="420" fill="url(#gHole)"/><ellipse cx="778" cy="640" rx="470" ry="420" fill="url(#gHole)"/></g></mask><mask id="mFog" maskUnits="userSpaceOnUse" x="-400" y="600" width="2800" height="500"><rect x="-400" y="740" width="2800" height="260" fill="url(#mBandFog)"/></mask>
+<radialGradient id="mSmokeG" cx=".5" cy=".75" r=".55"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#000"/></radialGradient>
+<mask id="mSmoke" maskUnits="userSpaceOnUse" x="-400" y="-300" width="2800" height="1300"><rect x="200" y="0" width="900" height="760" fill="url(#mSmokeG)"/></mask>`;
+
+// ================= LANGIT =================
+let sky = `<rect x="-300" y="-200" width="2520" height="1120" fill="url(#gSky)"/>`;
+const stars = [];
+for (let i=0;i<190;i++){const y=r(-160,470), op=(1-(y+160)/700)*r(.35,1);stars.push({i,tw:r(0,6),sp:r(1.5,4)});
+  sky += `<circle class="star" cx="${n1(r(-250,2170))}" cy="${n1(y)}" r="${n1(r(.5,1.7))}" fill="#fff6e8" opacity="${n1(op*100)/100}" data-o="${op}"/>`;}
+sky += `<ellipse cx="660" cy="780" rx="1050" ry="330" fill="url(#gGlow)" opacity=".35" style="mix-blend-mode:screen"/>`;
+const cloudD = `<g mask="url(#mCloudTop)"><rect id="cloudD" x="-400" y="-300" width="2800" height="1000" filter="url(#fCloudD)"/></g>`;
+const cloudW = `<g mask="url(#mCloudW)"><rect id="cloudW" x="-400" y="-300" width="2800" height="1100" filter="url(#fCloudW)" opacity=".75"/></g>`;
+
+// ================= LATAR JAUH: meru, palem, atap, garis pohon =================
+function meru(x,y,n,w0,w1,th,col){
+  let s=`<rect x="${x-w0*.3}" y="${y-th*1.3}" width="${w0*.6}" height="${th*1.3}" fill="${col}"/>`; let cy=y-th*1.3;
+  for(let i=0;i<n;i++){const w=w0+(w1-w0)*i/(n-1), h=th*(1-.3*i/n);
+    s+=`<path d="M${n1(x-w/2)},${n1(cy)} Q${n1(x-w*.27)},${n1(cy-h*.22)} ${n1(x-w*.19)},${n1(cy-h)} L${n1(x+w*.19)},${n1(cy-h)} Q${n1(x+w*.27)},${n1(cy-h*.22)} ${n1(x+w/2)},${n1(cy)}Z" fill="${col}"/>`;
+    cy-=h; s+=`<rect x="${n1(x-w*.11)}" y="${n1(cy-h*.32)}" width="${n1(w*.22)}" height="${n1(h*.32+1)}" fill="${col}"/>`; cy-=h*.32;}
+  return s+`<path d="M${x-5},${n1(cy+1)} L${x},${n1(cy-th*1.5)} L${x+5},${n1(cy+1)}Z" fill="${col}"/>`;
+}
+function palm(x,y,h,lean,col,sw=1){
+  const top=[x+lean,y-h], c=[x+lean*.15,y-h*.55]; const L=[],R=[];
+  for(let i=0;i<=14;i++){const t=i/14,px=(1-t)**2*x+2*(1-t)*t*c[0]+t*t*top[0],py=(1-t)**2*y+2*(1-t)*t*c[1]+t*t*top[1],w=(9-4.5*t)*h/430;L.push([px-w,py]);R.push([px+w,py]);}
+  let s=`<path d="${poly(L.concat(R.reverse()))}" fill="${col}"/>`, d='';
+  const nf=13;
+  for(let k=0;k<nf;k++){const a=-Math.PI/2+(k/(nf-1)-.5)*Math.PI*1.85+r(-.12,.12), len=h*r(.3,.42), droop=r(.45,.75);
+    const pt=t=>[top[0]+Math.cos(a)*len*t, top[1]+Math.sin(a)*len*t+droop*len*t*t];
+    d+=`M${P(top)}`; for(let i=1;i<=12;i++) d+=` L${P(pt(i/12))}`;
+    for(let i=2;i<=11;i++){const t=i/12,p=pt(t),q=pt(t+.02),dx=q[0]-p[0],dy=q[1]-p[1],m=Math.hypot(dx,dy),ux=dx/m,uy=dy/m,ll=len*.13*Math.sin(Math.PI*t)+2;
+      for(const sd of [-1,1]){const ex=p[0]+(-uy*sd*.55+ux*.7)*ll, ey=p[1]+(ux*sd*.55+uy*.7)*ll+ll*.6; d+=` M${P(p)} L${n1(ex)},${n1(ey)}`;}}
+  }
+  return s+`<path d="${d}" fill="none" stroke="${col}" stroke-width="${n1(1.6*sw)}" stroke-linecap="round"/>`;
+}
+function roof(x,y,w,h,col){return `<path d="M${x-w/2},${y} L${x-w*.3},${y-h*.55} L${x-w*.12},${y-h} L${x+w*.12},${y-h} L${x+w*.3},${y-h*.55} L${x+w/2},${y}Z" fill="${col}"/><rect x="${x-w*.4}" y="${y}" width="${w*.8}" height="30" fill="${col}"/>`;}
+let far = '';
+{ let tl=''; for(let x=-320;x<2240;x+=r(14,30)){tl+=`<circle cx="${n1(x)}" cy="${n1(r(712,735))}" r="${n1(r(22,48))}"/>`;} far+=`<g fill="#3c2c4d">${tl}</g>`; }
+far += `<rect x="-320" y="725" width="2560" height="200" fill="#3c2c4d"/>`;
+far += meru(220,740,11,250,52,27,'#2b2040') + meru(1010,742,9,215,46,31,'#2a1f3c') + meru(1170,742,7,165,40,28,'#30243f') + meru(1520,745,5,135,36,26,'#33274a');
+far += roof(1320,745,170,70,'#2e2340') + roof(1420,752,130,55,'#33264a') + roof(-60,748,160,62,'#2e2340');
+far += palm(1610,770,440,-34,'#241a33') + palm(1715,782,540,46,'#21182f') + palm(1850,770,470,-22,'#241a33') + palm(1975,780,420,30,'#241a33') + palm(905,760,360,28,'#2a1f3a',.9) + palm(-90,770,460,40,'#241a33');
+far += `<rect x="-320" y="520" width="2560" height="420" fill="url(#gHaze)"/>`;
+
+// ================= TENGAH: dinding, gapura, lantai (semua di bawah filter cahaya) =================
+const BR = mulberry(7);
+function bricks(x0,y0,x1,y1,bw=34,bh=13,light=0){
+  let s=`<rect x="${x0}" y="${y0}" width="${x1-x0}" height="${y1-y0}" fill="#1b110e"/>`; let row=0;
+  for(let y=y0;y<y1;y+=bh,row++){const off=(row%2)*bw/2;
+    for(let x=x0-off;x<x1;x+=bw){const w=bw-2+r(-2,1,BR), bad=BR()<.06;
+      s+=`<rect x="${n1(Math.max(x,x0))}" y="${n1(y)}" width="${n1(Math.min(x+w,x1)-Math.max(x,x0))}" height="${bh-2}" fill="${hsl(r(10,24,BR),r(30,46,BR),bad?r(14,19,BR):r(26,36,BR)+light)}"/>`;}}
+  return s;
+}
+// profil satu menara (kiri); kanan = cermin di sumbu x=645
+const TIERS = [[760,800,250],[560,760,222],[540,560,242],[450,540,196],[434,450,214],[360,434,168],[346,360,184],[290,346,140],[279,290,154],[232,279,112],[223,232,124],[190,223,84],[182,190,94],[160,182,62],[154,160,70],[138,154,40]];
+const XIN = 590, MX = x=>1290-x; const TOWER_D=[];
+function towerOutline(){
+  const pts=[[XIN,800]]; for(const [y0,y1,w] of TIERS){pts.push([XIN-w,y1],[XIN-w,y0]);}
+  return pts;
+}
+function towerSvg(side){ // side 0 kiri, 1 kanan
+  const mx = side? MX : (x=>x);
+  const out = towerOutline().map(p=>[mx(p[0]),p[1]]);
+  const fin = `L${mx(550)},138 C${mx(552)},124 ${mx(566)},118 ${mx(572)},104 C${mx(576)},96 ${mx(584)},92 ${mx(590)},82`;
+  const d = poly(out,false)+' '+fin+'Z';
+  const id='cT'+side; D+=`<clipPath id="${id}"><path d="${d}"/></clipPath>`; TOWER_D.push(d);
+  const xa=side?MX(XIN):340, xb=side?MX(340):XIN;
+  let s=`<g clip-path="url(#${id})">`+bricks(Math.min(xa,xb),90,Math.max(xa,xb),800,30,12);
+  // pelipit (cornice) lebih terang, sisi atas berkilau
+  for(const [y0,y1,w] of TIERS.filter((t,i)=>i===0||i%2===0)){const x0=mx(XIN-w), x1=mx(XIN);
+    s+=`<rect x="${n1(Math.min(x0,x1))}" y="${y0}" width="${Math.abs(x1-x0)}" height="${y1-y0}" fill="#6b3f2c"/>`+bricks(Math.min(x0,x1),y0+3,Math.max(x0,x1),y1,22,8,8)+`<rect x="${n1(Math.min(x0,x1))}" y="${y0}" width="${Math.abs(x1-x0)}" height="3" fill="#b77a52"/>`;}
+  // relung (niche) berlengkung di tingkat 2 & 3
+  for(const [yb,yt,cnt,ww] of [[530,462,3,30],[426,374,2,30]]){const tierW = yb>500?196:168;
+    for(let k=0;k<cnt;k++){const cx=mx(XIN-tierW+ (k+.5)*tierW/cnt), x0=cx-ww/2;
+      s+=`<path d="M${n1(x0)},${yb} L${n1(x0)},${yt+ww*.5} Q${n1(cx)},${yt-ww*.25} ${n1(x0+ww)},${yt+ww*.5} L${n1(x0+ww)},${yb}Z" fill="#120a0a" stroke="#5a3424" stroke-width="3"/>`;}}
+  // panel relief di badan: bingkai + medali + sulur spiral
+  const px0=mx(XIN-202), px1=mx(XIN-22), pl=Math.min(px0,px1), pw=Math.abs(px1-px0);
+  s+=`<rect x="${n1(pl)}" y="585" width="${n1(pw)}" height="150" fill="none" stroke="#140c0a" stroke-width="7"/><rect x="${n1(pl+12)}" y="597" width="${n1(pw-24)}" height="126" fill="none" stroke="#2a1812" stroke-width="3"/>`;
+  const cx=pl+pw/2, cy=660; let sp='';
+  for(let k=0;k<12;k++){const a=k/12*Math.PI*2; sp+=`M${n1(cx+Math.cos(a)*14)},${n1(cy+Math.sin(a)*14)} L${n1(cx+Math.cos(a)*34)},${n1(cy+Math.sin(a)*34)} `;}
+  const spiral=(x,y,rr,dir)=>{let q=`M${n1(x)},${n1(y)}`;for(let i=1;i<=40;i++){const a=i/40*Math.PI*3.2*dir, rad=rr*i/40;q+=` L${n1(x+Math.cos(a)*rad)},${n1(y+Math.sin(a)*rad)}`;}return q;};
+  for(const [dx,dy,dr] of [[-58,-38,1],[58,-38,-1],[-58,38,-1],[58,38,1]]) sp+=spiral(cx+dx,cy+dy,22,dr)+' ';
+  s+=`<circle cx="${n1(cx)}" cy="${cy}" r="36" fill="none" stroke="#150c0a" stroke-width="5"/><circle cx="${n1(cx)}" cy="${cy}" r="12" fill="#1a0f0c"/><path d="${sp}" fill="none" stroke="#170d0b" stroke-width="4.5" stroke-linecap="round"/>`;
+  s+=`</g>`;
+  // simbar (antefiks) di sudut luar tiap pelipit
+  for(const [y0,y1,w] of TIERS.filter((t,i)=>i%2===0)){const x=mx(XIN-w+8), hh=Math.max(12,(y0-150)*.06), sg=side?-1:1;
+    s+=`<path d="M${n1(x-6*sg)},${y0+1} C${n1(x-9*sg)},${n1(y0-hh*.5)} ${n1(x+2*sg)},${n1(y0-hh*.7)} ${n1(x-2*sg)},${n1(y0-hh*1.25)} C${n1(x+9*sg)},${n1(y0-hh*.8)} ${n1(x+12*sg)},${n1(y0-hh*.3)} ${n1(x+9*sg)},${y0+1}Z" fill="#8a5236"/>`;}
+  return s;
+}
+let mid = '';
+// lantai batu berperspektif (titik hilang di gerbang)
+{ const VP=[645,690]; let s=`<rect x="-400" y="840" width="2800" height="300" fill="#140d0c"/>`; const BG=mulberry(3);
+  const rows=[]; for(let i=0;i<=10;i++) rows.push(843+262*Math.pow(i/10,1.55));
+  for(let i=0;i<10;i++){const ya=rows[i], yb=rows[i+1]; const off=(i%2)*.5;
+    for(let k=-26;k<=26;k++){const xb0=645+(k+off)*118, xb1=xb0+118; const at=(y,xb)=>VP[0]+(xb-VP[0])*(y-VP[1])/(1080-VP[1]);
+      const q=[[at(ya,xb0)+1.5,ya+1.2],[at(ya,xb1)-1.5,ya+1.2],[at(yb,xb1)-2,yb-1.5],[at(yb,xb0)+2,yb-1.5]];
+      if(q[1][0]<-420||q[0][0]>2420) continue;
+      s+=`<path d="${poly(q)}" fill="${hsl(r(18,32,BG),r(8,16,BG),r(17,25,BG))}"/>`;}}
+  mid+=s; }
+mid += bricks(-400,652,340,845) + bricks(950,652,2400,845);
+mid += `<rect x="-400" y="636" width="740" height="18" fill="#5d3829"/><rect x="-400" y="636" width="740" height="3" fill="#a06a48"/><rect x="950" y="636" width="1450" height="18" fill="#5d3829"/><rect x="950" y="636" width="1450" height="3" fill="#a06a48"/>`;
+// teras + tangga
+mid += bricks(330,800,960,846,30,11,3);
+for(let k=0;k<4;k++){const hw=72+k*24, y=800+k*14; mid+=`<rect x="${645-hw}" y="${y}" width="${hw*2}" height="14" fill="#4e3226"/><rect x="${645-hw}" y="${y}" width="${hw*2}" height="4" fill="#9a6a4c"/>`;}
+mid += towerSvg(0) + towerSvg(1);
+
+// bayangan & noda (multiply, di luar filter cahaya)
+let shade = '';
+for(const side of [0,1]){const mx=side?MX:(x=>x);
+  TIERS.forEach(([y0,y1,w],i)=>{ if(i%2===0 && i>0){const nw=TIERS[i-1][2]; const x0=mx(XIN-nw), x1=mx(XIN); shade+=`<rect x="${n1(Math.min(x0,x1))}" y="${y1}" width="${Math.abs(x1-x0)}" height="16" fill="url(#gShadeDown)"/>`;}});}
+shade += `<rect x="-400" y="654" width="740" height="14" fill="url(#gShadeDown)"/><rect x="950" y="654" width="1450" height="14" fill="url(#gShadeDown)"/>`;
+shade += `<rect x="-400" y="700" width="2800" height="146" fill="url(#gBaseDirt)"/>`;
+shade += `<rect x="590" y="90" width="110" height="712" fill="#000" opacity="0"/>`;
+
+// obor: pegangan, mangkuk; nyala & cahaya diisi per frame
+let torch = '';
+TORCH.forEach(([x,y],i)=>{ const sg=i?1:-1;
+  torch += `<path d="M${x},${y+44} L${x},${y+70} L${x-14*sg},${y+92}" fill="none" stroke="#120a08" stroke-width="5"/><path d="M${x-15},${y+16} L${x+15},${y+16} L${x+8},${y+44} L${x-8},${y+44}Z" fill="#1d120d"/><rect x="${x-17}" y="${y+12}" width="34" height="6" rx="2" fill="#3a2418"/>`;
+  torch += `<ellipse id="pool${i}" cx="${x}" cy="${862}" rx="300" ry="70" fill="url(#gGlow)" opacity=".35" style="mix-blend-mode:screen"/>`;
+  torch += `<circle id="glowB${i}" cx="${x}" cy="${y}" r="430" fill="url(#gGlow)" opacity=".22" style="mix-blend-mode:screen"/><circle id="glowA${i}" cx="${x}" cy="${y}" r="120" fill="url(#gGlow)" opacity=".7" style="mix-blend-mode:screen"/>`;
+  torch += `<path id="fl0_${i}" fill="#ff6a18" opacity=".92"/><path id="fl1_${i}" fill="#ffae40"/><path id="fl2_${i}" fill="#fff0c8"/>`;
+});
+const smoke = `<g mask="url(#mSmoke)" opacity=".5"><rect id="smokeR" x="-400" y="-300" width="2800" height="1300" filter="url(#fSmoke)"/></g>`;
+const EMB = []; let emb='';
+for(let i=0;i<80;i++){const e={src:i%2, ph:r(0,1), life:r(2.4,5), rise:r(380,820), sw:r(20,70), fq:r(.6,1.6), s:r(1.6,4), seed:r(0,9)}; EMB.push(e);
+  emb+=`<circle id="em${i}" r="${n1(e.s*3)}" fill="url(#gEmber)" style="mix-blend-mode:screen"/>`;}
+const fogS = `<g mask="url(#mFog)"><rect id="fogR" x="-400" y="600" width="2800" height="500" filter="url(#fFog)" opacity=".55"/></g>`;
+
+// ================= POHON BERINGIN (siluet prosedural) =================
+let tree=''; {
+  const TG=mulberry(19); const col='#0d0913'; let d='', leaves='', roots='';
+  const limbs=[ [[[0,1100],[40,640],[70,330]],[150,95,62]], [[[70,340],[250,205],[460,140],[600,92]],[52,30,14,6]], [[[66,372],[-60,210]],[46,22]],
+                [[[72,305],[150,80],[190,-80]],[40,22,12]], [[[250,205],[330,70],[360,-20]],[22,12,7]], [[[460,140],[520,40]],[12,5]], [[[140,262],[60,40],[30,-60]],[24,10,6]] ];
+  const samples=[];
+  for(const [pts,ws] of limbs){
+    for(let s=0;s<pts.length-1;s++){const a=pts[s],b=pts[s+1],wa=ws[s],wb=ws[s+1];
+      const dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy),nx=-dy/L,ny=dx/L;
+      d+=poly([[a[0]+nx*wa/2,a[1]+ny*wa/2],[b[0]+nx*wb/2,b[1]+ny*wb/2],[b[0]-nx*wb/2,b[1]-ny*wb/2],[a[0]-nx*wa/2,a[1]-ny*wa/2]])+` M${n1(b[0]+wb/2)},${n1(b[1])} A${n1(wb/2)},${n1(wb/2)} 0 1 0 ${n1(b[0]-wb/2)},${n1(b[1])} A${n1(wb/2)},${n1(wb/2)} 0 1 0 ${n1(b[0]+wb/2)},${n1(b[1])}Z `;
+      for(let t=0;t<1;t+=.08) samples.push([a[0]+dx*t,a[1]+dy*t,wa+(wb-wa)*t]);}}
+  // ranting kecil
+  for(const p of samples){ if(p[1]>330||TG()<.45) continue; let x=p[0],y=p[1],a=-Math.PI/2+r(-1.3,1.3,TG),w=Math.max(2,p[2]*.25);
+    for(let k=0;k<3;k++){const l=r(25,60,TG),x2=x+Math.cos(a)*l,y2=y+Math.sin(a)*l; d+=`M${n1(x)},${n1(y)} L${n1(x2)},${n1(y2)} L${n1(x2+1)},${n1(y2)} L${n1(x+w)},${n1(y)}Z `; x=x2;y=y2;a+=r(-.5,.5,TG);w*=.6;}}
+  // daun: ribuan elips kecil berkerumun di ujung
+  for(let i=0;i<1700;i++){const p=samples[Math.floor(TG()*samples.length)]; if(p[1]>300) continue;
+    const ang=r(0,Math.PI*2,TG), rad=Math.pow(TG(),.6)*r(40,95,TG), x=p[0]+Math.cos(ang)*rad, y=p[1]+Math.sin(ang)*rad*.7-r(5,40,TG);
+    if(x>640) continue; const lr=r(5,10,TG), la=r(0,180,TG);
+    leaves+=`<ellipse cx="${n1(x)}" cy="${n1(y)}" rx="${n1(lr)}" ry="${n1(lr*.48)}" transform="rotate(${n1(la)} ${n1(x)} ${n1(y)})"/>`;}
+  // akar gantung
+  for(let i=0;i<46;i++){const p=samples[Math.floor(TG()*samples.length)]; if(p[1]>330||p[0]<90||p[0]>470) continue;
+    const len=r(160,470,TG), sx=p[0], sy=p[1]; const ex=sx+r(-14,14,TG), ey=sy+len;
+    roots+=`<path d="M${n1(sx)},${n1(sy)} Q${n1(sx+r(-20,20,TG))},${n1(sy+len*.5)} ${n1(ex)},${n1(ey)}" fill="none" stroke="${col}" stroke-width="${n1(r(1.2,3.4,TG))}" stroke-linecap="round" class="root" data-x="${n1(ex)}" data-y="${n1(ey)}"/>`;}
+  // urat batang
+  let bark=''; for(let i=0;i<14;i++){const x=r(-20,100,TG); bark+=`M${n1(x)},1100 Q${n1(x+r(-10,30,TG))},800 ${n1(x*.4+50)},${n1(r(380,520,TG))} `;}
+  tree = `<g filter="url(#fVolTree)" fill="${col}"><path d="${d}"/>${leaves}</g><g id="roots">${roots}</g><path d="${bark}" fill="none" stroke="#1d1424" stroke-width="2.2" opacity=".8"/>`;
+}
+
+// ================= PENJAGA (koordinat lokal: telapak di y=0, menghadap kiri) =================
+function limb(a,b,wa,wb,bul=1.08){
+  const dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy),nx=-dy/L,ny=dx/L, m=[(a[0]+b[0])/2,(a[1]+b[1])/2], wm=(wa+wb)/2*bul;
+  const S=(p,w,s)=>[p[0]+nx*w/2*s,p[1]+ny*w/2*s]; const a1=S(a,wa,1),m1=S(m,wm,1),b1=S(b,wb,1),b2=S(b,wb,-1),m2=S(m,wm,-1),a2=S(a,wa,-1);
+  const c1=[2*m1[0]-(a1[0]+b1[0])/2,2*m1[1]-(a1[1]+b1[1])/2], c2=[2*m2[0]-(a2[0]+b2[0])/2,2*m2[1]-(a2[1]+b2[1])/2];
+  return `M${P(a1)} Q${P(c1)} ${P(b1)} L${P(b2)} Q${P(c2)} ${P(a2)}Z M${n1(b[0]+wb/2)},${n1(b[1])} A${wb/2},${wb/2} 0 1 0 ${n1(b[0]-wb/2)},${n1(b[1])} A${wb/2},${wb/2} 0 1 0 ${n1(b[0]+wb/2)},${n1(b[1])}Z M${n1(a[0]+wa/2)},${n1(a[1])} A${wa/2},${wa/2} 0 1 0 ${n1(a[0]-wa/2)},${n1(a[1])} A${wa/2},${wa/2} 0 1 0 ${n1(a[0]+wa/2)},${n1(a[1])}Z`;
+}
+const SKIN='#1c0f0d', CLOTH='#150c12', ARM='#1e130f', DARK='#100809', LINE='#3e2419', GOLD='#5c3e1e';
+const part=(d,fill,f='fVolS')=>`<path d="${d}" fill="${fill}" filter="url(#${f})"/>`;
+let gd='', gl='';
+// tombak (di belakang tangan)
+gd += `<path d="M-214,-905 L-206,-905 L-199,-6 L-209,-6Z" fill="#24160f"/>`;
+gd += part(`M-210,-1000 C-200,-975 -196,-950 -201,-930 C-197,-922 -199,-912 -204,-905 L-216,-905 C-221,-912 -223,-922 -219,-930 C-224,-950 -220,-975 -210,-1000Z M-218,-930 C-232,-926 -238,-916 -236,-904 C-228,-912 -222,-914 -217,-913Z`, '#3a2c26','fVolM');
+gd += `<path d="M-217,-903 L-203,-903 L-202,-888 L-218,-888Z" fill="${GOLD}"/><path d="M-212,-888 C-220,-860 -226,-840 -230,-822 M-208,-888 C-214,-858 -216,-842 -216,-826 M-205,-888 C-206,-860 -204,-846 -201,-830" stroke="#3a1414" stroke-width="3" fill="none"/>`;
+// kaki belakang (kanan layar)
+gd += part(limb([42,-372],[58,-206],88,64),CLOTH) + part(limb([58,-206],[62,-30],52,30,1.18),SKIN) + part(`M48,-30 L78,-30 L82,-6 L18,0 L14,-12 Q30,-22 48,-30Z`,SKIN);
+// kaki depan (kiri layar)
+gd += part(limb([-38,-372],[-70,-205],92,66),CLOTH) + part(limb([-70,-205],[-96,-28],54,31,1.18),SKIN) + part(`M-84,-30 L-110,-30 L-150,-8 L-152,2 L-82,2 L-78,-14Z`,SKIN);
+// celana sampai betis
+gd += part(limb([-70,-205],[-86,-112],70,58,1.02),CLOTH) + part(limb([58,-206],[61,-112],66,56,1.02),CLOTH);
+// torso + perut
+gd += part(`M-30,-646 C-72,-646 -110,-640 -120,-614 C-130,-586 -124,-552 -112,-520 C-100,-482 -84,-452 -80,-432 L74,-432 C80,-456 98,-490 108,-524 C118,-560 120,-602 104,-624 C88,-642 50,-646 16,-646Z`,SKIN,'fVolL');
+// leher + kepala
+gd += part(`M-32,-676 L12,-690 L20,-636 L-32,-632Z`,SKIN);
+gd += `<g id="head">`+part(`M12,-772 C-22,-778 -46,-760 -50,-736 L-53,-718 L-51,-711 L-64,-697 L-62,-692 L-51,-689 L-53,-684 L-49,-680 L-52,-675 L-47,-668 C-42,-662 -32,-661 -24,-664 C-10,-670 -2,-680 6,-694 C20,-700 30,-716 30,-736 C30,-756 26,-768 12,-772Z`,SKIN)
+   + part(`M-52,-736 C-50,-764 -20,-784 12,-778 C30,-772 36,-752 33,-734 C10,-742 -24,-744 -52,-736Z`,CLOTH)
+   + part(`M-53,-738 C-24,-746 10,-744 34,-736 L33,-722 C10,-730 -24,-730 -51,-722Z`,'#2a1620')
+   + `<path d="M30,-742 C48,-736 60,-724 70,-702 L64,-694 C54,-716 44,-726 28,-728Z M30,-736 C42,-726 50,-712 54,-686 L48,-682 C44,-704 38,-716 28,-724Z" fill="${CLOTH}" filter="url(#fVolS)"/></g>`;
+// lengan perisai (kanan layar) di belakang perisai
+gd += part(limb([100,-608],[150,-488],54,42),SKIN) + part(limb([150,-488],[168,-418],42,34),SKIN);
+// pelindung dada
+gd += part(`M-98,-616 C-40,-630 40,-630 98,-616 L104,-522 C62,-482 -62,-482 -104,-522Z`,ARM,'fVolM');
+// sabuk, kain pinggang, dodot depan, ujung selendang
+gd += part(`M-84,-444 C-30,-452 30,-452 78,-444 L80,-404 C30,-410 -30,-410 -84,-404Z`,'#2a1a14','fVolM');
+gd += part(`M-86,-406 C-30,-412 30,-412 82,-406 L96,-318 C40,-300 -40,-300 -100,-318Z`,CLOTH,'fVolL');
+gd += part(`M-40,-404 L30,-404 L22,-210 L-4,-176 L-30,-210Z`,'#24141c','fVolL');
+gd += part(`M-92,-392 C-110,-360 -118,-320 -122,-262 L-104,-258 C-98,-300 -92,-338 -80,-372Z`,CLOTH);
+// keris di pinggang belakang
+gd += `<path d="M66,-432 C80,-452 96,-470 112,-478 L118,-470 C102,-462 88,-446 78,-428Z" fill="#2f1f16"/>`;
+// lengan tombak (kiri layar) + pelindung bahu
+gd += part(limb([-104,-604],[-150,-482],56,44),SKIN) + part(limb([-150,-482],[-204,-548],44,34,1.05),SKIN);
+gd += part(`M-226,-574 C-214,-584 -196,-580 -188,-566 C-182,-552 -186,-536 -200,-530 C-214,-526 -228,-536 -230,-552Z`,SKIN);
+gd += part(`M-138,-640 C-112,-660 -78,-648 -70,-622 C-90,-626 -116,-614 -138,-590Z`,ARM,'fVolM') + part(`M-146,-612 C-120,-628 -88,-618 -80,-596 C-100,-596 -124,-584 -144,-562Z`,ARM,'fVolM') + part(`M-150,-584 C-126,-596 -96,-588 -90,-568 C-110,-566 -130,-556 -148,-536Z`,ARM,'fVolM');
+gd += part(`M-138,-528 L-162,-516 L-168,-500 L-142,-512Z`,GOLD);
+// perisai
+gd += part(`M178,-654 C238,-624 258,-562 252,-482 C246,-402 226,-334 178,-292 C130,-334 110,-402 104,-482 C98,-562 118,-624 178,-654Z`,'#2e1d16','fVolM');
+// garis detail (tidak difilter): otot, lipatan, ukiran, perhiasan
+gl += `M-60,-566 C-36,-552 -10,-554 4,-570 M8,-570 C24,-552 52,-552 70,-566 M-6,-470 L-6,-440 M-40,-462 C-30,-456 -18,-456 -10,-462 M2,-462 C12,-456 26,-456 34,-462`;
+gl += `M-98,-616 C-40,-630 40,-630 98,-616 M-92,-600 C-40,-612 40,-612 92,-600 M-102,-526 C-60,-488 60,-488 102,-526 M0,-622 L0,-494`;
+gl += `M-80,-520 L-60,-500 M80,-520 L60,-500`;
+for(let k=0;k<7;k++){const y=-396+k*13; gl+=` M${-34+k*2},${y} L${26-k*2},${y+18}`;}
+gl += `M-60,-380 C-56,-350 -50,-330 -44,-318 M40,-380 C44,-352 50,-334 58,-320 M-14,-388 C-12,-360 -8,-340 -6,-312`;
+gl += `M-92,-300 C-84,-262 -78,-232 -74,-206 M-50,-300 C-58,-262 -64,-232 -70,-214 M40,-300 C46,-262 52,-236 56,-212 M70,-300 C68,-262 64,-236 62,-214`;
+gl += `M-98,-122 L-74,-122 M-100,-112 L-72,-112 M48,-122 L74,-122 M48,-112 L74,-112`;
+gl += `M178,-630 C226,-600 240,-548 236,-482 C232,-410 214,-352 178,-318 C142,-352 124,-410 120,-482 C116,-548 130,-600 178,-630Z M178,-600 L178,-340 M150,-470 C160,-500 196,-500 206,-470 C196,-440 160,-440 150,-470Z`;
+gl += `M-36,-712 C-32,-716 -26,-716 -22,-712 M2,-712 C8,-704 8,-696 2,-690 M-36,-690 C-30,-688 -26,-690 -22,-694`;
+gd += `<path d="${gl}" fill="none" stroke="${LINE}" stroke-width="2" stroke-linecap="round" opacity=".7"/>`;
+gd += `<g fill="${GOLD}"><circle cx="-10" cy="-424" r="9"/><circle cx="178" cy="-470" r="8"/><rect x="-96" y="-128" width="28" height="8" rx="3"/><rect x="46" y="-128" width="30" height="8" rx="3"/><rect x="-110" y="-30" width="30" height="6" rx="2"/><rect x="48" y="-30" width="30" height="6" rx="2"/></g>`;
+let guardLayer = `<path d="M1040,1004 L2400,1004 L2400,1200 L1040,1200Z" fill="#120b10"/><path d="M1040,1004 L2400,1004" stroke="#6a4030" stroke-width="3"/>`;
+for(let x=1040;x<2400;x+=r(140,220)) guardLayer += `<path d="M${n1(x)},1006 L${n1(x+r(-6,6))},1100" stroke="#05030a" stroke-width="3"/>`;
+guardLayer += `<ellipse cx="${GUARD[0]+60}" cy="${GUARD[1]-2}" rx="230" ry="20" fill="#000" opacity=".7" filter="url(#fSoft)"/>`;
+guardLayer += `<g transform="translate(${GUARD[0]},${GUARD[1]})"><g id="body" filter="url(#fRim)">${gd}</g></g>`;
+
+// ================= DEPAN: daun besar kabur (DOF) =================
+let fore=''; { const FG=mulberry(5); let d='';
+  const leaf=(bx,by,ang,len,w,tear)=>{const ux=Math.cos(ang),uy=Math.sin(ang),nx=-uy,ny=ux; const L=[],R=[];
+    for(let i=0;i<=24;i++){const t=i/24, ww=w*Math.sin(Math.PI*Math.pow(t,.8))*(1-.15*t), cx=bx+ux*len*t+nx*len*.12*t*t, cy=by+uy*len*t+ny*len*.12*t*t+len*.25*t*t;
+      const cut=tear&&(i%5===2)?.25:1; L.push([cx+nx*ww*cut,cy+ny*ww*cut]); R.push([cx-nx*ww,cy-ny*ww]);}
+    return poly(L.concat(R.reverse()))+' ';};
+  for(let i=0;i<9;i++) d+=leaf(r(-80,60,FG),r(1080,1140,FG),r(-1.45,-.35,FG),r(230,430,FG),r(28,55,FG),FG()<.6);
+  for(let i=0;i<6;i++) d+=leaf(r(-60,20,FG),r(980,1060,FG),r(-1.1,-.1,FG),r(150,260,FG),r(14,26,FG),false);
+  fore = `<g filter="url(#fDof)"><path d="${d}" fill="#07050b"/></g>`; }
+
+D += `<clipPath id="cMid"><rect x="-400" y="636" width="740" height="220"/><rect x="950" y="636" width="1450" height="220"/><rect x="-400" y="800" width="2800" height="400"/>${TOWER_D.map(d=>`<path d="${d}"/>`).join('')}</clipPath>`;
+// ================= RAKIT: tiap lapisan = <svg> sendiri di div terkomposit =================
+document.getElementById('sv').innerHTML = `<defs>${D}<filter id="fGrainS" filterUnits="userSpaceOnUse" x="-60" y="-60" width="2040" height="1200"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="3"/><feColorMatrix type="saturate" values="0"/></filter></defs>`;
+const $=id=>document.getElementById(id);
+const LAY = [ // id, isi, kedalaman, drift(t)->[x,y], blend
+ ['Lsky',sky,.08], ['LcD',cloudD,.08,t=>[t*7,0]], ['LcW',cloudW,.1,t=>[-t*5,0]], ['Lfar',far,.3],
+ ['Lmid',`<g filter="url(#fLitMid)">${mid}</g><g style="mix-blend-mode:multiply">${shade}</g><g clip-path="url(#cMid)"><rect x="-400" y="60" width="2800" height="1100" fill="#07040e" opacity=".72" mask="url(#mDark)"/></g>`,.6],
+ ['Lsmoke',smoke,.6,t=>[t*4,-t*22]], ['Lfx',`${torch}<g id="embers">${emb}</g>`,.6,null,'screen'],
+ ['Lfog',fogS,.65,t=>[t*16,0]], ['Ltree',tree,.78], ['Lguard',guardLayer,.88], ['Lfore',fore,1.2],
+ ['Lgrade',`<rect width="1920" height="1080" fill="url(#gGrade)" opacity=".3"/>`,0,null,'soft-light'],
+ ['Lvig',`<rect width="1920" height="1080" fill="url(#gVig)"/>`,0],
+ ['Lgrain',`<rect x="-60" y="-60" width="2040" height="1200" filter="url(#fGrainS)" opacity=".09"/>`,0,null,'overlay'] ];
+for(const [id,c,d,dr,bl] of LAY){const el=document.createElement('div'); el.className='ly'; el.id=id; if(bl) el.style.mixBlendMode=bl;
+  el.innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">${c}</svg>`; $('st').appendChild(el);}
+// ================= RENDER(t): cahaya dibakar sekali; per frame hanya transform lapisan + benda kecil =================
+const emEls=EMB.map((e,i)=>$('em'+i)), starEls=[...document.querySelectorAll('.star')];
+function flame(x,y,h,w,t,s){const sw=wob(t*1.3,s)*w*.45, tip=[x+sw,y-h*(1+.12*wob(t*2,s+1))];
+  return `M${n1(x-w)},${n1(y)} C${n1(x-w*1.1)},${n1(y-h*.45)} ${n1(x+sw*.4-w*.5)},${n1(y-h*.7)} ${P(tip)} C${n1(x+sw*.4+w*.55)},${n1(y-h*.66)} ${n1(x+w*1.15)},${n1(y-h*.4)} ${n1(x+w)},${n1(y)} Q${x},${n1(y+w*.7)} ${n1(x-w)},${n1(y)}Z`;}
+function render(t){
+  const u=t/T, e=u*u*(3-2*u), zoom=1+.07*e, camX=-70*e+12*Math.sin(t*.4), camY=10*Math.sin(t*.31);
+  for(const [id,c,d,dr] of LAY){const s=1+(zoom-1)*d, o=dr?dr(t):[0,0];
+    $(id).style.transform=`translate(960px,560px) scale(${s.toFixed(5)}) translate(${(-960-camX*d+o[0]).toFixed(2)}px,${(-560-camY*d+o[1]).toFixed(2)}px)`;}
+  const g=mulberry(Math.floor(t*24)+1); $('Lgrain').style.transform=`translate(${(g()*100-50).toFixed(0)}px,${(g()*100-50).toFixed(0)}px)`;
+  TORCH.forEach(([x,y],i)=>{const f=1+.18*wob(t,i*3.1); $('glowA'+i).setAttribute('opacity',(.62*f).toFixed(3)); $('glowB'+i).setAttribute('opacity',(.2*f).toFixed(3)); $('pool'+i).setAttribute('opacity',(.3*f).toFixed(3));
+    $('fl0_'+i).setAttribute('d',flame(x,y+14,74*f,15,t,i*5)); $('fl1_'+i).setAttribute('d',flame(x,y+14,50*f,10,t+.07,i*5+1)); $('fl2_'+i).setAttribute('d',flame(x,y+14,24*f,5.5,t+.11,i*5+2));});
+  EMB.forEach((e,i)=>{const k=((t/e.life+e.ph)%1), src=TORCH[e.src], x=src[0]+Math.sin(t*e.fq+e.seed)*e.sw*k+(e.seed-4.5)*6*k, y=src[1]-10-e.rise*k;
+    emEls[i].setAttribute('cx',n1(x)); emEls[i].setAttribute('cy',n1(y)); emEls[i].setAttribute('opacity',(Math.min(1,k*8)*(1-k)*(.6+.4*Math.sin(t*9+e.seed))).toFixed(3));});
+  starEls.forEach((s,i)=>{const st=stars[i]; if(i%4===0) s.setAttribute('opacity',(s.dataset.o*(.55+.45*Math.sin(t*st.sp+st.tw))).toFixed(3));});
+}
+function fit(){const k=Math.min(innerWidth/W,innerHeight/H); $('st').style.transform=`translate(${(innerWidth-W*k)/2}px,${(innerHeight-H*k)/2}px) scale(${k})`;}
+addEventListener('resize',fit); fit();
+if(Q.has('t')){render(+Q.get('t')); requestAnimationFrame(()=>requestAnimationFrame(()=>window.READY=true));}
+else{const t0=performance.now(); const loop=()=>{render(((performance.now()-t0)/1000)%T); requestAnimationFrame(loop);}; loop();}
+</script>
+</body></html>

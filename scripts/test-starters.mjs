@@ -17,7 +17,7 @@
    Sudah punya Chrome/Edge: set PUPPETEER_EXECUTABLE_PATH.
    ========================================================= */
 import puppeteer from 'puppeteer';
-import { readdirSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join, dirname, basename } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -118,14 +118,20 @@ for (const file of files) {
     // atmosfer (src/runtime/atmosfer.js): langit/partikel/kabut sama di dua jalur seek, kabut berparalaks, langit tanpa
     // WebGL2 jatuh ke gradien CSS, jenis partikel salah ditolak. Kait membangun fixture sendiri lalu membersihkannya.
     // Field null = butuh CAM (panggung belum punya) → dilewati; di halaman bawaan, sebelum blok kamera memuat ulang.
+    // blok di ATAS kode adegan: const-nya (LANGIT, JENIS_PARTIKEL, …) masih TDZ bagi kode sebelum blok, dan kode adegan
+    // yang memakai modul selalu sesudah `const tl=` (rantaiUpdate butuh tl) — blok sesudahnya = ReferenceError saat dimuat
+    const html = readFileSync(file, 'utf8'), iAtm = html.indexOf('<wv:atmosfer>');
+    if (iAtm >= 0 && !(iAtm < html.indexOf('const tl='))) masalah.push('atmosfer: blok <wv:atmosfer> harus di atas `const tl=` (kode adegan memanggil modul saat dimuat)');
     const atm = await page.evaluate(() => window.ATM_UJI ? window.ATM_UJI() : null);
     if (['starter-explainer.html', 'starter-explainer-panggung.html'].includes(name) && !atm) masalah.push('atmosfer: ATM_UJI tidak ada');
     if (atm) {
       const ada = k => atm[k] != null;
-      for (const k of ['seekSama', 'fallback', 'jenisDitolak', ...(name === 'starter-explainer.html' ? ['kabutParalaks'] : [])])
+      for (const k of ['seekSama', 'fallback', 'jenisDitolak', 'lapisUrut', ...(name === 'starter-explainer.html' ? ['kabutParalaks', 'kabutMenutup'] : [])])
         if (!ada(k)) masalah.push(`atmosfer: field ${k} kosong`);
       if (ada('seekSama') && !atm.seekSama) masalah.push('atmosfer: .wv-partikel/#wv-langit/.wv-kabut berbeda antara seek(5) langsung dan seek(9)→seek(.1)→seek(5)');
       if (ada('kabutParalaks') && !atm.kabutParalaks) masalah.push('atmosfer: .wv-kabut di bidang z −600 dan z 0 tidak bergeser berbeda (> 1 px) saat CAM.fx += 300');
+      if (ada('kabutMenutup') && !atm.kabutMenutup) masalah.push('atmosfer: ujung pita .wv-kabut masuk frame saat kamera bergeser ±300 px di salah satu fase hanyut');
+      if (ada('lapisUrut') && !atm.lapisUrut) masalah.push('atmosfer: lapisDepan() tidak menumpuk urut panggilan (lapisan baru harus di atas lapisan depan sebelumnya, di bawah anak #stage lain)');
       if (ada('fallback') && !atm.fallback) masalah.push('atmosfer: tanpa WebGL2 langit() harus mengembalikan <div> bergradien, bukan error');
       if (ada('jenisDitolak') && !atm.jenisDitolak) masalah.push("atmosfer: partikel({jenis:'salju'}) harus melempar error yang menyebut jenis yang tersedia");
     }

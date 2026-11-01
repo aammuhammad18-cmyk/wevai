@@ -14,9 +14,13 @@ const acak=(i,s)=>{let x=(Math.imul(i,374761393)+Math.imul(s,668265263))|0;x=Mat
 /* value noise 1D halus 0..1; p > 0 = kisi berulang tiap p sel (tile kabut menyambung di tepi) */
 const vnoise=(x,s=1,p=0)=>{const i=Math.floor(x),f=x-i,u=f*f*(3-2*f),k=p?(i%p+p)%p:i,a=acak(k,s);return a+(acak(p?(k+1)%p:k+1,s)-a)*u;};
 const rigDunia=()=>typeof rig!=='undefined'?rig:$('#world');
-/* lapisan di atas dunia, di bawah #vig/#ui: tepat sesudah anak #stage yang memuat rig — bukan di dalam rig/bidang,
-   jadi tidak meratakan paralaks */
-function lapisDepan(el){const st=$('#stage');let a=rigDunia();while(a.parentNode!==st)a=a.parentNode;a.after(el);return el;}
+/* lapisan di atas dunia, di bawah #vig/#ui: sesudah anak #stage yang memuat rig — bukan di dalam rig/bidang, jadi
+   tidak meratakan paralaks. Bertumpuk urut panggilan: lapisan baru di atas lapisan depan sebelumnya (ditandai
+   data-wv-depan), tetap di bawah anak #stage lain. Lapisan depan hidup DI LUAR view rig: di starter aksi kontinu ia
+   tetap terlihat walau #collage .view.off — sembunyikan/lepas sendiri saat ganti view. */
+function lapisDepan(el){const st=$('#stage');let a=rigDunia();while(a.parentNode!==st)a=a.parentNode;
+  while(a.nextElementSibling&&a.nextElementSibling.hasAttribute('data-wv-depan'))a=a.nextElementSibling;
+  el.setAttribute('data-wv-depan','');a.after(el);return el;}
 /* '#rgb' | '#rrggbb' | 'rgb(a)(…)' (bentuk yang ditulis GSAP saat men-tween warna) → [r,g,b] 0..255 */
 const warnaRGB=c=>{c=String(c).trim();if(c[0]==='#'){if(c.length<6)c='#'+c[1]+c[1]+c[2]+c[2]+c[3]+c[3];const n=parseInt(c.slice(1,7),16);return[n>>16&255,n>>8&255,n&255];}
   const m=c.match(/[\d.]+/g);if(!/^rgb/.test(c)||!m||m.length<3)throw new Error('warna tidak dikenal: '+c+' (pakai #rrggbb atau rgb())');return m.slice(0,3).map(Number);};
@@ -86,8 +90,9 @@ function warnaJarak(warna,z,zJauh=-800){const k=Math.max(0,Math.min(1,z/zJauh)),
 /* kabut(bidang,{y,…}) → <div class="wv-kabut"> anak bidang (ikut paralaks). Tile fBm 2D ber-seed lebar×tebal
    dipanggang SEKALI (kisi berperiode → menyambung di tepi; alfa memudar ke atas/bawah), ditampilkan sebagai
    background repeat-x; per frame hanya translateX dari t. y = garis tengah pita (px bidang). Bidang jauh: rapat
-   lebih besar + warna warnaJarak(…, z). Elemen = 2 tile mulai x 0; kamera bergeser jauh ke samping → beri
-   lebar ≥ W + 2·geser dan style.left = −geser supaya ujung pita tidak terlihat. */
+   lebih besar + warna warnaJarak(…, z). Elemen = 3 tile mulai x −lebar/2: di SETIAP fase hanyut pita menutup
+   [−lebar/2, 3·lebar/2] bidangnya, jadi kamera boleh bergeser ±lebar/2 (truck, zoom < 1, roll, handheld) tanpa
+   ujung pita masuk frame. */
 function kabut(bidang,{y,tebal=180,warna=LANGIT.horizon,rapat=.6,hanyut=20,seed=1,lebar=W}={}){
   if(y==null)throw new Error('kabut: y (garis tengah pita, px bidang) wajib');
   const c=document.createElement('canvas');c.width=lebar;c.height=tebal;
@@ -101,7 +106,7 @@ function kabut(bidang,{y,tebal=180,warna=LANGIT.horizon,rapat=.6,hanyut=20,seed=
     for(let i=0;i<lebar;i++){const o=(j*lebar+i)*4;d[o]=r;d[o+1]=g;d[o+2]=b;d[o+3]=255*rapat*tepi*(.2+.8*Math.min(1,Math.max(0,S[o/4]*2.6-1.05)));}}   // kabut tipis + gumpalan
   x.putImageData(im,0,0);
   const el=document.createElement('div');el.className='wv-kabut';
-  el.style.cssText=`position:absolute;left:0;top:${y-tebal/2}px;width:${2*lebar}px;height:${tebal}px;pointer-events:none;will-change:transform;`+
+  el.style.cssText=`position:absolute;left:${-lebar/2}px;top:${y-tebal/2}px;width:${3*lebar}px;height:${tebal}px;pointer-events:none;will-change:transform;`+
     `background:url("${c.toDataURL()}") repeat-x;background-size:${lebar}px ${tebal}px`;
   bidang.appendChild(el);
   const geser=()=>{if(el.isConnected)el.style.transform=`translateX(${-(((tl.time()*hanyut)%lebar+lebar)%lebar)}px)`;};
@@ -140,18 +145,27 @@ function partikel(bidang,{jenis,n=60,area=[0,0,W,H],seed=1,warna}={}){
   gambar();rantaiUpdate(gambar);return cv;}
 
 /* kait untuk scripts/test-starters.mjs — tidak dipanggil deliverable. Fixture sendiri (dua bidang, langit, keempat
-   jenis partikel, dua kabut), lalu semuanya dibersihkan seperti CAM_UJI; callback rantai yang tertinggal jadi no-op. */
+   jenis partikel, dua kabut, dua lapisan depan), lalu semuanya dibersihkan seperti CAM_UJI; callback rantai yang
+   tertinggal jadi no-op. */
 window.ATM_UJI=()=>{const r={},O=window.OPENER,cam=typeof CAM!=='undefined',buang=[],
     bidang=z=>{const b=document.createElement('div');b.dataset.z=z;b.style.cssText=`position:absolute;left:0;top:0;width:${W}px;height:${H}px`;
-      rigDunia().appendChild(b);buang.push(b);if(cam)BIDANG.push({el:b,z});return b;},jauh=bidang(-600),dekat=bidang(0),L=langit();
-  buang.push(L);['bara','debu','asap','kunang'].forEach((jenis,i)=>buang.push(partikel(i?jauh:'depan',{jenis,n:40,area:[200,200,480,360],seed:i+1})));
-  const k1=kabut(jauh,{y:700,seed:2,lebar:960}),k0=kabut(dekat,{y:760,seed:3,lebar:960}),
+      rigDunia().appendChild(b);buang.push(b);if(cam)BIDANG.push({el:b,z});return b;},jauh=bidang(-600),dekat=bidang(0),L=langit(),
+    P=['bara','debu','asap','kunang'].map((jenis,i)=>partikel(i?jauh:'depan',{jenis,n:40,area:[200,200,480,360],seed:i+1})),
+    k1=kabut(jauh,{y:700,seed:2,hanyut:W/4}),k0=kabut(dekat,{y:760,seed:3,hanyut:W/4}),   // satu siklus hanyut = lebar/hanyut = 4 dtk
+    L1=lapisDepan(document.createElement('div')),L2=lapisDepan(document.createElement('div')),
     foto=()=>[...document.querySelectorAll('.wv-partikel,#wv-langit,.wv-kabut')].map(e=>e.toDataURL?e.toDataURL():e.style.transform);
+  buang.push(L,...P,L1,L2);
+  r.lapisUrut=P[0].nextElementSibling===L1&&L1.nextElementSibling===L2&&!!L2.nextElementSibling;   // bara 'depan' → L1 → L2 → anak #stage lain
   O.seek(5);const a=foto();O.seek(9);O.seek(.1);O.seek(5);const b=foto();r.seekSama=a.length===b.length&&a.every((x,i)=>x===b[i]);
   if(cam){const simpan={...CAM},kiri=e=>e.getBoundingClientRect().left;
     Object.assign(CAM,{fx:W/2,fy:H/2,zoom:1,pitch:0,yaw:0,roll:0,shake:0});applyCam();const j0=kiri(k1),d0=kiri(k0);
-    CAM.fx+=300;applyCam();r.kabutParalaks=Math.abs((kiri(k1)-j0)-(kiri(k0)-d0))>1;Object.assign(CAM,simpan);}
-  else r.kabutParalaks=null;
+    CAM.fx+=300;applyCam();r.kabutParalaks=Math.abs((kiri(k1)-j0)-(kiri(k0)-d0))>1;
+    /* ujung pita tidak boleh masuk frame: 6 fase satu siklus hanyut × kamera ±300 px */
+    const fr=$('#stage').getBoundingClientRect();r.kabutMenutup=true;
+    for(let i=0;i<6;i++){O.seek((i+.5)/6*4);for(const dx of [-300,300]){CAM.fx=W/2+dx;applyCam();
+      for(const k of [k1,k0]){const e=k.getBoundingClientRect();if(e.left>fr.left+1||e.right<fr.right-1)r.kabutMenutup=false;}}}
+    Object.assign(CAM,simpan);}
+  else r.kabutParalaks=r.kabutMenutup=null;
   const gl=L.getContext&&L.getContext('webgl2'),lepas=gl&&gl.getExtension('WEBGL_lose_context');if(lepas)lepas.loseContext();
   for(const e of buang)e.remove();
   if(cam){for(const e of [jauh,dekat])BIDANG.splice(BIDANG.findIndex(x=>x.el===e),1);if(!BIDANG.length)rig.style.transformStyle='';applyCam();}

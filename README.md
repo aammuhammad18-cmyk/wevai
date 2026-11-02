@@ -12,7 +12,7 @@ Openers, promos, product demos, kinetic typography, and explainers — built as 
 [![Agent Skills](https://img.shields.io/badge/format-Agent%20Skills-1c2a4a?style=flat-square)](#install)
 [![Works with](https://img.shields.io/badge/works%20with-Claude%20Code%20%C2%B7%20Codex%20%C2%B7%20Gemini%20CLI%20%C2%B7%20Cursor-7a5af5?style=flat-square)](#install)
 
-<img src="docs/gallery/hero.jpg" alt="A grid of styles WeVai can build: grainy gradient opener, SaaS product tour, flat pop promo with photos, visual journalism explainer, continuous action explainer, cartoon collage explainer" width="100%">
+<img src="docs/gallery/hero.jpg" alt="A grid of styles WeVai can build: grainy gradient opener, SaaS product tour, flat pop promo with photos, visual journalism explainer, continuous action explainer, cinematic night scene lit by torches (100% code)" width="100%">
 
 [What you can make](#what-you-can-make) · [Style gallery](#style-gallery) · [Workflow](#recommended-workflow) · [Example prompts](#example-prompts) · [Install](#install) · [FAQ](#faq)
 
@@ -43,9 +43,12 @@ Every deliverable is one `index.html`: double-click to play, autoplay + loop, `?
 
 ## Style gallery
 
-> Each frame below is a **single static scene** built for this README with **fictional brands and data**. The portrait, product photos, port photo, engraving, and cartoon cutouts were generated with GPT Image 2.5; everything else is HTML, CSS, and SVG. Real projects take their palette, type, and imagery from your brand.
+> Each frame below is a **single static scene** built for this README with **fictional brands and data**. The portrait, product photos, port photo, engraving, and cartoon cutouts were generated with GPT Image 2.5; everything else is HTML, CSS, and SVG. Real projects take their palette, type, and imagery from your brand. The exception is the cinematic night scene: a frame rendered straight from `assets/starter-explainer.html?demo=sinematik`, 100% code (SVG, Canvas, WebGL) with no images at all.
 
 <table>
+<tr>
+<td colspan="2"><img src="docs/gallery/13-cinematic-silhouette.jpg" alt="Cinematic night scene: a temple gate lit by two flickering torches, a rim-lit guard silhouette, layered fog and embers under a moonlit sky"><br><b>Cinematic silhouette</b> · history explainer, 100% code<br><sub>Torches that flicker and light what is near them, rim-lit silhouettes, layered fog, embers, one color grade. Built from the <code>atmosfer</code>, <code>cahaya-2d</code>, and <code>pasca</code> modules (1.3.0). History, culture, documentaries.</sub></td>
+</tr>
 <tr>
 <td width="50%"><img src="docs/gallery/01-grainy-gradient.jpg" alt="Grainy gradient opener"><br><b>Grainy gradient</b> · opener<br><sub>Glowing layered shapes, soft grain, a camera that travels through them. Tech, AI, music, premium launches.</sub></td>
 <td width="50%"><img src="docs/gallery/02-kinetic-colorblock.jpg" alt="Kinetic typography in poster color-block"><br><b>Poster color-block</b> · kinetic typography<br><sub>Huge cropped words, solid color fields that slam in on the beat. Events, music, launches.</sub></td>

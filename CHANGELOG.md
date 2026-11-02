@@ -61,6 +61,9 @@ fungsi, bukan kode sekali pakai.
   determinisme.
 - **Dokumen**: resep ≤ 25 baris di `techniques.md` §7d (urutan panggilan, aturan yang dipanggang, anggaran partikel)
   dan satu contoh pemakaian di `kartun-panggung.md` kulit B.
+- **Galeri README**: still pertama yang 100 % kode, `docs/gallery/13-cinematic-silhouette.jpg` (frame t = 0 dtk demo
+  sinematik), di baris teratas galeri dan di `hero.jpg`. Di hero, still ini menggantikan sel kartun kolase; kartun
+  kolase tetap ada di tabel galeri.
 - **Anggaran konteks**: `context-budget.mjs` kini menghitung panjang tanpa CR (checkout Windows dengan
   `core.autocrlf` menambah satu karakter per baris: angka membengkak 1–3 KB per jalur, mis. panggung 165 → 163 KB,
   Opener 3D 241 → 239 KB). Batas dinaikkan: **Explainer kartun panggung 130 → 170 KB** (+40, perkakas: blok

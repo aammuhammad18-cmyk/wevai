@@ -136,6 +136,23 @@ for (const file of files) {
       if (ada('jenisDitolak') && !atm.jenisDitolak) masalah.push("atmosfer: partikel({jenis:'salju'}) harus melempar error yang menyebut jenis yang tersedia");
     }
 
+    // cahaya-2d (src/runtime/cahaya-2d.js): kedip pendar sama di dua jalur seek dan benar-benar hidup, rim menjauhi
+    // sumber (juga di grup tercermin), filter/mask dipanggang, nama sumber salah ditolak. Fixture sendiri, dibersihkan.
+    // Blok di atas `const tl=` seperti atmosfer: sumber() ter-hoist, tetapi const SUMBER-nya TDZ bagi kode adegan.
+    const iCahaya = html.indexOf('<wv:cahaya-2d>');
+    if (iCahaya >= 0 && !(iCahaya < html.indexOf('const tl='))) masalah.push('cahaya-2d: blok <wv:cahaya-2d> harus di atas `const tl=` (kode adegan memanggil modul saat dimuat)');
+    const cahaya = await page.evaluate(() => window.CAHAYA_UJI ? window.CAHAYA_UJI() : null);
+    if (['starter-explainer.html', 'starter-explainer-panggung.html'].includes(name) && !cahaya) masalah.push('cahaya-2d: CAHAYA_UJI tidak ada');
+    if (cahaya) {
+      const ada = k => cahaya[k] != null;
+      for (const k of ['kedipSama', 'kedipHidup', 'rimArah', 'statis', 'namaDitolak']) if (!ada(k)) masalah.push(`cahaya-2d: field ${k} kosong`);
+      if (ada('kedipSama') && !cahaya.kedipSama) masalah.push('cahaya-2d: opacity .wv-pendar berbeda antara seek(4) langsung dan seek(9)→seek(.1)→seek(4)');
+      if (ada('kedipHidup') && !cahaya.kedipHidup) masalah.push('cahaya-2d: opacity .wv-pendar ber-kedip sama di t 4 dan 4,5 — kedip mati');
+      if (ada('rimArah') && !cahaya.rimArah) masalah.push('cahaya-2d: feOffset rim tidak menjauhi sumber (el di x 1500: sumber x 500 → dx > 0, x 2500 → dx < 0; terbalik di grup scale(-1,1))');
+      if (ada('statis') && !cahaya.statis) masalah.push('cahaya-2d: <filter>/<mask> di #stage berubah antara seek(2) dan seek(8) — filter cahaya harus dipanggang');
+      if (ada('namaDitolak') && !cahaya.namaDitolak) masalah.push("cahaya-2d: rim(el,'tidakada') harus melempar error yang menyebut sumber yang tersedia");
+    }
+
     // kamera 2.5D (src/runtime/kamera-dom.js): jalur 2D tidak menyentuh gaya lain; sudut → transform 3D;
     // bidang data-z berparalaks; cahaya; katalog ?demo=1 selesai sebelum DUR. Halaman dimuat ULANG dengan ?demo=1
     // supaya pemeriksaan di atas tetap menguji jalur default deliverable.

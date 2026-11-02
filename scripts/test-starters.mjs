@@ -145,12 +145,14 @@ for (const file of files) {
     if (['starter-explainer.html', 'starter-explainer-panggung.html'].includes(name) && !cahaya) masalah.push('cahaya-2d: CAHAYA_UJI tidak ada');
     if (cahaya) {
       const ada = k => cahaya[k] != null;
-      for (const k of ['kedipSama', 'kedipHidup', 'rimArah', 'statis', 'namaDitolak']) if (!ada(k)) masalah.push(`cahaya-2d: field ${k} kosong`);
+      for (const k of ['kedipSama', 'kedipHidup', 'rimArah', 'statis', 'namaDitolak', 'reliefAlfa']) if (!ada(k)) masalah.push(`cahaya-2d: field ${k} kosong`);
       if (ada('kedipSama') && !cahaya.kedipSama) masalah.push('cahaya-2d: opacity .wv-pendar berbeda antara seek(4) langsung dan seek(9)→seek(.1)→seek(4)');
       if (ada('kedipHidup') && !cahaya.kedipHidup) masalah.push('cahaya-2d: opacity .wv-pendar ber-kedip sama di t 4 dan 4,5 — kedip mati');
       if (ada('rimArah') && !cahaya.rimArah) masalah.push('cahaya-2d: feOffset rim tidak menjauhi sumber (el di x 1500: sumber x 500 → dx > 0, x 2500 → dx < 0; terbalik di grup scale(-1,1))');
       if (ada('statis') && !cahaya.statis) masalah.push('cahaya-2d: <filter>/<mask> di #stage berubah antara seek(2) dan seek(8) — filter cahaya harus dipanggang');
       if (ada('namaDitolak') && !cahaya.namaDitolak) masalah.push("cahaya-2d: rim(el,'tidakada') harus melempar error yang menyebut sumber yang tersedia");
+      if (ada('reliefAlfa') && !cahaya.reliefAlfa) { const [acuan, s, k] = cahaya.alfaRelief || [];
+        masalah.push(`cahaya-2d: relief() mengubah alfa piksel tembus pandang (rect fill-opacity .3: α acuan ${acuan}, relief sumber ${s}, relief+spekular ${k}; selisih harus ≤ 2)`); }
     }
 
     // kamera 2.5D (src/runtime/kamera-dom.js): jalur 2D tidak menyentuh gaya lain; sudut → transform 3D;

@@ -101,14 +101,17 @@ function relief(el,{tinggi=3,sumber:nama,arah={az:225,el:45},spekular=0}={}){
     `<feGaussianBlur stdDeviation="1.2" result="h0"/><feTurbulence type="fractalNoise" baseFrequency=".07" numOctaves="3" seed="7"/>`+
     `<feComposite in="h0" operator="arithmetic" k2=".85" k3=".3" k4="-.08" result="h"/>`+
     `<feDiffuseLighting in="h" surfaceScale="${tinggi}" lighting-color="${warna}" result="d">${lampu}</feDiffuseLighting>`+
-    `<feComposite in="SourceGraphic" in2="d" operator="arithmetic" k1="${kuat}" k2=".35" result="l"/>`+
+    `<feColorMatrix in="SourceGraphic" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0 1"/>`+   // salinan buram (warna asli, α 1): aritmetika jalan di premultiplied, jadi α tembus pandang ikut ×(penguat+isi)
+    `<feComposite in2="d" operator="arithmetic" k1="${kuat}" k2=".35" result="l"/>`+
     (spekular>0?`<feSpecularLighting in="h" surfaceScale="${tinggi}" specularConstant="${spekular}" specularExponent="20" lighting-color="${warna}" result="k">${lampu}</feSpecularLighting>`+
-      `<feComposite in="l" in2="k" operator="arithmetic" k2="1" k3="1"/><feComposite in2="SourceAlpha" operator="in"/>`:''));}   // kilap juga jatuh di luar alfa → potong
+      `<feComposite in="l" in2="k" operator="arithmetic" k2="1" k3="1"/>`:'')+
+    `<feComposite in2="SourceAlpha" operator="in"/>`);}   // kedua cabang: α keluaran = α sumber (kilap juga jatuh di luar alfa)
 
 /* kait untuk scripts/test-starters.mjs — tidak dipanggil deliverable. Fixture sendiri (bidang + svg + dua sumber
    ber-kedip), semua pemanggang dijalankan sekali (error-nya tertangkap, filternya ikut diuji statis), lalu bidang
-   dilepas dan entri SUMBER-nya dihapus; callback kedip yang tertinggal jadi no-op (isConnected). */
-window.CAHAYA_UJI=()=>{const r={},O=window.OPENER,b=document.createElement('div');
+   dilepas dan entri SUMBER-nya dihapus; callback kedip yang tertinggal jadi no-op (isConnected). Async: alfa relief
+   dibaca dari piksel svg kecil yang dirender sebagai gambar ke kanvas. */
+window.CAHAYA_UJI=async()=>{const r={},O=window.OPENER,b=document.createElement('div');
   b.style.cssText=`position:absolute;left:0;top:0;width:${W}px;height:${H}px`;rigDunia().appendChild(b);
   b.innerHTML=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="position:absolute;left:0;top:0;overflow:visible">`+
     `<defs><clipPath id="wv-uji-klip"><rect x="1400" y="400" width="200" height="300"/></clipPath></defs>`+
@@ -126,4 +129,14 @@ window.CAHAYA_UJI=()=>{const r={},O=window.OPENER,b=document.createElement('div'
   O.seek(4);const a=op(),o4=A.style.opacity;O.seek(9);O.seek(.1);O.seek(4);r.kedipSama=a===op();
   O.seek(4.5);r.kedipHidup=A.style.opacity!==o4;
   try{rim(el,'tidakada');r.namaDitolak=false;}catch(e){r.namaDitolak=/tidak dikenal: tidakada \(.*wv-uji-a/.test(e.message);}
+  /* relief tidak boleh mengubah alfa (tepi antialias, cat tembus pandang): rect fill-opacity .3 dengan relief sumber,
+     relief sumber+spekular, dan tanpa filter (acuan) */
+  b.insertAdjacentHTML('beforeend',`<svg width="120" height="40" viewBox="0 0 120 40" style="position:absolute;left:0;top:0">`+
+    [0,40,80].map(x=>`<rect x="${x}" width="40" height="40" fill="#7a4a30" fill-opacity=".3"/>`).join('')+'</svg>');
+  const kecil=b.lastChild,[t1,t2]=kecil.querySelectorAll('rect'),img=new Image(),kv=document.createElement('canvas'),kx=kv.getContext('2d');
+  relief(t1,{sumber:'wv-uji-a'});relief(t2,{sumber:'wv-uji-a',spekular:.5});
+  img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(new XMLSerializer().serializeToString(kecil));await img.decode();
+  kv.width=120;kv.height=40;kx.drawImage(img,0,0);
+  const [a1,a2,acuan]=[20,60,100].map(x=>kx.getImageData(x,20,1,1).data[3]);
+  r.alfaRelief=[acuan,a1,a2];r.reliefAlfa=acuan>50&&Math.abs(a1-acuan)<=2&&Math.abs(a2-acuan)<=2;
   b.remove();delete SUMBER['wv-uji-a'];delete SUMBER['wv-uji-b'];return r;};

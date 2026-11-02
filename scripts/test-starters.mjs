@@ -155,6 +155,27 @@ for (const file of files) {
         masalah.push(`cahaya-2d: relief() mengubah alfa piksel tembus pandang (rect fill-opacity .3: α acuan ${acuan}, relief sumber ${s}, relief+spekular ${k}; selisih harus ≤ 2)`); }
     }
 
+    // pasca (src/runtime/pasca.js): lapisan grade = blend lighten/darken/multiply (+ halation screen) di luar rig, halation
+    // menempel pada pendar di skala stage berapa pun dan mengikutinya (sumber terlambat/hilang), warna GRADE benar-benar
+    // ter-tween, preset tak dikenal ditolak, dan tanpa grade() tidak ada lapisan. Fixture sendiri (satu sumber sementara),
+    // dibersihkan — termasuk lapisan singleton. Blok di atas `const tl=` seperti modul lain.
+    const iPasca = html.indexOf('<wv:pasca>');
+    if (iPasca >= 0 && !(iPasca < html.indexOf('const tl='))) masalah.push('pasca: blok <wv:pasca> harus di atas `const tl=` (kode adegan memanggil modul saat dimuat)');
+    const pasca = await page.evaluate(() => window.PASCA_UJI ? window.PASCA_UJI() : null);
+    if (['starter-explainer.html', 'starter-explainer-panggung.html'].includes(name) && !pasca) masalah.push('pasca: PASCA_UJI tidak ada');
+    if (pasca) {
+      const ada = k => pasca[k] != null;
+      for (const k of ['awalBersih', 'lapisBenar', 'halationSkala', 'halationIkut', 'warnaTween', 'presetDitolak', 'presetLengkap', 'dibersihkan']) if (!ada(k)) masalah.push(`pasca: field ${k} kosong`);
+      if (ada('awalBersih') && !pasca.awalBersih) masalah.push('pasca: lapisan .wv-pasca sudah ada sebelum grade() pertama (blok harus inert saat dimuat)');
+      if (ada('lapisBenar') && !pasca.lapisBenar) masalah.push(`pasca: mixBlendMode bayangan/sorot/vignette/halation harus lighten,darken,multiply,screen (dapat ${pasca.blend}) dan filter/opacity/blend/clip/mask rig + [data-z] tidak berubah oleh lapisan (rigBersih ${pasca.rigBersih})`);
+      if (ada('halationSkala') && !pasca.halationSkala) masalah.push(`pasca: left halation (px stage) berbeda > 1 px antara #stage scale .5 dan 1 (${pasca.halationKiri})`);
+      if (ada('halationIkut') && !pasca.halationIkut) masalah.push('pasca: halation tidak mengikuti pendar yang digeser, tidak muncul untuk sumber yang didaftarkan sesudah lapisan dibuat, atau tidak hilang saat sumbernya dilepas');
+      if (ada('warnaTween') && !pasca.warnaTween) masalah.push('pasca: warna GRADE di tengah tween bukan campuran kedua ujung — GSAP tidak menginterpolasinya');
+      if (ada('presetDitolak') && !pasca.presetDitolak) masalah.push("pasca: grade(0,1,'neon') harus melempar error yang menyebut semua preset yang tersedia");
+      if (ada('presetLengkap') && !pasca.presetLengkap) masalah.push('pasca: setiap PRESET_GRADE harus memuat tepat enam kunci GRADE (kalau tidak, pindah preset menyisakan nilai preset lama)');
+      if (ada('dibersihkan') && !pasca.dibersihkan) masalah.push('pasca: PASCA_UJI meninggalkan lapisan singleton, sumber sementara, atau nilai GRADE yang berubah — grade() sungguhan sesudahnya tidak mulai dari nol');
+    }
+
     // kamera 2.5D (src/runtime/kamera-dom.js): jalur 2D tidak menyentuh gaya lain; sudut → transform 3D;
     // bidang data-z berparalaks; cahaya; katalog ?demo=1 selesai sebelum DUR. Halaman dimuat ULANG dengan ?demo=1
     // supaya pemeriksaan di atas tetap menguji jalur default deliverable.

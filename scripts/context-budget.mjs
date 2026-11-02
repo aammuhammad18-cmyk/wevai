@@ -25,10 +25,11 @@ const INTI = ['SKILL.md', 'references/anti-ppt.md'];
 const JALUR = [
   ['Inti (selalu dibaca)', [], 60],
   ['Opener / promo / bumper', ['references/opener-konsep.md', 'references/techniques.md', 'assets/starter-opener.html'], 220],   // +30: blok kamera bersama di starter (perkakas, bukan aturan)
-  ['Explainer (kolase / aliran)', ['references/explainer.md', 'references/techniques.md', 'assets/starter-explainer-kartun.html'], 175],   // +10: blok kamera bersama di starter (perkakas, bukan aturan); +5: resep modul atmosfer/cahaya-2d/pasca di techniques.md §7d, +3,2 KB (168,8 → 172,0 KB)
+  ['Explainer kolase (kartun)', ['references/explainer.md', 'references/techniques.md', 'assets/starter-explainer-kartun.html'], 175],   // +10: blok kamera bersama di starter (perkakas, bukan aturan); +5: resep modul atmosfer/cahaya-2d/pasca di techniques.md §7d, +3,2 KB (168,8 → 172,0 KB)
+  ['Explainer aliran (aksi kontinu)', ['references/explainer.md', 'references/techniques.md', 'assets/starter-explainer.html'], 245],   // pelacak tren: ukuran sekarang; target ditetapkan pemilik (celah ditemukan di review akhir 1.3.0)
   ['Explainer 3D', ['references/sinematografi.md', 'references/techniques.md', 'assets/starter-explainer-3d.html'], 170],
   ['Opener 3D', ['references/opener-konsep.md', 'references/techniques.md', 'assets/starter-opener.html', 'references/sinematografi.md'], 245],   // 190 aturan opener + 30 blok kamera (perkakas) + ±21 sinematografi.md (bacaan wajib 3D) + 5: resep modul atmosfer/cahaya-2d/pasca di techniques.md §7d, +3,2 KB (238,6 → 241,8 KB)
-  ['Explainer kartun panggung', ['references/explainer.md', 'references/kartun-panggung.md', 'assets/starter-explainer-panggung.html'], 170],   // +40: perkakas, bukan aturan: blok atmosfer/cahaya-2d/pasca + demo sinematik (122,1 → 167,8 KB: +44,8 blok di starter, +0,9 contoh kulit B; demo ada di starter-explainer.html, di luar semua jalur ini)
+  ['Explainer kartun panggung', ['references/explainer.md', 'references/kartun-panggung.md', 'assets/starter-explainer-panggung.html'], 170],   // +40: perkakas, bukan aturan: blok atmosfer/cahaya-2d/pasca + demo sinematik (122,1 → 167,8 KB: +44,8 blok di starter, +0,9 contoh kulit B; demo ada di starter-explainer.html, diukur jalur "Explainer aliran")
   ['Build di After Effects', ['references/kartun-panggung.md', 'references/ae-bridge-higgsfield.md'], 95],
   ['Scaffold multi-file', ['references/architecture.md'], 70],
 ];

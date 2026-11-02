@@ -671,7 +671,7 @@ penuh atau lebih.
 
 ## Lampiran A — Gambar yang dibuat (scratchpad, tidak masuk repo)
 
-Akar: `C:\Users\ITBAHA~1\AppData\Local\Temp\claude\e--mila-wevai\383a7178-971d-49f1-a618-2ab57bb9b86c\scratchpad\audit\`
+Akar: berkas kerja sementara di luar repo (folder `audit\`)
 
 | Isi | Path |
 |---|---|

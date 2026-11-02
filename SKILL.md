@@ -375,7 +375,7 @@ bagian 1 dan 1b. Ringkasnya:
    kolase: kamera into/settle/look/home di atas cutout/foto, say/unsay per
    kata, draw anotasi, push-through antar adegan) atau
    `starter-explainer.html` (aksi kontinu: dunia mengalir, hero, objek
-   dunia, view peta, whip). Semua sudah autoplay + loop tanpa player. Struktur multi-file dan
+   dunia, view peta, whip; modul atmosfer/cahaya-2d/pasca: `techniques.md` §7d). Semua sudah autoplay + loop tanpa player. Struktur multi-file dan
    penjelasan tiap keputusan ada di `references/architecture.md`.
 4. **Bangun adegan satu per satu** dengan resep di
    `references/techniques.md` (split per huruf + motion blur berarah,
@@ -532,7 +532,7 @@ dan buat layer dari belakang ke depan. Build 10 panggung ≈ 1 jam, 0 kredit.
 | `assets/starter-opener.html` | titik awal OPENER/promo — arsitektur + perkakas (8 pintu teks, transisi opsional); SENGAJA tanpa urutan adegan contoh, kerangka dari `opener-konsep.md` |
 | `references/sinematografi.md` | KAMERA SINEMATIK 2.5D/3D: memilih dunia, kosakata → panggilan, aturan 180°/30°/cahaya, jebakan 3D |
 | `assets/starter-explainer-3d.html` | EXPLAINER dunia 3D: Three.js r161 + `CAM`, `mat()`, `fromSVG()`, cahaya key/fill/rim, HUD di luar `#world`, `?demo=1` |
-| `assets/starter-explainer.html` | EXPLAINER gaya aksi kontinu (vektor): mode aliran (strip + hero + objek dunia) + view peta + whip + contoh mode kolase |
+| `assets/starter-explainer.html` | EXPLAINER gaya aksi kontinu (vektor): mode aliran (strip + hero + objek dunia) + view peta + whip + contoh mode kolase + modul atmosfer/cahaya-2d/pasca (`?demo=sinematik`, `techniques.md` §7d) |
 | `assets/starter-explainer-kartun.html` | EXPLAINER kartun kolase: kertas krem + grain + noda, cutout ilustrasi, Bricolage + Caveat, pill warna |
 | `assets/starter-explainer-jurnalisme.html` | EXPLAINER jurnalisme visual: hitam + grain, foto asli + tag sumber, Barlow Condensed + Plex Mono, highlighter kuning/merah, anotasi putus |
 | `assets/starter-explainer-katalog.html` | EXPLAINER katalog putih: grid samar, cutout foto, Archivo Black + Caveat + Inter, highlighter kuning |

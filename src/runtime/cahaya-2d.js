@@ -6,7 +6,8 @@
    dipanggil saja — tidak dipanggil = halaman tidak berubah sedikit pun.
    Kamera yang men-zoom (dolly) mengubah skala bidang tiap frame → Chrome me-raster ulang svg-nya dan filter yang
    dipanggang ikut dihitung ulang (adegan uji: +125–170 ms/frame). Beri <svg> bidang ber-filter will-change:transform:
-   bitmap-nya diskalakan, bukan di-raster ulang (terukur ≈ biaya tanpa modul; lunaknya tak terlihat di zoom 1,25). */
+   bitmap-nya diskalakan, bukan di-raster ulang (terukur ≈ biaya tanpa modul; lunaknya tak terlihat di zoom 1,25).
+   Butuh dari atmosfer: rantaiUpdate, vnoise, warnaRGB (hook uji: rigDunia). */
 
 /* SUMBER: nama → {x, y, bidang, warna, jangkau, kuat, kedip, el}. kuat/kedip dibaca tiap frame, jadi boleh di-tween
    seperti CAM: tl.to(SUMBER.obor1,{kuat:0},at) memadamkan obor. */
@@ -44,6 +45,7 @@ function sumber(nama,{x,y,bidang,warna='#ffb347',jangkau=420,kuat=1,kedip=0,seed
    svg yang transparan ikut gelap (langit bidang lain tertutup) — klip = id <clipPath> bentuk arsitektur milik
    pemanggil. Rect ±W/2 di luar frame: kamera boleh bergeser. */
 function redup(svg,nama,{gelap=.72,warna='#0b0820',klip}={}){
+  if(!(svg instanceof SVGSVGElement))throw new Error('redup: svg wajib elemen <svg> (bukan <div> bidang atau <g>)');
   const S=[].concat(nama).map(ambilSumber),d=defsSVG(svg),id='wv-cahaya-'+(++cahayaN),k={x:-W/2,y:-H/2,width:2*W,height:2*H};
   if(klip&&!document.getElementById(klip))throw new Error('redup: klip tidak ada: #'+klip+' (id <clipPath> bentuk arsitektur)');
   const lb=elSVG('radialGradient',{id:id+'-lubang'},d);
@@ -129,6 +131,7 @@ window.CAHAYA_UJI=async()=>{const r={},O=window.OPENER,b=document.createElement(
   O.seek(4);const a=op(),o4=A.style.opacity;O.seek(9);O.seek(.1);O.seek(4);r.kedipSama=a===op();
   O.seek(4.5);r.kedipHidup=A.style.opacity!==o4;
   try{rim(el,'tidakada');r.namaDitolak=false;}catch(e){r.namaDitolak=/tidak dikenal: tidakada \(.*wv-uji-a/.test(e.message);}
+  try{redup(b,['wv-uji-a']);r.redupDitolak=false;}catch(e){r.redupDitolak=/elemen <svg>/.test(e.message);}
   /* relief tidak boleh mengubah alfa (tepi antialias, cat tembus pandang): rect fill-opacity .3 dengan relief sumber,
      relief sumber+spekular, dan tanpa filter (acuan) */
   b.insertAdjacentHTML('beforeend',`<svg width="120" height="40" viewBox="0 0 120 40" style="position:absolute;left:0;top:0">`+

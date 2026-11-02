@@ -5,7 +5,8 @@
    Satu pengecualian dari "bukan filter": kontras/saturasi = `filter` pada VIEW yang memuat rig, tidak pernah pada rig/[data-z]
    — lihat gambarPasca. Terukur ≤ 15 ms/frame saat nilainya diam (spec §4.3); selama tween kontras/saturasi (pindah preset)
    filter itu berubah dan ditulis ulang tiap frame, biaya transisi itu belum diukur. Tidak dipanggil = halaman tidak berubah
-   sedikit pun. */
+   sedikit pun.
+   Butuh dari atmosfer: lapisDepan, viewDunia, rigDunia; dari cahaya-2d: SUMBER (hook uji juga warnaRGB, sumber). */
 
 /* bayangan = `lighten`: hanya mengangkat piksel yang LEBIH GELAP dari warnanya, jadi bayangan bernuansa warna itu dan
    terang tak tersentuh. sorot = `darken`: hanya menurunkan piksel yang LEBIH TERANG dari warnanya (sorotan hangat).

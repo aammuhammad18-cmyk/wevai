@@ -96,6 +96,7 @@ function warnaJarak(warna,z,zJauh=-800){const k=Math.max(0,Math.min(1,z/zJauh)),
    [−lebar/2, 3·lebar/2] bidangnya, jadi kamera boleh bergeser ±lebar/2 (truck, zoom < 1, roll, handheld) tanpa
    ujung pita masuk frame. */
 function kabut(bidang,{y,tebal=180,warna=LANGIT.horizon,rapat=.6,hanyut=20,seed=1,lebar=W}={}){
+  if(!(bidang instanceof HTMLElement))throw new Error('kabut: bidang wajib elemen HTML (bukan <g> SVG)');
   if(y==null)throw new Error('kabut: y (garis tengah pita, px bidang) wajib');
   const c=document.createElement('canvas');c.width=lebar;c.height=tebal;
   const x=c.getContext('2d'),im=x.createImageData(lebar,tebal),d=im.data,[r,g,b]=warnaRGB(warna),p0=Math.max(1,Math.round(lebar/300)),S=new Float32Array(lebar*tebal);
@@ -127,10 +128,12 @@ const JENIS_PARTIKEL={
   kunang:{umur:[3,6],warna:'#d6ff7a',aditif:1,     // nyaris diam, berkedip; gerak periodik penuh per umur
     gerak:(r,f,w,h)=>[r[1]*w+18*Math.sin(6.283*(f+r[2])),r[3]*h+12*Math.sin(6.283*(2*f+r[4])),(1.5+1.5*r[5])*3,Math.max(0,Math.sin(6.283*(2*f+r[6])))**6]}};
 /* partikel(bidang | 'depan', {jenis,…}) → <canvas class="wv-partikel"> di (area[0], area[1]) bidang itu; 'depan' =
-   lapisDepan (koordinat #stage). Anggaran ≤ 400 partikel per adegan. */
+   lapisDepan (koordinat #stage). Jepitan 400 PER PANGGILAN; total per HALAMAN dijaga pemanggil: callback partikel/kabut/sumber menggambar tiap
+   frame, tersembunyi atau di luar frame sekalipun. */
 function partikel(bidang,{jenis,n=60,area=[0,0,W,H],seed=1,warna}={}){
+  if(bidang!=='depan'&&!(bidang instanceof HTMLElement))throw new Error("partikel: bidang wajib elemen HTML (bukan <g> SVG) atau 'depan'");
   const J=JENIS_PARTIKEL[jenis];if(!J)throw new Error('partikel: jenis tidak dikenal: '+jenis+' ('+Object.keys(JENIS_PARTIKEL).join(' ')+')');
-  if(n>400){console.warn('partikel: n '+n+' melewati anggaran 400 per adegan — dijepit ke 400');n=400;}
+  if(n>400){console.warn('partikel: n '+n+' melewati jepitan 400 per panggilan — dijepit ke 400 (total di halaman dijaga pemanggil)');n=400;}
   const [ax,ay,w,h]=area,cv=document.createElement('canvas');cv.className='wv-partikel';cv.width=w;cv.height=h;
   cv.style.cssText=`position:absolute;left:${ax}px;top:${ay}px;pointer-events:none`;
   /* sprite radial dipanggang sekali; per partikel hanya drawImage + globalAlpha */
@@ -175,4 +178,6 @@ window.ATM_UJI=()=>{const r={},O=window.OPENER,cam=typeof CAM!=='undefined',buan
   try{f=langit();}finally{HTMLCanvasElement.prototype.getContext=gc;}
   r.fallback=f instanceof HTMLDivElement&&/gradient/.test(f.style.background);f.remove();
   try{partikel(dekat,{jenis:'salju'});r.jenisDitolak=false;}catch(e){r.jenisDitolak=/bara debu asap kunang/.test(e.message);}
+  const g=document.createElementNS('http://www.w3.org/2000/svg','g'),tolak=f=>{try{f();return false;}catch(e){return /elemen HTML/.test(e.message);}};
+  r.kabutDitolak=tolak(()=>kabut(g,{y:700}));r.partikelDitolak=[g,'Depan'].every(b=>tolak(()=>partikel(b,{jenis:'bara'})));
   return r;};

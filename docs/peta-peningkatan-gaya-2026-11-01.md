@@ -155,7 +155,7 @@ Tiap sub-proyek dirancang, direncanakan, dan dibangun sendiri, dengan hasil yang
 | # | Sub-proyek | Isi | Hasil yang bisa dilihat |
 |---|---|---|---|
 | 1 | **Fondasi aturan** | P0 1–5 | agen berhenti default ke flat; grain hidup — **selesai 1 Nov (v1.2.0)** |
-| 2 | **Atmosfer + cahaya-2d + pasca** | P1 tiga modul pertama | ulang adegan spike gapura memakai modul (bukan kode sekali pakai), ≤ 350 ms/frame — **selesai 2 Nov (v1.3.0)**: `starter-explainer.html?demo=sinematik`, bukti di `evals/bukti/2026-11-02-atmosfer/` |
+| 2 | **Atmosfer + cahaya-2d + pasca** | P1 tiga modul pertama | ulang adegan spike gapura memakai modul (bukan kode sekali pakai), ≤ 350 ms/frame — **kode selesai 2 Nov (v1.3.0); penilaian visual pemilik terhadap `f_7` (spec §6.4) menunggu**: `starter-explainer.html?demo=sinematik`, bukti di `evals/bukti/2026-11-02-atmosfer/` |
 | 3 | **Gaya "Siluet sinematik" + `CAM` panggung** | gaya baru #1, kartun panggung dibebaskan | satu babak 60 dtk bergaya patokan |
 | 4 | **Rig tokoh v2 + pustaka aset Jawa kuno** | P2-2, P2-3 | tokoh yang bukan manekin; candi/gapura/beringin siap pakai |
 | 5 | **Mata elang 3D** | tone mapping film, lanskap prosedural, preset terbang | shot pembuka 8–12 dtk di atas sawah → menembus gapura → reveal gunung |

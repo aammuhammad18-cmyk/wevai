@@ -22,6 +22,8 @@ fungsi, bukan kode sekali pakai.
   awan + god rays, tiga kabut, dua obor ber-pendar berkedip, relief bata, penjaga ber-rim + bayangan, bara + debu,
   grade `malam-api`, dolly + truck + handheld. Framing t = 7 = still spike `f_7`. Bukti: `evals/bukti/2026-11-02-atmosfer/`
   (`kontak.jpg`, `gerak.gif`, `bench.txt`).
+- **Status penerimaan**: kode selesai; penilaian visual pemilik terhadap `f_7` (spec §6.4) menunggu. Beda yang diketahui
+  dari `f_7`: gumpalan kabut tanah, tekstur/anak tangga lantai, butir bata, spekular penjaga, kolom asap.
 - **Biaya** (`scripts/bench-frame.mjs`, mesin acuan i3-3217U / HD 4000, 1920×1080, 1 worker, Chrome sistem, 20
   frame, batas 350 ms): demo `?demo=sinematik` **268 ms** (268 / 272 / 267, deterministik di ketiga run). Kode akhir
   ini diukur saat render lain milik pengguna berjalan di mesin yang sama (proses bench diberi prioritas HIGH), jadi
@@ -39,8 +41,9 @@ fungsi, bukan kode sekali pakai.
   jalur seek. Biaya diukur selang-seling, A tanpa dan B dengan `filter: contrast(1.08) saturate(.9)` sementara pada
   `#collage`: selisih median +8 ms/frame (5 pasangan, 259 → 267 ms); pengulangan lain −1…+9 ms (selang-seling tanpa
   prioritas +6; berpasangan sehalaman +9 / +2 / −1) → ≤ 15 ms (spec §4.3), jadi dipasang. Pengukuran selang-seling itu
-  semuanya diambil saat render milik pemilik berjalan di mesin yang sama (proses bench diberi prioritas HIGH): angka di
-  bawah beban, bukan mesin senggang. Tiga run A lalu tiga run B berurutan memberi +31 ms (241 → 272), terseret urutan:
+  semuanya diambil saat render milik pemilik berjalan di mesin yang sama (hanya seri +8 yang berprioritas HIGH, seri lain
+  prioritas biasa): angka di bawah beban, bukan mesin senggang. Tiga run A lalu tiga run B berurutan memberi +31 ms
+  (241 → 272), terseret urutan:
   mesin melambat seiring beban (B1 250 → B3 275), jadi bandingkan selang-seling. Efek samping: view ber-filter menjadi
   grup terisolasi (`mix-blend-mode` anaknya memadu di dalam view, tidak dengan langit); langit dan lapisan depan di
   luar view tidak ikut tersaring. Belum diukur (tindak lanjut): biaya selama transisi preset, saat filter view berubah
@@ -53,20 +56,23 @@ fungsi, bukan kode sekali pakai.
 - **Uji**: `test-starters` kini memuat kait `ATM_UJI`, `CAHAYA_UJI`, `PASCA_UJI` (halaman bawaan) dan `SINEMA_UJI`
   (halaman `?demo=sinematik`: paralaks hidup, rig/`[data-z]` tanpa filter, semua modul terpasang, piksel semua
   kanvas sama di dua jalur seek); `PASCA_UJI` juga menjaga kontras/saturasi (filter hanya di view; netral tidak
-  menulis dan tak menghapus filter asing; filter asing ditimpa lagi). `scripts/bench-frame.mjs` mengukur ms/frame +
+  menulis dan tak menghapus filter asing; filter asing ditimpa lagi); `ATM_UJI`/`CAHAYA_UJI` juga menjaga penolakan bidang
+  non-HTML (`kabut`, `partikel`, `'Depan'`) dan svg non-`<svg>` (`redup`). `scripts/bench-frame.mjs` mengukur ms/frame +
   determinisme.
 - **Dokumen**: resep ≤ 25 baris di `techniques.md` §7d (urutan panggilan, aturan yang dipanggang, anggaran partikel)
   dan satu contoh pemakaian di `kartun-panggung.md` kulit B.
 - **Anggaran konteks**: `context-budget.mjs` kini menghitung panjang tanpa CR (checkout Windows dengan
   `core.autocrlf` menambah satu karakter per baris: angka membengkak 1–3 KB per jalur, mis. panggung 165 → 163 KB,
   Opener 3D 241 → 239 KB). Batas dinaikkan: **Explainer kartun panggung 130 → 170 KB** (+40, perkakas: blok
-  atmosfer/cahaya-2d/pasca di starter, 122,1 → 167,8 KB); **Explainer (kolase / aliran) 170 → 175 KB** dan **Opener 3D
+  atmosfer/cahaya-2d/pasca di starter, 122,1 → 167,8 KB); **Explainer kolase (kartun) 170 → 175 KB** dan **Opener 3D
   240 → 245 KB** (+5 masing-masing untuk resep modul atmosfer/cahaya-2d/pasca di `techniques.md` §7d, +3,2 KB: 168,8 →
   172,0 dan 238,6 → 241,8 KB; kedua jalur itu wajib memuat resepnya). Batas jalur lain tetap.
-- **Celah yang diketahui**: `starter-explainer.html` (38 → 107 KB: modul + demo) tidak termasuk jalur mana pun di
-  `context-budget.mjs` — jalur "Explainer (kolase / aliran)" mengukur `starter-explainer-kartun.html`. Jalur aliran
-  yang sebenarnya (SKILL.md + anti-ppt + explainer.md + techniques.md + `starter-explainer.html`) ±243 KB terhadap batas
-  175 KB; menambah jalur itu = keputusan kebijakan pemilik.
+- **Celah yang diketahui**: `starter-explainer.html` (38 → 107 KB: modul + demo) semula tidak termasuk jalur mana pun di
+  `context-budget.mjs` — jalur "Explainer (kolase / aliran)" mengukur `starter-explainer-kartun.html`, jadi jalur aliran
+  yang sebenarnya (SKILL.md + anti-ppt + explainer.md + techniques.md + `starter-explainer.html`, ±243 KB) tak terlihat
+  alat (celah ditemukan di review akhir). Kini ada jalur **Explainer aliran (aksi kontinu)** dengan batas pelacak **245 KB**
+  = ukuran sekarang (244,9 KB), bukan target; jalur kartun diganti nama **Explainer kolase (kartun)** (batas 175 KB tetap).
+  Target sebenarnya = keputusan kebijakan pemilik.
 
 ## 1.2.0 — 2026-11-01
 

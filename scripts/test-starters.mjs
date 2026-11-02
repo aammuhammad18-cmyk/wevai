@@ -116,7 +116,7 @@ for (const file of files) {
     if (kanvas && kanvas.kosong) masalah.push('kanvas: hasil render kosong saat dibaca setelah seek');
 
     // atmosfer (src/runtime/atmosfer.js): langit/partikel/kabut sama di dua jalur seek, kabut berparalaks, langit tanpa
-    // WebGL2 jatuh ke gradien CSS, jenis partikel salah ditolak. Kait membangun fixture sendiri lalu membersihkannya.
+    // WebGL2 jatuh ke gradien CSS, jenis partikel salah dan bidang non-HTML (<g> SVG) ditolak. Kait membangun fixture sendiri lalu membersihkannya.
     // Field null = butuh CAM (panggung belum punya) → dilewati; di halaman bawaan, sebelum blok kamera memuat ulang.
     // blok di ATAS kode adegan: const-nya (LANGIT, JENIS_PARTIKEL, …) masih TDZ bagi kode sebelum blok, dan kode adegan
     // yang memakai modul selalu sesudah `const tl=` (rantaiUpdate butuh tl) — blok sesudahnya = ReferenceError saat dimuat
@@ -126,7 +126,7 @@ for (const file of files) {
     if (['starter-explainer.html', 'starter-explainer-panggung.html'].includes(name) && !atm) masalah.push('atmosfer: ATM_UJI tidak ada');
     if (atm) {
       const ada = k => atm[k] != null;
-      for (const k of ['seekSama', 'fallback', 'jenisDitolak', 'lapisUrut', ...(name === 'starter-explainer.html' ? ['kabutParalaks', 'kabutMenutup'] : [])])
+      for (const k of ['seekSama', 'fallback', 'jenisDitolak', 'kabutDitolak', 'partikelDitolak', 'lapisUrut', ...(name === 'starter-explainer.html' ? ['kabutParalaks', 'kabutMenutup'] : [])])
         if (!ada(k)) masalah.push(`atmosfer: field ${k} kosong`);
       if (ada('seekSama') && !atm.seekSama) masalah.push('atmosfer: .wv-partikel/#wv-langit/.wv-kabut berbeda antara seek(5) langsung dan seek(9)→seek(.1)→seek(5)');
       if (ada('kabutParalaks') && !atm.kabutParalaks) masalah.push('atmosfer: .wv-kabut di bidang z −600 dan z 0 tidak bergeser berbeda (> 1 px) saat CAM.fx += 300');
@@ -134,10 +134,12 @@ for (const file of files) {
       if (ada('lapisUrut') && !atm.lapisUrut) masalah.push('atmosfer: lapisDepan() tidak menumpuk urut panggilan (lapisan baru harus di atas lapisan depan sebelumnya, di bawah anak #stage lain)');
       if (ada('fallback') && !atm.fallback) masalah.push('atmosfer: tanpa WebGL2 langit() harus mengembalikan <div> bergradien, bukan error');
       if (ada('jenisDitolak') && !atm.jenisDitolak) masalah.push("atmosfer: partikel({jenis:'salju'}) harus melempar error yang menyebut jenis yang tersedia");
+      if (ada('kabutDitolak') && !atm.kabutDitolak) masalah.push("atmosfer: kabut(<g> SVG, {y}) harus melempar error yang menyebut 'elemen HTML' — bidang SVG memberi lapisan tak terlihat yang tetap menelan biaya tiap frame");
+      if (ada('partikelDitolak') && !atm.partikelDitolak) masalah.push("atmosfer: partikel(<g> SVG, …) dan partikel('Depan', …) harus melempar error yang menyebut 'elemen HTML' (bukan \"bidang.appendChild is not a function\")");
     }
 
     // cahaya-2d (src/runtime/cahaya-2d.js): kedip pendar sama di dua jalur seek dan benar-benar hidup, rim menjauhi
-    // sumber (juga di grup tercermin), filter/mask dipanggang, nama sumber salah ditolak. Fixture sendiri, dibersihkan.
+    // sumber (juga di grup tercermin), filter/mask dipanggang, nama sumber salah dan svg non-<svg> di redup() ditolak. Fixture sendiri, dibersihkan.
     // Blok di atas `const tl=` seperti atmosfer: sumber() ter-hoist, tetapi const SUMBER-nya TDZ bagi kode adegan.
     const iCahaya = html.indexOf('<wv:cahaya-2d>');
     if (iCahaya >= 0 && !(iCahaya < html.indexOf('const tl='))) masalah.push('cahaya-2d: blok <wv:cahaya-2d> harus di atas `const tl=` (kode adegan memanggil modul saat dimuat)');
@@ -145,12 +147,13 @@ for (const file of files) {
     if (['starter-explainer.html', 'starter-explainer-panggung.html'].includes(name) && !cahaya) masalah.push('cahaya-2d: CAHAYA_UJI tidak ada');
     if (cahaya) {
       const ada = k => cahaya[k] != null;
-      for (const k of ['kedipSama', 'kedipHidup', 'rimArah', 'statis', 'namaDitolak', 'reliefAlfa']) if (!ada(k)) masalah.push(`cahaya-2d: field ${k} kosong`);
+      for (const k of ['kedipSama', 'kedipHidup', 'rimArah', 'statis', 'namaDitolak', 'redupDitolak', 'reliefAlfa']) if (!ada(k)) masalah.push(`cahaya-2d: field ${k} kosong`);
       if (ada('kedipSama') && !cahaya.kedipSama) masalah.push('cahaya-2d: opacity .wv-pendar berbeda antara seek(4) langsung dan seek(9)→seek(.1)→seek(4)');
       if (ada('kedipHidup') && !cahaya.kedipHidup) masalah.push('cahaya-2d: opacity .wv-pendar ber-kedip sama di t 4 dan 4,5 — kedip mati');
       if (ada('rimArah') && !cahaya.rimArah) masalah.push('cahaya-2d: feOffset rim tidak menjauhi sumber (el di x 1500: sumber x 500 → dx > 0, x 2500 → dx < 0; terbalik di grup scale(-1,1))');
       if (ada('statis') && !cahaya.statis) masalah.push('cahaya-2d: <filter>/<mask> di #stage berubah antara seek(2) dan seek(8) — filter cahaya harus dipanggang');
       if (ada('namaDitolak') && !cahaya.namaDitolak) masalah.push("cahaya-2d: rim(el,'tidakada') harus melempar error yang menyebut sumber yang tersedia");
+      if (ada('redupDitolak') && !cahaya.redupDitolak) masalah.push("cahaya-2d: redup(<div> bidang, …) harus melempar error yang menyebut 'elemen <svg>' — hanya <svg> bidang yang sah, bukan <div> atau <g>");
       if (ada('reliefAlfa') && !cahaya.reliefAlfa) { const [acuan, s, k] = cahaya.alfaRelief || [];
         masalah.push(`cahaya-2d: relief() mengubah alfa piksel tembus pandang (rect fill-opacity .3: α acuan ${acuan}, relief sumber ${s}, relief+spekular ${k}; selisih harus ≤ 2)`); }
     }

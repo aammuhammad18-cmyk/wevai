@@ -12,7 +12,7 @@ Dokumen ini **melanjutkan** dua riset sebelumnya dan tidak mengulanginya:
 **Metode.**
 - **Sumber primer:** spesifikasi W3C/WHATWG (Filter Effects 1, HTML Canvas, WebCodecs, Media Capture from DOM Elements), kode sumber Chromium dan Skia di googlesource, kode sumber three.js pada tag `r187`, definisi protokol DevTools (`browser_protocol.json`), dokumentasi resmi Remotion, Motion Canvas, Mediabunny, dan Spine, registry npm, makalah asli (metadata diperiksa lewat Crossref), GDC Vault, dan UNESCO.
 - **Uji empiris di mesin pemilik:** Intel Core i3-3217U (2 core/4 thread), Intel HD Graphics 4000 (driver 10.18.10.4252), Windows 11 Pro build 22000, **Chrome 156.0.8078.74** (`C:/Program Files/Google/Chrome/Application/chrome.exe`) dan `chrome-headless-shell` 156.0.8078.74, puppeteer 25.11.0 dari `wevai/scripts`. Argumen default sama dengan `export-frames.mjs`: `--use-gl=angle --enable-webgl --ignore-gpu-blocklist`. Halaman dibuka lewat `file://` pada 1920×1080, dan library dimuat dari jsDelivr.
-- **Lokasi berkas uji:** semua ada di scratchpad (`C:\Users\ITBAHA~1\AppData\Local\Temp\claude\e--mila-wevai\383a7178-971d-49f1-a618-2ab57bb9b86c\scratchpad\riset\`), tidak masuk repo.
+- **Lokasi berkas uji:** semua ada di scratchpad (folder `riset\`, berkas kerja sementara di luar repo), tidak masuk repo.
 - **Penanda:** pendapat ditandai **[opini]**.
 
 ---
@@ -363,7 +363,7 @@ Biaya render dari pengukuran (§Ringkasan) pada 1080p di mesin pemilik, 1 worker
 - Library: three 0.187.0 dari jsDelivr.
 - Viewport 1920×1080, `file://`.
 
-**Berkas** (di `C:\Users\ITBAHA~1\AppData\Local\Temp\claude\e--mila-wevai\383a7178-971d-49f1-a618-2ab57bb9b86c\scratchpad\riset\`):
+**Berkas** (di folder `riset\` pada berkas kerja sementara di luar repo):
 
 | Berkas | Isi |
 |---|---|

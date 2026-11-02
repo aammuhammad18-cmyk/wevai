@@ -286,7 +286,7 @@ WeVai **tidak perlu mengadopsi Anime.js** sebagai library default dan tidak bole
 ## Lampiran: uji empiris (Chrome 155.0.8059.82 headless, puppeteer dari `wevai/scripts`, `file://`)
 
 Semua berkas ada di
-`C:\Users\ITBAHA~1\AppData\Local\Temp\claude\e--mila-mila\33d9b965-fcdd-4b32-b080-ac338d0272ce\scratchpad\anime\`.
+berkas kerja sementara di luar repo (folder `anime\`).
 Node dijalankan dari `E:\mila\wevai\scripts`, dengan puppeteer di-`require` lewat `createRequire('E:/mila/wevai/scripts/package.json')`.
 Peluncuran: `executablePath: C:/Program Files/Google/Chrome/Application/chrome.exe`, `args: ['--use-gl=angle','--ignore-gpu-blocklist']`.
 

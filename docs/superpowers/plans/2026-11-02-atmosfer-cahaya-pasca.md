@@ -63,8 +63,7 @@ Commit itulah "1.2.0" yang dipakai Task 6 Step 3.
   `spike-svg.html` (salinan `spike-gapura/index.html`), `f_0.jpg`, `f_7.jpg`, `f_13.jpg`, `README.md`
 - Create: `scripts/bench-frame.mjs`
 
-Sumber (scratchpad sesi):
-`C:\Users\ITBAHA~1\AppData\Local\Temp\claude\e--mila-wevai\383a7178-971d-49f1-a618-2ab57bb9b86c\scratchpad\`
+Sumber (scratchpad sesi, berkas kerja sementara di luar repo):
 — `spike-gapura\`, `spike-cepat\`, dan `riset\bench.mjs` sebagai bahan `bench-frame.mjs`.
 
 **Interfaces:**

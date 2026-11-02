@@ -1,6 +1,6 @@
 # Spec — Atmosfer, cahaya-2d, dan pasca untuk gaya 2D/2.5D
 
-Tanggal: 2026-11-02 · Status: draf, menunggu persetujuan pemilik · Target rilis: 1.3.0 ·
+Tanggal: 2026-11-02 · Status: disetujui pemilik (2 Nov 2026) · Target rilis: 1.3.0 ·
 Sub-proyek 2 dari [`docs/peta-peningkatan-gaya-2026-11-01.md`](../../peta-peningkatan-gaya-2026-11-01.md) §8.
 Latar: [`docs/audit-gaya-bawaan-2026-11-01.md`](../../audit-gaya-bawaan-2026-11-01.md) C1, C2, C6, C7;
 [`docs/riset-sinematik-kode-2026-11-01.md`](../../riset-sinematik-kode-2026-11-01.md) §1, §5.

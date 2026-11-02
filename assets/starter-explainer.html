@@ -408,6 +408,7 @@ function warnaJarak(warna,z,zJauh=-800){const k=Math.max(0,Math.min(1,z/zJauh)),
    [−lebar/2, 3·lebar/2] bidangnya, jadi kamera boleh bergeser ±lebar/2 (truck, zoom < 1, roll, handheld) tanpa
    ujung pita masuk frame. */
 function kabut(bidang,{y,tebal=180,warna=LANGIT.horizon,rapat=.6,hanyut=20,seed=1,lebar=W}={}){
+  if(!(bidang instanceof HTMLElement))throw new Error('kabut: bidang wajib elemen HTML (bukan <g> SVG)');
   if(y==null)throw new Error('kabut: y (garis tengah pita, px bidang) wajib');
   const c=document.createElement('canvas');c.width=lebar;c.height=tebal;
   const x=c.getContext('2d'),im=x.createImageData(lebar,tebal),d=im.data,[r,g,b]=warnaRGB(warna),p0=Math.max(1,Math.round(lebar/300)),S=new Float32Array(lebar*tebal);
@@ -439,10 +440,12 @@ const JENIS_PARTIKEL={
   kunang:{umur:[3,6],warna:'#d6ff7a',aditif:1,     // nyaris diam, berkedip; gerak periodik penuh per umur
     gerak:(r,f,w,h)=>[r[1]*w+18*Math.sin(6.283*(f+r[2])),r[3]*h+12*Math.sin(6.283*(2*f+r[4])),(1.5+1.5*r[5])*3,Math.max(0,Math.sin(6.283*(2*f+r[6])))**6]}};
 /* partikel(bidang | 'depan', {jenis,…}) → <canvas class="wv-partikel"> di (area[0], area[1]) bidang itu; 'depan' =
-   lapisDepan (koordinat #stage). Anggaran ≤ 400 partikel per adegan. */
+   lapisDepan (koordinat #stage). Jepitan 400 PER PANGGILAN; total per HALAMAN dijaga pemanggil: callback partikel/kabut/sumber menggambar tiap
+   frame, tersembunyi atau di luar frame sekalipun. */
 function partikel(bidang,{jenis,n=60,area=[0,0,W,H],seed=1,warna}={}){
+  if(bidang!=='depan'&&!(bidang instanceof HTMLElement))throw new Error("partikel: bidang wajib elemen HTML (bukan <g> SVG) atau 'depan'");
   const J=JENIS_PARTIKEL[jenis];if(!J)throw new Error('partikel: jenis tidak dikenal: '+jenis+' ('+Object.keys(JENIS_PARTIKEL).join(' ')+')');
-  if(n>400){console.warn('partikel: n '+n+' melewati anggaran 400 per adegan — dijepit ke 400');n=400;}
+  if(n>400){console.warn('partikel: n '+n+' melewati jepitan 400 per panggilan — dijepit ke 400 (total di halaman dijaga pemanggil)');n=400;}
   const [ax,ay,w,h]=area,cv=document.createElement('canvas');cv.className='wv-partikel';cv.width=w;cv.height=h;
   cv.style.cssText=`position:absolute;left:${ax}px;top:${ay}px;pointer-events:none`;
   /* sprite radial dipanggang sekali; per partikel hanya drawImage + globalAlpha */
@@ -487,6 +490,8 @@ window.ATM_UJI=()=>{const r={},O=window.OPENER,cam=typeof CAM!=='undefined',buan
   try{f=langit();}finally{HTMLCanvasElement.prototype.getContext=gc;}
   r.fallback=f instanceof HTMLDivElement&&/gradient/.test(f.style.background);f.remove();
   try{partikel(dekat,{jenis:'salju'});r.jenisDitolak=false;}catch(e){r.jenisDitolak=/bara debu asap kunang/.test(e.message);}
+  const g=document.createElementNS('http://www.w3.org/2000/svg','g'),tolak=f=>{try{f();return false;}catch(e){return /elemen HTML/.test(e.message);}};
+  r.kabutDitolak=tolak(()=>kabut(g,{y:700}));r.partikelDitolak=[g,'Depan'].every(b=>tolak(()=>partikel(b,{jenis:'bara'})));
   return r;};
 /* </wv:atmosfer> */
 /* <wv:cahaya-2d> dibangun dari src/runtime/cahaya-2d.js — JANGAN edit di sini;
@@ -499,7 +504,8 @@ window.ATM_UJI=()=>{const r={},O=window.OPENER,cam=typeof CAM!=='undefined',buan
    dipanggil saja — tidak dipanggil = halaman tidak berubah sedikit pun.
    Kamera yang men-zoom (dolly) mengubah skala bidang tiap frame → Chrome me-raster ulang svg-nya dan filter yang
    dipanggang ikut dihitung ulang (adegan uji: +125–170 ms/frame). Beri <svg> bidang ber-filter will-change:transform:
-   bitmap-nya diskalakan, bukan di-raster ulang (terukur ≈ biaya tanpa modul; lunaknya tak terlihat di zoom 1,25). */
+   bitmap-nya diskalakan, bukan di-raster ulang (terukur ≈ biaya tanpa modul; lunaknya tak terlihat di zoom 1,25).
+   Butuh dari atmosfer: rantaiUpdate, vnoise, warnaRGB (hook uji: rigDunia). */
 
 /* SUMBER: nama → {x, y, bidang, warna, jangkau, kuat, kedip, el}. kuat/kedip dibaca tiap frame, jadi boleh di-tween
    seperti CAM: tl.to(SUMBER.obor1,{kuat:0},at) memadamkan obor. */
@@ -537,6 +543,7 @@ function sumber(nama,{x,y,bidang,warna='#ffb347',jangkau=420,kuat=1,kedip=0,seed
    svg yang transparan ikut gelap (langit bidang lain tertutup) — klip = id <clipPath> bentuk arsitektur milik
    pemanggil. Rect ±W/2 di luar frame: kamera boleh bergeser. */
 function redup(svg,nama,{gelap=.72,warna='#0b0820',klip}={}){
+  if(!(svg instanceof SVGSVGElement))throw new Error('redup: svg wajib elemen <svg> (bukan <div> bidang atau <g>)');
   const S=[].concat(nama).map(ambilSumber),d=defsSVG(svg),id='wv-cahaya-'+(++cahayaN),k={x:-W/2,y:-H/2,width:2*W,height:2*H};
   if(klip&&!document.getElementById(klip))throw new Error('redup: klip tidak ada: #'+klip+' (id <clipPath> bentuk arsitektur)');
   const lb=elSVG('radialGradient',{id:id+'-lubang'},d);
@@ -622,6 +629,7 @@ window.CAHAYA_UJI=async()=>{const r={},O=window.OPENER,b=document.createElement(
   O.seek(4);const a=op(),o4=A.style.opacity;O.seek(9);O.seek(.1);O.seek(4);r.kedipSama=a===op();
   O.seek(4.5);r.kedipHidup=A.style.opacity!==o4;
   try{rim(el,'tidakada');r.namaDitolak=false;}catch(e){r.namaDitolak=/tidak dikenal: tidakada \(.*wv-uji-a/.test(e.message);}
+  try{redup(b,['wv-uji-a']);r.redupDitolak=false;}catch(e){r.redupDitolak=/elemen <svg>/.test(e.message);}
   /* relief tidak boleh mengubah alfa (tepi antialias, cat tembus pandang): rect fill-opacity .3 dengan relief sumber,
      relief sumber+spekular, dan tanpa filter (acuan) */
   b.insertAdjacentHTML('beforeend',`<svg width="120" height="40" viewBox="0 0 120 40" style="position:absolute;left:0;top:0">`+
@@ -643,7 +651,8 @@ window.CAHAYA_UJI=async()=>{const r={},O=window.OPENER,b=document.createElement(
    Satu pengecualian dari "bukan filter": kontras/saturasi = `filter` pada VIEW yang memuat rig, tidak pernah pada rig/[data-z]
    — lihat gambarPasca. Terukur ≤ 15 ms/frame saat nilainya diam (spec §4.3); selama tween kontras/saturasi (pindah preset)
    filter itu berubah dan ditulis ulang tiap frame, biaya transisi itu belum diukur. Tidak dipanggil = halaman tidak berubah
-   sedikit pun. */
+   sedikit pun.
+   Butuh dari atmosfer: lapisDepan, viewDunia, rigDunia; dari cahaya-2d: SUMBER (hook uji juga warnaRGB, sumber). */
 
 /* bayangan = `lighten`: hanya mengangkat piksel yang LEBIH GELAP dari warnanya, jadi bayangan bernuansa warna itu dan
    terang tak tersentuh. sorot = `darken`: hanya menurunkan piksel yang LEBIH TERANG dari warnanya (sorotan hangat).
@@ -779,7 +788,7 @@ window.PASCA_UJI=()=>{const r={},O=window.OPENER,st=$('#stage'),g0={...GRADE},in
    <svg> bidang ber-will-change: dolly men-skala bitmap-nya, bukan me-raster ulang filter cahaya yang dipanggang (setiap
    frame +125–170 ms tanpanya). Volume penjaga = gradien SVG, bukan filter. Dipanggil saat setup, sesudah tl ada. */
 function demoSinematik(){
-  view.side.className='view off';view.collage.className='view';$('.paper').style.display='none';   // rim/relief/bayangan butuh el yang dirender
+  view.side.className='view off';view.collage.className='view';$('.paper').style.display='none';   // #collage tampil (rim/relief/bayangan butuh el yang dirender); .paper opak menutup langit()
   const R=mulberry32(42),r=(a,b,g=R)=>a+(b-a)*g(),n1=v=>Math.round(v*10)/10,tk=p=>n1(p[0])+','+n1(p[1]),
     poly=(p,z=1)=>'M'+p.map(tk).join(' L')+(z?'Z':''),hsl=(h,s,l)=>`hsl(${n1(h)} ${n1(s)}% ${n1(l)}%)`,
     bulat=(p,w)=>{const a=n1(w/2);return ` M${n1(p[0]+w/2)},${n1(p[1])} A${a},${a} 0 1 0 ${n1(p[0]-w/2)},${n1(p[1])} A${a},${a} 0 1 0 ${n1(p[0]+w/2)},${n1(p[1])}Z`;},

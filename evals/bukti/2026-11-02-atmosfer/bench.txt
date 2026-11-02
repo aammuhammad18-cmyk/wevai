@@ -1,0 +1,71 @@
+# Bukti biaya sub-proyek 2 (v1.3.0) — scripts/bench-frame.mjs. Mesin acuan: i3-3217U + Intel HD 4000 (ANGLE/D3D11), Chrome sistem,
+# 1920×1080, 1 worker, 20 frame (frame pemanas dibuang dari median).
+# Perintah: node scripts/bench-frame.mjs assets/starter-explainer.html "demo=sinematik&clean=1" 20   (batas 350 ms; keluar 1 bila lewat batas atau deterministik:false)
+# Satu baris JSON = satu run: medianMs = median per-frame. Baris "#" = keterangan. Aturan R12: ≥ 3 run, pakai median dari tiga median.
+#
+# [1] ANGKA RESMI — kode akhir (kontras/saturasi aktif lewat grade malam-api), 20:28–20:30
+# Dijalankan dengan salinan bench-frame.mjs yang menaikkan prioritas proses node + Chrome ke HIGH (os.setPriority), jeda 25 dtk antar-run, karena render
+# babad-maritim-01 milik pengguna (node scripts/export-frames.mjs, mulai 19:30) berjalan di mesin yang sama: ini batas atas, bukan hasil mesin senggang.
+{"page":"starter-explainer.html?demo=sinematik&clean=1","gl":"ANGLE (Intel, Intel(R) HD Graphics 4000 (0x00000166) Direct3D11 vs_5_0 ps_5_0, D3D11)","medianMs":268,"deterministik":true}
+{"page":"starter-explainer.html?demo=sinematik&clean=1","gl":"ANGLE (Intel, Intel(R) HD Graphics 4000 (0x00000166) Direct3D11 vs_5_0 ps_5_0, D3D11)","medianMs":272,"deterministik":true}
+{"page":"starter-explainer.html?demo=sinematik&clean=1","gl":"ANGLE (Intel, Intel(R) HD Graphics 4000 (0x00000166) Direct3D11 vs_5_0 ps_5_0, D3D11)","medianMs":267,"deterministik":true}
+# dipilih: median dari tiga median = 268 ms (batas 350), deterministik di ketiga run
+#
+# [2] ANGKA DASAR — kode SEBELUM kontras/saturasi, mesin senggang (19:23, render pengguna belum mulai)
+{"page":"starter-explainer.html?demo=sinematik&clean=1","gl":"ANGLE (Intel, Intel(R) HD Graphics 4000 (0x00000166) Direct3D11 vs_5_0 ps_5_0, D3D11)","medianMs":242,"deterministik":true}
+{"page":"starter-explainer.html?demo=sinematik&clean=1","gl":"ANGLE (Intel, Intel(R) HD Graphics 4000 (0x00000166) Direct3D11 vs_5_0 ps_5_0, D3D11)","medianMs":241,"deterministik":true}
+{"page":"starter-explainer.html?demo=sinematik&clean=1","gl":"ANGLE (Intel, Intel(R) HD Graphics 4000 (0x00000166) Direct3D11 vs_5_0 ps_5_0, D3D11)","medianMs":236,"deterministik":true}
+# median dari tiga median = 241 ms
+#
+# [3] KONTRAS/SATURASI (spec §4.3): biaya `filter: contrast(1.08) saturate(.9)` sementara pada #collage (salinan starter dengan satu aturan CSS
+# tambahan; hanya #collage, bukan rig/#colWorld atau [data-z]). Dipasang bila ≤ 15 ms/frame.
+# [3a] R12 apa adanya, A,A,A lalu B,B,B pada mesin senggang (19:24–19:25). A = tiga baris [2]. B (page = salinan ber-filter):
+{"page":"starter-explainer-filter.html?demo=sinematik&clean=1","gl":"ANGLE (Intel, Intel(R) HD Graphics 4000 (0x00000166) Direct3D11 vs_5_0 ps_5_0, D3D11)","medianMs":250,"deterministik":true}
+{"page":"starter-explainer-filter.html?demo=sinematik&clean=1","gl":"ANGLE (Intel, Intel(R) HD Graphics 4000 (0x00000166) Direct3D11 vs_5_0 ps_5_0, D3D11)","medianMs":272,"deterministik":true}
+{"page":"starter-explainer-filter.html?demo=sinematik&clean=1","gl":"ANGLE (Intel, Intel(R) HD Graphics 4000 (0x00000166) Direct3D11 vs_5_0 ps_5_0, D3D11)","medianMs":275,"deterministik":true}
+# selisih median-ke-median 272 − 241 = +31 ms. TIDAK DIPAKAI: B selalu dijalankan sesudah A dan mesin melambat seiring beban (B1 250 → B3 275,
+# juga terlihat di seri berpasangan [3d]: A 243 → 257 dalam satu seri). Urutan A-lalu-B memalsukan selisih; bandingkan selang-seling.
+#
+# [3b] selang-seling A1,B1,A2,B2,… dengan prioritas HIGH, render pengguna berjalan (20:10–20:16). A:
+{"page":"starter-explainer.html?demo=sinematik&clean=1","gl":"ANGLE (Intel, Intel(R) HD Graphics 4000 (0x00000166) Direct3D11 vs_5_0 ps_5_0, D3D11)","medianMs":246,"deterministik":true}
+{"page":"starter-explainer.html?demo=sinematik&clean=1","gl":"ANGLE (Intel, Intel(R) HD Graphics 4000 (0x00000166) Direct3D11 vs_5_0 ps_5_0, D3D11)","medianMs":246,"deterministik":true}
+{"page":"starter-explainer.html?demo=sinematik&clean=1","gl":"ANGLE (Intel, Intel(R) HD Graphics 4000 (0x00000166) Direct3D11 vs_5_0 ps_5_0, D3D11)","medianMs":259,"deterministik":true}
+{"page":"starter-explainer.html?demo=sinematik&clean=1","gl":"ANGLE (Intel, Intel(R) HD Graphics 4000 (0x00000166) Direct3D11 vs_5_0 ps_5_0, D3D11)","medianMs":265,"deterministik":true}
+{"page":"starter-explainer.html?demo=sinematik&clean=1","gl":"ANGLE (Intel, Intel(R) HD Graphics 4000 (0x00000166) Direct3D11 vs_5_0 ps_5_0, D3D11)","medianMs":274,"deterministik":true}
+# B:
+{"page":"starter-explainer-filter.html?demo=sinematik&clean=1","gl":"ANGLE (Intel, Intel(R) HD Graphics 4000 (0x00000166) Direct3D11 vs_5_0 ps_5_0, D3D11)","medianMs":254,"deterministik":true}
+{"page":"starter-explainer-filter.html?demo=sinematik&clean=1","gl":"ANGLE (Intel, Intel(R) HD Graphics 4000 (0x00000166) Direct3D11 vs_5_0 ps_5_0, D3D11)","medianMs":267,"deterministik":true}
+{"page":"starter-explainer-filter.html?demo=sinematik&clean=1","gl":"ANGLE (Intel, Intel(R) HD Graphics 4000 (0x00000166) Direct3D11 vs_5_0 ps_5_0, D3D11)","medianMs":268,"deterministik":true}
+{"page":"starter-explainer-filter.html?demo=sinematik&clean=1","gl":"ANGLE (Intel, Intel(R) HD Graphics 4000 (0x00000166) Direct3D11 vs_5_0 ps_5_0, D3D11)","medianMs":266,"deterministik":true}
+{"page":"starter-explainer-filter.html?demo=sinematik&clean=1","gl":"ANGLE (Intel, Intel(R) HD Graphics 4000 (0x00000166) Direct3D11 vs_5_0 ps_5_0, D3D11)","medianMs":267,"deterministik":true}
+# median A = 259, median B = 267 → +8 ms; selisih per pasangan +8 +21 +9 +1 −7 (median +8)
+#
+# [3c] selang-seling tanpa prioritas, render pengguna berjalan (derau ±30 ms), 20:03–20:06: medianMs A = 280 309 284 289 287; B = 316 283 290 276 298
+# median A = 287, median B = 290 → +3 ms; selisih per pasangan +36 −26 +6 −13 +11 (median +6)
+#
+# [3d] berpasangan dalam SATU halaman (filter dinyalakan/dimatikan bergantian tiap ~1 dtk di halaman yang sama, frame pemanas tak diukur;
+# 24 pasangan × 3 run, prioritas biasa dan render pengguna berjalan, 19:56–19:58): selisihMedian +9, +2, −1 ms
+{"mode":"filter","pasangan":24,"medianA":243,"medianB":251,"selisihMedian":9,"selisihQ1":-5,"selisihQ3":32,"rata":15}
+{"mode":"filter","pasangan":24,"medianA":251,"medianB":256,"selisihMedian":2,"selisihQ1":-7,"selisihQ3":22,"rata":2}
+{"mode":"filter","pasangan":24,"medianA":257,"medianB":259,"selisihMedian":-1,"selisihQ1":-15,"selisihQ3":37,"rata":5}
+#
+# [3e] amplifikasi ×4: empat permukaan ber-filter bersarang (tiga pembungkus kosong di luar #collage + #collage), prioritas biasa, 20:00–20:01:
+{"mode":"filter4","pasangan":24,"medianA":255,"medianB":271,"selisihMedian":13,"selisihQ1":1,"selisihQ3":34,"rata":15}
+{"mode":"filter4","pasangan":24,"medianA":244,"medianB":263,"selisihMedian":16,"selisihQ1":9,"selisihQ3":33,"rata":26}
+{"mode":"filter4","pasangan":24,"medianA":260,"medianB":274,"selisihMedian":14,"selisihQ1":3,"selisihQ3":35,"rata":17}
+# selisihMedian +13, +16, +14 ms ⇒ ≈ +3,5 ms per filter
+#
+# KEPUTUSAN: median selisih +8 ms (seri bench-frame selang-seling, prioritas HIGH, 5 pasangan [3b]); pengulangan lain −1…+9 ms ([3c] +6, [3d] +9/+2/−1, [3e] ≈ +3,5 per filter).
+# Semua seri selang-seling/berpasangan diambil saat render pemilik berjalan di mesin yang sama (di bawah beban, bukan mesin senggang). ≤ 15 ms → kontras/saturasi dipasang di GRADE.
+#
+# [4] PARTIKEL (anggaran di techniques.md §7d): berpasangan dalam satu halaman, prioritas HIGH, 24 pasangan × 2 run, 20:31–20:38.
+# B = demo + satu kanvas partikel tambahan (jenis bara): kanvas0 = 1920×1080 n=0; besar400 = 1920×1080 n=400; kecil0 = 233×270 n=0; kecil400 = 233×270 n=400.
+{"mode":"kanvas0","pasangan":24,"medianA":274,"medianB":270,"selisihMedian":0,"selisihQ1":-15,"selisihQ3":13,"rata":-2}
+{"mode":"besar400","pasangan":24,"medianA":266,"medianB":282,"selisihMedian":17,"selisihQ1":11,"selisihQ3":21,"rata":15}
+{"mode":"kecil400","pasangan":24,"medianA":269,"medianB":274,"selisihMedian":5,"selisihQ1":-3,"selisihQ3":20,"rata":7}
+{"mode":"kecil0","pasangan":24,"medianA":271,"medianB":272,"selisihMedian":2,"selisihQ1":-4,"selisihQ3":11,"rata":1}
+{"mode":"kanvas0","pasangan":24,"medianA":269,"medianB":270,"selisihMedian":2,"selisihQ1":-4,"selisihQ3":16,"rata":3}
+{"mode":"besar400","pasangan":24,"medianA":277,"medianB":281,"selisihMedian":3,"selisihQ1":-7,"selisihQ3":18,"rata":5}
+{"mode":"kecil400","pasangan":24,"medianA":268,"medianB":279,"selisihMedian":9,"selisihQ1":1,"selisihQ3":13,"rata":7}
+{"mode":"kecil0","pasangan":24,"medianA":253,"medianB":252,"selisihMedian":-3,"selisihQ1":-14,"selisihQ3":10,"rata":-3}
+# ringkas: kanvas kosong ≈ +1 ms; +400 partikel ≈ +10 ms (3–17), kanvas besar atau kecil sama saja di dalam derau.

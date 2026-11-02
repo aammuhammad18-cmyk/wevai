@@ -158,7 +158,8 @@ for (const file of files) {
     // pasca (src/runtime/pasca.js): lapisan grade = blend lighten/darken/multiply (+ halation screen) di luar rig, halation
     // menempel pada pendar di skala stage berapa pun dan mengikutinya (sumber terlambat/hilang, opacity leluhur), grade()
     // sungguhan (tl → seek → GRADE → lapisan) men-tween warna dan opacity, preset tak dikenal ditolak, dan tanpa grade()
-    // tidak ada lapisan. Fixture sendiri (satu sumber sementara), dibersihkan — termasuk lapisan singleton. Blok di atas
+    // tidak ada lapisan. kontras/saturasi = filter hanya di VIEW pemuat rig (tidak pernah rig/[data-z]; netral tak menulis
+    // apa pun). Fixture sendiri (satu sumber sementara), dibersihkan — termasuk lapisan singleton. Blok di atas
     // `const tl=` seperti modul lain.
     const iPasca = html.indexOf('<wv:pasca>');
     if (iPasca >= 0 && !(iPasca < html.indexOf('const tl='))) masalah.push('pasca: blok <wv:pasca> harus di atas `const tl=` (kode adegan memanggil modul saat dimuat)');
@@ -166,16 +167,19 @@ for (const file of files) {
     if (['starter-explainer.html', 'starter-explainer-panggung.html'].includes(name) && !pasca) masalah.push('pasca: PASCA_UJI tidak ada');
     if (pasca) {
       const ada = k => pasca[k] != null;
-      for (const k of ['awalBersih', 'lapisBenar', 'halationSkala', 'halationIkut', 'halationLeluhur', 'warnaTween', 'gradeKosong', 'presetDitolak', 'presetLengkap', 'dibersihkan']) if (!ada(k)) masalah.push(`pasca: field ${k} kosong`);
+      for (const k of ['awalBersih', 'lapisBenar', 'halationSkala', 'halationIkut', 'halationLeluhur', 'warnaTween', 'gradeKosong', 'presetDitolak', 'presetLengkap', 'filterView', 'filterPulih', 'netral', 'dibersihkan']) if (!ada(k)) masalah.push(`pasca: field ${k} kosong`);
       if (ada('awalBersih') && !pasca.awalBersih) masalah.push('pasca: lapisan .wv-pasca sudah ada sebelum grade() pertama (blok harus inert saat dimuat)');
-      if (ada('lapisBenar') && !pasca.lapisBenar) masalah.push(`pasca: mixBlendMode bayangan/sorot/vignette/halation harus lighten,darken,multiply,screen (dapat ${pasca.blend}) dan filter/opacity/blend/clip/mask rig + [data-z] tidak berubah oleh lapisan (rigBersih ${pasca.rigBersih})`);
+      if (ada('lapisBenar') && !pasca.lapisBenar) masalah.push(`pasca: mixBlendMode bayangan/sorot/vignette/halation harus lighten,darken,multiply,screen (dapat ${pasca.blend}) dan filter/opacity/blend/clip/mask rig + [data-z] tidak berubah oleh lapisan maupun oleh kontras/saturasi ≠ 1 (rigBersih ${pasca.rigBersih}) — filter di rig meratakan paralaks`);
+      if (ada('filterView') && !pasca.filterView) masalah.push("pasca: GRADE kontras 1,08 / saturasi ,9 harus menulis 'contrast(1.08) saturate(0.9)' ke VIEW yang memuat rig (anak #stage, mis. #collage) — di starter panggung (view = rig) tidak boleh menulis apa pun");
+      if (ada('filterPulih') && !pasca.filterPulih) masalah.push("pasca: filter asing pada view (mis. blur whip() ke #collage) harus ditimpa lagi oleh kontras/saturasi non-netral pada frame berikutnya — dibandingkan dengan nilai hidup, bukan cache modul; kalau tidak, seek langsung sesudah whip memberi frame berbeda dari putar berurutan");
+      if (ada('netral') && !pasca.netral) masalah.push('pasca: kontras = saturasi = 1 (netral) tidak boleh menulis filter ke view, kembali ke netral harus menghapus filter yang ditulis modul, dan filter asing pada view tidak boleh ikut terhapus');
       if (ada('halationSkala') && !pasca.halationSkala) masalah.push(`pasca: left halation (px stage) berbeda > 1 px antara #stage scale .5 dan 1 (${pasca.halationKiri})`);
       if (ada('halationIkut') && !pasca.halationIkut) masalah.push('pasca: halation tidak mengikuti pendar yang digeser, tidak muncul untuk sumber yang didaftarkan sesudah lapisan dibuat, atau tidak hilang saat sumbernya dilepas');
       if (ada('halationLeluhur') && !pasca.halationLeluhur) masalah.push(`pasca: halation tidak ikut opacity leluhur pendar — opacity 1 / .5 / 0 pada induk bidang harus memberi alfa halation a / a÷2 / display:none (dapat ${pasca.alfaLeluhur}); fly()/fadeUp()/show() memudarkan aset yang memuat pendar, sedangkan halation ada di luar view`);
       if (ada('warnaTween') && !pasca.warnaTween) masalah.push(`pasca: grade(6,2,{bayangan:'#ffffff',bayanganKuat:1},'none') + seek(7) harus memberi GRADE.bayangan = titik tengah #1a1440→#ffffff (rgb 141,138,160) dan bayanganKuat .75, dan lapisan bayangan harus menulis warna + opacity itu (dapat: ${pasca.tengah})`);
       if (ada('gradeKosong') && !pasca.gradeKosong) masalah.push('pasca: grade() harus tanpa nilai kembali — tl.to mengembalikan tl induk, jadi grade(...).kill() akan mematikan seluruh timeline');
       if (ada('presetDitolak') && !pasca.presetDitolak) masalah.push("pasca: grade(0,1,'neon') harus melempar error yang menyebut semua preset yang tersedia");
-      if (ada('presetLengkap') && !pasca.presetLengkap) masalah.push('pasca: setiap PRESET_GRADE harus memuat tepat enam kunci GRADE (kalau tidak, pindah preset menyisakan nilai preset lama)');
+      if (ada('presetLengkap') && !pasca.presetLengkap) masalah.push('pasca: setiap PRESET_GRADE harus memuat tepat semua kunci GRADE (kalau tidak, pindah preset menyisakan nilai preset lama)');
       if (ada('dibersihkan') && !pasca.dibersihkan) masalah.push('pasca: PASCA_UJI meninggalkan lapisan singleton, sumber sementara, atau nilai GRADE yang berubah — grade() sungguhan sesudahnya tidak mulai dari nol');
     }
 

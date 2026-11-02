@@ -198,6 +198,19 @@ bara, satu palet per adegan. Tetap 100 % vektor.
 Tekstur bata/batu boleh `feDiffuseLighting` asal **dipanggang** — parameternya tidak
 dianimasikan (aturan performa di `architecture.md`).
 
+Pemakaian modul `atmosfer`/`cahaya-2d`/`pasca` (bloknya sudah ada di starter ini; resep dan aturan lengkap di
+`techniques.md` §7d):
+```js
+langit({tengah:'#241b44',horizon:'#b4606e'});   // di belakang dunia
+kabut(bidangJauh,{y:640,warna:warnaJarak('#a890b0',-900,-2000),seed:2});   // tiap bidang: makin jauh makin pudar (butir 3)
+sumber('obor',{x:512,y:598,bidang:bidangGapura,jangkau:320,kedip:.35,seed:3});   // pendar bersumber (butir 1)
+rim(siluetPenjaga,'obor',{lebar:4}); bayangan(siluetPenjaga,'obor',{lantai:1012});   // rim + bayangan jatuh (butir 2)
+partikel(bidangGapura,{jenis:'bara',n:120,area:[412,70,233,270],seed:4});   // atmosfer bergerak (butir 5)
+grade(0,0,'malam-api');   // paling akhir: palet serempak (butir 4)
+```
+Bidang = `<div data-z>` (elemen HTML, bukan `<g>` SVG); panggung baru memakainya di sub-proyek 3 — sampai saat itu
+bloknya ada di starter tetapi adegan panggung belum memanggilnya.
+
 Kegagalan nyata: style brief babad Mataram menulis "malam + bara", tetapi tanpa
 sumber cahaya dan tanpa rim adegannya keluar sebagai blok biru tua rata. Gelap bukan
 suasana; suasana datang dari kontras sumber cahaya terhadap gelap.

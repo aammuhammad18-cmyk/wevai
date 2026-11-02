@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="id">
-<!-- Made with the WeVai skill v1.2.0 by aammuhammad18 (https://github.com/aammuhammad18-cmyk/wevai) - MIT - https://github.com/aammuhammad18-cmyk/wevai -->
+<!-- Made with the WeVai skill v1.3.0 by aammuhammad18 (https://github.com/aammuhammad18-cmyk/wevai) - MIT - https://github.com/aammuhammad18-cmyk/wevai -->
 <head>
 <meta charset="utf-8">
 <title>Starter Explainer — Kartun Panggung</title>
@@ -71,11 +71,13 @@ const acak=(i,s)=>{let x=(Math.imul(i,374761393)+Math.imul(s,668265263))|0;x=Mat
 /* value noise 1D halus 0..1; p > 0 = kisi berulang tiap p sel (tile kabut menyambung di tepi) */
 const vnoise=(x,s=1,p=0)=>{const i=Math.floor(x),f=x-i,u=f*f*(3-2*f),k=p?(i%p+p)%p:i,a=acak(k,s);return a+(acak(p?(k+1)%p:k+1,s)-a)*u;};
 const rigDunia=()=>typeof rig!=='undefined'?rig:$('#world');
+/* view = anak #stage yang memuat rig (#collage di aksi kontinu; di panggung rig-nya sendiri, #world) */
+const viewDunia=()=>{const st=$('#stage');let a=rigDunia();while(a.parentNode!==st)a=a.parentNode;return a;};
 /* lapisan di atas dunia, di bawah #vig/#ui: sesudah anak #stage yang memuat rig — bukan di dalam rig/bidang, jadi
    tidak meratakan paralaks. Bertumpuk urut panggilan: lapisan baru di atas lapisan depan sebelumnya (ditandai
    data-wv-depan), tetap di bawah anak #stage lain. Lapisan depan hidup DI LUAR view rig: di starter aksi kontinu ia
    tetap terlihat walau #collage .view.off — sembunyikan/lepas sendiri saat ganti view. */
-function lapisDepan(el){const st=$('#stage');let a=rigDunia();while(a.parentNode!==st)a=a.parentNode;
+function lapisDepan(el){let a=viewDunia();
   while(a.nextElementSibling&&a.nextElementSibling.hasAttribute('data-wv-depan'))a=a.nextElementSibling;
   el.setAttribute('data-wv-depan','');a.after(el);return el;}
 /* '#rgb' | '#rrggbb' | 'rgb(a)(…)' (bentuk yang ditulis GSAP saat men-tween warna) → [r,g,b] 0..255 */
@@ -383,24 +385,30 @@ window.CAHAYA_UJI=async()=>{const r={},O=window.OPENER,b=document.createElement(
    (filter yang berubah = raster ulang seluruh stage). GRADE di-tween GSAP seperti CAM: grade(at,dur,preset|nilai).
    Lapisan dibuat saat grade() pertama lewat lapisDepan: di luar rig/bidang (paralaks tak rata), menutupi view di
    bawahnya (bukan #map/#ui), bertumpuk urut panggilan — partikel 'depan' yang dipasang SEBELUM grade() ikut ter-grade.
-   Tidak dipanggil = halaman tidak berubah sedikit pun. */
+   Satu pengecualian dari "bukan filter": kontras/saturasi = `filter` pada VIEW yang memuat rig, tidak pernah pada rig/[data-z]
+   — lihat gambarPasca. Terukur ≤ 15 ms/frame saat nilainya diam (spec §4.3); selama tween kontras/saturasi (pindah preset)
+   filter itu berubah dan ditulis ulang tiap frame, biaya transisi itu belum diukur. Tidak dipanggil = halaman tidak berubah
+   sedikit pun. */
 
 /* bayangan = `lighten`: hanya mengangkat piksel yang LEBIH GELAP dari warnanya, jadi bayangan bernuansa warna itu dan
    terang tak tersentuh. sorot = `darken`: hanya menurunkan piksel yang LEBIH TERANG dari warnanya (sorotan hangat).
    ...Kuat = opacity 0..1 (≈0 = lapisan disembunyikan, tanpa biaya blend). vignette = gelap di tepi (multiply hitam).
-   halation = kuat pendar jingga di tiap SUMBER (ikut opacity pendar dan semua leluhurnya). Warna string hex: GSAP
-   menginterpolasinya (jadi rgba() di tengah tween). */
-const GRADE={bayangan:'#1a1440',bayanganKuat:0,sorot:'#ffd9a8',sorotKuat:0,vignette:0,halation:0};
+   halation = kuat pendar jingga di tiap SUMBER (ikut opacity pendar dan semua leluhurnya). kontras/saturasi = pengali
+   contrast()/saturate() pada view rig (1 = netral: tidak menulis apa pun). Warna string hex: GSAP menginterpolasinya
+   (jadi rgba() di tengah tween). */
+const GRADE={bayangan:'#1a1440',bayanganKuat:0,sorot:'#ffd9a8',sorotKuat:0,vignette:0,halation:0,kontras:1,saturasi:1};
 const GRADE_KUNCI=Object.keys(GRADE);   // dicatat sekarang: tween pertama menambahkan _gsap ke GRADE
 /* Grade di atas cahaya sungguhan, bukan filter Instagram: sengaja tipis (lift bayangan > .4 meratakan siluet jadi bidang
-   ungu). Enam kunci penuh per preset, jadi pindah preset tak menyisakan nilai lama. malam-api = acuan f_7 (ungu pekat,
-   sorotan api, vignette kuat, halation obor); arsip = film tua (hitam terangkat cokelat-kelabu, sorotan menguning). */
+   ungu). Delapan kunci penuh per preset, jadi pindah preset tak menyisakan nilai lama. malam-api = acuan f_7 (ungu pekat,
+   sorotan api, vignette kuat, halation obor, kontras 1,08 / saturasi ,9 seperti spike — satu-satunya preset yang membawa
+   kontras/saturasi, karena hanya ia yang punya bukti rupa di evals/bukti/2026-11-02-atmosfer); preset lain netral (1) sampai
+   ada bukti. arsip = film tua (hitam terangkat cokelat-kelabu, sorotan menguning). */
 const PRESET_GRADE={
-  senja:{bayangan:'#3a2250',bayanganKuat:.2,sorot:'#ffd09a',sorotKuat:.22,vignette:.3,halation:.3},
-  'malam-api':{bayangan:'#2a1848',bayanganKuat:.32,sorot:'#ffc890',sorotKuat:.3,vignette:.7,halation:.6},
-  fajar:{bayangan:'#2a3558',bayanganKuat:.2,sorot:'#ffdccc',sorotKuat:.2,vignette:.22,halation:.15},
-  'siang-kering':{bayangan:'#3b3226',bayanganKuat:.2,sorot:'#fff2d8',sorotKuat:.15,vignette:.14,halation:0},
-  arsip:{bayangan:'#3a332b',bayanganKuat:.5,sorot:'#eadcc0',sorotKuat:.35,vignette:.5,halation:.1}};
+  senja:{bayangan:'#3a2250',bayanganKuat:.2,sorot:'#ffd09a',sorotKuat:.22,vignette:.3,halation:.3,kontras:1,saturasi:1},
+  'malam-api':{bayangan:'#2a1848',bayanganKuat:.32,sorot:'#ffc890',sorotKuat:.3,vignette:.7,halation:.6,kontras:1.08,saturasi:.9},
+  fajar:{bayangan:'#2a3558',bayanganKuat:.2,sorot:'#ffdccc',sorotKuat:.2,vignette:.22,halation:.15,kontras:1,saturasi:1},
+  'siang-kering':{bayangan:'#3b3226',bayanganKuat:.2,sorot:'#fff2d8',sorotKuat:.15,vignette:.14,halation:0,kontras:1,saturasi:1},
+  arsip:{bayangan:'#3a332b',bayanganKuat:.5,sorot:'#eadcc0',sorotKuat:.35,vignette:.5,halation:.1,kontras:1,saturasi:1}};
 
 /* grade(at,dur,preset|nilai,ease): tween GRADE di tl, tanpa nilai kembali (tl.to mengembalikan tl induk: .kill() akan
    mematikan seluruh timeline). preset = nama di PRESET_GRADE; nilai = objek sebagian (hanya kunci yang disebut yang
@@ -413,14 +421,15 @@ function grade(at,dur,nilai,ease='sine.inOut'){
   lapisPasca();tl.to(GRADE,{...v,duration:dur,ease},at);}
 
 /* lapisan singleton, urut bawah→atas: bayangan, sorot, vignette, halation (di atas vignette: pendar di tepi tak digelapkan).
-   pascaL null = belum ada apa pun di halaman. H = nama sumber → <div> halation. */
+   pascaL null = belum ada apa pun di halaman. H = nama sumber → <div> halation. f = filter terakhir yang ditulis ke view
+   ('' = belum pernah, atau sudah netral lagi). */
 let pascaL=null;
 const PASCA_HAL='position:absolute;pointer-events:none;mix-blend-mode:screen;background:radial-gradient(closest-side,rgba(255,126,48,.6),rgba(255,96,28,.22) 38%,rgba(255,76,16,.06) 72%,rgba(255,60,10,0))';
 function lapisPasca(){if(pascaL)return pascaL;
   const buat=css=>{const e=document.createElement('div');e.className='wv-pasca';e.style.cssText='position:absolute;inset:0;pointer-events:none;'+css;return lapisDepan(e);};
   pascaL={bay:buat('mix-blend-mode:lighten'),sor:buat('mix-blend-mode:darken'),
     vig:buat('mix-blend-mode:multiply;background:radial-gradient(rgba(0,0,0,0) 38%,rgba(0,0,0,.14) 68%,rgba(0,0,0,.45) 88%,rgba(0,0,0,.8))'),
-    hal:buat(''),H:{}};   // hal: wadah tanpa stacking context, jadi anak `screen` memadu dengan seluruh stage
+    hal:buat(''),H:{},f:''};   // hal: wadah tanpa stacking context, jadi anak `screen` memadu dengan seluruh stage
   gsap.ticker.add(gambarPasca);gambarPasca();return pascaL;}
 
 /* Digambar dari gsap.ticker, BUKAN onUpdate tl yang dirantai: posisi halation = rect pendar, dan rect baru final sesudah
@@ -439,6 +448,17 @@ function gambarPasca(){const P=pascaL,G=GRADE;if(!P||!P.hal.isConnected)return; 
       A.push([n,r.width&&o>.004&&getComputedStyle(e).visibility!=='hidden'&&[(r.left+r.width/2-st.left)/k,(r.top+r.height/2-st.top)/k,r.width/k/2*.8,o]]);}}   // jari = .8 × jari pendar
   const on=(e,k,c)=>{const s=e.style;s.display=k>.004?'':'none';s.opacity=k;if(c)s.backgroundColor=c;};
   on(P.bay,G.bayanganKuat,G.bayangan);on(P.sor,G.sorotKuat,G.sorot);on(P.vig,G.vignette);P.hal.style.display=hal?'':'none';
+  /* kontras/saturasi: satu-satunya `filter` modul ini, dan hanya pada VIEW yang memuat rig — bukan rig/[data-z] (filter di sana
+     meratakan paralaks 3D), bukan #stage (ikut menyaring HUD dan grain). Selama non-netral modul MEMILIKI filter view: nilai
+     HIDUP dibandingkan tiap frame, bukan cache tulisan sendiri, jadi tulisan lain (blur whip() ke view ini) ditimpa lagi dan hasil
+     tak bergantung jalur seek — dengan cache saja, worker ekspor yang seek-nya mendarat sesudah whip beda dari putar berurutan.
+     Netral (1, 1) tidak menulis apa pun; kembali ke netral hanya menghapus tulisan modul sendiri (P.f), bukan filter lain.
+     Langit dan lapisan depan ada di luar view: tak ikut tersaring. Starter panggung: view = rig → dilewati. View jadi grup
+     terisolasi (mix-blend-mode anaknya memadu di dalam view, bukan dengan langit). */
+  const V=viewDunia();
+  if(V!==rigDunia()){const f=Math.abs(G.kontras-1)<.0005&&Math.abs(G.saturasi-1)<.0005?'':`contrast(${+G.kontras.toFixed(3)}) saturate(${+G.saturasi.toFixed(3)})`;
+    if(f){if(V.style.filter!==f){V.style.filter=f;P.f=f;}}
+    else if(P.f){if(V.style.filter===P.f)V.style.filter='';P.f='';}}
   for(const [n,g] of A){let d=P.H[n];   // dibuat saat sumber pertama dijumpai, urut SUMBER (urutan DOM tetap → piksel sama di tiap jalur seek)
     if(!d){d=P.H[n]=document.createElement('div');d.style.cssText=PASCA_HAL;P.hal.appendChild(d);}
     const s=d.style;s.display=g?'':'none';
@@ -453,13 +473,28 @@ window.PASCA_UJI=()=>{const r={},O=window.OPENER,st=$('#stage'),g0={...GRADE},in
        #world panggung memang ber-filter blur(0px) dari animasi cut-nya sendiri */
     gaya=()=>[rigDunia(),...document.querySelectorAll('[data-z]')].map(e=>['filter','opacity','mixBlendMode','clipPath','mask'].map(k=>e.style[k]).join('|')).join();
   r.awalBersih=!pascaL&&!$('.wv-pasca');O.seek(5);const g1=gaya();
+  /* view = anak #stage yang memuat rig. Panggung: view = rig sendiri → kontras/saturasi tak ditulis ke mana pun (pisah false).
+     Filter TERHITUNG yang dibandingkan untuk netral: GSAP (whip) bisa meninggalkan `filter: none` inline di view, padahal
+     modul menghapus tulisannya dengan '' — dua bentuk yang sama-sama tanpa filter */
+  const vw=viewDunia(),f0=vw.style.filter,pisah=vw!==rigDunia(),fc=()=>getComputedStyle(vw).filter,c0=fc();
   ind.style.cssText='position:absolute;left:0;top:0';   // induk bidang: leluhur BUKAN induk langsung pendar
   b.style.cssText=`position:absolute;left:0;top:0;width:${W}px;height:${H}px;visibility:visible`;   // visible: menembus #collage.off
   rigDunia().appendChild(ind);ind.appendChild(b);
   const P=lapisPasca(),pendar=sumber('wv-uji-pasca',{x:960,y:540,bidang:b,kedip:.3}),
     kiriPada=k=>{st.style.transform=`translate(-50%,-50%) scale(${k})`;O.seek(5);const d=P.H['wv-uji-pasca'];return d?parseFloat(d.style.left):NaN;};
-  Object.assign(GRADE,{bayanganKuat:.5,sorotKuat:.5,vignette:.5,halation:.5});
+  r.netral=fc()===c0;   // GRADE netral (kontras = saturasi = 1) tidak menulis apa pun ke view
+  Object.assign(GRADE,{bayanganKuat:.5,sorotKuat:.5,vignette:.5,halation:.5,kontras:1.08,saturasi:.9});
   const a=kiriPada(.5),c=kiriPada(1);
+  /* kontras/saturasi: filter di VIEW (bukan rig/[data-z]: rigBersih di bawah dihitung dengan filter ini aktif). Selama non-netral
+     modul memiliki filter view: tulisan asing (blur whip() ke #collage) ditimpa lagi pada frame berikutnya — dibandingkan dengan
+     nilai hidup, bukan cache modul. Kembali ke netral menghapus tulisan modul sendiri, bukan filter asing. Panggung (pisah false):
+     view = rig, tak ada yang ditulis, dan tulisan uji di sini ikut dilewati. */
+  r.filterView=!pisah||vw.style.filter==='contrast(1.08) saturate(0.9)';
+  if(pisah){vw.style.filter='blur(7px)';O.seek(5);r.filterPulih=vw.style.filter==='contrast(1.08) saturate(0.9)';}else r.filterPulih=true;
+  Object.assign(GRADE,{kontras:1,saturasi:1});O.seek(5);r.netral=r.netral&&fc()===c0;
+  Object.assign(GRADE,{kontras:1.08,saturasi:.9});O.seek(5);   // modul menulis lagi: tulisannya = P.f
+  if(pisah){vw.style.filter='blur(7px)';Object.assign(GRADE,{kontras:1,saturasi:1});O.seek(5);r.netral=r.netral&&vw.style.filter==='blur(7px)';
+    Object.assign(GRADE,{kontras:1.08,saturasi:.9});O.seek(5);}   // filter asing yang ada saat jadi netral tidak dihapus; non-netral menimpanya lagi
   r.halationSkala=Math.abs(a-c)<=1;r.halationKiri=[a,c];
   r.blend=[P.bay,P.sor,P.vig,P.H['wv-uji-pasca']].map(e=>e?getComputedStyle(e).mixBlendMode:'-').join();
   r.rigBersih=gaya()===g1;r.lapisBenar=r.blend==='lighten,darken,multiply,screen'&&r.rigBersih;
@@ -476,10 +511,10 @@ window.PASCA_UJI=()=>{const r={},O=window.OPENER,st=$('#stage'),g0={...GRADE},in
   r.warnaTween=m.every((v,i)=>Math.abs(v-(w0[i]+255)/2)<=1&&Math.abs(bg[i]-v)<=1)&&Math.abs(+cs.opacity-.75)<.01;   // .5 → 1 di tengah = .75
   tl.getTweensOf(GRADE).forEach(t=>tl.remove(t));
   try{grade(0,1,'neon');r.presetDitolak=false;}catch(e){r.presetDitolak=Object.keys(PRESET_GRADE).every(n=>e.message.includes(n));}
-  r.presetLengkap=Object.values(PRESET_GRADE).every(p=>GRADE_KUNCI.every(k=>k in p)&&Object.keys(p).length===GRADE_KUNCI.length);   // enam kunci persis
+  r.presetLengkap=Object.values(PRESET_GRADE).every(p=>GRADE_KUNCI.every(k=>k in p)&&Object.keys(p).length===GRADE_KUNCI.length);   // semua kunci GRADE, persis
   gsap.ticker.remove(gambarPasca);for(const e of document.querySelectorAll('.wv-pasca'))e.remove();pascaL=null;
-  Object.assign(GRADE,g0);fit();   // fit() = skala stage persis seperti saat dimuat
-  r.dibersihkan=!pascaL&&!$('.wv-pasca')&&!Object.hasOwn(SUMBER,'wv-uji-pasca')&&GRADE_KUNCI.every(k=>GRADE[k]===g0[k]);return r;};
+  Object.assign(GRADE,g0);fit();if(pisah)vw.style.filter=f0;   // fit() = skala stage persis seperti saat dimuat
+  r.dibersihkan=!pascaL&&!$('.wv-pasca')&&!Object.hasOwn(SUMBER,'wv-uji-pasca')&&GRADE_KUNCI.every(k=>GRADE[k]===g0[k])&&(!pisah||vw.style.filter===f0);return r;};
 /* </wv:pasca> */
 /* ---------- panggung: satu frame per adegan, kamera sendiri ---------- */
 const scenes=[];

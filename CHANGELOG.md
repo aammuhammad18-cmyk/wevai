@@ -1,5 +1,73 @@
 # Changelog
 
+## 1.3.0 — 2026-11-02
+
+Atmosfer, cahaya 2D, dan grade (sub-proyek 2 dari `docs/peta-peningkatan-gaya-2026-11-01.md`): tiga modul runtime
+bersama dan satu adegan bukti, supaya ilustrasi sinematik (patokan: still spike gapura malam) menjadi panggilan
+fungsi, bukan kode sekali pakai.
+
+- **`atmosfer`** (`src/runtime/atmosfer.js`): `langit()` (satu fragment shader WebGL2: gradien, bulan + pendar,
+  bintang, awan fBm, god rays; tanpa WebGL2 jatuh ke gradien CSS), `kabut()` per bidang (tile fBm dipanggang sekali,
+  hanyut dari `tl.time()`), `warnaJarak()` (perspektif udara), `partikel()` (bara, debu, asap, kunang-kunang; PRNG
+  ber-seed, ≤ 400 per panggilan), `lapisDepan()` dan `viewDunia()`. Semuanya fungsi murni `tl.time()` + seed.
+- **`cahaya-2d`** (`src/runtime/cahaya-2d.js`): `sumber()` (pendar berkedip), `redup()` (gelap bermasker yang
+  menjauhi sumber), `rim()`, `bayangan()`, `relief()`. Filter dan mask dipanggang sekali saat dipanggil; atributnya
+  tak pernah ditulis lagi.
+- **`pasca`** (`src/runtime/pasca.js`): `grade(at,dur,preset|nilai)` men-tween `GRADE` lewat lapisan blend di luar
+  rig (bukan filter layar penuh); lima preset: `senja`, `malam-api`, `fajar`, `siang-kering`, `arsip`.
+- **Starter**: blok `<wv:atmosfer>`, `<wv:cahaya-2d>`, `<wv:pasca>` di `starter-explainer.html` dan
+  `starter-explainer-panggung.html`, di atas bagian adegan; starter lain tidak disentuh. Panggung hanya menerima
+  blok + satu contoh di `kartun-panggung.md` kulit B (bidang `<div data-z>` untuk panggung = sub-proyek 3).
+- **Adegan bukti `starter-explainer.html?demo=sinematik`** (gapura malam ber-obor, 12 dtk): langit ungu + bulan +
+  awan + god rays, tiga kabut, dua obor ber-pendar berkedip, relief bata, penjaga ber-rim + bayangan, bara + debu,
+  grade `malam-api`, dolly + truck + handheld. Framing t = 7 = still spike `f_7`. Bukti: `evals/bukti/2026-11-02-atmosfer/`
+  (`kontak.jpg`, `gerak.gif`, `bench.txt`).
+- **Biaya** (`scripts/bench-frame.mjs`, mesin acuan i3-3217U / HD 4000, 1920×1080, 1 worker, Chrome sistem, 20
+  frame, batas 350 ms): demo `?demo=sinematik` **268 ms** (268 / 272 / 267, deterministik di ketiga run). Kode akhir
+  ini diukur saat render lain milik pengguna berjalan di mesin yang sama (proses bench diberi prioritas HIGH), jadi
+  268 adalah batas atas; versi sebelum kontras/saturasi pada mesin senggang: 242 / 241 / 236 → 241 ms. Terukur per
+  bagian saat modul dibangun: langit ±12–15 ms, grade +15–35 ms, filter cahaya yang dipanggang ≈ gratis, dolly tanpa
+  `will-change` pada `<svg>` bidang +125–170 ms — angka ini dari komentar kepala `atmosfer.js`/`cahaya-2d.js` dan
+  catatan pembangunan modul, bukan dari `bench.txt`; 400 partikel ≈ +10 ms. `bench.txt` memuat semua run demo,
+  kontras, dan partikel.
+- **Kontras/saturasi ditambahkan ke `GRADE`**: `kontras` dan `saturasi` (netral = 1, tidak menulis apa pun) ditulis
+  sebagai `filter: contrast() saturate()` pada VIEW yang memuat rig (`#collage`), tidak pernah pada rig atau `[data-z]`
+  (meratakan paralaks); di starter panggung view = rig, jadi diabaikan sampai sub-proyek 3 memberi bidang. Hanya preset
+  `malam-api` membawa nilainya (1,08 / ,9 seperti spike, bukti visual di `kontak.jpg`); preset lain netral sampai ada
+  bukti rupa. Selama grade non-netral modul memiliki `filter` view: nilai hidup dibandingkan tiap frame, bukan cache,
+  jadi tulisan lain (blur `whip()` ke view itu) ditimpa lagi — blur itu tidak tampak, tetapi hasilnya tidak bergantung
+  jalur seek. Biaya diukur selang-seling, A tanpa dan B dengan `filter: contrast(1.08) saturate(.9)` sementara pada
+  `#collage`: selisih median +8 ms/frame (5 pasangan, 259 → 267 ms); pengulangan lain −1…+9 ms (selang-seling tanpa
+  prioritas +6; berpasangan sehalaman +9 / +2 / −1) → ≤ 15 ms (spec §4.3), jadi dipasang. Pengukuran selang-seling itu
+  semuanya diambil saat render milik pemilik berjalan di mesin yang sama (proses bench diberi prioritas HIGH): angka di
+  bawah beban, bukan mesin senggang. Tiga run A lalu tiga run B berurutan memberi +31 ms (241 → 272), terseret urutan:
+  mesin melambat seiring beban (B1 250 → B3 275), jadi bandingkan selang-seling. Efek samping: view ber-filter menjadi
+  grup terisolasi (`mix-blend-mode` anaknya memadu di dalam view, tidak dengan langit); langit dan lapisan depan di
+  luar view tidak ikut tersaring. Belum diukur (tindak lanjut): biaya selama transisi preset, saat filter view berubah
+  dan ditulis ulang tiap frame.
+- **Identitas dengan 1.2.0**: tanpa `?demo=sinematik`, `starter-explainer.html?clean=1` dan
+  `starter-explainer-panggung.html?clean=1` identik dengan 1.2.0 (worktree `7fa0791`, `snap.mjs`, t = 1, 5, 12): hash
+  PNG identik di 11 dari 12 pasangan titik (dua putaran). Satu-satunya beda, explainer t = 5, juga berubah antar-run
+  pada 1.2.0 sendiri (hash 6a0f… lalu 258c…), kedip bawaan yang sudah ada, bukan regresi. Dibandingkan sebagai
+  keadaan dalam satu proses Chrome (DOM `#stage`, gaya rig, kanvas): identik di keenam titik.
+- **Uji**: `test-starters` kini memuat kait `ATM_UJI`, `CAHAYA_UJI`, `PASCA_UJI` (halaman bawaan) dan `SINEMA_UJI`
+  (halaman `?demo=sinematik`: paralaks hidup, rig/`[data-z]` tanpa filter, semua modul terpasang, piksel semua
+  kanvas sama di dua jalur seek); `PASCA_UJI` juga menjaga kontras/saturasi (filter hanya di view; netral tidak
+  menulis dan tak menghapus filter asing; filter asing ditimpa lagi). `scripts/bench-frame.mjs` mengukur ms/frame +
+  determinisme.
+- **Dokumen**: resep ≤ 25 baris di `techniques.md` §7d (urutan panggilan, aturan yang dipanggang, anggaran partikel)
+  dan satu contoh pemakaian di `kartun-panggung.md` kulit B.
+- **Anggaran konteks**: `context-budget.mjs` kini menghitung panjang tanpa CR (checkout Windows dengan
+  `core.autocrlf` menambah satu karakter per baris: angka membengkak 1–3 KB per jalur, mis. panggung 165 → 163 KB,
+  Opener 3D 241 → 239 KB). Batas dinaikkan: **Explainer kartun panggung 130 → 170 KB** (+40, perkakas: blok
+  atmosfer/cahaya-2d/pasca di starter, 122,1 → 167,8 KB); **Explainer (kolase / aliran) 170 → 175 KB** dan **Opener 3D
+  240 → 245 KB** (+5 masing-masing untuk resep modul atmosfer/cahaya-2d/pasca di `techniques.md` §7d, +3,2 KB: 168,8 →
+  172,0 dan 238,6 → 241,8 KB; kedua jalur itu wajib memuat resepnya). Batas jalur lain tetap.
+- **Celah yang diketahui**: `starter-explainer.html` (38 → 107 KB: modul + demo) tidak termasuk jalur mana pun di
+  `context-budget.mjs` — jalur "Explainer (kolase / aliran)" mengukur `starter-explainer-kartun.html`. Jalur aliran
+  yang sebenarnya (SKILL.md + anti-ppt + explainer.md + techniques.md + `starter-explainer.html`) ±243 KB terhadap batas
+  175 KB; menambah jalur itu = keputusan kebijakan pemilik.
+
 ## 1.2.0 — 2026-11-01
 
 Fondasi arah sinematik (sub-proyek 1 dari `docs/peta-peningkatan-gaya-2026-11-01.md`): aturan tidak lagi

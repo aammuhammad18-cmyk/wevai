@@ -72,7 +72,8 @@ html,body{margin:0;height:100%;background:#0a0f1e;overflow:hidden}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha384-g4NTh/Iv5PPU4xPyhEWqPcwtNXOvdaDI8LLnyYfyNZOjKJeYQyjzQ9X5275eBjpt" crossorigin="anonymous"></script>
 <script>
-const W=1920,H=1080,DUR=22;
+const SINEMA=new URLSearchParams(location.search).get('demo')==='sinematik';   // ?demo=sinematik: adegan bukti atmosfer/cahaya-2d/pasca (demoSinematik), bukan rundown contoh
+const W=1920,H=1080,DUR=SINEMA?12:22;
 const $=s=>document.querySelector(s), NS='http://www.w3.org/2000/svg';
 function S(tag,attrs={},parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
 const T=(txt,x,y,attrs,parent)=>{const e=S('text',{x,y,...attrs},parent);e.textContent=txt;return e;};
@@ -735,6 +736,207 @@ window.PASCA_UJI=()=>{const r={},O=window.OPENER,st=$('#stage'),g0={...GRADE},in
   Object.assign(GRADE,g0);fit();   // fit() = skala stage persis seperti saat dimuat
   r.dibersihkan=!pascaL&&!$('.wv-pasca')&&!Object.hasOwn(SUMBER,'wv-uji-pasca')&&GRADE_KUNCI.every(k=>GRADE[k]===g0[k]);return r;};
 /* </wv:pasca> */
+/* ---------- ?demo=sinematik: adegan bukti sub-proyek 2 (spec §6) — gapura malam ber-obor, 12 dtk ----------
+   Satu shot memakai ketiga modul: langit, kabut per bidang, bara + debu (atmosfer); dua obor bersumber dengan pendar,
+   redup, relief bata, rim + bayangan penjaga (cahaya-2d); grade malam-api (pasca). Framing t = 7 meniru
+   evals/bukti/2026-11-01-spike-gapura/f_7.jpg, gambarnya diporting dari spike itu (meru, palm, bricks, towerSvg, limb).
+   Empat bidang [data-z] di rig: −900 gunung, −500 meru + palem, −200 gapura + tembok, 0 penjaga + beringin. Setiap
+   <svg> bidang ber-will-change: dolly men-skala bitmap-nya, bukan me-raster ulang filter cahaya yang dipanggang (setiap
+   frame +125–170 ms tanpanya). Volume penjaga = gradien SVG, bukan filter. Dipanggil saat setup, sesudah tl ada. */
+function demoSinematik(){
+  view.side.className='view off';view.collage.className='view';$('.paper').style.display='none';   // rim/relief/bayangan butuh el yang dirender
+  const R=mulberry32(42),r=(a,b,g=R)=>a+(b-a)*g(),n1=v=>Math.round(v*10)/10,tk=p=>n1(p[0])+','+n1(p[1]),
+    poly=(p,z=1)=>'M'+p.map(tk).join(' L')+(z?'Z':''),hsl=(h,s,l)=>`hsl(${n1(h)} ${n1(s)}% ${n1(l)}%)`,
+    bulat=(p,w)=>{const a=n1(w/2);return ` M${n1(p[0]+w/2)},${n1(p[1])} A${a},${a} 0 1 0 ${n1(p[0]-w/2)},${n1(p[1])} A${a},${a} 0 1 0 ${n1(p[0]+w/2)},${n1(p[1])}Z`;},
+    bidang=z=>{const d=document.createElement('div');d.dataset.z=z;d.style.cssText=`position:absolute;left:0;top:0;width:${W}px;height:${H}px`;
+      rig.appendChild(d);BIDANG.push({el:d,z});return d;},
+    svgDi=(d,isi)=>{d.insertAdjacentHTML('beforeend',`<svg viewBox="0 0 ${W} ${H}" style="will-change:transform">${isi}</svg>`);return d.lastChild;},
+    pudar=(c,z)=>warnaJarak(c,z,-2000),   // zJauh jauh di belakang −900: gunung tetap siluet, tidak larut jadi warna horizon
+    OBOR=[[512,598],[778,598]];
+  langit({tengah:'#241b44',horizon:'#b4606e',matahariX:.57,matahariY:.14,pendar:.28,sinar:.12,awan:.7,awanWarna:'#3a3058',bintang:.4});   // bulan redup di celah gapura–tombak: obor tetap pusat cahaya
+
+  /* −900 gunung */
+  const B0=bidang(-900);
+  svgDi(B0,`<path d="M-400,1200 V620 C-250,600 -80,560 60,540 S260,470 340,468 S470,560 600,640 S760,700 880,660 S1080,520 1180,500 S1330,560 1480,600 S1680,520 1790,505 S1980,580 2320,620 V1200Z" fill="${pudar('#4a3050',-900)}"/>`);   // lebih terang dari meru −500: siluet meru terbaca di depannya
+
+  /* −500 meru, palem, garis pohon (spike: meru, palm) */
+  function meru(x,y,n,w0,w1,th,c){let s=`<rect x="${x-w0*.3}" y="${y-th*1.3}" width="${w0*.6}" height="${th*1.3}"/>`,cy=y-th*1.3;
+    for(let i=0;i<n;i++){const w=w0+(w1-w0)*i/(n-1),h=th*(1-.3*i/n);
+      s+=`<path d="M${n1(x-w/2)},${n1(cy)} Q${n1(x-w*.27)},${n1(cy-h*.22)} ${n1(x-w*.19)},${n1(cy-h)} L${n1(x+w*.19)},${n1(cy-h)} Q${n1(x+w*.27)},${n1(cy-h*.22)} ${n1(x+w/2)},${n1(cy)}Z"/>`;
+      cy-=h;s+=`<rect x="${n1(x-w*.11)}" y="${n1(cy-h*.32)}" width="${n1(w*.22)}" height="${n1(h*.32+1)}"/>`;cy-=h*.32;}
+    return `<g fill="${pudar(c,-500)}">${s}<path d="M${x-5},${n1(cy+1)} L${x},${n1(cy-th*1.5)} L${x+5},${n1(cy+1)}Z"/></g>`;}
+  function palm(x,y,h,lean,c,sw=1){const top=[x+lean,y-h],k=[x+lean*.15,y-h*.55],L=[],Rr=[];c=pudar(c,-500);
+    for(let i=0;i<=14;i++){const t=i/14,px=(1-t)**2*x+2*(1-t)*t*k[0]+t*t*top[0],py=(1-t)**2*y+2*(1-t)*t*k[1]+t*t*top[1],w=(9-4.5*t)*h/430;L.push([px-w,py]);Rr.push([px+w,py]);}
+    let d='';
+    for(let j=0;j<13;j++){const a=-Math.PI/2+(j/12-.5)*Math.PI*1.85+r(-.12,.12),len=h*r(.3,.42),droop=r(.45,.75),
+        pt=t=>[top[0]+Math.cos(a)*len*t,top[1]+Math.sin(a)*len*t+droop*len*t*t];
+      d+=`M${tk(top)}`;for(let i=1;i<=12;i++)d+=` L${tk(pt(i/12))}`;
+      for(let i=2;i<=11;i++){const t=i/12,p=pt(t),q=pt(t+.02),dx=q[0]-p[0],dy=q[1]-p[1],m=Math.hypot(dx,dy),ux=dx/m,uy=dy/m,ll=len*.13*Math.sin(Math.PI*t)+2;
+        for(const sd of [-1,1])d+=` M${tk(p)} L${n1(p[0]+(-uy*sd*.55+ux*.7)*ll)},${n1(p[1]+(ux*sd*.55+uy*.7)*ll+ll*.6)}`;}}
+    return `<path d="${poly(L.concat(Rr.reverse()))}" fill="${c}"/><path d="${d}" fill="none" stroke="${c}" stroke-width="${n1(1.6*sw)}" stroke-linecap="round"/>`;}
+  let garis='';for(let x=-320;x<2240;x+=r(14,30))garis+=`<circle cx="${n1(x)}" cy="${n1(r(712,735))}" r="${n1(r(22,48))}"/>`;
+  const B1=bidang(-500);
+  svgDi(B1,`<g fill="${pudar('#3c2c4d',-500)}">${garis}<rect x="-320" y="725" width="2560" height="480"/></g>`+
+    meru(220,740,11,250,52,27,'#2b2040')+meru(1010,742,9,215,46,31,'#2a1f3c')+meru(1170,742,7,165,40,28,'#30243f')+meru(1520,745,5,135,36,26,'#33274a')+
+    palm(1610,770,440,-34,'#241a33')+palm(1715,782,540,46,'#21182f')+palm(1850,770,470,-22,'#241a33')+palm(1975,780,420,30,'#241a33')+palm(905,760,360,28,'#2a1f3a',.9)+palm(-90,770,460,40,'#241a33'));
+
+  /* −200 gapura bata + tembok + lantai (spike: bricks, towerSvg); menara kanan = cermin di x 645 */
+  const BR=mulberry32(7),TIERS=[[760,800,250],[560,760,222],[540,560,242],[450,540,196],[434,450,214],[360,434,168],[346,360,184],[290,346,140],[279,290,154],[232,279,112],[223,232,124],[190,223,84],[182,190,94],[160,182,62],[154,160,70],[138,154,40]],
+    XIN=590,MX=x=>1290-x,pelipit=TIERS.filter((t,i)=>i%2===0);
+  let defs='',arsi='';
+  function bricks(x0,y0,x1,y1,bw=34,bh=13,terang=0){let s=`<rect x="${x0}" y="${y0}" width="${x1-x0}" height="${y1-y0}" fill="#1b110e"/>`;
+    for(let y=y0,row=0;y<y1;y+=bh,row++)for(let x=x0-(row%2)*bw/2;x<x1;x+=bw){const w=bw-2+r(-2,1,BR),rusak=BR()<.06;
+      s+=`<rect x="${n1(Math.max(x,x0))}" y="${n1(y)}" width="${n1(Math.min(x+w,x1)-Math.max(x,x0))}" height="${bh-2}" fill="${hsl(r(10,24,BR),r(30,46,BR),rusak?r(14,19,BR):r(26,36,BR)+terang)}"/>`;}
+    return s;}
+  function towerSvg(sisi){const mx=sisi?MX:x=>x,tepi=[[XIN,800]];for(const [y0,y1,w] of TIERS)tepi.push([XIN-w,y1],[XIN-w,y0]);
+    const d=poly(tepi.map(p=>[mx(p[0]),p[1]]),0)+` L${mx(550)},138 C${mx(552)},124 ${mx(566)},118 ${mx(572)},104 C${mx(576)},96 ${mx(584)},92 ${mx(590)},82Z`;
+    defs+=`<clipPath id="sinKlipM${sisi}"><path d="${d}"/></clipPath>`;arsi+=`<path d="${d}"/>`;
+    let s=`<g id="sinMenara${sisi}"><g clip-path="url(#sinKlipM${sisi})">`+bricks(sisi?MX(XIN):340,90,sisi?MX(340):XIN,800,30,12);   // relief di grup luar: simbar ikut diterangi obor
+    for(const [y0,y1,w] of pelipit){const x0=Math.min(mx(XIN-w),mx(XIN)),x1=Math.max(mx(XIN-w),mx(XIN));   // pelipit lebih terang, sisi atas berkilau
+      s+=`<rect x="${x0}" y="${y0}" width="${x1-x0}" height="${y1-y0}" fill="#6b3f2c"/>`+bricks(x0,y0+3,x1,y1,22,8,8)+`<rect x="${x0}" y="${y0}" width="${x1-x0}" height="3" fill="#b77a52"/>`;}
+    for(const [yb,yt,cnt,ww] of [[530,462,3,30],[426,374,2,30]]){const lt=yb>500?196:168;   // relung berlengkung
+      for(let k=0;k<cnt;k++){const cx=mx(XIN-lt+(k+.5)*lt/cnt),x0=cx-ww/2;
+        s+=`<path d="M${n1(x0)},${yb} L${n1(x0)},${yt+ww*.5} Q${n1(cx)},${yt-ww*.25} ${n1(x0+ww)},${yt+ww*.5} L${n1(x0+ww)},${yb}Z" fill="#120a0a" stroke="#5a3424" stroke-width="3"/>`;}}
+    const pl=Math.min(mx(XIN-202),mx(XIN-22)),pw=180,cx=pl+pw/2,cy=660;let sp='';   // panel relief: bingkai + medali + sulur
+    for(let k=0;k<12;k++){const a=k/12*Math.PI*2;sp+=`M${n1(cx+Math.cos(a)*14)},${n1(cy+Math.sin(a)*14)} L${n1(cx+Math.cos(a)*34)},${n1(cy+Math.sin(a)*34)} `;}
+    for(const [dx,dy,dr] of [[-58,-38,1],[58,-38,-1],[-58,38,-1],[58,38,1]]){sp+=`M${n1(cx+dx)},${n1(cy+dy)}`;
+      for(let i=1;i<=40;i++){const a=i/40*Math.PI*3.2*dr,rad=22*i/40;sp+=` L${n1(cx+dx+Math.cos(a)*rad)},${n1(cy+dy+Math.sin(a)*rad)}`;}sp+=' ';}
+    s+=`<rect x="${pl}" y="585" width="${pw}" height="150" fill="none" stroke="#140c0a" stroke-width="7"/><rect x="${pl+12}" y="597" width="${pw-24}" height="126" fill="none" stroke="#2a1812" stroke-width="3"/>`+
+      `<circle cx="${cx}" cy="${cy}" r="36" fill="none" stroke="#150c0a" stroke-width="5"/><circle cx="${cx}" cy="${cy}" r="12" fill="#1a0f0c"/><path d="${sp}" fill="none" stroke="#170d0b" stroke-width="4.5" stroke-linecap="round"/></g>`;
+    for(const [y0,,w] of pelipit){const x=mx(XIN-w+8),hh=Math.max(12,(y0-150)*.06),sg=sisi?-1:1;   // simbar di sudut luar tiap pelipit
+      s+=`<path d="M${n1(x-6*sg)},${y0+1} C${n1(x-9*sg)},${n1(y0-hh*.5)} ${n1(x+2*sg)},${n1(y0-hh*.7)} ${n1(x-2*sg)},${n1(y0-hh*1.25)} C${n1(x+9*sg)},${n1(y0-hh*.8)} ${n1(x+12*sg)},${n1(y0-hh*.3)} ${n1(x+9*sg)},${y0+1}Z" fill="#8a5236"/>`;}
+    return s+'</g>';}
+  let lantai=`<rect x="-400" y="840" width="2800" height="300" fill="#140d0c"/>`;   // ubin batu berperspektif, titik hilang di gerbang
+  {const BG=mulberry32(3),VP=[645,690],baris=[];for(let i=0;i<=10;i++)baris.push(843+262*(i/10)**1.55);
+    for(let i=0;i<10;i++){const ya=baris[i],yb=baris[i+1];
+      for(let k=-26;k<=26;k++){const xb0=645+(k+(i%2)*.5)*118,xb1=xb0+118,at=(y,xb)=>VP[0]+(xb-VP[0])*(y-VP[1])/(1080-VP[1]),
+          q=[[at(ya,xb0)+1.5,ya+1.2],[at(ya,xb1)-1.5,ya+1.2],[at(yb,xb1)-2,yb-1.5],[at(yb,xb0)+2,yb-1.5]];
+        if(q[1][0]<-420||q[0][0]>2420)continue;lantai+=`<path d="${poly(q)}" fill="${hsl(r(18,32,BG),r(8,16,BG),r(17,25,BG))}"/>`;}}}
+  const tembok=(i,x0,x1)=>`<g id="sinTembok${i}">${bricks(x0,652,x1,845)}<rect x="${x0}" y="636" width="${x1-x0}" height="18" fill="#5d3829"/><rect x="${x0}" y="636" width="${x1-x0}" height="3" fill="#a06a48"/></g>`;
+  let gapura=lantai+tembok(0,-400,340)+tembok(1,950,2400)+bricks(330,800,960,846,30,11,3);
+  for(let k=0;k<4;k++){const hw=72+k*24,y=800+k*14;gapura+=`<rect x="${645-hw}" y="${y}" width="${hw*2}" height="14" fill="#4e3226"/><rect x="${645-hw}" y="${y}" width="${hw*2}" height="4" fill="#9a6a4c"/>`;}
+  gapura+=towerSvg(0)+towerSvg(1);
+  let teduh=`<rect x="-400" y="654" width="740" height="14" fill="url(#sinTurun)"/><rect x="950" y="654" width="1450" height="14" fill="url(#sinTurun)"/><rect x="-400" y="700" width="2800" height="146" fill="url(#sinDasar)"/>`;
+  for(const sisi of [0,1])TIERS.forEach(([,y1],i)=>{if(i%2||!i)return;const nw=TIERS[i-1][2],x0=Math.min(sisi?MX(XIN-nw):XIN-nw,sisi?MX(XIN):XIN);   // bayang pelipit
+    teduh+=`<rect x="${x0}" y="${y1}" width="${nw}" height="16" fill="url(#sinTurun)"/>`;});
+  arsi+=`<rect x="-400" y="636" width="740" height="220"/><rect x="950" y="636" width="1450" height="220"/><rect x="-400" y="800" width="2800" height="400"/>`;
+  const B2=bidang(-200),svgG=svgDi(B2,`<defs>${defs}<clipPath id="sinArsi">${arsi}</clipPath>`+
+    `<linearGradient id="sinTurun" x2="0" y2="1"><stop offset="0" stop-opacity=".7"/><stop offset="1" stop-opacity="0"/></linearGradient>`+
+    `<linearGradient id="sinDasar" x2="0" y2="1"><stop offset="0" stop-color="#05020a" stop-opacity="0"/><stop offset="1" stop-color="#05020a" stop-opacity=".6"/></linearGradient></defs>`+
+    `${gapura}<g clip-path="url(#sinArsi)">${teduh}</g>`);
+
+  /* cahaya: dua obor (seed sendiri — kedip tidak serempak), relief bata dari obor terdekat, gelap bermasker bentuk arsitektur */
+  OBOR.forEach(([x,y],i)=>sumber('obor'+(i+1),{x,y,bidang:B2,warna:'#ffa055',jangkau:320,kedip:.35,seed:3+i*5}));   // warna = cahaya obor spike; jangkau < 420: puncak menara gelap seperti f_7
+  for(const [el,s] of [['#sinMenara0','obor1'],['#sinMenara1','obor2'],['#sinTembok0','obor1'],['#sinTembok1','obor2']])relief($(el),{sumber:s,tinggi:5});
+  redup(svgG,['obor1','obor2'],{klip:'sinArsi',warna:'#140a0c',gelap:.78});   // gelap hangat (bata), bukan ungu bawaan
+  /* obor: gagang + kolam cahaya di lantai (svg statis), lalu nyala di kanvas 2D yang dihapus & digambar ulang PENUH tiap
+     frame (Path2D bentuk spike). Bukan path SVG yang d-nya ditulis per frame: Chrome me-raster ulang svg hanya di kotak
+     kotornya, sisa antialias ujung nyala frame sebelumnya tertinggal → piksel bergantung jalur seek (bench
+     deterministik:false). Keduanya screen (spike: lapisan fx): nyala memancar di atas bata terang, gagang gelap larut. */
+  let obor='';OBOR.forEach(([x,y],i)=>{const sg=i?1:-1;
+    obor+=`<ellipse cx="${x}" cy="862" rx="300" ry="70" fill="url(#sinKolam)" opacity=".5"/><path d="M${x},${y+44} L${x},${y+70} L${x-14*sg},${y+92}" fill="none" stroke="#120a08" stroke-width="5"/>`+
+      `<path d="M${x-15},${y+16} L${x+15},${y+16} L${x+8},${y+44} L${x-8},${y+44}Z" fill="#1d120d"/><rect x="${x-17}" y="${y+12}" width="34" height="6" rx="2" fill="#3a2418"/>`;});
+  svgDi(B2,`<defs><radialGradient id="sinKolam"><stop offset="0" stop-color="#ffe2a8"/><stop offset=".25" stop-color="#ff9a3c" stop-opacity=".55"/><stop offset="1" stop-color="#ff6a1a" stop-opacity="0"/></radialGradient></defs>${obor}`).style.mixBlendMode='screen';
+  const KA=[460,490,370,150],kan=document.createElement('canvas'),kx=kan.getContext('2d');   // kotak semua nyala (px bidang) + margin goyang
+  kan.id='sinNyala';kan.width=KA[2];kan.height=KA[3];kan.style.cssText=`position:absolute;left:${KA[0]}px;top:${KA[1]}px;pointer-events:none;mix-blend-mode:screen`;
+  B2.appendChild(kan);kx.setTransform(1,0,0,1,-KA[0],-KA[1]);
+  const wob=(t,s)=>Math.sin(t*7.1+s)*.5+Math.sin(t*13.7+s*2.3)*.3+Math.sin(t*23.3+s*.7)*.2,
+    nyala=(x,y,h,w,t,s)=>{const sw=wob(t*1.3,s)*w*.45,ujung=[x+sw,y-h*(1+.12*wob(t*2,s+1))];
+      return `M${n1(x-w)},${n1(y)} C${n1(x-w*1.1)},${n1(y-h*.45)} ${n1(x+sw*.4-w*.5)},${n1(y-h*.7)} ${tk(ujung)} C${n1(x+sw*.4+w*.55)},${n1(y-h*.66)} ${n1(x+w*1.15)},${n1(y-h*.4)} ${n1(x+w)},${n1(y)} Q${x},${n1(y+w*.7)} ${n1(x-w)},${n1(y)}Z`;},
+    hidupkan=()=>{if(!kan.isConnected)return;const t=tl.time();kx.clearRect(...KA);
+      OBOR.forEach(([x,y],i)=>{const f=1+.18*wob(t,i*3.1);
+        [[74,15,0,'#ff6a18',.92],[50,10,.07,'#ffae40',1],[24,5.5,.11,'#fff0c8',1]].forEach(([h,w,dt,c,a],j)=>{
+          kx.globalAlpha=a;kx.fillStyle=c;kx.fill(new Path2D(nyala(x,y+14,h*f,w,t+dt,i*5+j)));});});};
+  hidupkan();rantaiUpdate(hidupkan);
+
+  /* 0 beringin (spike: dahan → ranting, daun, akar gantung, urat batang) + penjaga di langkan (spike: limb) */
+  let pohon='';{const TG=mulberry32(19),c='#0d0913',sampel=[];let d='',daun='',akar='',urat='';
+    for(const [pts,ws] of [[[[0,1100],[40,640],[70,330]],[150,95,62]],[[[70,340],[250,205],[460,140],[600,92]],[52,30,14,6]],[[[66,372],[-60,210]],[46,22]],
+        [[[72,305],[150,80],[190,-80]],[40,22,12]],[[[250,205],[330,70],[360,-20]],[22,12,7]],[[[460,140],[520,40]],[12,5]],[[[140,262],[60,40],[30,-60]],[24,10,6]]])
+      for(let s=0;s<pts.length-1;s++){const a=pts[s],b=pts[s+1],wa=ws[s],wb=ws[s+1],dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy),nx=-dy/L,ny=dx/L;
+        d+=poly([[a[0]+nx*wa/2,a[1]+ny*wa/2],[b[0]+nx*wb/2,b[1]+ny*wb/2],[b[0]-nx*wb/2,b[1]-ny*wb/2],[a[0]-nx*wa/2,a[1]-ny*wa/2]])+bulat(b,wb)+' ';
+        for(let t=0;t<1;t+=.08)sampel.push([a[0]+dx*t,a[1]+dy*t,wa+(wb-wa)*t]);}
+    for(const p of sampel){if(p[1]>330||TG()<.45)continue;let x=p[0],y=p[1],a=-Math.PI/2+r(-1.3,1.3,TG),w=Math.max(2,p[2]*.25);
+      for(let k=0;k<3;k++){const l=r(25,60,TG),x2=x+Math.cos(a)*l,y2=y+Math.sin(a)*l;d+=`M${n1(x)},${n1(y)} L${n1(x2)},${n1(y2)} L${n1(x2+1)},${n1(y2)} L${n1(x+w)},${n1(y)}Z `;x=x2;y=y2;a+=r(-.5,.5,TG);w*=.6;}}
+    for(let i=0;i<1700;i++){const p=sampel[Math.floor(TG()*sampel.length)];if(p[1]>300)continue;   // daun: elips kecil berkerumun di ujung, satu path
+      const ang=r(0,Math.PI*2,TG),rad=TG()**.6*r(40,95,TG),x=p[0]+Math.cos(ang)*rad,y=p[1]+Math.sin(ang)*rad*.7-r(5,40,TG);if(x>640)continue;
+      const lr=r(5,10,TG),la=r(0,180,TG),ux=Math.cos(la*Math.PI/180)*lr,uy=Math.sin(la*Math.PI/180)*lr,e=`${n1(lr)},${n1(lr*.48)} ${n1(la)} 1 0`;
+      daun+=`M${n1(x+ux)},${n1(y+uy)} A${e} ${n1(x-ux)},${n1(y-uy)} A${e} ${n1(x+ux)},${n1(y+uy)}Z`;}
+    for(let i=0;i<46;i++){const p=sampel[Math.floor(TG()*sampel.length)];if(p[1]>330||p[0]<90||p[0]>470)continue;
+      const len=r(160,470,TG),sx=p[0],sy=p[1],ex=sx+r(-14,14,TG);
+      akar+=`<path d="M${n1(sx)},${n1(sy)} Q${n1(sx+r(-20,20,TG))},${n1(sy+len*.5)} ${n1(ex)},${n1(sy+len)}" stroke-width="${n1(r(1.2,3.4,TG))}"/>`;}
+    for(let i=0;i<14;i++){const x=r(-20,100,TG);urat+=`M${n1(x)},1100 Q${n1(x+r(-10,30,TG))},800 ${n1(x*.4+50)},${n1(r(380,520,TG))} `;}
+    pohon=`<g fill="${c}"><path d="${d}"/><path d="${daun}"/></g><g fill="none" stroke="${c}" stroke-linecap="round">${akar}</g><path d="${urat}" fill="none" stroke="#1d1424" stroke-width="2.2" opacity=".8"/>`;}   // daun path sendiri: ranting berlilit arah lain tak melubanginya
+  function limb(a,b,wa,wb,bul=1.08){const dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy),nx=-dy/L,ny=dx/L,m=[(a[0]+b[0])/2,(a[1]+b[1])/2],wm=(wa+wb)/2*bul,
+      S=(p,w,s)=>[p[0]+nx*w/2*s,p[1]+ny*w/2*s],a1=S(a,wa,1),m1=S(m,wm,1),b1=S(b,wb,1),b2=S(b,wb,-1),m2=S(m,wm,-1),a2=S(a,wa,-1),
+      c1=[2*m1[0]-(a1[0]+b1[0])/2,2*m1[1]-(a1[1]+b1[1])/2],c2=[2*m2[0]-(a2[0]+b2[0])/2,2*m2[1]-(a2[1]+b2[1])/2];
+    return `M${tk(a1)} Q${tk(c1)} ${tk(b1)} L${tk(b2)} Q${tk(c2)} ${tk(a2)}Z`+bulat(b,wb)+bulat(a,wa);}
+  /* volume (R17): gradien bbox per bagian — terang di sisi kiri (arah obor), gelap ke kanan; dada & perisai kubah radial */
+  const KULIT='url(#sinKulit)',KAIN='url(#sinKain)',ZIRAH='url(#sinZirah)',EMAS='#5c3e1e',bag=(d,f)=>`<path d="${d}" fill="${f}"/>`;
+  let gd=`<path d="M-214,-905 L-206,-905 L-199,-6 L-209,-6Z" fill="#24160f"/>`+   // tombak di belakang tangan
+    bag('M-210,-1000 C-200,-975 -196,-950 -201,-930 C-197,-922 -199,-912 -204,-905 L-216,-905 C-221,-912 -223,-922 -219,-930 C-224,-950 -220,-975 -210,-1000Z M-218,-930 C-232,-926 -238,-916 -236,-904 C-228,-912 -222,-914 -217,-913Z',ZIRAH)+
+    `<path d="M-217,-903 L-203,-903 L-202,-888 L-218,-888Z" fill="${EMAS}"/><path d="M-212,-888 C-220,-860 -226,-840 -230,-822 M-208,-888 C-214,-858 -216,-842 -216,-826 M-205,-888 C-206,-860 -204,-846 -201,-830" stroke="#3a1414" stroke-width="3" fill="none"/>`;
+  gd+=bag(limb([42,-372],[58,-206],88,64),KAIN)+bag(limb([58,-206],[62,-30],52,30,1.18),KULIT)+bag('M48,-30 L78,-30 L82,-6 L18,0 L14,-12 Q30,-22 48,-30Z',KULIT);   // kaki belakang
+  gd+=bag(limb([-38,-372],[-70,-205],92,66),KAIN)+bag(limb([-70,-205],[-96,-28],54,31,1.18),KULIT)+bag('M-84,-30 L-110,-30 L-150,-8 L-152,2 L-82,2 L-78,-14Z',KULIT);   // kaki depan
+  gd+=bag(limb([-70,-205],[-86,-112],70,58,1.02),KAIN)+bag(limb([58,-206],[61,-112],66,56,1.02),KAIN);   // celana sampai betis
+  gd+=bag('M-30,-646 C-72,-646 -110,-640 -120,-614 C-130,-586 -124,-552 -112,-520 C-100,-482 -84,-452 -80,-432 L74,-432 C80,-456 98,-490 108,-524 C118,-560 120,-602 104,-624 C88,-642 50,-646 16,-646Z','url(#sinDada)');
+  gd+=bag('M-32,-676 L12,-690 L20,-636 L-32,-632Z',KULIT)+   // leher + kepala + ikat kepala
+    bag('M12,-772 C-22,-778 -46,-760 -50,-736 L-53,-718 L-51,-711 L-64,-697 L-62,-692 L-51,-689 L-53,-684 L-49,-680 L-52,-675 L-47,-668 C-42,-662 -32,-661 -24,-664 C-10,-670 -2,-680 6,-694 C20,-700 30,-716 30,-736 C30,-756 26,-768 12,-772Z',KULIT)+
+    bag('M-52,-736 C-50,-764 -20,-784 12,-778 C30,-772 36,-752 33,-734 C10,-742 -24,-744 -52,-736Z',KAIN)+bag('M-53,-738 C-24,-746 10,-744 34,-736 L33,-722 C10,-730 -24,-730 -51,-722Z','#2a1620')+
+    bag('M30,-742 C48,-736 60,-724 70,-702 L64,-694 C54,-716 44,-726 28,-728Z M30,-736 C42,-726 50,-712 54,-686 L48,-682 C44,-704 38,-716 28,-724Z',KAIN);
+  gd+=bag(limb([100,-608],[150,-488],54,42),KULIT)+bag(limb([150,-488],[168,-418],42,34),KULIT)+   // lengan perisai, pelindung dada, sabuk, kain pinggang, dodot, selendang
+    bag('M-98,-616 C-40,-630 40,-630 98,-616 L104,-522 C62,-482 -62,-482 -104,-522Z',ZIRAH)+bag('M-84,-444 C-30,-452 30,-452 78,-444 L80,-404 C30,-410 -30,-410 -84,-404Z',ZIRAH)+
+    bag('M-86,-406 C-30,-412 30,-412 82,-406 L96,-318 C40,-300 -40,-300 -100,-318Z',KAIN)+bag('M-40,-404 L30,-404 L22,-210 L-4,-176 L-30,-210Z',KAIN)+
+    bag('M-92,-392 C-110,-360 -118,-320 -122,-262 L-104,-258 C-98,-300 -92,-338 -80,-372Z',KAIN)+'<path d="M66,-432 C80,-452 96,-470 112,-478 L118,-470 C102,-462 88,-446 78,-428Z" fill="#2f1f16"/>';
+  gd+=bag(limb([-104,-604],[-150,-482],56,44),KULIT)+bag(limb([-150,-482],[-204,-548],44,34,1.05),KULIT)+   // lengan tombak + pelindung bahu
+    bag('M-226,-574 C-214,-584 -196,-580 -188,-566 C-182,-552 -186,-536 -200,-530 C-214,-526 -228,-536 -230,-552Z',KULIT)+
+    bag('M-138,-640 C-112,-660 -78,-648 -70,-622 C-90,-626 -116,-614 -138,-590Z',ZIRAH)+bag('M-146,-612 C-120,-628 -88,-618 -80,-596 C-100,-596 -124,-584 -144,-562Z',ZIRAH)+
+    bag('M-150,-584 C-126,-596 -96,-588 -90,-568 C-110,-566 -130,-556 -148,-536Z',ZIRAH)+bag('M-138,-528 L-162,-516 L-168,-500 L-142,-512Z',EMAS);
+  gd+=bag('M178,-654 C238,-624 258,-562 252,-482 C246,-402 226,-334 178,-292 C130,-334 110,-402 104,-482 C98,-562 118,-624 178,-654Z','url(#sinPerisai)');
+  let gl='M-60,-566 C-36,-552 -10,-554 4,-570 M8,-570 C24,-552 52,-552 70,-566 M-6,-470 L-6,-440 M-40,-462 C-30,-456 -18,-456 -10,-462 M2,-462 C12,-456 26,-456 34,-462'+   // otot, lipatan, ukiran
+    'M-98,-616 C-40,-630 40,-630 98,-616 M-92,-600 C-40,-612 40,-612 92,-600 M-102,-526 C-60,-488 60,-488 102,-526 M0,-622 L0,-494 M-80,-520 L-60,-500 M80,-520 L60,-500';
+  for(let k=0;k<7;k++){const y=-396+k*13;gl+=` M${-34+k*2},${y} L${26-k*2},${y+18}`;}
+  gl+='M-60,-380 C-56,-350 -50,-330 -44,-318 M40,-380 C44,-352 50,-334 58,-320 M-14,-388 C-12,-360 -8,-340 -6,-312 M-92,-300 C-84,-262 -78,-232 -74,-206 M-50,-300 C-58,-262 -64,-232 -70,-214 M40,-300 C46,-262 52,-236 56,-212 M70,-300 C68,-262 64,-236 62,-214'+
+    'M-98,-122 L-74,-122 M-100,-112 L-72,-112 M48,-122 L74,-122 M48,-112 L74,-112 M178,-630 C226,-600 240,-548 236,-482 C232,-410 214,-352 178,-318 C142,-352 124,-410 120,-482 C116,-548 130,-600 178,-630Z M178,-600 L178,-340 M150,-470 C160,-500 196,-500 206,-470 C196,-440 160,-440 150,-470Z'+
+    'M-36,-712 C-32,-716 -26,-716 -22,-712 M2,-712 C8,-704 8,-696 2,-690 M-36,-690 C-30,-688 -26,-690 -22,-694';
+  gd+=`<path d="${gl}" fill="none" stroke="#3e2419" stroke-width="2" stroke-linecap="round" opacity=".7"/><g fill="${EMAS}"><circle cx="-10" cy="-424" r="9"/><circle cx="178" cy="-470" r="8"/><rect x="-96" y="-128" width="28" height="8" rx="3"/><rect x="46" y="-128" width="30" height="8" rx="3"/><rect x="-110" y="-30" width="30" height="6" rx="2"/><rect x="48" y="-30" width="30" height="6" rx="2"/></g>`;
+  let langkan='<path d="M1040,1004 L2400,1004 L2400,1200 L1040,1200Z" fill="#120b10"/><path d="M1040,1004 L2400,1004" stroke="#6a4030" stroke-width="3"/>';
+  for(let x=1040;x<2400;x+=r(140,220))langkan+=`<path d="M${n1(x)},1006 L${n1(x+r(-6,6))},1100" stroke="#05030a" stroke-width="3"/>`;
+  const gr=(id,jenis,a,stops)=>`<${jenis}Gradient id="${id}" ${a}>${stops.map(([o,c])=>`<stop offset="${o}" stop-color="${c}"/>`).join('')}</${jenis}Gradient>`,
+    B3=bidang(0);
+  svgDi(B3,'<defs>'+gr('sinKulit','linear','',[[0,'#3a2214'],[.15,'#5a3620'],[.45,'#2a170e'],[.8,'#100906'],[1,'#080404']])+
+    gr('sinKain','linear','',[[0,'#2a1812'],[.15,'#3e2418'],[.45,'#1a0e0a'],[1,'#070404']])+
+    gr('sinZirah','linear','',[[0,'#4a2e1a'],[.15,'#8a6038'],[.32,'#4a2e1a'],[.7,'#1a100a'],[1,'#0a0605']])+
+    gr('sinDada','radial','cx=".32" cy=".32" r=".8"',[[0,'#6a4228'],[.4,'#3a2214'],[.8,'#140b07'],[1,'#080404']])+
+    gr('sinPerisai','radial','cx=".3" cy=".3" r=".9"',[[0,'#7a5232'],[.35,'#42281a'],[.75,'#1a0f0a'],[1,'#0a0605']])+
+    `</defs>${pohon}${langkan}<g transform="translate(1430,1012)"><g id="sinPenjaga">${gd}</g></g>`);
+  const penjaga=$('#sinPenjaga');rim(penjaga,'obor2',{lebar:6});bayangan(penjaga,'obor2',{lantai:1012});
+
+  /* atmosfer: kabut per bidang (warnanya makin dekat horizon makin jauh bidangnya; kabut tanah di depan gerbang paling
+     tegas), bara naik dari obor, debu di depan */
+  kabut(B0,{y:640,tebal:220,warna:pudar('#a890b0',-900),rapat:.55,hanyut:5,seed:2});   // #a890b0 ≈ kabut f_7 (#5f4b59 di atas lantai gelap, alfa ±.45)
+  kabut(B1,{y:660,tebal:170,warna:pudar('#a890b0',-500),rapat:.35,hanyut:9,seed:5});
+  kabut(B2,{y:860,tebal:170,warna:pudar('#b8a4c0',-200),rapat:.5,hanyut:16,seed:9});   // kabut tanah paling terang: gumpalan terbaca di depan gerbang
+  /* bara: kanvas = area persis (lapang 100 px di luar obor supaya bara berkelok tak terpotong), digambar setengah
+     resolusi lalu diregang 2× — butir bara sebesar & selunak bara spike (sprite modul pada 1:1 terbaca separuhnya) */
+  const bara=partikel(B2,{jenis:'bara',n:120,area:[412,70,233,270],seed:4});bara.style.width='466px';bara.style.height='540px';
+  partikel('depan',{jenis:'debu',n:80,seed:6});   // SEBELUM grade(): lapisan depan yang dipasang lebih dulu ikut ter-grade
+  grade(0,0,'malam-api');
+
+  /* kamera: dolly pelan + geser kiri (paralaks antarbidang, seperti spike) + handheld ringan */
+  cutTo(0,{fx:W/2,fy:H/2,zoom:1,pitch:0,yaw:0,roll:0,shake:0});
+  dolly(0,DUR,1.07,'sine.inOut');truck(0,DUR,-60,'sine.inOut');handheld(0,DUR,.3);}
+/* kait untuk scripts/test-starters.mjs (halaman ?demo=sinematik) — tidak dipanggil deliverable. Paralaks diukur seperti
+   CAM_UJI (CAM.fx += 300, lalu CAM dipulihkan); rigBersih membaca gaya TERHITUNG rig dan setiap [data-z]. */
+window.SINEMA_UJI=()=>{const r={},simpan={...CAM},n=s=>document.querySelectorAll(s).length,
+    kiri=z=>{const b=BIDANG.find(b=>b.z===z);return b?b.el.getBoundingClientRect().left:NaN;};
+  r.demoKameraMati=window.DEMO_AKHIR===undefined;
+  applyCam();const j0=kiri(-900),d0=kiri(0);CAM.fx+=300;applyCam();r.paralaks=Math.abs((kiri(-900)-j0)-(kiri(0)-d0))>1;Object.assign(CAM,simpan);applyCam();
+  r.kotor=[rig,...rig.querySelectorAll('[data-z]')].filter(e=>{const s=getComputedStyle(e);
+    return s.filter!=='none'||s.mixBlendMode!=='normal'||s.opacity!=='1'||s.clipPath!=='none'||s.maskImage!=='none';}).map(e=>e.id||`[data-z="${e.dataset.z}"]`).join(' ');
+  r.rigBersih=!r.kotor;
+  r.ada={langit:n('#wv-langit'),kabut:n('.wv-kabut'),partikel:n('.wv-partikel'),pendar:n('.wv-pendar'),grade:n('.wv-pasca')};
+  r.adaSemua=r.ada.langit===1&&r.ada.kabut>=3&&r.ada.partikel>=1&&r.ada.pendar===2&&r.ada.grade>0;return r;};
 /* aset masuk dengan blur berarah lalu TETAP hidup (ayunan +-25 px / 1,5 dtk + putaran) */
 function fly(at,sel,{from='left',dur=.7}={}){const dx=from==='left'?-260:from==='right'?260:0,dy=from==='top'?-220:from==='bottom'?220:0;
   tl.fromTo(sel,{opacity:0,x:dx,y:dy,filter:'blur(14px)',rotation:from==='left'?-6:6},{opacity:1,x:0,y:0,filter:'blur(0px)',rotation:0,duration:dur,ease:'power4.out'},at);
@@ -752,15 +954,17 @@ function whip(t,from,to,dir=1){tl.to(from,{y:-120*dir,filter:'blur(18px)',durati
   tl.set(from,{className:'view off'},t+.28);tl.set(to,{className:'view',y:120*dir,filter:'blur(18px)'},t+.28);tl.to(to,{y:0,filter:'blur(0px)',duration:.36,ease:'power3.out'},t+.28);}
 const fadeUp=(t,sel)=>tl.fromTo(sel,{opacity:0,y:30,filter:'blur(6px)'},{opacity:1,y:0,filter:'blur(0px)',duration:.5,ease:'power3.out'},t);
 const fadeOut=(t,sel)=>tl.to(sel,{opacity:0,y:-30,filter:'blur(8px)',duration:.35,ease:'power2.in'},t);
-whip(8.6,view.side,view.map,1);
-fadeUp(12.6,'#numA');fadeOut(14.6,'#numA');     // angka muncul SETELAH zoom-out peta selesai
-whip(15,view.map,view.collage,1);
-/* contoh MODE KOLASE: close-up aset A -> meluncur ke aset B -> zoom out -> baru anotasi */
-cutTo(15.3,{fx:520,fy:480,zoom:1.9});
-fly(15.4,'#cutA',{from:'left'});
-look(16.6,1400,520,1.7,1.4);fly(16.9,'#cutB',{from:'right'});
-home(18.2,960,540,1.2);
-tl.fromTo('#noteA',{opacity:0,y:20},{opacity:1,y:0,duration:.4},19.5);   // teks setelah zoom out SELESAI
+if(!SINEMA){   // ?demo=sinematik memakai adegannya sendiri (demoSinematik), bukan rundown contoh ini
+  whip(8.6,view.side,view.map,1);
+  fadeUp(12.6,'#numA');fadeOut(14.6,'#numA');     // angka muncul SETELAH zoom-out peta selesai
+  whip(15,view.map,view.collage,1);
+  /* contoh MODE KOLASE: close-up aset A -> meluncur ke aset B -> zoom out -> baru anotasi */
+  cutTo(15.3,{fx:520,fy:480,zoom:1.9});
+  fly(15.4,'#cutA',{from:'left'});
+  look(16.6,1400,520,1.7,1.4);fly(16.9,'#cutB',{from:'right'});
+  home(18.2,960,540,1.2);
+  tl.fromTo('#noteA',{opacity:0,y:20},{opacity:1,y:0,duration:.4},19.5);   // teks setelah zoom out SELESAI
+}
 tl.to({},{duration:.01},DUR);
 
 /* ---------- render: fungsi murni dari tl.time() ---------- */
@@ -812,7 +1016,7 @@ function makeSeek(tl, apply){ return t => { if (tl.time() === t) tl.pause(t + 1e
   if (gsap.ticker.tick) gsap.ticker.tick(); if (apply) apply(t); }; }
 /* </wv:seek> */
 grainHidup(tl,{opacity:.12});
-if(q.has('demo'))demoKamera();   // ?demo=1: katalog kosakata kamera (shot, sudut, gerak, cahaya) — bukan rundown
+if(SINEMA)demoSinematik(); else if(q.has('demo'))demoKamera();   // ?demo=1: katalog kosakata kamera (shot, sudut, gerak, cahaya) — bukan rundown
 window.OPENER={W,H,DURATION:DUR,tl,ready:false,seek:makeSeek(tl,()=>{applyCam();render();}),play:start};
 /* <wv:footage> dibangun dari src/runtime/footage.js — JANGAN edit di sini;
    ubah sumbernya lalu jalankan: node scripts/build-starters.mjs */

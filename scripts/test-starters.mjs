@@ -179,6 +179,35 @@ for (const file of files) {
       if (ada('dibersihkan') && !pasca.dibersihkan) masalah.push('pasca: PASCA_UJI meninggalkan lapisan singleton, sumber sementara, atau nilai GRADE yang berubah — grade() sungguhan sesudahnya tidak mulai dari nol');
     }
 
+    // adegan bukti ?demo=sinematik (starter aksi kontinu): katalog ?demo=1 mati, paralaks hidup, rig/[data-z] tanpa efek
+    // perata, semua modul terpasang; lalu determinisme piksel SEMUA kanvas #stage (langit + partikel), bukan hanya yang
+    // pertama seperti pemeriksaan bawaan. Halaman dimuat ulang, jadi kait modul di atas tetap menguji halaman bawaan.
+    let sinema = null, kanvasSinema = [];
+    if (await page.evaluate(() => !!window.SINEMA_UJI)) {
+      await page.goto(pathToFileURL(file).href + '?demo=sinematik', { waitUntil: 'load', timeout: 60000 });
+      await page.waitForFunction('window.OPENER && window.OPENER.ready', { timeout: 60000 });
+      sinema = await page.evaluate(() => window.SINEMA_UJI());
+      kanvasSinema = await page.evaluate(() => {
+        const C = [...document.querySelectorAll('#stage canvas')], O = window.OPENER, t = Math.min(5, O.DURATION * .6), t2 = Math.min(O.DURATION - .1, t + 3),
+          foto = () => C.map(c => c.toDataURL());
+        O.tl.pause(); O.seek(t); const a = foto(); O.seek(t2); O.seek(.1); O.seek(t); const b = foto();
+        return C.map((c, i) => { const k = document.createElement('canvas'); k.width = c.width; k.height = c.height;
+          return { nama: `${c.id || c.className} ${c.width}×${c.height}`, sama: a[i] === b[i], kosong: a[i] === k.toDataURL() }; });
+      });
+    }
+    if (name === 'starter-explainer.html' && !sinema) masalah.push('sinema: SINEMA_UJI tidak ada');
+    if (sinema) {
+      if (!sinema.demoKameraMati) masalah.push('sinema: ?demo=sinematik ikut menjalankan katalog ?demo=1 (window.DEMO_AKHIR terdefinisi)');
+      if (!sinema.paralaks) masalah.push('sinema: bidang z −900 dan z 0 tidak bergeser berbeda (> 1 px) saat CAM.fx += 300');
+      if (!sinema.rigBersih) masalah.push(`sinema: rig atau pembungkus [data-z] ber-filter/mix-blend-mode/opacity/clip-path/mask (computed) — paralaks rata: ${sinema.kotor}`);
+      if (!sinema.adaSemua) masalah.push(`sinema: modul tidak lengkap — perlu #wv-langit, ≥ 3 .wv-kabut, ≥ 1 .wv-partikel, 2 .wv-pendar, lapisan GRADE (dapat ${JSON.stringify(sinema.ada)})`);
+      if (!kanvasSinema.length) masalah.push('sinema: tidak ada kanvas di #stage');
+      for (const k of kanvasSinema) {
+        if (!k.sama) masalah.push(`sinema: kanvas ${k.nama}: t yang sama lewat jalur seek berbeda memberi piksel berbeda`);
+        if (k.kosong) masalah.push(`sinema: kanvas ${k.nama}: hasil render kosong saat dibaca setelah seek`);
+      }
+    }
+
     // kamera 2.5D (src/runtime/kamera-dom.js): jalur 2D tidak menyentuh gaya lain; sudut → transform 3D;
     // bidang data-z berparalaks; cahaya; katalog ?demo=1 selesai sebelum DUR. Halaman dimuat ULANG dengan ?demo=1
     // supaya pemeriksaan di atas tetap menguji jalur default deliverable.

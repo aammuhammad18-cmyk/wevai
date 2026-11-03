@@ -39,14 +39,27 @@ const browser = await luncurkan({
 });
 
 // starter yang wajib punya kait atmosfer/cahaya-2d/pasca; BERKAMERA = yang juga punya CAM (kabut berparalaks hanya terukur di sana: panggung belum punya CAM)
-const MODUL = ['starter-explainer.html', 'starter-explainer-panggung.html', 'starter-sinematik.html', 'katalog-pustaka.html', 'katalog-tokoh.html'];
-const BERKAMERA = ['starter-explainer.html', 'starter-sinematik.html', 'katalog-pustaka.html', 'katalog-tokoh.html'];
-// halaman ber-adegan bawaan (SINEMA_UJI wajib; kait modul + kamera di ?kosong=1): starter sinematik, katalog pustaka aset, katalog tokoh
-const ADEGAN = ['starter-sinematik.html', 'katalog-pustaka.html', 'katalog-tokoh.html'];
+const MODUL = ['starter-explainer.html', 'starter-explainer-panggung.html', 'starter-sinematik.html', 'katalog-pustaka.html', 'starter-relief.html', 'katalog-tokoh.html'];
+const BERKAMERA = ['starter-explainer.html', 'starter-sinematik.html', 'katalog-pustaka.html', 'starter-relief.html', 'katalog-tokoh.html'];
+// halaman ber-adegan bawaan (SINEMA_UJI wajib; kait modul + kamera di ?kosong=1): starter sinematik, katalog pustaka aset, starter relief, katalog tokoh
+const ADEGAN = ['starter-sinematik.html', 'katalog-pustaka.html', 'starter-relief.html', 'katalog-tokoh.html'];
+// 3D tanpa subjek/#hud (field CAM3_UJI null sah); tone mapping film hanya di starter sejarah/sinematik, sisanya NoToneMapping (0) = warna brand tepat
+const TANPA_SUBJEK = ['starter-opener.html', 'starter-elang.html'];
+const FILM = { 'starter-elang.html': 4 };   // THREE.ACESFilmicToneMapping (r161): api tetap jingga jenuh, AgX r161 memucatkannya (evals/bukti/2026-11-03-mata-elang)
+// blok terbang (src/runtime/terbang.js) disuntikkan ke starter 2.5D: jalur terbang() 2.5D diuji di kamera-dom sungguhan tanpa menambah berkas starter
+const TERBANG = readFileSync(join(ROOT, 'src', 'runtime', 'terbang.js'), 'utf8');
+// halaman BERAT dilewati bila WebGL jatuh ke render perangkat lunak (runner CI tanpa GPU). Terukur SwiftShader, laptop acuan:
+// starter-elang siap 80 dtk, satu frame 66,6 dtk, frame motion blur mematikan proses GPU. Uji penuhnya di mesin ber-GPU.
+const BERAT = ['starter-elang.html'];
+const glLunak = await (async () => { const p = await browser.newPage();
+  const r = await p.evaluate(() => { const g = document.createElement('canvas').getContext('webgl2'), e = g && g.getExtension('WEBGL_debug_renderer_info');
+    return e ? g.getParameter(e.UNMASKED_RENDERER_WEBGL) : ''; });
+  await p.close(); return /SwiftShader|llvmpipe|softpipe|Basic Render/i.test(r) ? r : ''; })();
 
-let gagal = 0;
+let gagal = 0, lewat = 0;
 for (const file of files) {
   const name = basename(file);
+  if (glLunak && BERAT.includes(name)) { lewat++; console.log(`lewat  ${name} — WebGL perangkat lunak (${glLunak}): terlalu berat, uji di mesin ber-GPU`); continue; }
   // halaman bawaan ADEGAN sudah berisi adegan (langit, grade, bidang [data-z]); kait modul dan kamera mengandaikan halaman yang
   // belum memakai modul (awalBersih, jalur 2D tanpa bidang, grade netral), jadi dijalankan di ?kosong=1 (rig + modul tanpa adegan).
   // Kait adegan (SINEMA_UJI) dibaca dari halaman bawaan. Katalog kamera ?demo=1 tidak ada di halaman ini.
@@ -73,6 +86,7 @@ for (const file of files) {
     const segar = await browser.newPage();
     await segar.goto(pathToFileURL(file).href + '?clean=1', { waitUntil: 'load', timeout: 60000 });
     await segar.waitForFunction('window.OPENER && window.OPENER.ready', { timeout: 60000 });
+    const sidikSegar = await segar.evaluate(() => window.ELANG_SIDIK ? window.ELANG_SIDIK() : null);   // geometri lanskap: sama di tiap muat (worker ekspor)
     const nol = await segar.evaluate(() => {
       const O = window.OPENER, rig = () => document.querySelector('#world, #stage')?.getAttribute('style') || '', c = document.querySelector('canvas');
       const ambil = () => ({ r: rig(), c: c ? c.toDataURL() : '' });
@@ -145,7 +159,7 @@ for (const file of files) {
     if (sinema) {
       if (!sinema.paralaks) masalah.push('sinema: bidang terjauh dan terdekat (yang tampil) tidak bergeser berbeda (> 1 px) saat CAM.fx += 300');
       if (!sinema.rigBersih) masalah.push(`sinema: rig atau pembungkus [data-z] ber-filter/mix-blend-mode/opacity/clip-path/mask (computed) — paralaks rata: ${sinema.kotor}`);
-      if (!sinema.adaSemua) masalah.push(`sinema: modul tidak lengkap — perlu #wv-langit, ≥ 3 .wv-kabut, ≥ 1 .wv-partikel, .wv-pendar, lapisan GRADE (katalog pustaka: + api, asap, 4 kain, ≥ 10 jenis aset pustaka; katalog tokoh: + api, 4 kanvas .wv-tokoh, ≥ 30 tokoh, 6 arketipe) (dapat ${JSON.stringify(sinema.ada)})`);
+      if (!sinema.adaSemua) masalah.push(`sinema: modul tidak lengkap — perlu #wv-langit, ≥ 3 .wv-kabut, ≥ 1 .wv-partikel, .wv-pendar, lapisan GRADE (katalog pustaka: + api, asap, 4 kain, ≥ 10 jenis aset pustaka; relief: ≥ 2 kabut + satu .wv-relief, tanpa pendar; katalog tokoh: + api, 4 kanvas .wv-tokoh, ≥ 30 tokoh, 6 arketipe) (dapat ${JSON.stringify(sinema.ada)})`);
       if (!kanvasSinema.length) masalah.push('sinema: tidak ada kanvas di #stage');
       for (const k of kanvasSinema) {
         if (!k.sama) masalah.push(`sinema: kanvas ${k.nama}: t yang sama lewat jalur seek berbeda memberi piksel berbeda`);
@@ -230,6 +244,24 @@ for (const file of files) {
       if (ada('dibersihkan') && !pasca.dibersihkan) masalah.push('pasca: PASCA_UJI meninggalkan lapisan singleton, sumber sementara, atau nilai GRADE yang berubah — grade() sungguhan sesudahnya tidak mulai dari nol');
     }
 
+    // relief-hidup (src/runtime/relief-hidup.js): sisi kubah yang menghadap SINAR lebih terang dan berbalik saat lampu pindah,
+    // bayangan pahatan jatuh di seberang lampu, piksel sama di dua jalur seek, bagian hidup menggerakkan piksel, input salah
+    // ditolak, tanpa WebGL2 jatuh ke gambar diam. Fixture sendiri (dinding 320×200), SINAR dipulihkan. Blok di atas `const tl=`.
+    const iRelief = html.indexOf('<wv:relief-hidup>');
+    if (iRelief >= 0 && !(iRelief < html.indexOf('const tl='))) masalah.push('relief-hidup: blok <wv:relief-hidup> harus di atas `const tl=` (kode adegan memanggil modul saat dimuat)');
+    const rel = await page.evaluate(() => window.RELIEF_UJI ? window.RELIEF_UJI() : null);
+    if (iRelief >= 0 && !rel) masalah.push('relief-hidup: RELIEF_UJI tidak ada');
+    if (rel) {
+      const ada = k => rel[k] != null;
+      for (const k of ['sisiBenar', 'bayangJatuh', 'seekSama', 'gerakHidup', 'ditolak', 'fallback']) if (!ada(k)) masalah.push(`relief-hidup: field ${k} kosong`);
+      if (ada('sisiBenar') && !rel.sisiBenar) masalah.push(`relief-hidup: sisi kubah yang menghadap SINAR harus lebih terang (> 12) dan berbalik saat lampu pindah (luminans kiri/kanan kubah: lampu kiri ${rel.sisi[0]}, lampu kanan ${rel.sisi[1]})`);
+      if (ada('bayangJatuh') && !rel.bayangJatuh) masalah.push(`relief-hidup: bayangan kubah tidak jatuh di bidang di seberang lampu (di bayangan ${rel.bayang[0]}, di sampingnya ${rel.bayang[1]}; selisih harus > 8)`);
+      if (ada('seekSama') && !rel.seekSama) masalah.push('relief-hidup: piksel kanvas relief berbeda antara seek(3) langsung dan seek(7)→seek(.1)→seek(3)');
+      if (ada('gerakHidup') && !rel.gerakHidup) masalah.push('relief-hidup: bagian hidup (batang berayun ±30°) tidak mengubah piksel antara t ,5 dan 1');
+      if (ada('ditolak') && !rel.ditolak) masalah.push('relief-hidup: bidang <g> SVG, dinding tanpa lapis, opsi asing, dan jenis lapis asing harus ditolak dengan pesan yang menyebut pilihan sah');
+      if (ada('fallback') && !rel.fallback) masalah.push('relief-hidup: tanpa WebGL2 reliefHidup() harus console.warn dan menggambar relief diam (kanvas 2D opak), bukan error');
+    }
+
     // kamera 2.5D (src/runtime/kamera-dom.js): jalur 2D tidak menyentuh gaya lain; sudut → transform 3D;
     // bidang data-z berparalaks; cahaya; katalog ?demo=1 selesai sebelum DUR. Halaman dimuat ULANG dengan ?demo=1
     // (starter ber-adegan: ?kosong=1, tanpa katalog) supaya pemeriksaan di atas tetap menguji jalur default deliverable.
@@ -250,7 +282,40 @@ for (const file of files) {
       if (!cam.shakeHidup) masalah.push('kamera: shake ≠ 0 tanpa tween CAM membeku saat diputar');
       if (!cam.urutanDitolak) masalah.push("kamera: light() dengan 'at' mundur harus ditolak");
       if (!adegan && !(cam.demoAkhir > 0 && cam.demoAkhir < cam.DUR)) masalah.push(`kamera: ?demo=1 harus selesai sebelum DUR (${cam.demoAkhir} vs ${cam.DUR})`);
+      // terbang() 2.5D: backend membaca RAILS[CAM.rail](t) — zoom diwujudkan sebagai dolly (perspective = W·mm/36, mm·zoom tetap),
+      // roll dari tikungan, sama di dua jalur seek, dan sesudah terbang CAM mewarisi pose akhir tanpa lompatan
+      const t25 = await page.evaluate(src => { (0, eval)(src);
+        const at = Math.max(planAt, 0) + 1, K = PLAN.mm * PLAN.zoom, R = terbang(at, 2, [[W / 2, H / 2, 1], [W / 2 + 500, H / 2 - 80, 1.8], [W / 2 + 900, H / 2 + 40, 3]], { guncang: 0 });
+        const angka = s => (s.match(/-?[\d.]+(e-?\d+)?/g) || []).map(Number), ambil = t => { window.OPENER.seek(t); return rig.style.transform; };
+        const a = ambil(at + 1), s1 = R(at + 1), b = ambil(at + 2 - 1e-4), c = ambil(at + 2 + 1e-4), lepas = CAM.rail === -1; ambil(at + .3); const a2 = ambil(at + 1);
+        // style.transform diserialisasi Chrome ke 6 angka bermakna: bandingkan relatif, bukan 1e-6
+        const P = +(/perspective\(([\d.]+)px\)/.exec(a) || [])[1], rz = +(/rotateZ\((-?[\d.e-]+)deg\)/.exec(a) || [])[1];
+        const nb = angka(b), nc = angka(c);
+        return { dolly: Math.abs(P / (W * s1.mm / 36) - 1) < 1e-5 && Math.abs(s1.mm * s1.zoom - K) < 1e-9, roll: Math.abs(rz) > .3, sama: a === a2,
+          sambung: nb.length === nc.length && nb.every((v, i) => Math.abs(v - nc[i]) < .5), lepas, a, b, c };
+      }, TERBANG);
+      if (!t25.dolly) masalah.push(`terbang 2.5D: perspective rig harus W·mm/36 dari pose terbang (mm·zoom tetap) — ${t25.a}`);
+      if (!t25.roll) masalah.push(`terbang 2.5D: tikungan tidak menghasilkan rotateZ — ${t25.a}`);
+      if (!t25.sama) masalah.push('terbang 2.5D: transform rig di detik yang sama berbeda antara dua jalur seek');
+      if (!t25.sambung || !t25.lepas) masalah.push(`terbang 2.5D: lompatan saat terbang selesai (${t25.b} → ${t25.c}) atau CAM.rail tidak kembali -1`);
     }
+
+    // mata elang (starter-elang.html): jalur kontinu 120 Hz, roll dalam batas, kamera lolos celah gapura dengan jarak bebas,
+    // motion blur hanya di segmen KABUR, geometri lanskap sama di dua muat halaman. Di halaman bawaan, SEBELUM kait kamera 3D
+    // (CAM3_UJI menyetel CAM langsung; tween yang pertama dirender sesudahnya mencatat nilai itu)
+    const elang = await page.evaluate(() => window.ELANG_UJI ? (window.OPENER.seek(0), window.ELANG_UJI()) : null);
+    if (name === 'starter-elang.html' && !elang) masalah.push('elang: ELANG_UJI tidak ada');
+    if (elang) {
+      const j = elang.jalur;
+      if (!(j.jarak > .9 * j.panjang)) masalah.push(`elang: kamera menempuh ${j.jarak.toFixed(1)} m, jalur ${j.panjang.toFixed(1)} m — terbang tidak menggerakkan kamera`);
+      if (!(j.langkah < .45)) masalah.push(`elang: kamera melompat ${j.langkah.toFixed(3)} m dalam 1/120 dtk (jalur harus kontinu, termasuk awal/akhir terbang)`);
+      if (!(j.putar < 3)) masalah.push(`elang: orientasi kamera berputar ${j.putar.toFixed(2)}° dalam 1/120 dtk`);
+      if (!(j.roll <= j.rollMaks)) masalah.push(`elang: roll ${j.roll.toFixed(1)}° melewati batas ${j.rollMaks}°`);
+      if (!(elang.celah.bebas >= .5 && elang.celah.lintas && elang.celah.lintas[1] > 1)) masalah.push(`elang: kamera tidak menembus celah gapura dengan jarak bebas ≥ 0,5 m (${JSON.stringify(elang.celah)})`);
+      if (elang.subLuar !== 1 || !(elang.subDalam > 1)) masalah.push(`elang: motion blur harus hanya di segmen KABUR (luar ${elang.subLuar}, dalam ${elang.subDalam} sub-frame)`);
+    }
+    const sidik = await page.evaluate(() => window.ELANG_SIDIK ? window.ELANG_SIDIK() : null);
+    if (sidik !== sidikSegar) masalah.push(`elang: geometri lanskap beda antara dua muat halaman (${sidik} vs ${sidikSegar}) — seed tidak deterministik`);
 
     // kamera 3D (src/runtime/kamera-three.js): pose, shot terpusat & ukuran bingkai, zona aman HUD, warna brand
     // tepat, penolakan input salah. Field null = tidak berlaku di halaman itu (opener) → dilewati.
@@ -260,18 +325,19 @@ for (const file of files) {
       await page.waitForFunction('window.OPENER && window.OPENER.ready', { timeout: 60000 });
       cam3 = await page.evaluate(() => window.CAM3_UJI());
     }
-    if (name === 'starter-opener.html' && !cam3) masalah.push('kamera3: opener harus mendefinisikan window.CAM3_UJI');
+    if (TANPA_SUBJEK.includes(name) && !cam3) masalah.push(`kamera3: ${name} harus mendefinisikan window.CAM3_UJI`);
     if (cam3) {
       const ada = k => cam3[k] != null;
       // null hanya sah di opener (tanpa subjek/#hud); starter 3D lain harus mengisi SEMUA field
-      if (name !== 'starter-opener.html') for (const k of ['poseCocok', 'ndc', 'isiTinggi', 'hudTabrakDitolak', 'pikselBrand', 'kosongDitolak', 'familyDitolak', 'keyGolden', 'elGolden', 'lightUrutDitolak', 'bokehSaatNol', 'bokehSaatEnam', 'jarakFokus', 'jarakHarapan', 'keyIkutKamera', 'railDuaDitolak', 'railUrutDitolak', 'railTengah', 'railSambung', 'dekatDiLuar', 'lowkeyGelap', 'lantaiAman', 'wormTanpaPita', 'bersarangBenar', 'nolDitolak', 'railLookDitolak', 'demoAkhir', 'DUR'])
+      if (!TANPA_SUBJEK.includes(name)) for (const k of ['poseCocok', 'ndc', 'isiTinggi', 'hudTabrakDitolak', 'pikselBrand', 'kosongDitolak', 'familyDitolak', 'keyGolden', 'elGolden', 'lightUrutDitolak', 'bokehSaatNol', 'bokehSaatEnam', 'jarakFokus', 'jarakHarapan', 'keyIkutKamera', 'railDuaDitolak', 'railUrutDitolak', 'railTengah', 'railSambung', 'dekatDiLuar', 'lowkeyGelap', 'lantaiAman', 'wormTanpaPita', 'bersarangBenar', 'nolDitolak', 'railLookDitolak', 'demoAkhir', 'DUR'])
         if (cam3[k] == null) masalah.push(`kamera3: field ${k} kosong — subjek/#hud hilang dari starter 3D?`);
-      if (name === 'starter-opener.html' && cam3.poseCocok == null) masalah.push('kamera3: opener harus punya poseCocok non-null');
+      if (TANPA_SUBJEK.includes(name) && cam3.poseCocok == null) masalah.push(`kamera3: ${name} harus punya poseCocok non-null`);
+      if (cam3.toneMapping !== (FILM[name] || 0)) masalah.push(`kamera3: renderer.toneMapping ${cam3.toneMapping}, harus ${FILM[name] || 0} — ${FILM[name] ? 'konten sejarah/sinematik memakai tone mapping film' : 'brand/produk tetap NoToneMapping (warna brand tepat)'}`);
       if (ada('poseCocok') && !(cam3.poseCocok)) masalah.push('kamera3: camera.position ≠ pose(CAM)');
       if (ada('ndc') && !(Math.abs(cam3.ndc[0]) < .01 && Math.abs(cam3.ndc[1]) < .01)) masalah.push(`kamera3: shot MS tidak memusatkan subjek (${cam3.ndc})`);
       if (ada('isiTinggi') && !(Math.abs(cam3.isiTinggi - .45) < .01)) masalah.push(`kamera3: shot WS pada bidang 1,6 mengisi ${cam3.isiTinggi} tinggi frame, harus 0,45`);
       if (ada('hudTabrakDitolak') && !cam3.hudTabrakDitolak) masalah.push('kamera3: shot yang membawa subjek ke kantong teks HUD harus ditolak');
-      if (ada('pikselBrand') && cam3.pikselBrand !== '238,28,37') masalah.push(`kamera3: mat('flat','#EE1C25') keluar ${cam3.pikselBrand}`);
+      if (ada('pikselBrand') && !FILM[name] && cam3.pikselBrand !== '238,28,37') masalah.push(`kamera3: mat('flat','#EE1C25') keluar ${cam3.pikselBrand}`);
       if (ada('kosongDitolak') && !cam3.kosongDitolak) masalah.push('kamera3: shot pada Group kosong harus ditolak');
       if (ada('keyGolden') && !(Math.abs(cam3.keyGolden - 2.8) < 1e-6 && cam3.elGolden === 6)) masalah.push(`kamera3: light('golden') tidak menyetel key (${cam3.keyGolden}, ${cam3.elGolden})`);
       if (ada('keyGolden') && !cam3.lightUrutDitolak) masalah.push("kamera3: light() dengan 'at' mundur harus ditolak");
@@ -293,6 +359,7 @@ for (const file of files) {
       if (ada('railLookDitolak') && !cam3.railLookDitolak) masalah.push('kamera3: rail() dengan titik terakhir = look harus ditolak saat setup');
     }
 
+
     if (errs.length) masalah.push('error JS: ' + errs[0]);
   } catch (e) {
     masalah.push(String(e.message || e).split('\n')[0]);
@@ -304,5 +371,5 @@ for (const file of files) {
 }
 
 await browser.close();
-console.log(gagal ? `\n${gagal} starter bermasalah.` : `\n${files.length} starter lolos.`);
+console.log(gagal ? `\n${gagal} starter bermasalah.` : `\n${files.length - lewat} starter lolos${lewat ? `, ${lewat} dilewati (WebGL perangkat lunak)` : ''}.`);
 process.exit(gagal ? 1 : 0);

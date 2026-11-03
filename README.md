@@ -285,7 +285,10 @@ SKILL.md                         rules & workflow (read by the agent)
 .claude-plugin/                  plugin + marketplace manifests
 references/
   opener-konsep.md               19 opener concepts, UI animation, photos in openers
-  anti-ppt.md                    slide patterns → fixes
+  anti-ppt.md                    slide patterns → fixes, structural bans checked from code
+  checklist.md                   pre-delivery checklist + known traps
+  aset-mcp.md                    generating assets through MCP (capability, not vendor)
+  isi-paket.md                   full list of the package's files
   techniques.md                  typography, camera, transitions, backgrounds, render families
   sinematografi.md               cinematic camera & lighting vocabulary, 2.5D vs 3D, 3D pitfalls
   explainer.md                   explainer styles, camera recipes, VO re-timing

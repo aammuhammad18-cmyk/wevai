@@ -7,6 +7,19 @@ PNG): ±67 menit dari comp master sampai contact sheet terakhir, ±100 panggilan
 0 kredit Higgsfield. Hukum gaya tetap dari `kartun-panggung.md`; dokumen ini hanya
 soal CARA membangunnya lewat bridge.
 
+## After Effects — langsung lewat bridge Higgsfield
+
+Bila After Effects sudah terbuka, MCP bridge `ae_*` Higgsfield tersambung, dan user
+meminta animasi/explainer dibangun di AE, bangun langsung lewat perintah bridge. Isi
+dokumen ini: kerangka comp lewat satu Lottie kecil, null
+`CAM` per panggung (anchor & position di-nol-kan SEBELUM parenting), ilustrasi
+dari SVG-kode → PNG 2× (`scripts/ae/bridge/aset-svg.py` + `svg2png.cjs`), karakter
+sebagai shape asli AE bersendi (`scripts/ae/bridge/rig-tokoh.py`, ±90 op per tokoh),
+keyframe bagian tubuh dalam ruang induk, verifikasi lewat contact sheet (relay
+bila r2.dev diblokir). Hukum kartun panggung tetap berlaku penuh. Bridge tidak
+bisa menyimpan/merender dan tidak bisa menyusun ulang urutan layer — sebutkan itu
+dan buat layer dari belakang ke depan. Build 10 panggung ≈ 1 jam, 0 kredit.
+
 ## Apa yang bisa dan tidak bisa dilakukan bridge
 
 | Bisa | Tidak bisa (dan jalan keluarnya) |

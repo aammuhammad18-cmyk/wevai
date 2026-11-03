@@ -9,7 +9,10 @@ Pemilik memutuskan kapan sesuatu di-push atau dirilis. Agen hanya menyiapkan.
   - kontrak `window.OPENER` berubah;
   - argumen atau keluaran skrip (`snap`, `export-frames`, `test-starters`) berubah;
   - starter atau gaya dihapus atau diganti nama;
-  - susunan `SKILL.md` yang dibaca agen berubah.
+  - aturan dihapus atau dibalik sehingga hasil yang dulu sah kini ditolak.
+
+  Menata ulang isi `SKILL.md` ke `references/` tanpa mengubah aturan bukan MAYOR, melainkan PATCH (atau MINOR bila
+  sekalian menambah kemampuan).
 - **MINOR** (1.4.0) dipakai untuk kemampuan baru: gaya, starter, atau modul runtime baru; dukungan agen baru;
   aturan baru di `references/`.
 - **PATCH** (1.3.1) dipakai untuk perbaikan bug, penyelarasan dokumen, atau angka/ambang, tanpa kemampuan baru.

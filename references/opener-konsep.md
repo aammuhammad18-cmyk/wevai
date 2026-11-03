@@ -376,7 +376,7 @@ untuk teks. User yang memberi foto sendiri juga dibantu daftar ini.
 - Menembus huruf/bentuk brand: bentuk utuh di belakang orang dan salinan bentuk di depan
   yang dimask sebagian, sehingga orang tampak berpose menembus bentuk.
 - Montase di ketukan: posisi dan skala orang tetap, fotonya berganti tiap 0,3–0,8 dtk.
-- Ken Burns saja tetap ditolak (SKILL.md larangan struktural); foto latar penuh memakai
+- Ken Burns saja tetap ditolak (larangan struktural, `anti-ppt.md`); foto latar penuh memakai
   parallax atau kamera yang benar-benar bergerak.
 
 **6. Video sebagai pelengkap** — sumber ditanyakan dengan cara yang sama (file user, generate

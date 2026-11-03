@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* =========================================================
    LINT: memeriksa deliverable terhadap aturan WeVai yang BISA diukur
-   dari kode (SKILL.md "Larangan struktural" + checklist). Ini bukan penilaian
+   dari kode (anti-ppt.md "Larangan struktural" + checklist.md). Ini bukan penilaian
    rasa — frame tetap harus dilihat dengan mata (scripts/snap.mjs).
 
    Pakai (dari folder proyek):
@@ -36,7 +36,7 @@ function lint(file, raw) {
   const add = (level, rule, msg, idx, fix) =>
     find.push({ level, rule, msg, line: idx == null ? null : lineOf(raw, idx), fix });
 
-  // 1. Section yang di-fade = slide deck (SKILL.md Larangan struktural #1)
+  // 1. Section yang di-fade = slide deck (anti-ppt.md Larangan struktural #1)
   const scenes = all(src, /<section\b[^>]*class="[^"]*\bscene\b/g);
   const fades = all(src, /\.(?:scene|sc-)[^\n]{0,120}\b(?:autoAlpha|opacity)\s*:/g).length
               + all(src, /\b(?:autoAlpha|opacity)\s*:\s*[01]\b[^\n]{0,80}(?:scene|sc-)/g).length;

@@ -65,7 +65,7 @@ sudah di-crop. Jangan terbang lintas dunia 3 detik (naik ke langit, menyelam ke
 bawah tanah, zoom keluar) — itu pola "tahan → pan jauh sambil zoom → cut → ulangi"
 yang melelahkan. Satu-satunya pengecualian: shot mata elang (`sinematografi.md` §3).
 
-Cut antar panggung **bukan** pelanggaran "Larangan struktural #1" di SKILL.md
+Cut antar panggung **bukan** pelanggaran "Larangan struktural #1" (`anti-ppt.md`)
 selama tiap panggung hidup (isinya beraksi). Yang dilarang adalah gambar diam
 yang di-fade.
 

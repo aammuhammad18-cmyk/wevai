@@ -20,7 +20,10 @@ import { fileURLToPath } from 'node:url';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const check = process.argv.includes('--check');
 
-const INTI = ['SKILL.md', 'references/anti-ppt.md'];
+const INTI = ['SKILL.md', 'references/anti-ppt.md', 'references/checklist.md'];   // checklist.md: dulu bagian SKILL.md, tetap dibaca di setiap jalur
+// Antigravity hanya memuat 24 000 byte pertama badan SKILL.md (agy plugin validate, 3 Nov 2026). Dihitung dengan CRLF
+// (checkout Windows menambah 1 byte per baris) supaya batas tetap aman di mesin mana pun.
+const BADAN_SKILL_MAKS = 24000;
 // [nama jalur, berkas tambahan, batas KB untuk seluruh jalur]
 const JALUR = [
   ['Inti (selalu dibaca)', [], 60],
@@ -50,6 +53,11 @@ for (const [nama, tambahan, batasKB] of JALUR) {
   if (lebih) lewat.push(`${nama}: ${kb.toFixed(0)} KB > batas ${batasKB} KB`);
   console.log(`${nama.padEnd(33)} ${String(berkas.length).padStart(2)}   ${kb.toFixed(0).padStart(6)}  ${String(tok).padStart(7)}   ${String(batasKB).padStart(5)}${lebih ? '  ← LEWAT' : ''}`);
 }
+
+{ const badan = (await readFile(join(ROOT, 'SKILL.md'), 'utf8')).replace(/\r\n/g, '\n').replace(/^---\n[\s\S]*?\n---\n/, ''),
+    b = Buffer.byteLength(badan) + badan.split('\n').length;
+  console.log(`\nbadan SKILL.md: ${b} byte (CRLF), batas muat Antigravity ${BADAN_SKILL_MAKS}`);
+  if (b > BADAN_SKILL_MAKS) lewat.push(`badan SKILL.md ${b} byte > ${BADAN_SKILL_MAKS}: sisanya tidak terbaca di Antigravity; pindahkan isi ke references/`); }
 
 console.log('\nAngka token hanya perkiraan (±1 karakter per 3,4). Yang dijaga adalah TREN:');
 console.log('aturan baru sebaiknya menggantikan yang lama, bukan menumpuk di jalur yang sama.');

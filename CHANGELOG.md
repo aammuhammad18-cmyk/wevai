@@ -102,6 +102,19 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
     gagal di mesin yang sama ("Could not find Chrome"); `--help`/`-h` pada 9 skrip ber-guard: exit 0, tanpa berkas baru, tanpa proses
     Chrome baru; bentuk PowerShell 5.1 yang didokumentasikan (env, `;`, `npm ... --prefix`, `Copy-Item`, `git clone`, `Start-Process`
     terlepas) jalan.
+- **SKILL.md muat batas Antigravity.**
+  - Masalahnya: `agy plugin validate` menunjukkan Antigravity hanya memuat 24 000 byte pertama badan `SKILL.md`. Badan itu
+    sebelumnya ±37 KB, jadi langkah 4–7, checklist, dan jebakan terpotong.
+  - Enam bagian dipindah utuh (diperiksa baris demi baris; hanya 8 baris rujukan yang disesuaikan):
+    - Larangan struktural → `anti-ppt.md`;
+    - Checklist + Jebakan → `references/checklist.md` (baru, masuk INTI, dibaca di langkah 6);
+    - Isi paket → `references/isi-paket.md`;
+    - Aset lewat MCP → `references/aset-mcp.md` (aturan intinya tetap dua baris di `SKILL.md`);
+    - After Effects → `ae-bridge-higgsfield.md`.
+  - Hasilnya, badan `SKILL.md` turun dari 37 264 ke 22 574 byte (dihitung dengan CRLF). `context-budget.mjs` kini gagal bila
+    badan melebihi 24 000 byte.
+  - Semua jalur anggaran turun 4–5 KB: Opener 219,9 → 215 KB, Siluet sinematik 234,5 → 230 KB.
+  - `docs/aturan-rilis.md` kini menyatakan bahwa menata ulang isi `SKILL.md` tanpa mengubah aturan bukan perubahan MAYOR.
 
 ## 1.3.0 — 2026-11-02
 

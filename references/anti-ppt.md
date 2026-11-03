@@ -3,6 +3,62 @@
 Dokumen ini adalah alasan skill ini ada: hasil yang "secara teknis benar" tetap
 gagal bila terasa seperti presentasi PPT.
 
+## Larangan struktural — uji PPT yang bisa diperiksa mekanis
+
+Model lain (dan kamu, bila lelah) akan jatuh ke pola ini walau sudah membaca
+hukum di SKILL.md. Sebelum menyerahkan, cek KODE, bukan perasaan:
+
+1. `grep -c "class=\"scene\"\|<section" index.html` — bila ≥ 3 adegan
+   berupa `<section>` yang dinyalakan-dimatikan dengan `autoAlpha`/opacity
+   → itu slide deck. Adegan harus berganti karena DUNIA/KAMERA bergerak
+   (kamera bergerak, whip ke sudut lain, push-through, latar berganti),
+   bukan karena section di-fade. Pengecualian yang sah: **kartun panggung**
+   (`references/kartun-panggung.md`) memakai cut/geser 96 px antar panggung
+   — boleh, karena tiap panggung hidup penuh (≥10 benda beraksi), bukan
+   gambar diam yang di-fade.
+2. Ada benang merah visual yang bertahan: satu subjek (aksi kontinu) ATAU
+   satu dunia kolase/kertas/putih yang disusuri kamera (kartun, foto,
+   katalog, sketsa). Foto full-bleed berganti-ganti tanpa dunia bersama →
+   PPT. Satu gambar + satu kalimat per adegan, berganti tiap adegan →
+   tetap slideshow walau kameranya bergerak: tiap adegan 3–5 elemen yang
+   masuk bertahap per frasa (explainer.md "Satu adegan = 3–5 elemen").
+3. Per adegan hitung node teks: eyebrow/kicker + judul + body/kredit = 3
+   tingkat → PPT. Maksimum dua: satu angka/kalimat besar + satu label dunia.
+   Dokumen/stempel/blok tanggal berisi ≤ 3 baris pendek dihitung objek,
+   bukan tingkat teks.
+4. Ken Burns (scale 1.0→1.05 pada foto) sebagai satu-satunya gerak → PPT.
+   Gerak tiap detik harus datang dari BAHASA GERAK LATAR yang dipilih di
+   style brief dari menu `techniques.md` §7c (kamera bernapas di latar
+   bertekstur, gradien berpindah, blob mengambang, grain hidup, sapuan
+   cahaya per segmen, bentuk besar berputar lambat, partikel naik, grid
+   bernapas, teks hantu bergeser, Ken Burns + parallax…). Batang/garis/
+   potongan yang melintas ke samping ("lane", "range", "streak", hujan
+   partikel horizontal) SUDAH dipakai dua proyek berturut-turut dengan nama
+   berbeda — itu bukan default; hanya bila tema memang kecepatan/aliran,
+   dan tidak boleh dua proyek berturut-turut.
+5. Transisi hanya fade + scale bump + light leak di semua cut → template PPT.
+   Whip ke sudut lain, cut ke instrumen (peta/speedometer/profil), push-through.
+6. Explainer dimulai dari starter GAYANYA: `starter-explainer-kartun`,
+   `-jurnalisme`, `-katalog`, `-sketsa` (mode kolase: kamera menyusuri aset
+   diam), `starter-explainer` (aksi kontinu: dunia mengalir), atau
+   `starter-explainer-panggung` (kartun panggung: satu panggung per adegan,
+   rig sendi, kamera hanya di dalam panggung), atau `starter-explainer-3d`
+   (dunia 3D). Yang kolase satu rig; yang panggung rignya lain. BUKAN dari `assets/starter-opener.html`
+   (opener teks), dan bukan dari nol.
+
+7. **Miniatur adalah slide.** Kamera zoom < 1,08 sehingga rumah sebesar ibu
+   jari dan tanah kosong mengisi separuh layar → PPT walau semua bergerak.
+   Dunia dipecah jadi panggung seukuran frame, bukan satu peta besar yang
+   dijelajahi (`kartun-panggung.md` Hukum 1).
+
+8. **Kerangka template (opener/promo).** Cek rundown dan kode: adegan pertama
+   berupa teks yang diperbesar lalu keluar ke kiri; tiga tile/kartu fitur
+   sejajar; kotak input/searchbar yang diketik; urutan hook → fitur → fitur →
+   janji → logo → CTA. Dua atau lebih tanpa tuntutan konsep → template, walau
+   kulitnya baru. Pilih ulang kerangka dari `references/opener-konsep.md`.
+
+Gagal satu poin saja → rombak sebelum ditunjukkan ke user.
+
 ## Kenapa model selalu jatuh ke pola slide
 
 Model dilatih menyusun INFORMASI: judul → penjelas → bukti pendukung.
@@ -56,7 +112,7 @@ Contoh explainer sejarah 30 dtk, 6 adegan, yang terasa seperti PPT. Kodenya:
 | Tidak ada subjek yang bertahan antar adegan | Tidak ada yang "dibawa" penonton | Hero hadir > 60 % durasi |
 
 Pelajaran: hukum naratif saja tidak cukup; perlu larangan struktural yang bisa diperiksa dari kode
-(SKILL.md → "Larangan struktural") dan starter yang memaksa rig yang benar
+("Larangan struktural" di awal berkas ini) dan starter yang memaksa rig yang benar
 (`assets/starter-explainer.html`).
 
 ## Prinsip yang bisa dibawa ke proyek mana pun

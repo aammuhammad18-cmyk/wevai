@@ -16,7 +16,7 @@
     - teks tetap DOM tajam di #ui, di atas lukisan; satu legenda dokumenter 1,0–7,2 dtk
     - tanpa grain film (grainHidup melompat 12×/dtk = mendidih); butir = kertas yang ikut bidang
     - OPENER.ready menunggu lukis.siap() (lukisan selesai) + fonts.ready; autoplay + loop, TANPA player; ?debug=1 panel scrub;
-      ?clean=1 untuk export; ?kosong=1 = rig + modul tanpa adegan (kerangka uji scripts/test-starters.mjs)
+      ?clean=1 untuk export; ?kenang=1 = kilas balik sepia (palet 'kenang'); ?kosong=1 = rig + modul tanpa adegan (kerangka uji)
   Ganti: desaKakiGunung() (markup tiap bidang dari pustaka.*, kenop lukis per bidang, sprite, kamera) dan legenda #cap.
   Buka dengan klik dua kali. Hanya butuh browser + internet (GSAP & font dari CDN). Suara: isi src #vo.
 -->
@@ -858,6 +858,7 @@ async function lukisKanvas(cv,markup,kt,q,seed){
     jalan('KABUR',A1,[KU],{A:[1,0,4*res,0]});jalan('KABUR',A2,[A1],{A:[0,1,4*res,0]});
     jalan('AIR',A1,[KU,A2,LI],{A:[q.tepi,q.butir,q.aliran,q.basah],B:[q.goyang,q.kertas,q.sapuan,0],C:[q.nada,0,0,0],N:(typeof q.palet==='string'?PALET[q.palet]:q.palet).map(rgb)},STRIP);
     jalan('SALIN',null,[A1],{A:[1,0,0,0]});
+    if(gl.isContextLost())throw new Error('lukis: konteks WebGL hilang saat melukis (GPU direset?) — muat ulang halaman');
     x2.clearRect(0,0,w,h);x2.drawImage(g.cv,0,0);
   }finally{for(const{t,f}of T){gl.deleteTexture(t);if(f)gl.deleteFramebuffer(f);}}}
 
@@ -917,7 +918,8 @@ return{bidang,sprite,siklus,siap,pose,dokumen,opsi,PALET};})();
    Warna aset dari pustaka (LANGIT.horizon = kabut senja kusam saat membangun aset jauh, cakrawala terang saat membangun air sawah);
    palet nada 'senja' di lukis menyerasikannya. Dipanggil saat setup, sesudah tl ada. */
 function desaKakiGunung(){
-  const R=mulberry32(11),r=(a,b)=>a+(b-a)*R(),n1=v=>Math.round(v*10)/10,PU=pustaka,LK=lukis,
+  const R=mulberry32(11),r=(a,b)=>a+(b-a)*R(),n1=v=>Math.round(v*10)/10,PU=pustaka,   // ?kenang=1: kilas balik sepia, satu nada di semua kanvas
+    LK=q.has('kenang')?{...lukis,...Object.fromEntries(['bidang','sprite'].map(f=>[f,(e,m,o={})=>lukis[f](e,m,{...o,palet:'kenang',nada:.78})]))}:lukis,
     bidang=z=>{const d=document.createElement('div');d.dataset.z=z;d.style.cssText=`position:absolute;left:0;top:0;width:${W}px;height:${H}px`;
       rig.appendChild(d);BIDANG.push({el:d,z});return d;},
     MT={x:1440,y:556,warna:'#ffcf96',kuat:.8},   // matahari senja (px bidang): rim semua aset ke arah ini
@@ -984,17 +986,18 @@ function desaKakiGunung(){
     tubuh=(isi,gx,gy,s)=>`<g transform="translate(${gx},${gy}) scale(${s})"><g transform="translate(1.4,-.6)" fill="${RIM}" stroke="${RIM}">${isi}</g><g fill="${C}" stroke="${C}">${isi}</g></g>`,
     garis=(d,w)=>`<path d="${d}" fill="none" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`,
     /* pemikul: 8 pose langkah; pikulan di bahu, keranjang berayun sedikit */
-    pemikul=p=>{const a=p/8*2*Math.PI,ka=.42*Math.cos(a),kb=-ka,ta=.5*Math.max(0,Math.sin(a)),tb=.5*Math.max(0,-Math.sin(a)),ay=1.2*Math.sin(2*a);
-      return garis(sendi(-1,-48,ka,ka-.1-ta,25,25),6.5)+garis(sendi(1,-48,kb,kb-.1-tb,25,25),6.5)+
+    pemikul=p=>{const a=p/8*2*Math.PI,ka=.42*Math.cos(a),kb=-ka,ta=.5*Math.max(0,Math.sin(a)),tb=.5*Math.max(0,-Math.sin(a)),ay=1.2*Math.sin(2*a),
+        pj=(u,v)=>25*Math.cos(u)+25*Math.cos(v),hy=-Math.max(pj(ka,ka-.1-ta),pj(kb,kb-.1-tb)),dy=n1(hy+48);
+      return garis(sendi(-1,hy,ka,ka-.1-ta,25,25),6.5)+garis(sendi(1,hy,kb,kb-.1-tb,25,25),6.5)+`<g transform="translate(0,${dy})">`+
         `<path d="M-8,-56 L8,-56 L${n1(9+3*Math.sin(a))},-30 L${n1(-9+3*Math.sin(a))},-30Z" stroke="none"/><path d="M-6,-82 L8,-82 L7,-54 L-7,-54Z" stroke="none"/><circle cx="3" cy="-90" r="7" stroke="none"/>`+
         garis(`M-2,-80 L${n1(-6+8*Math.sin(-a))},-62 L${n1(-3+10*Math.sin(-a))},-48`,4.5)+garis('M4,-80 L11,-74 L9,-86',4.5)+garis(`M-38,${n1(-85+ay)} L42,${n1(-83-ay)}`,2.6)+
         `<path d="M-38,${n1(-85+ay)} L-41,${n1(-64+ay)} M-38,${n1(-85+ay)} L-35,${n1(-64+ay)} M42,${n1(-83-ay)} L39,${n1(-62-ay)} M42,${n1(-83-ay)} L45,${n1(-62-ay)}" fill="none" stroke-width="1.2"/>`+
-        `<path d="M-48,${n1(-64+ay)} L-28,${n1(-64+ay)} L-31,${n1(-50+ay)} L-45,${n1(-50+ay)}Z M32,${n1(-62-ay)} L52,${n1(-62-ay)} L49,${n1(-48-ay)} L35,${n1(-48-ay)}Z" stroke="none"/>`;},
+        `<path d="M-48,${n1(-64+ay)} L-28,${n1(-64+ay)} L-31,${n1(-50+ay)} L-45,${n1(-50+ay)}Z M32,${n1(-62-ay)} L52,${n1(-62-ay)} L49,${n1(-48-ay)} L35,${n1(-48-ay)}Z" stroke="none"/></g>`;},
     /* petani menanam: badan membungkuk, caping, tangan ke air */
     petani=garis('M-6,0 L-5,-22 L-1,-42',6)+garis('M7,0 L7,-21 L3,-42',6)+'<path d="M-9,-47 L7,-43 L10,-25 L-9,-25Z" stroke="none"/>'+garis('M0,-44 L25,-63',13)+
       '<circle cx="33" cy="-66" r="6.5" stroke="none"/><path d="M25.9,-80.4 L43.8,-73.2 L43.5,-53.8Z" stroke="none"/>'+garis('M26,-63 L28,-40 L30,-15',4.5)+garis('M21,-60 L23,-38 L25,-17',4.5);
   const jalan=LK.sprite(B3,Array.from({length:8},(_,p)=>tubuh(pemikul(p),330,962,1.08)),{kotak:[260,830,140,150],kuas:2,panjang:.4,variasi:.1,tepi:.6,basah:.1,goyang:.6,seed:701});
-  LK.siklus(jalan,6);tl.fromTo(jalan,{x:0,y:0},{x:760,y:-8,duration:DUR,ease:'none'},0);
+  LK.siklus(jalan,6);tl.fromTo(jalan,{x:0},{x:760,duration:DUR,ease:'none'},0);
   const tani=[[612,934,1],[905,948,-1]].map(([x,y,sg],i)=>{const s=LK.sprite(B3,tubuh(petani,x,y,sg),{kotak:[x-70,y-115,140,125],kuas:2,panjang:.4,variasi:.1,tepi:.6,basah:.1,goyang:.6,seed:710+i});
     s.style.transformOrigin=`${70+sg*4}px 115px`;return s;});
   const tanam=()=>{const t=tl.time();tani.forEach((s,i)=>{s.style.transform=`rotate(${(4*Math.sin(2*Math.PI*(t/3.4+i*.37))).toFixed(2)}deg)`;});};

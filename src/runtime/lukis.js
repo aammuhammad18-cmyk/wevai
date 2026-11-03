@@ -134,6 +134,7 @@ async function lukisKanvas(cv,markup,kt,q,seed){
     jalan('KABUR',A1,[KU],{A:[1,0,4*res,0]});jalan('KABUR',A2,[A1],{A:[0,1,4*res,0]});
     jalan('AIR',A1,[KU,A2,LI],{A:[q.tepi,q.butir,q.aliran,q.basah],B:[q.goyang,q.kertas,q.sapuan,0],C:[q.nada,0,0,0],N:(typeof q.palet==='string'?PALET[q.palet]:q.palet).map(rgb)},STRIP);
     jalan('SALIN',null,[A1],{A:[1,0,0,0]});
+    if(gl.isContextLost())throw new Error('lukis: konteks WebGL hilang saat melukis (GPU direset?) — muat ulang halaman');
     x2.clearRect(0,0,w,h);x2.drawImage(g.cv,0,0);
   }finally{for(const{t,f}of T){gl.deleteTexture(t);if(f)gl.deleteFramebuffer(f);}}}
 

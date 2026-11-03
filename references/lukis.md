@@ -62,6 +62,19 @@ Bawaan = bidang tengah, cat air. Opsi asing atau di luar rentang → `Error('luk
 Patokan per bidang (starter): langit `kuas 9, panjang .9, basah .85, aliran .6, tepi .25`; gunung jauh `kuas 7, variasi .2,
 butir .8`; bidang ramai/detail `kuas 4`; latar depan gelap `kuas 5, variasi .3, sapuan .5, tepi .9`; sprite kecil `kuas 1.5–3`.
 
+## Palet senja (legenda)
+
+| Peran | Warna | Catatan |
+|---|---|---|
+| langit atas → tengah | `#1f2350` → `#3a3a6e` → `#7a5a86` | nila ke ungu; awan `#3a3668`–`#56477a` |
+| cakrawala | `#d48a7e` → `#f2b585` → `#f8d4a0` | merah jambu ke aprikot; awan dekat matahari `#e3967f`, sisi bawah `#f6b48c` |
+| matahari | `#fff6e2` (kertas), pendar `#ffdca8` | cahaya aset `{x, y, warna:'#ffcf96'}` |
+| kabut jarak (`LANGIT.horizon` saat membangun aset jauh) | `#9d7d92` | ungu kusam: gunung tidak larut ke aprikot |
+| gunung, bukit | `#4e4166`, `#33404c` | dingin; latar depan `#241a22`, daun `#2c3328` |
+| palet nada | `senja` `#2a2036` · `#9c6b70` · `#f7dcb0` | `nada` .15–.3 menyerasikan |
+
+Kilas balik: bangun adegan seperti biasa, lalu `palet:'kenang', nada:.7` di setiap bidang dan sprite (sepia, satu nada).
+
 ## Resep
 
 1. **Langit dilukis, bukan `langit()`.** Cuci gradien + awan yang dikaburkan `feGaussianBlur` (= basah) + pendar; matahari = kertas

@@ -312,6 +312,20 @@ for (const file of files) {
       if (ada('dibersihkan') && !pasca.dibersihkan) masalah.push('pasca: PASCA_UJI meninggalkan lapisan singleton, sumber sementara, atau nilai GRADE yang berubah — grade() sungguhan sesudahnya tidak mulai dari nol');
     }
 
+    // lukis (src/runtime/lukis.js), kait modul: fixture di luar rig — lukis ulang = byte sama; markup sama di kotak tergeser (24, 16) =
+    // piksel sama di ruang OBJEK (derau ikut objek, bukan kanvas/layar); seed lain = sapuan lain; tanpa WebGL2 = raster mentah; kenop salah ditolak
+    const lk = await page.evaluate(async () => window.LUKIS_UJI ? await window.LUKIS_UJI() : null);
+    if (LUKIS.includes(name) && !lk) masalah.push('lukis: LUKIS_UJI tidak ada');
+    if (lk) {
+      for (const k of ['ulangSama', 'seedBeda', 'geserSama', 'mentah', 'opsiDitolak']) if (lk[k] == null) masalah.push(`lukis: field ${k} kosong`);
+      if (lk.kosong) masalah.push('lukis: fixture dilukis kosong (semua piksel 0)');
+      if (lk.ulangSama === false) masalah.push('lukis: markup + seed sama dilukis dua kali memberi piksel berbeda');
+      if (lk.seedBeda === false) masalah.push('lukis: seed berbeda memberi sapuan sama — seed tidak sampai ke shader');
+      if (lk.geserSama === false) masalah.push(`lukis: markup sama di kotak tergeser (24, 16) beda di ruang objek (${lk.geserBeda} kanal > 1) — derau mengikuti kanvas/layar, bukan objek`);
+      if (lk.mentah === false) masalah.push('lukis: tanpa WebGL2 kanvas harus berisi raster mentah (tidak kosong, beda dari hasil lukis)');
+      if (lk.opsiDitolak === false) masalah.push('lukis: lukis.bidang(el, m, {kuas: -1}) harus ditolak dengan pesan "kuas harus angka"');
+    }
+
     // kamera 2.5D (src/runtime/kamera-dom.js): jalur 2D tidak menyentuh gaya lain; sudut → transform 3D;
     // bidang data-z berparalaks; cahaya; katalog ?demo=1 selesai sebelum DUR. Halaman dimuat ULANG dengan ?demo=1
     // (starter ber-adegan: ?kosong=1, tanpa katalog) supaya pemeriksaan di atas tetap menguji jalur default deliverable.

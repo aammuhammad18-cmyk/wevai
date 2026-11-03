@@ -43,10 +43,10 @@ dari folder proyek supaya `index.html` ketemu.
 
 **Browser.** Skrip yang membuka Chrome (`snap`, `export-frames`, `test-starters`, `bench-frame`,
 `svg2png`) mencarinya sendiri lewat `scripts/chrome.mjs`, berurutan: `PUPPETEER_EXECUTABLE_PATH`
-bila di-set → browser unduhan puppeteer → Google Chrome → Microsoft Edge di lokasi pasang standar
-Windows/macOS/Linux. Karena itu env tadi OPSIONAL: perlu hanya bila Chrome/Edge ada di lokasi
-tak standar. Sudah punya Chrome/Edge dan tidak mau mengunduh Chromium ±150 MB? Pasang dengan
-`PUPPETEER_SKIP_DOWNLOAD` (tabel di bawah). Tak ada browser sama sekali → skrip berhenti dengan
+bila di-set → browser unduhan puppeteer → Google Chrome (di macOS/Linux Chromium ikut) → Microsoft Edge
+di lokasi pasang standar Windows/macOS/Linux. Karena itu `PUPPETEER_EXECUTABLE_PATH` OPSIONAL: perlu
+hanya bila Chrome/Edge ada di lokasi tak standar. Sudah punya Chrome/Edge dan tidak mau mengunduh
+browser ±150 MB? Pasang dengan `PUPPETEER_SKIP_DOWNLOAD` (tabel di bawah). Tak ada browser sama sekali → skrip berhenti dengan
 pesan yang menyebut dua jalan keluarnya (pasang Chrome/Edge, atau `npx --prefix "<folder skill>/scripts"
 puppeteer browsers install chrome`). Cek tanpa membuka browser: `node "<folder skill>/scripts/chrome.mjs"`.
 
@@ -62,7 +62,7 @@ shell baru, jadi env dari perintah sebelumnya tidak terbawa.
 | satu env | `MP4=out.mp4 node "<folder skill>/scripts/export-frames.mjs"` | `$env:MP4='out.mp4'; node "<folder skill>/scripts/export-frames.mjs"` |
 | beberapa env | `MP4=out.mp4 FPS=30 WORKERS=2 node …` | `$env:MP4='out.mp4'; $env:FPS='30'; $env:WORKERS='2'; node …` |
 | halaman lain (`URL`) | `URL="file:///C:/proyek/index.html?clean=1" node "<folder skill>/scripts/snap.mjs" shots 1 3.5` | `$env:URL='file:///C:/proyek/index.html?clean=1'; node "<folder skill>/scripts/snap.mjs" shots 1 3.5` |
-| lewati unduhan Chromium | `PUPPETEER_SKIP_DOWNLOAD=1 npm install --prefix "<folder skill>/scripts"` | `$env:PUPPETEER_SKIP_DOWNLOAD='1'; npm install --prefix "<folder skill>/scripts"` |
+| lewati unduhan browser | `PUPPETEER_SKIP_DOWNLOAD=1 npm install --prefix "<folder skill>/scripts"` | `$env:PUPPETEER_SKIP_DOWNLOAD='1'; npm install --prefix "<folder skill>/scripts"` |
 | Chrome/Edge di lokasi tak standar (opsional) | `PUPPETEER_EXECUTABLE_PATH=/opt/chrome/chrome node …` | `$env:PUPPETEER_EXECUTABLE_PATH='D:\Chrome\chrome.exe'; node …` |
 | sambung perintah | `a && b` | `a; b` (Windows PowerShell 5.1 tidak mengenal `&&`) |
 

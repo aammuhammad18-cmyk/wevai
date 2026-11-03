@@ -1,12 +1,12 @@
 /* CAHAYA-2D (spec sub-proyek 2 §4.2) — cahaya bersumber untuk adegan SVG: pendar berkedip, gelap yang meredup
    menjauhi sumber, rim pada siluet, bayangan jatuh, relief. Filter dan mask DIPANGGANG sekali saat dipanggil —
-   atributnya tidak pernah ditulis lagi; per frame hanya opacity/scale pendar (lapisan sendiri, will-change).
+   atributnya tidak pernah ditulis lagi; per frame hanya opacity/scale pendar (tanpa will-change: lihat panggang()).
    x, y sumber = px bidang = satuan pengguna svg bidang (<svg viewBox="0 0 1920 1080"> di 0,0 bidangnya). Sumber yang
    pindah: geser pendar-nya (tl.to(SUMBER.obor.el,{x:…})); rim/redup/relief dipasang ulang di cut. Membaca tl saat
    dipanggil saja — tidak dipanggil = halaman tidak berubah sedikit pun.
    Kamera yang men-zoom (dolly) mengubah skala bidang tiap frame → Chrome me-raster ulang svg-nya dan filter yang
-   dipanggang ikut dihitung ulang (adegan uji: +125–170 ms/frame). Beri <svg> bidang ber-filter will-change:transform:
-   bitmap-nya diskalakan, bukan di-raster ulang (terukur ≈ biaya tanpa modul; lunaknya tak terlihat di zoom 1,25).
+   dipanggang ikut dihitung ulang (adegan uji: +125–170 ms/frame). will-change:transform pada <svg> menskalakan bitmap, tetapi
+   bitmap itu milik saat lapisan dibuat: piksel bergantung jalur seek. Babak: panggang() (blok babak) svg bidang ke kanvas.
    Butuh dari atmosfer: rantaiUpdate, vnoise, warnaRGB (hook uji: rigDunia). */
 
 /* SUMBER: nama → {x, y, bidang, warna, jangkau, kuat, kedip, el}. kuat/kedip dibaca tiap frame, jadi boleh di-tween
@@ -33,7 +33,7 @@ function sumber(nama,{x,y,bidang,warna='#ffb347',jangkau=420,kuat=1,kedip=0,seed
   if(x==null||y==null||!(bidang instanceof HTMLElement))throw new Error('sumber: x, y (px bidang) dan bidang (elemen HTML, bukan <g> SVG) wajib');
   const w=warnaRGB(warna),c=a=>`rgba(${w},${a})`,inti=w.map(v=>Math.round(v+(255-v)*.6)),el=document.createElement('div');el.className='wv-pendar';
   el.style.cssText=`position:absolute;left:${x-jangkau}px;top:${y-jangkau}px;width:${2*jangkau}px;height:${2*jangkau}px;pointer-events:none;`+
-    `mix-blend-mode:screen;will-change:transform,opacity;background:radial-gradient(closest-side,rgba(${inti},.9),${c(.55)} 8%,${c(.22)} 25%,${c(.08)} 55%,${c(0)})`;
+    `mix-blend-mode:screen;background:radial-gradient(closest-side,rgba(${inti},.9),${c(.55)} 8%,${c(.22)} 25%,${c(.08)} 55%,${c(0)})`;
   bidang.appendChild(el);const s=SUMBER[nama]={x,y,bidang,warna,jangkau,kuat,kedip,el};
   const kedipkan=()=>{if(!el.isConnected)return;const t=tl.time();
     el.style.opacity=s.kuat*(1-s.kedip*vnoise(t*7,seed));el.style.scale=1+s.kedip*.06*vnoise(t*5,seed+1);};

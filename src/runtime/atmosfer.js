@@ -91,7 +91,7 @@ function warnaJarak(warna,z,zJauh=-800){const k=Math.max(0,Math.min(1,z/zJauh)),
 
 /* kabut(bidang,{y,…}) → <div class="wv-kabut"> anak bidang (ikut paralaks). Tile fBm 2D ber-seed lebar×tebal
    dipanggang SEKALI (kisi berperiode → menyambung di tepi; alfa memudar ke atas/bawah), ditampilkan sebagai
-   background repeat-x; per frame hanya translateX dari t. y = garis tengah pita (px bidang). Bidang jauh: rapat
+   background repeat-x; per frame hanya translateX dari t (tanpa will-change: lihat panggang()). y = garis tengah pita (px bidang). Bidang jauh: rapat
    lebih besar + warna warnaJarak(…, z). Elemen = 3 tile mulai x −lebar/2: di SETIAP fase hanyut pita menutup
    [−lebar/2, 3·lebar/2] bidangnya, jadi kamera boleh bergeser ±lebar/2 (truck, zoom < 1, roll, handheld) tanpa
    ujung pita masuk frame. */
@@ -109,7 +109,7 @@ function kabut(bidang,{y,tebal=180,warna=LANGIT.horizon,rapat=.6,hanyut=20,seed=
     for(let i=0;i<lebar;i++){const o=(j*lebar+i)*4;d[o]=r;d[o+1]=g;d[o+2]=b;d[o+3]=255*rapat*tepi*(.2+.8*Math.min(1,Math.max(0,S[o/4]*2.6-1.05)));}}   // kabut tipis + gumpalan
   x.putImageData(im,0,0);
   const el=document.createElement('div');el.className='wv-kabut';
-  el.style.cssText=`position:absolute;left:${-lebar/2}px;top:${y-tebal/2}px;width:${3*lebar}px;height:${tebal}px;pointer-events:none;will-change:transform;`+
+  el.style.cssText=`position:absolute;left:${-lebar/2}px;top:${y-tebal/2}px;width:${3*lebar}px;height:${tebal}px;pointer-events:none;`+
     `background:url("${c.toDataURL()}") repeat-x;background-size:${lebar}px ${tebal}px`;
   bidang.appendChild(el);
   const geser=()=>{if(el.isConnected)el.style.transform=`translateX(${-(((tl.time()*hanyut)%lebar+lebar)%lebar)}px)`;};
@@ -149,34 +149,36 @@ function partikel(bidang,{jenis,n=60,area=[0,0,W,H],seed=1,warna}={}){
       if(a>.003){cx.globalAlpha=Math.min(1,a);cx.drawImage(sp,x-s,y-s,2*s,2*s);}}};
   gambar();rantaiUpdate(gambar);return cv;}
 
-/* kait untuk scripts/test-starters.mjs — tidak dipanggil deliverable. Fixture sendiri (dua bidang, langit, keempat
-   jenis partikel, dua kabut, dua lapisan depan), lalu semuanya dibersihkan seperti CAM_UJI; callback rantai yang
-   tertinggal jadi no-op. */
-window.ATM_UJI=()=>{const r={},O=window.OPENER,cam=typeof CAM!=='undefined',buang=[],
-    bidang=z=>{const b=document.createElement('div');b.dataset.z=z;b.style.cssText=`position:absolute;left:0;top:0;width:${W}px;height:${H}px`;
-      rigDunia().appendChild(b);buang.push(b);if(cam)BIDANG.push({el:b,z});return b;},jauh=bidang(-600),dekat=bidang(0),L=langit(),
+/* kait untuk scripts/test-starters.mjs — tidak dipanggil deliverable. Fixture sendiri (dua bidang, keempat jenis partikel,
+   dua kabut, dua lapisan depan; langit bila halaman belum punya), lalu dibersihkan; callback rantai yang tertinggal jadi no-op.
+   Halaman berisi: langitnya dipakai lalu dipulihkan, hanya fixture yang dibandingkan, seek ke DURATION dulu (tween halaman
+   mencatat nilai awalnya sebelum CAM ditulis langsung), CAM dinetralkan (juga rail) tiap ukur. */
+window.ATM_UJI=()=>{const r={},O=window.OPENER,cam=typeof CAM!=='undefined',buang=[],lama=$('#wv-langit');O.seek(O.DURATION);
+  const bidang=z=>{const b=document.createElement('div');b.dataset.z=z;b.style.cssText=`position:absolute;left:0;top:0;width:${W}px;height:${H}px`;
+      rigDunia().appendChild(b);buang.push(b);if(cam)BIDANG.push({el:b,z});return b;},jauh=bidang(-600),dekat=bidang(0),L=lama||langit(),
     P=['bara','debu','asap','kunang'].map((jenis,i)=>partikel(i?jauh:'depan',{jenis,n:40,area:[200,200,480,360],seed:i+1})),
     k1=kabut(jauh,{y:700,seed:2,hanyut:W/4}),k0=kabut(dekat,{y:760,seed:3,hanyut:W/4}),   // satu siklus hanyut = lebar/hanyut = 4 dtk
     L1=lapisDepan(document.createElement('div')),L2=lapisDepan(document.createElement('div')),
-    foto=()=>[...document.querySelectorAll('.wv-partikel,#wv-langit,.wv-kabut')].map(e=>e.toDataURL?e.toDataURL():e.style.transform);
-  buang.push(L,...P,L1,L2);
+    foto=()=>[L,...P,k1,k0].map(e=>e.toDataURL?e.toDataURL():e.style.transform);
+  buang.push(...P,L1,L2);if(!lama)buang.push(L);
   r.lapisUrut=P[0].nextElementSibling===L1&&L1.nextElementSibling===L2&&!!L2.nextElementSibling;   // bara 'depan' → L1 → L2 → anak #stage lain
   O.seek(5);const a=foto();O.seek(9);O.seek(.1);O.seek(5);const b=foto();r.seekSama=a.length===b.length&&a.every((x,i)=>x===b[i]);
-  if(cam){const simpan={...CAM},kiri=e=>e.getBoundingClientRect().left;
-    Object.assign(CAM,{fx:W/2,fy:H/2,zoom:1,pitch:0,yaw:0,roll:0,shake:0});applyCam();const j0=kiri(k1),d0=kiri(k0);
-    CAM.fx+=300;applyCam();r.kabutParalaks=Math.abs((kiri(k1)-j0)-(kiri(k0)-d0))>1;
+  if(cam){const simpan={...CAM},kiri=e=>e.getBoundingClientRect().left,
+      netral=dx=>{Object.assign(CAM,{fx:W/2+dx,fy:H/2,zoom:1,mm:35,pitch:0,yaw:0,roll:0,shake:0,rail:-1});applyCam();};
+    netral(0);const j0=kiri(k1),d0=kiri(k0);
+    netral(300);r.kabutParalaks=Math.abs((kiri(k1)-j0)-(kiri(k0)-d0))>1;
     /* ujung pita tidak boleh masuk frame: 6 fase satu siklus hanyut × kamera ±300 px */
     const fr=$('#stage').getBoundingClientRect();r.kabutMenutup=true;
-    for(let i=0;i<6;i++){O.seek((i+.5)/6*4);for(const dx of [-300,300]){CAM.fx=W/2+dx;applyCam();
+    for(let i=0;i<6;i++){O.seek((i+.5)/6*4);for(const dx of [-300,300]){netral(dx);
       for(const k of [k1,k0]){const e=k.getBoundingClientRect();if(e.left>fr.left+1||e.right<fr.right-1)r.kabutMenutup=false;}}}
     Object.assign(CAM,simpan);}
   else r.kabutParalaks=r.kabutMenutup=null;
-  const gl=L.getContext&&L.getContext('webgl2'),lepas=gl&&gl.getExtension('WEBGL_lose_context');if(lepas)lepas.loseContext();
+  const gl=!lama&&L.getContext&&L.getContext('webgl2'),lepas=gl&&gl.getExtension('WEBGL_lose_context');if(lepas)lepas.loseContext();
   for(const e of buang)e.remove();
   if(cam){for(const e of [jauh,dekat])BIDANG.splice(BIDANG.findIndex(x=>x.el===e),1);if(!BIDANG.length)rig.style.transformStyle='';applyCam();}
   const gc=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=()=>null;let f;
   try{f=langit();}finally{HTMLCanvasElement.prototype.getContext=gc;}
-  r.fallback=f instanceof HTMLDivElement&&/gradient/.test(f.style.background);f.remove();
+  r.fallback=f instanceof HTMLDivElement&&/gradient/.test(f.style.background);f.remove();if(lama)$('#stage').prepend(lama);   // langit() melepas langit halaman
   try{partikel(dekat,{jenis:'salju'});r.jenisDitolak=false;}catch(e){r.jenisDitolak=/bara debu asap kunang/.test(e.message);}
   const g=document.createElementNS('http://www.w3.org/2000/svg','g'),tolak=f=>{try{f();return false;}catch(e){return /elemen HTML/.test(e.message);}};
   r.kabutDitolak=tolak(()=>kabut(g,{y:700}));r.partikelDitolak=[g,'Depan'].every(b=>tolak(()=>partikel(b,{jenis:'bara'})));

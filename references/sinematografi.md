@@ -230,6 +230,28 @@ Untuk jalur melengkung: `rail()` dengan titik yang menyertai lintasan subjek, `l
 - z positif mendekat ke kamera. Jaga z jauh di bawah `W·mm/36` untuk lensa terlebar yang dipakai (18 mm →
   960 px): bidang di atas batas itu berada di belakang kamera dan lenyap.
 
+### 2.5D — babak multi-adegan (`adegan()`, `panggang()`; blok `babak`)
+
+Beberapa dunia dalam satu halaman. Contoh hidup: `starter-sinematik.html` (60 dtk, lima adegan, tiga dunia, satu shot mata elang).
+- **Satu fungsi bangun per dunia**: `adegan([dari,sampai], ()=>{…})`; dunia yang kembali = `[[0,12],[46,61]]`. Bidang, lapisan
+  depan, dan callback (partikel, kabut, sumber, api, tokoh) yang dibuat di dalamnya hidup HANYA di rentangnya. Tersembunyi =
+  `display:none` + callback tak dipanggil: tak menggambar apa pun (`ADEGAN[i].panggil` = bukti). Rentang tak bertumpuk; cut di
+  batasnya.
+- **Svg bidang dipanggang**: `panggang(svg,{area,resolusi})` sesudah rim/relief/redup. `OPENER.ready` menunggu semuanya.
+  Alasannya: lapisan `will-change` dirasterisasi saat dibuat, jadi dolly membuat piksel bergantung jalur seek. Pakai `resolusi` > 1
+  untuk bidang yang didarati kamera.
+- **Langit + grade per adegan**: `langit()` sekali, di luar adegan. Tiap adegan memakai `tl.set/to(LANGIT,…)` dan `grade(t,…)`
+  sendiri. Warna aset dipanggang dengan `LANGIT` dunianya, yang di-set saat membangun.
+- **Bangun dulu, lini waktu sesudahnya**: kamera, `terbang()`, dan `grade()` wajib urut waktu. Tulis semuanya per adegan, dari
+  detik kecil ke besar, sesudah semua dunia dibangun.
+- **Transisi berpemicu**, tidak satu jenis di semua batas:
+  - cut on action: aksi tokoh berlanjut di dunia berikut, dengan kunci pose yang sama;
+  - match cut di langit: kamera naik ke bulan, dengan `fx/fy` dan `LANGIT` sama di kedua sisi cut (langit = fungsi `fx/fy`);
+  - larut lewat asap: lapisan depan pekat sebagai adegan pendek sendiri, cut di baliknya;
+  - menembus gapura: bidang gapura di z > 0 terlewati saat `W·mm/36 < z` (`mata-elang.md`).
+- **Anggaran**: ≤ 350 ms/frame; partikel ≤ 400 per adegan yang tampil; kanvas per frame (tokoh, api, partikel) di GPU, jadi jaga
+  luasnya (`tokoh.gerak` + `lantai` = 4 kanvas selebar bayangannya).
+
 ### 3D — `mat()`, `fromSVG()`, HUD di luar `#world`
 
 ```js

@@ -85,16 +85,20 @@ function gambarPasca(){const P=pascaL,G=GRADE;if(!P||!P.hal.isConnected)return; 
 
 /* kait untuk scripts/test-starters.mjs — tidak dipanggil deliverable. Fixture sendiri (satu bidang + satu sumber
    sementara, didaftarkan SESUDAH lapisan dibuat), lalu semuanya dibersihkan — juga lapisan singleton dan listener ticker,
-   supaya grade() sungguhan sesudahnya mulai dari nol. Callback kedip yang tertinggal di rantai tl jadi no-op (isConnected). */
-window.PASCA_UJI=()=>{const r={},O=window.OPENER,st=$('#stage'),g0={...GRADE},ind=document.createElement('div'),b=document.createElement('div'),
+   supaya grade() sungguhan sesudahnya mulai dari nol. Callback kedip yang tertinggal di rantai tl jadi no-op (isConnected).
+   Halaman ber-grade(): lapisan + tween GRADE-nya dipertahankan (hanya tween uji dibuang), seek ke DURATION dulu (tween halaman
+   mencatat nilai awal), kontras/saturasi dinetralkan sebelum filter view dibandingkan. */
+window.PASCA_UJI=()=>{const r={},O=window.OPENER,st=$('#stage'),ind=document.createElement('div'),b=document.createElement('div'),ada=!!pascaL,
     /* gaya rig + pembungkus [data-z] pada t yang sama, sebelum dan sesudah lapisan ada: tak boleh berubah. Bukan === '' —
        #world panggung memang ber-filter blur(0px) dari animasi cut-nya sendiri */
     gaya=()=>[rigDunia(),...document.querySelectorAll('[data-z]')].map(e=>['filter','opacity','mixBlendMode','clipPath','mask'].map(k=>e.style[k]).join('|')).join();
-  r.awalBersih=!pascaL&&!$('.wv-pasca');O.seek(5);const g1=gaya();
+  r.awalBersih=ada?tl.getTweensOf(GRADE).length>0&&document.querySelectorAll('.wv-pasca').length===4:!$('.wv-pasca');
+  O.seek(O.DURATION);O.seek(5);const g1=gaya(),g0={...GRADE};
   /* view = anak #stage yang memuat rig. Panggung: view = rig sendiri → kontras/saturasi tak ditulis ke mana pun (pisah false).
      Filter TERHITUNG yang dibandingkan untuk netral: GSAP (whip) bisa meninggalkan `filter: none` inline di view, padahal
      modul menghapus tulisannya dengan '' — dua bentuk yang sama-sama tanpa filter */
-  const vw=viewDunia(),f0=vw.style.filter,pisah=vw!==rigDunia(),fc=()=>getComputedStyle(vw).filter,c0=fc();
+  const vw=viewDunia(),f0=vw.style.filter,pisah=vw!==rigDunia(),fc=()=>getComputedStyle(vw).filter;
+  Object.assign(GRADE,{kontras:1,saturasi:1});O.seek(5);const c0=fc();
   ind.style.cssText='position:absolute;left:0;top:0';   // induk bidang: leluhur BUKAN induk langsung pendar
   b.style.cssText=`position:absolute;left:0;top:0;width:${W}px;height:${H}px;visibility:visible`;   // visible: menembus #collage.off
   rigDunia().appendChild(ind);ind.appendChild(b);
@@ -103,10 +107,8 @@ window.PASCA_UJI=()=>{const r={},O=window.OPENER,st=$('#stage'),g0={...GRADE},in
   r.netral=fc()===c0;   // GRADE netral (kontras = saturasi = 1) tidak menulis apa pun ke view
   Object.assign(GRADE,{bayanganKuat:.5,sorotKuat:.5,vignette:.5,halation:.5,kontras:1.08,saturasi:.9});
   const a=kiriPada(.5),c=kiriPada(1);
-  /* kontras/saturasi: filter di VIEW (bukan rig/[data-z]: rigBersih di bawah dihitung dengan filter ini aktif). Selama non-netral
-     modul memiliki filter view: tulisan asing (blur whip() ke #collage) ditimpa lagi pada frame berikutnya — dibandingkan dengan
-     nilai hidup, bukan cache modul. Kembali ke netral menghapus tulisan modul sendiri, bukan filter asing. Panggung (pisah false):
-     view = rig, tak ada yang ditulis, dan tulisan uji di sini ikut dilewati. */
+  /* kontras/saturasi = filter VIEW (aturannya: gambarPasca); rigBersih di bawah dihitung dengan filter ini aktif. Panggung (pisah
+     false): view = rig, tak ada yang ditulis, uji tulisan asing dilewati */
   r.filterView=!pisah||vw.style.filter==='contrast(1.08) saturate(0.9)';
   if(pisah){vw.style.filter='blur(7px)';O.seek(5);r.filterPulih=vw.style.filter==='contrast(1.08) saturate(0.9)';}else r.filterPulih=true;
   Object.assign(GRADE,{kontras:1,saturasi:1});O.seek(5);r.netral=r.netral&&fc()===c0;
@@ -122,14 +124,16 @@ window.PASCA_UJI=()=>{const r={},O=window.OPENER,st=$('#stage'),g0={...GRADE},in
   const alfa=k=>{ind.style.opacity=k;O.seek(5);const d=P.H['wv-uji-pasca'];return d?d.style.display==='none'?'none':+d.style.opacity:'tak ada';},a1=alfa(1),a5=alfa(.5),a0=alfa(0);
   ind.style.opacity='';r.halationLeluhur=a1>0&&Math.abs(a5/a1-.5)<.02&&a0==='none';r.alfaLeluhur=[a1,a5,a0];
   ind.remove();delete SUMBER['wv-uji-pasca'];O.seek(5);r.halationIkut=r.halationIkut&&!P.H['wv-uji-pasca'];   // sumber lepas → halation hilang
-  /* grade() sungguhan: tl → seek → GRADE → lapisan. ease 'none' di tengah rentang = titik tengah persis; tween dibuang lagi */
+  /* grade() sungguhan: tl → seek → GRADE → lapisan. ease 'none' di tengah rentang = titik tengah persis; hanya tween uji dibuang lagi */
+  const tw0=new Set(tl.getTweensOf(GRADE)),w0=warnaRGB(GRADE.bayangan);
   r.gradeKosong=grade(6,2,{bayangan:'#ffffff',bayanganKuat:1},'none')===undefined;O.seek(7);
-  const cs=getComputedStyle(P.bay),m=warnaRGB(GRADE.bayangan),w0=warnaRGB(g0.bayangan),bg=warnaRGB(cs.backgroundColor);
+  const cs=getComputedStyle(P.bay),m=warnaRGB(GRADE.bayangan),bg=warnaRGB(cs.backgroundColor);
   r.tengah=[GRADE.bayangan,GRADE.bayanganKuat,cs.backgroundColor,cs.opacity].join(' ');
   r.warnaTween=m.every((v,i)=>Math.abs(v-(w0[i]+255)/2)<=1&&Math.abs(bg[i]-v)<=1)&&Math.abs(+cs.opacity-.75)<.01;   // .5 → 1 di tengah = .75
-  tl.getTweensOf(GRADE).forEach(t=>tl.remove(t));
+  tl.getTweensOf(GRADE).forEach(t=>{if(!tw0.has(t))tl.remove(t);});
   try{grade(0,1,'neon');r.presetDitolak=false;}catch(e){r.presetDitolak=Object.keys(PRESET_GRADE).every(n=>e.message.includes(n));}
   r.presetLengkap=Object.values(PRESET_GRADE).every(p=>GRADE_KUNCI.every(k=>k in p)&&Object.keys(p).length===GRADE_KUNCI.length);   // semua kunci GRADE, persis
-  gsap.ticker.remove(gambarPasca);for(const e of document.querySelectorAll('.wv-pasca'))e.remove();pascaL=null;
+  if(!ada){gsap.ticker.remove(gambarPasca);for(const e of document.querySelectorAll('.wv-pasca'))e.remove();pascaL=null;}
   Object.assign(GRADE,g0);fit();if(pisah)vw.style.filter=f0;   // fit() = skala stage persis seperti saat dimuat
-  r.dibersihkan=!pascaL&&!$('.wv-pasca')&&!Object.hasOwn(SUMBER,'wv-uji-pasca')&&GRADE_KUNCI.every(k=>GRADE[k]===g0[k])&&(!pisah||vw.style.filter===f0);return r;};
+  r.dibersihkan=(ada?!!pascaL&&document.querySelectorAll('.wv-pasca').length===4&&tl.getTweensOf(GRADE).length===tw0.size:!pascaL&&!$('.wv-pasca'))&&
+    !Object.hasOwn(SUMBER,'wv-uji-pasca')&&GRADE_KUNCI.every(k=>GRADE[k]===g0[k])&&(!pisah||vw.style.filter===f0);return r;};

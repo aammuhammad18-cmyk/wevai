@@ -552,25 +552,24 @@ melompat 12× per detik dari `tl.time()` — deterministik, tile dirasterisasi s
 ### Sinematik 2D: atmosfer, cahaya bersumber, grade (`atmosfer` + `cahaya-2d` + `pasca`)
 
 Tiga blok runtime di `starter-explainer.html`, `-panggung.html`, `starter-sinematik.html` (sumber `src/runtime/`; kontrak = komentar kepala tiap berkas).
-Bukti jalan: `starter-sinematik.html` (gapura malam 12 dtk; `bidang()`/`svgDi()` = helper lokal `gapuraMalam()`: salin, bukan API modul). Urutan panggilan, sesudah `const tl=`:
+Bukti jalan: `starter-sinematik.html` (babak 60 dtk; `bidang()`/`svgDi()`/`bakar()` = helper lokal `babak()`: salin, bukan API modul; pola babak: `sinematografi.md` §5). Urutan panggilan, sesudah `const tl=`:
 ```js
 langit({tengah:'#241b44',horizon:'#b4606e'});   // 1. kanvas WebGL di belakang dunia; SEKALI per halaman (panggilan ke-2 mengganti): langit per adegan = tween LANGIT
-const B=bidang(-500);   // 2. <div data-z> di rig + BIDANG.push({el,z}); isinya <svg style="will-change:transform">
+const B=bidang(-500);   // 2. <div data-z> di rig + BIDANG.push({el,z}); isinya <svg>, dipanggang di 5
 kabut(B,{y:660,warna:warnaJarak('#a890b0',-500,-2000),seed:5}); partikel(B,{jenis:'bara',n:120,area:[412,70,233,270],seed:4});   // 3. per bidang
 sumber('obor1',{x:512,y:598,bidang:B,jangkau:320,kedip:.35,seed:3});   // 4. seed BEDA tiap obor (bawaan 1 = berkedip serempak)
-redup(svg,['obor1'],{klip:'arsi'}); relief(el,{sumber:'obor1'}); rim(siluet,'obor1'); bayangan(siluet,'obor1',{lantai:1012});   // 5. dipanggang
+redup(svg,['obor1'],{klip:'arsi'}); relief(el,{sumber:'obor1'}); rim(siluet,'obor1'); bayangan(siluet,'obor1',{lantai:1012}); panggang(svg,{area});   // 5. dipanggang → kanvas
 partikel('depan',{jenis:'debu',n:80,seed:6}); grade(0,0,'malam-api');   // 6. grade hanya menutup lapisan di BAWAHNYA: lapisan depan dipasang sebelumnya
 ```
 Aturan yang dibayar mahal (dilanggar = gagal diam-diam, atau piksel bergantung jalur seek):
 - **Latar opak menutup `langit()`**: `.paper` kolase, rect `var(--sky)` di `#side`, rect `skyOf()` panggung — sembunyikan/lepas. Modul bekerja di rig `#collage` (MODE KOLASE), bukan MODE ALIRAN.
 - **Nama modul = global halaman** (`langit kabut partikel sumber redup rim bayangan relief grade GRADE LANGIT SUMBER acak` dkk; daftar penuh: `src/runtime/`): `const`/`let` bernama sama di adegan = SyntaxError (halaman kosong); `function` bernama sama menimpa API diam-diam.
 - **Dipanggang sekali saat setup**: `rim`/`relief`/`redup`/`bayangan` tidak pernah di dalam `tl.call`/`onUpdate`; tanpa CSS `filter` inline pada elemen itu — `fly()` meninggalkan `filter:blur(0px)` yang menimpa atribut filter SVG.
-- **`will-change:transform` pada setiap `<svg>` di dalam `[data-z]`**: tanpa itu dolly men-skala bidang, Chrome me-raster ulang svg dan filter yang dipanggang ikut dihitung ulang (+125–170 ms/frame). Harganya: bitmap diskalakan, bukan di-raster ulang — tak lunak hanya terbukti sampai zoom 1,25; zoom lebih besar (MCU/CU, panggung 1,08–1,95) lunak (kebijakan raster shot dekat = sub-proyek 3).
-- **Jangan menulis ulang `d`/geometri tiap frame di `<svg>` ber-will-change**: raster dirty-rect menyisakan piksel antialias basi (`deterministik:false`); bentuk yang berubah tiap frame (api) digambar di kanvas 2D yang dihapus penuh.
+- **Svg bidang → kanvas: `panggang(svg,{area,resolusi})`** (blok `babak`). Svg hidup + dolly = raster ulang tiap frame (+125–170 ms); `will-change:transform` menskalakan bitmap milik saat lapisan DIBUAT (muat, seek, tampil lagi, tiba berurutan): piksel bergantung jalur seek dan worker ekspor (maks 78–97), lunak di atas zoom 1,25. Tanpa blok `babak`: `will-change`. Yang berubah tiap frame (api, tokoh) = kanvas yang dihapus penuh, bukan `d` svg.
 - **Rig dan pembungkus `[data-z]` tanpa filter/opacity/mix-blend/clip/mask** (meratakan paralaks): efek pada anaknya, atau di `#stage` di luar rig.
 - **`kontras`/`saturasi` grade** (hanya `malam-api` yang bernilai; preset lain netral = 1, tak menulis apa pun): `filter` pada view pemuat rig (`#collage`), bukan rig; panggung (view = rig) mengabaikannya. Grade non-netral MEMILIKI filter view: blur `whip()` ke/dari view itu tak tampak (ditimpa tiap frame); filter ditulis ulang tiap frame hanya selama kontras/saturasi di-tween (ke/dari `malam-api` atau nilai sendiri; biaya belum diukur).
 - `kabut` `lebar` bilangan bulat; `partikel` `area` lapang (kanvas = area persis, bara terpotong di tepinya); `grade()` tidak tumpang tindih dalam waktu; halation ikut opacity pendar DAN semua leluhurnya (pudarkan asetnya).
-- **Anggaran**: median ≤ 350 ms/frame @1080p, mesin acuan (`node scripts/bench-frame.mjs <starter> "…&clean=1" 20`, mesin senggang, ≥ 3 run; membandingkan = selang-seling, run berurutan memanas). Demo bukti 268 ms (batas atas: di bawah beban). Partikel: `n` dijepit 400 PER PANGGILAN; total per HALAMAN ≤ 400 dijaga sendiri — callback `partikel`/`kabut`/`sumber` menggambar tiap frame, tersembunyi atau di luar frame sekalipun: +400 ≈ +10 ms/frame (3–17; ukuran kanvas tak berpengaruh, kosong ≈ +1).
+- **Anggaran**: median ≤ 350 ms/frame @1080p, mesin acuan (`node scripts/bench-frame.mjs <starter> "…&clean=1" 20`, mesin senggang, ≥ 3 run; membandingkan = selang-seling, run berurutan memanas). Demo bukti 268 ms (batas atas: di bawah beban). Partikel: `n` dijepit 400 PER PANGGILAN; total ≤ 400 per halaman (dengan `adegan()`: per adegan yang tampil); tanpa `adegan()` callback `partikel`/`kabut`/`sumber` menggambar tiap frame, tersembunyi sekalipun: +400 ≈ +10 ms/frame (3–17; ukuran kanvas tak berpengaruh, kosong ≈ +1).
 - **Aset Jawa kuno** (candi, gapura, rumah panggung, beringin, lontar, gunung, sawah, obor/api/asap, relief, kain): `pustaka.*` (blok `<wv:pustaka>`; `references/pustaka.md`; katalog `assets/katalog-pustaka.html`) — markup ber-seed yang dipanggang, menerima `cahaya` (nama `SUMBER`) dan `jarak`. Jangan menggambar ulang per produksi.
 
 ## 7e. Menu gaya render objek — satu keluarga per video

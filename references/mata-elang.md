@@ -12,9 +12,9 @@ bentar → lembah dan gunung saat senja). Bukti dan angka: `evals/bukti/2026-11-
 | `lanskap-3d` (`src/runtime/lanskap-3d.js`) | `lanskap()`, `tumbuh()`, `ikutMatahari()`, `lewati()`, `ss()` | `starter-elang.html` |
 | starter | `gapuraBentar()`, DUNIA, jalur, motion blur, tone mapping, kait uji | `starter-elang.html` |
 
-2.5D: blok `terbang` sengaja belum disisipkan ke starter 2.5D mana pun (anggaran konteks). Untuk babak siluet, salin isi
-`src/runtime/terbang.js` ke berkas proyek **sesudah** blok `kamera-dom`, sebelum kode adegan. `kamera-dom` sudah membaca
-`RAILS[CAM.rail](t)`. `test-starters` menguji jalur ini dengan menyuntikkan blok ke setiap starter 2.5D.
+2.5D: blok `terbang` ada di `starter-sinematik.html` (babak: terbang menembus celah gapura, mendarat di penjaga; resepnya di
+`sinematografi.md` §5 "Babak multi-adegan"). Starter 2.5D lain: salin isi `src/runtime/terbang.js` **sesudah** blok `kamera-dom`,
+sebelum kode adegan. `kamera-dom` sudah membaca `RAILS[CAM.rail](t)`. `test-starters` menyuntikkan blok ke setiap starter 2.5D.
 
 ## `terbang(at, dur, titik, opsi)`
 

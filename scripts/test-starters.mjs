@@ -41,7 +41,7 @@ const browser = await luncurkan({
 // starter yang wajib punya kait atmosfer/cahaya-2d/pasca; BERKAMERA = yang juga punya CAM (kabut berparalaks hanya terukur di sana: panggung belum punya CAM)
 const MODUL = ['starter-explainer.html', 'starter-explainer-panggung.html', 'starter-sinematik.html', 'katalog-pustaka.html', 'starter-relief.html', 'katalog-tokoh.html'];
 const BERKAMERA = ['starter-explainer.html', 'starter-sinematik.html', 'katalog-pustaka.html', 'starter-relief.html', 'katalog-tokoh.html'];
-// halaman ber-adegan bawaan (SINEMA_UJI wajib; kait modul + kamera di ?kosong=1): starter sinematik, katalog pustaka aset, starter relief, katalog tokoh
+// halaman ber-adegan bawaan (SINEMA_UJI wajib): starter sinematik (babak), katalog pustaka aset, starter relief, katalog tokoh
 const ADEGAN = ['starter-sinematik.html', 'katalog-pustaka.html', 'starter-relief.html', 'katalog-tokoh.html'];
 // 3D tanpa subjek/#hud (field CAM3_UJI null sah); tone mapping film hanya di starter sejarah/sinematik, sisanya NoToneMapping (0) = warna brand tepat
 const TANPA_SUBJEK = ['starter-opener.html', 'starter-elang.html'];
@@ -60,10 +60,10 @@ let gagal = 0, lewat = 0;
 for (const file of files) {
   const name = basename(file);
   if (glLunak && BERAT.includes(name)) { lewat++; console.log(`lewat  ${name} — WebGL perangkat lunak (${glLunak}): terlalu berat, uji di mesin ber-GPU`); continue; }
-  // halaman bawaan ADEGAN sudah berisi adegan (langit, grade, bidang [data-z]); kait modul dan kamera mengandaikan halaman yang
-  // belum memakai modul (awalBersih, jalur 2D tanpa bidang, grade netral), jadi dijalankan di ?kosong=1 (rig + modul tanpa adegan).
-  // Kait adegan (SINEMA_UJI) dibaca dari halaman bawaan. Katalog kamera ?demo=1 tidak ada di halaman ini.
-  const adegan = ADEGAN.includes(name);
+  // halaman bawaan ADEGAN sudah berisi adegan (langit, grade, bidang [data-z]); kait modul dan kamera tahan halaman berisi (tween
+  // halaman diinisialisasi dulu, milik halaman disimpan lalu dipulihkan), jadi semuanya jalan di halaman bawaan. Katalog kamera
+  // ?demo=1 tidak ada di halaman ini.
+  const adegan = ADEGAN.includes(name), html0 = readFileSync(file, 'utf8');
   const page = await browser.newPage();
   const errs = [];
   page.on('pageerror', e => errs.push(e.message));
@@ -143,7 +143,6 @@ for (const file of files) {
 
     // adegan bawaan starter-sinematik (SINEMA_UJI): paralaks hidup, rig/[data-z] tanpa efek perata, semua modul terpasang; lalu
     // determinisme piksel SEMUA kanvas #stage (langit + partikel + nyala), bukan hanya yang pertama seperti pemeriksaan bawaan.
-    // Dibaca dari halaman bawaan SEBELUM kait modul: ATM_UJI mengganti langit adegan, PASCA_UJI membuang lapisan dan tween GRADE-nya.
     let sinema = null, kanvasSinema = [];
     if (await page.evaluate(() => !!window.SINEMA_UJI)) {
       sinema = await page.evaluate(() => window.SINEMA_UJI());
@@ -159,7 +158,8 @@ for (const file of files) {
     if (sinema) {
       if (!sinema.paralaks) masalah.push('sinema: bidang terjauh dan terdekat (yang tampil) tidak bergeser berbeda (> 1 px) saat CAM.fx += 300');
       if (!sinema.rigBersih) masalah.push(`sinema: rig atau pembungkus [data-z] ber-filter/mix-blend-mode/opacity/clip-path/mask (computed) — paralaks rata: ${sinema.kotor}`);
-      if (!sinema.adaSemua) masalah.push(`sinema: modul tidak lengkap — perlu #wv-langit, ≥ 3 .wv-kabut, ≥ 1 .wv-partikel, .wv-pendar, lapisan GRADE (katalog pustaka: + api, asap, 4 kain, ≥ 10 jenis aset pustaka; relief: ≥ 2 kabut + satu .wv-relief, tanpa pendar; katalog tokoh: + api, 4 kanvas .wv-tokoh, ≥ 30 tokoh, 6 arketipe) (dapat ${JSON.stringify(sinema.ada)})`);
+      if (sinema.tersembunyiDiam === false) masalah.push('sinema: adegan tersembunyi menjalankan callback (penghitung panggil adegan yang tidak tampil bertambah saat seek di dalam adegan lain) — adegan tersembunyi tidak boleh menggambar');
+      if (!sinema.adaSemua) masalah.push(`sinema: modul tidak lengkap — perlu #wv-langit, ≥ 3 .wv-kabut, ≥ 1 .wv-partikel, .wv-pendar, lapisan GRADE (babak sinematik: + 3 api, 3 kanvas .wv-tokoh, ≥ 4 adegan, ≥ 10 kanvas .wv-panggang, nol svg di bidang, satu terbang(); katalog pustaka: + api, asap, 4 kain, ≥ 10 jenis aset pustaka; relief: ≥ 2 kabut + satu .wv-relief, tanpa pendar; katalog tokoh: + api, 4 kanvas .wv-tokoh, ≥ 30 tokoh, 6 arketipe) (dapat ${JSON.stringify(sinema.ada)})`);
       if (!kanvasSinema.length) masalah.push('sinema: tidak ada kanvas di #stage');
       for (const k of kanvasSinema) {
         if (!k.sama) masalah.push(`sinema: kanvas ${k.nama}: t yang sama lewat jalur seek berbeda memberi piksel berbeda`);
@@ -167,18 +167,24 @@ for (const file of files) {
       }
     }
 
-    // kait modul + kamera di bawah: halaman tanpa adegan (lihat `adegan` di atas)
-    if (adegan) {
-      await page.goto(pathToFileURL(file).href + '?kosong=1', { waitUntil: 'load', timeout: 60000 });
-      await page.waitForFunction('window.OPENER && window.OPENER.ready', { timeout: 60000 });
+    // babak (src/runtime/babak.js): adegan tersembunyi = display:none + callbacknya tak dipanggil, tampil lagi = hidup; panggang() mengganti
+    // svg dengan kanvas berukuran area × resolusi dan pikselnya = gambar svg; rentang terbalik dan bukan-<svg> ditolak. Fixture sendiri.
+    const bbk = await page.evaluate(() => window.BABAK_UJI ? window.BABAK_UJI() : null);
+    if (html0.includes('<wv:babak>') && !bbk) masalah.push('babak: BABAK_UJI tidak ada');
+    if (bbk) {
+      if (!bbk.diam) masalah.push('babak: adegan di luar rentangnya harus display:none dan callbacknya tidak dipanggil (dua seek di luar rentang menaikkan penghitung)');
+      if (!bbk.hidup) masalah.push('babak: adegan di dalam rentangnya harus tampil dan menjalankan callbacknya');
+      if (!bbk.panggang) masalah.push('babak: panggang() harus mengganti svg dengan <canvas class="wv-panggang"> seukuran area × resolusi, piksel = gambar svg (merah di tengah, bening di sudut)');
+      if (!bbk.ditolak) masalah.push("babak: adegan([3,2]) dan panggang(<div>) harus melempar error yang menyebut 'rentang' / 'elemen <svg>'");
     }
+
 
     // atmosfer (src/runtime/atmosfer.js): langit/partikel/kabut sama di dua jalur seek, kabut berparalaks, langit tanpa
     // WebGL2 jatuh ke gradien CSS, jenis partikel salah dan bidang non-HTML (<g> SVG) ditolak. Kait membangun fixture sendiri lalu membersihkannya.
-    // Field null = butuh CAM (panggung belum punya) → dilewati; di halaman bawaan (starter ber-adegan: ?kosong=1), sebelum blok kamera memuat ulang.
+    // Field null = butuh CAM (panggung belum punya) → dilewati; di halaman bawaan, sebelum blok kamera memuat ulang.
     // blok di ATAS kode adegan: const-nya (LANGIT, JENIS_PARTIKEL, …) masih TDZ bagi kode sebelum blok, dan kode adegan
     // yang memakai modul selalu sesudah `const tl=` (rantaiUpdate butuh tl) — blok sesudahnya = ReferenceError saat dimuat
-    const html = readFileSync(file, 'utf8'), iAtm = html.indexOf('<wv:atmosfer>');
+    const html = html0, iAtm = html.indexOf('<wv:atmosfer>');
     if (iAtm >= 0 && !(iAtm < html.indexOf('const tl='))) masalah.push('atmosfer: blok <wv:atmosfer> harus di atas `const tl=` (kode adegan memanggil modul saat dimuat)');
     const atm = await page.evaluate(() => window.ATM_UJI ? window.ATM_UJI() : null);
     if (MODUL.includes(name) && !atm) masalah.push('atmosfer: ATM_UJI tidak ada');
@@ -263,12 +269,12 @@ for (const file of files) {
     }
 
     // kamera 2.5D (src/runtime/kamera-dom.js): jalur 2D tidak menyentuh gaya lain; sudut → transform 3D;
-    // bidang data-z berparalaks; cahaya; katalog ?demo=1 selesai sebelum DUR. Halaman dimuat ULANG dengan ?demo=1
-    // (starter ber-adegan: ?kosong=1, tanpa katalog) supaya pemeriksaan di atas tetap menguji jalur default deliverable.
+    // bidang data-z berparalaks; cahaya; katalog ?demo=1 selesai sebelum DUR. Halaman dimuat ULANG dengan ?demo=1 supaya pemeriksaan
+    // di atas tetap menguji jalur default deliverable; starter ber-adegan (tanpa katalog) tetap di halaman bawaannya.
     let cam = null;
     if (await page.evaluate(() => !!window.CAM_UJI)) {
-      await page.goto(pathToFileURL(file).href + (adegan ? '?kosong=1' : '?demo=1'), { waitUntil: 'load', timeout: 60000 });
-      await page.waitForFunction('window.OPENER && window.OPENER.ready', { timeout: 60000 });
+      if (!adegan) { await page.goto(pathToFileURL(file).href + '?demo=1', { waitUntil: 'load', timeout: 60000 });
+        await page.waitForFunction('window.OPENER && window.OPENER.ready', { timeout: 60000 }); }
       cam = await page.evaluate(() => window.CAM_UJI());
     }
     if (cam) {

@@ -115,7 +115,7 @@ dari sumber pura itu.
 - **Letak padmasana**: Lontar Catur Winasa Sari, lewat [S4], memberi sembilan letak dengan jenis berbeda. Starter memakai kaja-kangin menghadap kauh, kasus Pura Kentel Gumi yang
   disebut pemangkunya memenuhi aturan lazim [S4]. Jadi ini satu pilihan sah, bukan satu-satunya.
 - **Hadap meru**: [S3] menyebut umumnya ke barat, dengan pengecualian menurut pura. Di Bali utara kaja mengarah ke selatan, sehingga kangin dan kauh tetap, tetapi kaja/kelod terbalik terhadap peta.
-- **Jumlah tumpang**: [S3] menyebut 1–11; [S7b] menyebut meru 3–11 dan menyebut bangunan satu atap bukan meru. `tingkatMeru()` menerima 3–11. Tumpang mencerminkan kedudukan [S3]: 5 dan 3 dipilih karena tidak mengklaim pura besar.
+- **Jumlah tumpang**: [S3] menyebut 1–11; [S7b] menyebut meru 3–11 dan menyebut bangunan satu atap bukan meru. `tingkatMeru()` menerima 3–11. Makin banyak tumpang, makin tinggi maknanya [S3]: 5 dan 3 dipilih karena tidak mengklaim pura besar.
 
 ### Penyederhanaan
 

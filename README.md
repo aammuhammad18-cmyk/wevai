@@ -323,13 +323,16 @@ assets/
   starter-explainer-3d.html      3D world explainer (Three.js + shared cinematic camera)
   starter-sinematik.html         cinematic silhouette scene, 100% code (torchlight, fog, embers, one grade)
   katalog-pustaka.html           showcase of the procedural ancient-Java asset library (src/runtime/pustaka.js)
+  katalog-tokoh.html             showcase of the character rig v2: archetypes, IK walk, crowd (src/runtime/tokoh.js)
   starter-elang.html             3D eagle-eye establishing shot: procedural landscape, flight path, film tone mapping
+  starter-relief.html            living temple relief, 100% code (carved andesite, moving torchlight, figures that move)
   starter-lukis.html             painterly legend scene (Kuwahara + watercolour), each plane painted once, so strokes never boil
 scripts/
   lint-motion.mjs                check the mechanical rules on a deliverable
   snap.mjs                       verify: capture key seconds
   nilai-visual.mjs               verify by numbers: luminance range ("flat"), subject contrast, glow at declared light sources, dominant colours (tests: test-nilai.mjs)
-  export-frames.mjs              export: frame-by-frame → MP4, piped to ffmpeg, optional parallel workers (16:9 or 9:16, voice-over muxed)
+  export-frames.mjs              export: frame-by-frame → MP4, piped to ffmpeg, 2 parallel workers by default (16:9 or 9:16, voice-over muxed)
+  antre-render.mjs               long videos: render chapter by chapter, resumable, fps/ETA log, final concat, built-in sleep prevention
   vo-pauses.html                 voice-over pause detection, no ffmpeg needed
   chrome.mjs                     finds Chrome/Edge for the scripts that open a browser (no env var needed)
   bantuan.mjs                    makes `--help` / `-h` print a script's usage instead of running it
@@ -337,6 +340,9 @@ scripts/
   test-vo.mjs                    tests for vo-gemini.mjs (no network, no keys)
   test-pustaka.mjs               tests for the ancient-Java asset library (no browser)
   test-elang.mjs                 tests for the eagle-eye flight maths (no browser)
+  test-relief.mjs                tests for the living-relief engine (no browser)
+  test-tokoh.mjs                 tests for the character rig v2 (no browser)
+  test-ekspor.mjs                tests for antre-render.mjs and the export defaults (no browser, no ffmpeg)
   test-lukis.mjs                 tests for the painterly runtime: knobs, paint queue, pose cycle (no browser)
   serve.py                       no-cache dev server (optional)
   vendor-libs.mjs                inline GSAP + fonts for an offline archive copy
@@ -404,6 +410,9 @@ node --test scripts/test-vo.mjs            # voice-over tool (no network, no key
 node --test scripts/test-nilai.mjs        # visual scoring tool (synthetic PNGs, no browser)
 node --test scripts/test-pustaka.mjs       # ancient-Java asset library (no browser)
 node --test scripts/test-elang.mjs        # eagle-eye flight maths (no browser)
+node --test scripts/test-relief.mjs        # living temple relief engine (no browser)
+node --test scripts/test-tokoh.mjs         # character rig v2 (no browser)
+node --test scripts/test-ekspor.mjs        # render queue + export defaults (no browser, no ffmpeg)
 node --test scripts/test-lukis.mjs        # painterly runtime (no browser)
 node scripts/build-starters.mjs --check   # starters match src/runtime
 node scripts/bump-version.mjs --check     # version is the same everywhere

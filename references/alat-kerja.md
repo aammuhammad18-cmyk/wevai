@@ -77,7 +77,8 @@ bocor ke render berikutnya.
 | Lint | `node "<folder skill>/scripts/lint-motion.mjs"` | aturan yang bisa diukur dari kode; FAIL = perbaiki sebelum menyerahkan. Tanpa dependensi |
 | Snapshot | `node "<folder skill>/scripts/snap.mjs" shots 1 3.5 8` | potret detik kunci + `shots/kontak.png` (lembar kontak berlabel detik) untuk dinilai sekali lihat; `--tanpa-sheet` bila tidak perlu |
 | Nilai visual | `node "<folder skill>/scripts/nilai-visual.mjs" shots --sumber '[{"x":512,"y":598}]' --subjek 1230,205,540,845` | mengubah bingkai `snap.mjs` jadi angka: rentang luminans (flat?), kontras subjek, titik terang dekat sumber cahaya yang dideklarasikan, jumlah warna dominan; ok/peringatan per ukuran, kode keluar 1 bila ada peringatan. Saringan, bukan vonis: baca "Nilai visual (membaca angkanya)" di bawah. Tanpa dependensi |
-| Export MP4 | `node "<folder skill>/scripts/export-frames.mjs"` dengan env `MP4=out.mp4` | render frame-by-frame langsung ke MP4, ukuran dari `OPENER.W/H`, audio `#vo` ikut. Lebih cepat: `FPS=30` (separuh frame), `SYNC=1` (halaman yang `seek` menggambar sinkron — tanpa kanvas rAF/klip); `WORKERS=2` untuk video panjang — terukur ±2× di laptop 2 core (60 mnt: ±8,6 → ±4 jam); lebih dari 2 hanya bila core/GPU longgar. Master kritis: `FORMAT=png`. Tanpa `MP4=`: folder PNG + perintah ffmpeg |
+| Export MP4 | `node "<folder skill>/scripts/export-frames.mjs"` dengan env `MP4=out.mp4` | render frame-by-frame langsung ke MP4, ukuran dari `OPENER.W/H`, audio `#vo` ikut. Lebih cepat: `FPS=30` (separuh frame), `SYNC=1` (halaman yang `seek` menggambar sinkron — tanpa kanvas rAF/klip); `WORKERS` standar 2 bila mesin punya ≥ 2 thread (terukur ±2× di laptop 2 core: 60 mnt ±8,6 → ±4 jam; frame identik dengan `WORKERS=1`; set `WORKERS=1` bila di mesinmu lebih lambat; lebih dari 2 hanya bila core/GPU longgar). Halaman yang seluruhnya satu kanvas: `MODE=webcodecs` (eksperimental, bagian "Mode WebCodecs"). Master kritis: `FORMAT=png`. Tanpa `MP4=`: folder PNG + perintah ffmpeg |
+| Antrean render | `node "<folder skill>/scripts/antre-render.mjs" antrean.json --gabung final.mp4` | video panjang per babak: render berurutan lewat `export-frames.mjs`, lanjut sendiri bila diulang, log fps + perkiraan selesai, gabung akhir, dan penahan sleep bawaan. Bagian "Render panjang". Tanpa dependensi |
 | Jeda VO | buka `scripts/vo-pauses.html` di browser | `SEG`/`PARA`/`DUR` untuk sinkron VO tanpa ffmpeg |
 | Kunci CDN | `node "<folder skill>/scripts/cdn-integrity.mjs" index.html` | memasang `integrity="sha384-…"` pada `<script src>` CDN supaya browser menolak berkas yang isinya berubah (import map Three tidak bisa) |
 | Arsip mandiri | `node "<folder skill>/scripts/vendor-libs.mjs"` | menanam GSAP + font ke dalam berkas supaya tetap bisa diputar offline bertahun-tahun (jalur WebGL tetap butuh internet) |
@@ -86,22 +87,116 @@ bocor ke render berikutnya.
 | VO Gemini | `node "<folder skill>/scripts/vo-gemini.mjs" naskah.json` | membuat VO (WAV + durasi persis) dari Gemini TTS lewat API resmi; beberapa kunci bergantian, lanjut sendiri. Baca peringatan kuota di bagian "VO Gemini (banyak kunci)" di bawah. Tanpa dependensi |
 
 Skrip yang merender, membuka Chrome, menulis berkas, atau memakai jaringan (`snap`, `export-frames`,
-`bench-frame`, `test-starters`, `eval-run`, `build-starters`, `vendor-libs`, `nilai-visual`, `ae/bridge/svg2png.cjs`,
+`antre-render`, `bench-frame`, `test-starters`, `eval-run`, `build-starters`, `vendor-libs`, `nilai-visual`, `ae/bridge/svg2png.cjs`,
 `ae/bridge/aset-svg.py`) menjawab `--help` atau `-h` dengan komentar kepalanya lalu keluar 0, tanpa
 melakukan apa pun. Aman dijalankan lebih dulu untuk melihat pemakaian dan env-nya.
 
 ## Render panjang (lebih dari ±10 menit)
 
-Render 60 menit memakan ±4–8,6 jam. Perintah latar milik agen bisa ikut mati bila aplikasi agennya
-di-restart atau percakapannya diarsipkan, jadi jalankan sebagai proses TERLEPAS yang menulis log,
-lalu pantau lognya (baris `selesai — …` di akhir = berhasil):
+Render 60 menit di laptop 2 core memakan ±7,5–10 jam dengan 1 worker (antrean Bali pemilik: 3–4 frame/dtk pada 30 fps,
+`SYNC=1`); `WORKERS=2` (standar) terukur 1,2–1,5× lebih cepat di halaman nyata 1080p. Pecah video 45–90 menit menjadi babak (satu HTML
+dan satu VO per babak) lalu render lewat `scripts/antre-render.mjs`: babak yang gagal tidak mengulang semuanya, babak yang
+sudah jadi tidak dirender lagi, dan laptop ditahan agar tidak sleep. Ia menjalankan `export-frames.mjs` untuk tiap babak
+dan, bila diminta, menyambung hasilnya. Butuh Node ≥ 18, ffmpeg, dan ffprobe. Satu babak saja pun lebih baik lewat antrean
+(satu butir) daripada memanggil `export-frames.mjs` langsung: hanya antrean yang menahan sleep dan lanjut sendiri.
 
-- PowerShell: `$env:MP4='out.mp4'; Start-Process node -ArgumentList '"<folder skill>/scripts/export-frames.mjs"' -RedirectStandardOutput render.log -RedirectStandardError render.err -WindowStyle Hidden`
-- bash/zsh: `MP4=out.mp4 nohup node "<folder skill>/scripts/export-frames.mjs" > render.log 2>&1 &`
+`antrean.json`: satu butir per babak, dikerjakan berurutan (path relatif ke folder tempat perintah dijalankan):
 
-Jaga laptop tidak sleep selama render, atau prosesnya ikut tertidur: Windows, atur Daya ke "tidak
-pernah tidur" saat dicolok (atau PowerToys Awake); macOS, `caffeinate -i`; Linux, `systemd-inhibit`.
-Jangan menganggap perintah latar agen cukup untuk menahan sleep.
+```json
+[
+  { "html": "00-prolog.html", "mp4": "mp4/00-prolog.mp4", "siap": "cek/siap-00", "audio": "audio/00.m4a", "env": { "SYNC": "1" } },
+  { "html": "01-bab.html", "mp4": "mp4/01-bab.mp4", "siap": "cek/siap-01" }
+]
+```
+
+| Kunci | Arti |
+|---|---|
+| `html` atau `url` | halaman. `html` dibuka sebagai `file://…?clean=1`; `url` dipakai apa adanya (mis. `http://localhost:8000/x.html?clean=1`) |
+| `mp4` | hasil; wajib berakhiran `.mp4` |
+| `siap` | opsional: butir menunggu sampai berkas penanda ini ada (mis. dibuat sesudah lembar kontak lolos); dicek tiap 30 dtk (`--poll`) |
+| `audio` | opsional: VO. Bawaan: `src` dari `<audio id="vo">` di html. Hanya untuk menilai apakah mp4 sudah basi (VO ikut ditempel oleh `export-frames.mjs`) |
+| `env` | opsional: env tambahan untuk `export-frames.mjs` (`SYNC`, `FPS`, `MODE`, …), menimpa env proses |
+
+Tanpa JSON: `node "<folder skill>/scripts/antre-render.mjs" bab1.html bab2.html --keluar mp4` (satu butir per argumen, mp4 = `<keluar>/<nama>.mp4`).
+Env proses ikut ke semua butir. Opsi lain: `--gabung <mp4>`, `--log <berkas>`, `--lapor <dtk>` (jarak baris kemajuan, 60), `--poll <dtk>`,
+`--tanpa-tahan-sleep`; lengkapnya `--help`.
+
+Jalankan sebagai proses TERLEPAS: perintah latar milik agen bisa ikut mati bila aplikasi agennya di-restart atau
+percakapannya diarsipkan.
+
+- PowerShell: `$env:FPS='30'; $env:SYNC='1'; $env:PRESET='ultrafast'; Start-Process node -ArgumentList '"<folder skill>/scripts/antre-render.mjs" antrean.json --gabung final.mp4' -RedirectStandardOutput antre.out -RedirectStandardError antre.err -WindowStyle Hidden`
+- bash/zsh: `FPS=30 SYNC=1 PRESET=ultrafast nohup node "<folder skill>/scripts/antre-render.mjs" antrean.json --gabung final.mp4 > antre.out 2>&1 &`
+
+Layar dan `antre-render.log` memuat baris yang sama (baris pertama memuat pid). Pantau salah satunya; `[selesai]` di baris akhir =
+semua jadi, `GAGAL` = ada butir yang gagal:
+
+```
+12:26:52 [tahan-sleep] aktif (powershell.exe, pid 12208)
+12:26:57 [render] bab1 (1/2) env SYNC=0
+12:27:38   23 frame @ 15 fps (1.5s, 320x180, jpeg, 2 worker)
+12:27:53   bab1  15/23 (65%)  1.04 fps  butir: sisa 8 dtk  antrean: sisa 39 dtk, selesai ±12:28
+12:27:54 [ok] bab1  23 frame dalam 56 dtk (1.55 fps)  video 2 dtk, 0.1 MB 1/2
+12:28:44 [gabung] durasi 3.58 dtk (4 dtk), ukuran 0.3 MB; cocok dengan jumlah butir (3.53 dtk)
+12:28:44 [tahan-sleep] dilepas
+12:28:44 [selesai] 2 dirender, 0 dilewati
+```
+
+- **Melanjutkan.** Menjalankan ulang perintah yang sama = melanjutkan. Butir dilewati bila mp4-nya ada, terbaca ffprobe, dan
+  strik lebih baru dari html dan audionya (seperti `-nt` di bash). Mengubah env (`FPS` dll.) tidak terdeteksi: hapus mp4-nya.
+  Hasil ditulis ke `<nama>.sementara.mp4` lalu diganti nama setelah `export-frames.mjs` sukses, jadi mp4 setengah jadi tidak
+  pernah dianggap selesai.
+- **Gagal.** Butir yang gagal dicatat (`[GAGAL]`), antrean jalan terus, kode keluar 1, gabungan ditunda. Perbaiki lalu jalankan
+  ulang: hanya butir gagal yang dirender. Butir menunggu penandanya sesuai urutan, tetapi butir yang mp4-nya sudah jadi tidak menunggu.
+- **Perkiraan selesai.** `butir` dari laju butir itu; `antrean` memakai laju seluruh jalan ini, dan panjang butir yang belum jalan
+  dikira dari durasi audionya × FPS, atau rata-rata butir yang sudah terlihat. Waktu menunggu penanda, peluncuran Chrome (±1 menit
+  per butir), dan penyambungan akhir tidak dihitung, jadi jam selesai selalu sedikit lebih awal dari kenyataan.
+- **Gabung.** `--gabung`: ffmpeg `concat -c copy` + `+faststart`, ringkasan ffprobe (durasi, ukuran), dan pemeriksaan terhadap jumlah
+  durasi butir. Dilewati bila gabungan sudah lebih baru dari semua butir.
+- **Penahan sleep bawaan.** Hidup selama antrean bekerja (termasuk menunggu penanda), mati di semua jalan keluar: selesai, gagal, galat,
+  Ctrl+C. Windows: powershell tersembunyi yang memanggil `SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED)` dan berhenti
+  sendiri bila antrean mati; macOS: `caffeinate -i -w <pid>`; Linux: `systemd-inhibit` (tanpa itu: peringatan, atur sleep sendiri).
+  Setelan daya tidak diubah. Menutup lid atau memilih Sleep sendiri tetap menidurkan laptop. `--tanpa-tahan-sleep` mematikannya.
+- **Menghentikan.** Ctrl+C di konsol yang terlihat menghentikan semuanya (Chrome dan ffmpeg anak ikut mati, sisa sementara dibuang).
+  Proses terlepas: Windows `taskkill /PID <pid> /T /F`, macOS/Linux `kill <pid>`. `Stop-Process` biasa meninggalkan Chrome-nya.
+  Satu antrean pada satu waktu.
+
+## Mode WebCodecs (eksperimental)
+
+Untuk halaman yang SELURUH frame-nya satu kanvas (shader WebGL, three.js, Canvas 2D dengan teks digambar ke kanvas). Bukan untuk
+halaman DOM/SVG/CSS: lapisan itu tidak ikut. Halaman men-encode sendiri frame-nya (`VideoFrame` dari kanvas → `VideoEncoder` →
+H.264 di dalam halaman), tanpa screenshot; potongan H.264 dialirkan ke ffmpeg (`-f h264 -c copy`), dan audio `#vo` ditempel seperti biasa.
+
+```bash
+MODE=webcodecs MP4=out.mp4 node "<folder skill>/scripts/export-frames.mjs"     # atau "env": { "MODE": "webcodecs" } di antrean
+```
+
+**Kait di halaman** (didokumentasikan juga di kepala `export-frames.mjs`): `window.OPENER.canvas` = elemen `<canvas>` atau
+`OffscreenCanvas`, atau fungsi yang mengembalikannya.
+
+```js
+window.OPENER = { W: 1920, H: 1080, DURATION: 120, ready: true, tl, seek, syncSeek: true, canvas: document.getElementById('c') };
+```
+
+- Begitu `seek(t)` selesai (dan 2×rAF, kecuali `syncSeek`/`SYNC=1`), kanvas harus sudah berisi frame utuh dan opak (isi latarnya: alfa dibuang).
+- Lebar dan tinggi kanvas genap. Keluaran berukuran kanvas, bukan `OPENER.W/H` (`SCALE` tidak berlaku).
+- Kanvas tidak boleh "tainted" (gambar lintas-origin membuat `VideoFrame` galat). Kanvas WebGL: `preserveDrawingBuffer: true`, atau
+  gambar di dalam `seek()` bersama `syncSeek: true`.
+- Halaman harus konteks aman: `file://` atau `http://localhost` (di `about:blank` atau `http://` biasa `VideoEncoder` tidak ada).
+- Tanpa kait, tanpa `MP4=`, tanpa `VideoEncoder`, atau config ditolak: pesan `MODE=webcodecs dilewati — <alasan>`, lalu jalur biasa.
+
+Yang dipakai: `prefer-software` (H.264 High, level dari ukuran × fps, Annex B), keyframe tiap 2 dtk, bitrate 0,2 bit/piksel/frame (≈ 12 Mbps pada
+1080p30; `BITRATE=<bit/dtk>` menimpa). `prefer-hardware` sengaja tidak dipakai: macet setelah 8 potongan di headless. Antrean encoder
+yang tidak turun 15 dtk dianggap macet; satu blok (2 dtk) yang gagal diulang utuh setelah Chrome dibuka ulang. Ke ffmpeg masuk `-r <fps>`, bukan
+`-framerate`: Chrome menulis timing VUI sendiri (1e6/66667 untuk 15 fps) yang menimpa `-framerate` dan membuat durasi melayang.
+
+Diverifikasi pada halaman uji `evals/bukti/2026-11-03-ekspor/kanvas-mini.html` (640×360, 15 fps, 6 dtk, 2 worker, GOP + sambungan worker):
+MP4 terdekode ffmpeg tanpa galat, 90 frame dan durasi 6,000000 dtk persis, nomor frame (10 bit di baris bawah) terbaca 0…89 berurutan, warna
+8 batang murni ±2 dari nilai teoretis (BT.709 terlabel), selisih rata-rata terhadap PNG jalur biasa 1,0–1,7 level, dengan VO durasi
+video dan audio sama. Pemeriksa: `evals/bukti/2026-11-03-ekspor/periksa-kanvas.mjs`.
+
+Belum diukur: kecepatan di 1080p dan efek `WORKERS=2` (encoder OpenH264 memakan CPU juga; coba `WORKERS=1` dan `2` pada satu babak pendek).
+Belum dipicu sungguhan: jalur macet dan ulang-blok (memakai pemulihan yang sama dengan jalur biasa), serta halaman WebGL/three.js sungguhan (yang diuji kanvas 2D kecil).
+Riset awal: 81 ms/frame di HD 4000 pada satu worker (60 mnt ±2,4 jam). Kualitas dibatasi bitrate; untuk master kritis tetap jalur biasa.
 
 ## Alat untuk mengembangkan SKILL ini (dari akar repo skill)
 
@@ -116,6 +211,9 @@ Jangan menganggap perintah latar agen cukup untuk menahan sleep.
 | Uji VO Gemini | `node --test scripts/test-vo.mjs` | uji `vo-gemini.mjs` tanpa jaringan dan tanpa kunci (fetch, jam, dan tidur palsu); bagian dari `rilis.mjs` dan CI |
 | Uji pustaka aset | `node --test scripts/test-pustaka.mjs` | uji `src/runtime/pustaka.js` tanpa browser: determinisme, opsi salah ditolak, SVG well-formed; bagian dari `rilis.mjs` dan CI |
 | Uji mata elang | `node --test scripts/test-elang.mjs` | matematika `terbang()` (Catmull-Rom, look-ahead, roll, guncang trauma) tanpa browser; bagian dari `rilis.mjs` dan CI |
+| Uji rig tokoh | `node --test scripts/test-tokoh.mjs` | uji `src/runtime/tokoh.js` tanpa browser: IK, determinisme dan campuran pose, telapak tanpa selip, kerumunan ber-seed, SVG well-formed; bagian dari `rilis.mjs` dan CI |
+| Uji relief hidup | `node --test scripts/test-relief.mjs` | uji `src/runtime/relief-hidup.js` tanpa browser: peta normal + AO dari larik tinggi, lapis, redaman lampu, pose bagian hidup; `pustaka.dindingRelief` deterministik dan menolak opsi salah; bagian dari `rilis.mjs` dan CI |
+| Uji ekspor panjang | `node --test scripts/test-ekspor.mjs` | uji `antre-render.mjs` dan `ekspor-inti.mjs` (WORKERS standar, level WebCodecs) tanpa Chrome dan tanpa ffmpeg: urai antrean, aturan lewati, ETA, perintah penahan sleep per platform (spawn palsu), jalannya antrean; bagian dari `rilis.mjs` dan CI |
 
 ## VO Gemini (banyak kunci)
 

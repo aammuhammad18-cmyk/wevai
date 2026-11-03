@@ -33,6 +33,7 @@ menurunkan kepatuhan pada aturan yang penting.
 | Explainer 3D & kamera sinematik | + `references/sinematografi.md`, `assets/starter-explainer-3d.html` (opener 3D: jalur opener + `sinematografi.md`) | kosakata shot/sudut/gerak/lensa/cahaya, resep 2.5D & 3D, jebakan |
 | Shot mata elang (terbang 3D/2.5D) | + `references/sinematografi.md`, `references/mata-elang.md`, `assets/starter-elang.html` | terbang(), lanskap prosedural, tone mapping film |
 | Explainer kartun panggung | + `references/kartun-panggung.md`, `assets/starter-explainer-panggung.html` | satu panggung per adegan, rig sendi, kulit flat cerah atau ilustrasi sinematik |
+| Relief candi hidup (sejarah Hindu–Buddha) | + jalur Explainer, `references/relief-candi.md`, `assets/starter-relief.html` | dinding berpahat, SINAR bergerak, tokoh hidup |
 | Build di After Effects | + `references/ae-bridge-higgsfield.md` | batas bridge, arsitektur CAM, rig native, penyerahan |
 | Scaffold multi-file / alasan struktur | + `references/architecture.md` | panggung, rig kamera, determinisme, export |
 | Memasang alat (snap, lint, export, tanpa ffmpeg) | + `references/alat-kerja.md` | perintah dan jalan pintasnya |
@@ -313,7 +314,8 @@ bagian 1 dan 1b. Ringkasnya:
    kata, draw anotasi, push-through antar adegan) atau
    `starter-explainer.html` (aksi kontinu: dunia mengalir, hero, objek
    dunia, view peta, whip) atau `starter-sinematik.html` (siluet sinematik, `techniques.md` §7d; aset Jawa kuno:
-   `pustaka.*`, `references/pustaka.md`, katalog `assets/katalog-pustaka.html`). Struktur multi-file dan
+   `pustaka.*`, `references/pustaka.md`, katalog `assets/katalog-pustaka.html`; tokoh Jawa kuno: `tokoh.*`,
+   `references/tokoh.md`, katalog `assets/katalog-tokoh.html`). Struktur multi-file dan
    penjelasan tiap keputusan ada di `references/architecture.md`.
 4. **Bangun adegan satu per satu** dengan resep di
    `references/techniques.md` (split per huruf + motion blur berarah,
@@ -342,7 +344,8 @@ bagian 1 dan 1b. Ringkasnya:
    untuk scrub. **Export MP4 hanya bila user memintanya**: `scripts/
    export-frames.mjs` merender tiap frame (60 fps) ke PNG lalu ffmpeg
    menggabungkannya — cara ini bebas frame drop, tapi mahal, bukan
-   alat pengecekan. Bila user ingin berkas yang aman disimpan
+   alat pengecekan. Video lebih dari ±10 menit: pecah per babak dan render lewat
+   `scripts/antre-render.mjs` (`references/alat-kerja.md` › Render panjang). Bila user ingin berkas yang aman disimpan
    bertahun-tahun (arsip/portofolio), tawarkan `scripts/vendor-libs.mjs` — GSAP dan font
    ditanam ke dalam berkas sehingga tidak bergantung pada CDN.
 

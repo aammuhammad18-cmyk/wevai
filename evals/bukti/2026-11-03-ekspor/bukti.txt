@@ -1,0 +1,57 @@
+BUKTI SUB-PROYEK 6 "EKSPOR PANJANG" — 3 Nov 2026
+Mesin: i3-3217U + HD 4000 (4 thread), Windows 11, Node 22.19, Chrome 156 headless, ffmpeg N-124841. Render pemilik berjalan di
+mesin yang sama, semua Chrome uji berprioritas Idle dan memegang kunci Chrome bersama: waktu dinding di bawah hanya batas atas.
+
+1. WORKERS: frame identik (halaman-mini.html, DOM 320x180, 2 dtk, FPS=15 -> 30 frame, FORMAT=png)
+   URL=file:///…/halaman-mini.html FPS=15 WORKERS=<n> OUT=<folder> node scripts/export-frames.mjs ; (cd <folder> && sha256sum f*.png)
+   WORKERS=1 vs WORKERS=2 (dibelah di frame 15):         30/30 sha256 sama, 30 hash unik (frame berubah tiap langkah)
+   tanpa env WORKERS (standar baru, header "2 worker"):   sama dengan WORKERS=1 lama
+   WORKERS=1 sesudah perubahan kode (renderRange dll.):   sama dengan WORKERS=1 lama
+   contoh hash: f00000 e7057e455450…  f00015 a1f2452d67e6…  f00029 86f9a46c94f7…
+   Yang identik adalah frame yang DITANGKAP. MP4 dari dua jalan berbeda sedikit (keyframe dan GOP x264 berbeda), itu wajar.
+
+2. MODE=webcodecs (kanvas-mini.html, 640x360, ?fps=15&dur=6 -> 90 frame, 2 worker: blok GOP 30+15 frame per worker)
+   MODE=webcodecs FPS=15 MP4=wc6.mp4 URL=file:///…/kanvas-mini.html?fps=15&dur=6 node scripts/export-frames.mjs
+   ffprobe: h264 High 640x360 yuv420p, nb_frames=90, durasi 6.000000 dtk, avg_frame_rate=15/1, has_b_frames=0,
+            color_range=tv color_space=bt709 color_primaries=bt709 color_transfer=iec61966-2-1 (Chrome menulis VUI sendiri)
+   ffmpeg mendekode 90 frame tanpa galat. node periksa-kanvas.mjs wc6.mp4 15 6 <folder PNG jalur biasa>:
+     nomor frame terbaca 0…89 berurutan (melewati sambungan blok di 30 dan 75, dan sambungan worker di 45)
+     8 batang murni: maks |selisih| 2 dari nilai teoretis di frame 0, 45, 89
+     selisih rata-rata vs PNG jalur biasa: R 1.16, G 1.06, B 1.75 (jalur biasa JPEG q80 -> x264 crf16: 0.80, 0.28, 1.01)
+   Dilihat langsung: frame 60 WebCodecs dan PNG berdampingan identik (batang, tanjakan, kotak, teks, strip bit).
+   Dengan <audio id="vo"> (WAV 7 dtk, halaman 6 dtk): video 6.000000 dtk / 90 frame + AAC 6.000000 dtk (dipotong -t, seperti jalur biasa).
+   -framerate saja: durasi 2.000010 dtk per 30 frame (timing VUI buatan Chrome menimpa); -r 15 (dipakai): 2.000000.
+   Fallback: halaman DOM tanpa kait -> "MODE=webcodecs dilewati — halaman tidak menyediakan kait window.OPENER.canvas …", lalu jalur biasa
+   (MP4 jadi); tanpa MP4= -> "mode ini menulis video: butuh MP4=…"; MODE=foo -> pesan dan kode 1.
+   Kecepatan 1080p tidak diukur (mesin sedang merender). Riset awal: 81 ms/frame, satu worker.
+
+3. antre-render.mjs: smoke run nyata, dua babak kecil (bab1 23 frame, bab2 30 frame, 320x180, FPS=15, masing-masing dengan VO,
+   siap + audio + env per butir, --gabung), dijalankan lewat pembungkus Idle + kunci Chrome
+   RUN 1 (baru):    [tahan-sleep] aktif (pid 12208) 12:26:52 … [ok] bab1 … [ok] bab2 … [gabung] durasi 3.58 dtk … cocok dengan jumlah butir (3.53 dtk)
+                    [tahan-sleep] dilepas 12:28:44 … [selesai] 2 dirender, 0 dilewati
+                    pemantau luar: powershell tersembunyi MUNCUL 12:26:53.3 (induk node, prioritas Idle) dan HILANG 12:28:44.5
+   RUN 2 (ulang):   [lewati] bab1 … [lewati] bab2 … [lewati] gabungan sudah lebih baru … [selesai] 0 dirender, 2 dilewati (tanpa Chrome, tanpa penahan sleep)
+   RUN 3 (bab2.html disentuh, penanda dihapus lalu dibuat lagi): [lewati] bab1, [ulang] bab2: bab2.html lebih baru dari mp4,
+                    [tunggu] bab2 -> [siap] bab2 -> [render] -> [ok] -> [gabung] 2 berkas -> [selesai] 1 dirender, 1 dilewati; penahan sleep muncul dan hilang lagi
+   gabungan: 53 frame (23 + 30), durasi 3.576 dtk (video 3.533 mulai di 0.042: offset AAC tetap 42 ms dari concat -c copy, perintah yang sama
+                    dengan alat/antre-render.sh milik pemilik; tidak bertambah per sambungan karena tiap babak durasi video dan audionya sama)
+   RUN 4 (gagal):   html hilang -> [GAGAL] tidak-ada; FORMAT=xyz -> export-frames kode 1 -> [GAGAL] format-salah; bab2 tetap diproses (dilewati);
+                    kode keluar 1, gabungan tidak dibuat, tidak ada sisa .sementara.mp4
+   Bersih-bersih (22 proses turunan: powershell penahan sleep, node export-frames, 2 ffmpeg, 16 chrome, 2 conhost):
+     galat tak tertangani di tengah render (preload uji melempar): 22/22 proses mati dalam 4.6 dtk, [tahan-sleep] dilepas, tanpa sisa sementara
+     process.emit('SIGINT') saat menunggu penanda (pengendali Ctrl+C; sinyal OS tidak bisa dikirim ke Node di Windows): "[henti] sinyal SIGINT",
+       [tahan-sleep] dilepas, kode keluar 130, 2/2 proses turunan mati
+
+4. Catatan pengamatan: di bawah beban 100 % (render pemilik) Chrome berprioritas Idle sempat 17 menit tanpa menyelesaikan peluncuran; begitu jalan,
+   Chrome mematikan renderer yang dianggap macet dan export-frames membuka ulang browser ("Attempted to use detached Frame — membuka ulang
+   browser (percobaan 1/3)"): jalur pemulihan bawaan bekerja. Ini artefak uji Idle, bukan perilaku render pemilik.
+5. Halaman nyata 1080p, WORKERS=1 vs 2 (controller, 3 Nov 17.00–17.29; render pemilik DITAHAN, tiga agen lain bekerja dengan Chrome
+   Idle; uji memegang kunci Chrome bersama; skrip: uji-workers.mjs di scratchpad sesi)
+   URL=file:///…/assets/<halaman>?clean=1 FPS=30 FORMAT=png WORKERS=<n> OUT=<folder> node scripts/export-frames.mjs
+   starter-sinematik.html (360 frame): 1 worker 281,2 dtk, 2 worker 234,3 dtk = 1,20×; 344/360 hash sama, beda f00181–f00196
+     (16 frame tepat sesudah titik belah 180), selisih maks. 1 level, PSNR 116 dB
+   katalog-tokoh.html (840 frame):     1 worker 680,3 dtk, 2 worker 463,1 dtk = 1,47×; 834/840 hash sama, beda f00615–f00620,
+     selisih maks. 1 level, PSNR 110–116 dB
+   MP4 2 worker (starter-sinematik, JPEG, PRESET=ultrafast): 76,7 dtk; ffprobe 1920x1080, nb_read_frames=360, durasi 12,000000
+   Kesimpulan: frame tidak bit-identik di halaman nyata, tetapi selisihnya di bawah ambang terlihat (H.264 crf 16 jauh lebih besar).
+   Percepatan di mesin ini 1,2–1,5×, bukan ±2×.

@@ -21,15 +21,24 @@
              ±2× lebih cepat dari PNG; pakai FORMAT=png untuk master yang kritis.
      QUALITY kualitas JPEG. Default 80 di mode MP4 (ffmpeg mengencode ulang; terukur ±20 % lebih
              cepat per frame daripada 95) dan 95 di mode folder.
-     WORKERS jumlah browser yang merender bagian timeline berbeda secara paralel (1).
-             Butuh seek yang deterministik (detik mana pun bisa dirender tanpa detik
-             sebelumnya) — kontrak OPENER yang sama dengan snap.mjs. Hanya menolong bila
-             core CPU & GPU masih longgar: di 4 core + GPU terintegrasi justru lebih lambat.
+     WORKERS jumlah browser yang merender bagian timeline berbeda secara paralel. Standar 2 bila mesin punya
+             >= 2 thread, selain itu 1 (ekspor-inti.mjs). Terukur ±2× di laptop 2 core (i3-3217U + HD 4000);
+             frame yang dihasilkan identik dengan WORKERS=1 (hash PNG sama). Di 4 core + GPU terintegrasi pernah
+             terukur lebih lambat: set WORKERS=1 bila begitu. Butuh seek yang deterministik (detik mana pun bisa
+             dirender tanpa detik sebelumnya) — kontrak OPENER yang sama dengan snap.mjs.
      SYNC=1  lewati penantian 2×rAF per frame. Hanya untuk halaman yang seek(t)-nya
              menggambar sinkron (DOM/SVG; tanpa kanvas yang digambar di rAF, tanpa klip
              video). Halaman juga bisa menyatakannya sendiri: window.OPENER.syncSeek = true.
      ENCODER libx264 (default) | h264_nvenc | h264_qsv. PRESET = preset libx264 (veryfast).
      FFMPEG  path ffmpeg bila tidak di PATH.
+     MODE=webcodecs  EKSPERIMENTAL, hanya untuk halaman yang SELURUH frame-nya satu kanvas (butuh MP4=). Frame
+             tidak di-screenshot: halaman membuat VideoFrame dari kanvas lalu men-encode-nya sendiri (VideoEncoder,
+             H.264 prefer-software, Annex B, GOP 2 dtk); potongan H.264 dialirkan ke ffmpeg (-f h264 -c copy) dan
+             audio #vo ditempel seperti biasa. Kanvas ditemukan lewat kait window.OPENER.canvas (elemen <canvas>
+             atau OffscreenCanvas, atau fungsi yang mengembalikannya) yang isinya sudah utuh begitu seek(t) selesai.
+             Ukuran keluaran = ukuran kanvas (SCALE tidak berlaku). Tanpa kait, tanpa VideoEncoder (perlu konteks
+             aman: file:// atau http://localhost), atau config ditolak → pesan jelas, lalu jalur biasa.
+             BITRATE=<bit/dtk> (standar 0,2 bit/piksel/frame). Rincian: references/alat-kerja.md › "Mode WebCodecs".
    Chrome yang mati/macet di tengah render dibuka ulang otomatis dan frame-nya diulang.
    Ukuran frame diambil dari window.OPENER.W/H — 1920×1080 dan 1080×1920 sama-sama benar.
    Tanpa MP4, di akhir skrip mencetak perintah ffmpeg; bila halaman punya <audio id="vo" src>,
@@ -38,6 +47,7 @@
 
 import { luncurkan } from './chrome.mjs';
 import { bantuan } from './bantuan.mjs';
+import { workersStandar, kodekAvc, bitrateStandar } from './ekspor-inti.mjs';
 import { pathToFileURL, fileURLToPath } from 'node:url';
 import { mkdir, writeFile, rm } from 'node:fs/promises';
 import { spawn, spawnSync } from 'node:child_process';
@@ -52,12 +62,14 @@ const SCALE   = Number(process.env.SCALE || 1);
 const MP4     = process.env.MP4   || '';
 const FORMAT  = (process.env.FORMAT || (MP4 ? 'jpeg' : 'png')).toLowerCase().replace(/^jpg$/, 'jpeg');
 const QUALITY = Number(process.env.QUALITY || (MP4 ? 80 : 95));
-const WORKERS = Math.max(1, Math.floor(Number(process.env.WORKERS || 1)));
+const WORKERS = workersStandar();
 const SYNC    = process.env.SYNC === '1';
 const ENCODER = process.env.ENCODER || 'libx264';
 const FFMPEG  = process.env.FFMPEG || 'ffmpeg';
+const MODE    = (process.env.MODE || '').toLowerCase();
 const EXT     = FORMAT === 'jpeg' ? 'jpg' : 'png';
 if (FORMAT !== 'png' && FORMAT !== 'jpeg') { console.log(`FORMAT=${FORMAT} tidak dikenal (png | jpeg)`); process.exit(1); }
+if (MODE && MODE !== 'webcodecs') { console.log(`MODE=${MODE} tidak dikenal (webcodecs, atau kosongkan untuk tangkapan layar)`); process.exit(1); }
 
 const ENC_ARGS = {
   // veryfast, bukan medium: encode berjalan bersamaan dengan Chrome, dan medium merebut core raster
@@ -85,11 +97,16 @@ async function openWorker(){
   // tunggu sampai modul selesai dimuat, timeline terpasang, dan klip video siap
   await page.waitForFunction('window.OPENER && window.OPENER.ready && (!window.OPENER.clipsReady || window.OPENER.clipsReady())', { timeout: 120000 });
   await page.evaluate(() => document.fonts.ready);
-  const info = await page.evaluate(() => ({
-    W: window.OPENER.W || 1920, H: window.OPENER.H || 1080, DURATION: window.OPENER.DURATION,
-    vo: document.querySelector('audio#vo')?.getAttribute('src') || '',
-    sync: !!window.OPENER.syncSeek,
-  }));
+  const info = await page.evaluate(mode => {
+    const O = window.OPENER;
+    let kv = null; if (mode) try { kv = typeof O.canvas === 'function' ? O.canvas() : O.canvas; } catch {}   // kait kanvas hanya dibaca di mode WebCodecs
+    return {
+      W: O.W || 1920, H: O.H || 1080, DURATION: O.DURATION,
+      vo: document.querySelector('audio#vo')?.getAttribute('src') || '',
+      sync: !!O.syncSeek,
+      ...(mode ? { kanvas: kv && kv.width ? { w: kv.width, h: kv.height } : null, enkoder: typeof VideoEncoder === 'function' && typeof VideoFrame === 'function' } : {}),
+    };
+  }, MODE === 'webcodecs');
   await page.setViewport({ width: info.W, height: info.H, deviceScaleFactor: SCALE });
   await page.evaluate(() => { window.OPENER.tl.pause(0); });
   return { browser, page, info };
@@ -99,12 +116,31 @@ async function openWorker(){
 const workers = [await openWorker()];
 const { W, H, DURATION, vo } = workers[0].info;
 const sync = SYNC || workers[0].info.sync;
-for (let k = 1; k < WORKERS; k++) workers.push(await openWorker());
-
 const total = Math.ceil(DURATION * FPS);
+const NW = Math.min(WORKERS, total) || 1;   // halaman 1 frame tak perlu browser kedua
+const wc = MODE === 'webcodecs' ? await siapkanWebCodecs(workers[0]) : null;   // null = jalur biasa (tangkapan layar)
+for (let k = 1; k < NW; k++) workers.push(await openWorker());
+
 const t0 = Date.now();
 let done = 0;
-console.log(`${total} frame @ ${FPS} fps (${DURATION}s, ${W}x${H}, ${FORMAT}${sync ? ', sync' : ''}, ${WORKERS} worker) -> ${MP4 || OUT + '/'}`);
+console.log(`${total} frame @ ${FPS} fps (${DURATION}s, ${W}x${H}, ${wc ? 'webcodecs' : FORMAT}${sync ? ', sync' : ''}, ${NW} worker) -> ${MP4 || OUT + '/'}`);
+
+// MODE=webcodecs dipakai hanya bila semua syaratnya ada; kalau tidak: alasan yang jelas, lalu jalur biasa
+async function siapkanWebCodecs({ page, info: { kanvas, enkoder } }){
+  let tak = !MP4 ? 'mode ini menulis video: butuh MP4=…'
+    : !kanvas ? 'halaman tidak menyediakan kait window.OPENER.canvas (kanvas yang memuat seluruh frame)'
+    : !enkoder ? 'VideoEncoder tidak ada di halaman ini (perlu konteks aman: file:// atau http://localhost)'
+    : kanvas.w % 2 || kanvas.h % 2 ? `kanvas ${kanvas.w}x${kanvas.h}: lebar dan tinggi harus genap (H.264 yuv420)` : '';
+  let cfg;
+  if (!tak){
+    cfg = { codec: kodekAvc(kanvas.w, kanvas.h, FPS), width: kanvas.w, height: kanvas.h, bitrate: bitrateStandar(kanvas.w, kanvas.h, FPS),
+      framerate: FPS, hardwareAcceleration: 'prefer-software', avc: { format: 'annexb' } };
+    if (!await page.evaluate(c => VideoEncoder.isConfigSupported(c).then(s => s.supported, () => false), cfg)) tak = `VideoEncoder menolak config ${JSON.stringify(cfg)}`;
+  }
+  if (tak){ console.log(`MODE=webcodecs dilewati — ${tak}.\nMemakai jalur biasa (tangkapan layar).`); return null; }
+  if (kanvas.w !== W || kanvas.h !== H) console.log(`catatan: kanvas ${kanvas.w}x${kanvas.h} berbeda dari OPENER ${W}x${H}; keluaran memakai ukuran kanvas.`);
+  return { cfg, gop: Math.max(1, Math.round(FPS * 2)) };   // GOP 2 dtk: tiap blok diawali keyframe, jadi blok yang gagal bisa diulang utuh
+}
 
 async function captureFrame(page, i){
   const t = i / FPS;
@@ -125,15 +161,45 @@ async function captureFrame(page, i){
   });
 }
 
+// MODE=webcodecs — DIJALANKAN DI HALAMAN (puppeteer menyerialkan fungsinya: jangan merujuk variabel luar).
+// Satu blok = n frame berurutan mulai dari i, satu GOP tertutup: seek → VideoFrame dari kanvas → VideoEncoder →
+// potongan Annex B digabung jadi satu string base64. Blok baru dikirim ke Node bila SELURUH framenya jadi.
+async function encodeBlok(i, n, fps, sync, cfg){
+  const O = window.OPENER, kv = typeof O.canvas === 'function' ? O.canvas() : O.canvas, potong = [];
+  let galat = null;
+  const enc = new VideoEncoder({ output: c => { const u = new Uint8Array(c.byteLength); c.copyTo(u); potong.push(u); }, error: e => { galat = e; } });
+  enc.configure(cfg);
+  for (let k = 0; k < n; k++){
+    const t = (i + k) / fps;
+    if (O.seekFrame) await O.seekFrame(t); else (O.seek || O.tl.time.bind(O.tl))(t);
+    if (!sync) await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    const f = new VideoFrame(kv, { timestamp: Math.round((i + k) * 1e6 / fps), duration: Math.round(1e6 / fps) });
+    enc.encode(f, { keyFrame: k === 0 }); f.close();
+    for (const w0 = performance.now(); enc.encodeQueueSize > 4 && !galat; ){   // tekanan balik; antrean tak turun 15 dtk = macet (seperti prefer-hardware di riset)
+      if (performance.now() - w0 > 15000) throw new Error(`enkoder macet (antrean ${enc.encodeQueueSize})`);
+      await new Promise(r => setTimeout(r, 1));
+    }
+    if (galat) throw galat;
+  }
+  await Promise.race([enc.flush(), new Promise((_, no) => setTimeout(() => no(new Error('flush enkoder macet')), 30000))]); enc.close();
+  if (galat) throw galat;
+  if (potong.length !== n) throw new Error(`enkoder mengeluarkan ${potong.length} potongan untuk ${n} frame (frame terlewat)`);
+  const url = await new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = no; r.readAsDataURL(new Blob(potong)); });
+  return url.slice(url.indexOf(',') + 1);
+}
+const blokWebCodecs = async (page, i, n) => Buffer.from(await page.evaluate(encodeBlok, i, n, FPS, sync, wc.cfg), 'base64');
+
 // render panjang bisa terputus karena Chrome/driver GPU mati di tengah jalan ("Target closed").
 // Browser yang mati dibuka ulang dan frame yang sama diulang; seek deterministik, jadi hasilnya sama.
-async function renderRange(w, from, to, sink){
-  for (let i = from; i < to; i++){
+// Satuan kerja = step frame (1 untuk tangkapan layar; satu GOP untuk WebCodecs, yang diulang utuh bila gagal).
+async function renderRange(w, from, to, sink, capture = captureFrame, step = 1){
+  for (let i = from; i < to; i += step){
+    const n = Math.min(step, to - i), batas = Math.max(60, n * 10) * 1000;   // cadangan; macet enkoder sudah dideteksi di halaman (15 dtk)
     let buf;
     for (let coba = 1; !buf; coba++){
       let timer;
-      const macet = new Promise((_, no) => { timer = setTimeout(() => no(new Error('frame tidak selesai dalam 60 dtk')), 60000); });
-      try { buf = await Promise.race([captureFrame(w.page, i), macet]); clearTimeout(timer); }
+      const macet = new Promise((_, no) => { timer = setTimeout(() => no(new Error(`${n > 1 ? `blok ${n} frame` : 'frame'} tidak selesai dalam ${batas / 1000} dtk`)), batas); });
+      try { buf = await Promise.race([capture(w.page, i, n), macet]); clearTimeout(timer); }
       catch (e) {
         clearTimeout(timer);
         if (coba > 3) throw e;
@@ -144,17 +210,22 @@ async function renderRange(w, from, to, sink){
     }
     await sink(i, buf);   // di luar penjaga waktu: frame yang sudah terkirim tidak pernah diulang
 
-    if (++done % FPS === 0){
+    const sebelum = done; done += n;
+    if (Math.floor(done / FPS) > Math.floor(sebelum / FPS)){   // sekali tiap FPS frame (= tiap detik video)
       const s = (Date.now() - t0) / 1000, rate = done / s;
       process.stdout.write(`\r${done}/${total}  ${rate.toFixed(1)} frame/dtk  sisa ±${Math.round((total - done) / rate)} dtk   `);
     }
   }
 }
 
-// ffmpeg yang menerima gambar lewat stdin dan menulis satu potong video (tanpa audio)
+// ffmpeg yang menerima gambar (atau potongan H.264 dari WebCodecs) lewat stdin dan menulis satu potong video (tanpa audio)
 function startEncoder(file){
-  const ff = spawn(FFMPEG, ['-v', 'error', '-y', '-f', 'image2pipe', '-framerate', String(FPS),
-    '-c:v', FORMAT === 'jpeg' ? 'mjpeg' : 'png', '-i', '-', ...ENC_ARGS, '-pix_fmt', 'yuv420p', file],
+  // WebCodecs: -r (BUKAN -framerate) sebagai opsi masukan, supaya stempel waktu CFR persis dan tidak ditimpa timing VUI
+  // buatan Chrome (1e6/66667 ≠ 15: 2,00001 dtk per 30 frame, melayang ±36 ms per jam pada 30 fps)
+  const [masuk, keluar] = wc
+    ? [['-r', String(FPS), '-f', 'h264', '-i', '-'], ['-c:v', 'copy']]
+    : [['-f', 'image2pipe', '-framerate', String(FPS), '-c:v', FORMAT === 'jpeg' ? 'mjpeg' : 'png', '-i', '-'], [...ENC_ARGS, '-pix_fmt', 'yuv420p']];
+  const ff = spawn(FFMPEG, ['-v', 'error', '-y', ...masuk, ...keluar, file],
     { stdio: ['pipe', 'inherit', 'inherit'] });
   const closed = once(ff, 'close');
   return {
@@ -164,7 +235,7 @@ function startEncoder(file){
 }
 
 // bagi timeline jadi potongan berurutan, satu per worker
-const chunk = Math.ceil(total / WORKERS);
+const chunk = Math.ceil(total / workers.length);
 const ranges = workers.map((w, k) => [w, k * chunk, Math.min(total, (k + 1) * chunk)]).filter(([, a, b]) => a < b);
 
 try {
@@ -177,7 +248,7 @@ try {
     await mkdir(parts, { recursive: true });
     const segs = await Promise.all(ranges.map(async ([w, a, b], k) => {
       const seg = `${parts}/seg${k}.mp4`, enc = startEncoder(seg);
-      await renderRange(w, a, b, (i, buf) => enc.write(buf));
+      await renderRange(w, a, b, (i, buf) => enc.write(buf), ...(wc ? [blokWebCodecs, wc.gop] : []));
       await enc.end();
       return seg;
     }));
@@ -199,7 +270,7 @@ try {
 }
 
 const secs = Math.round((Date.now() - t0) / 1000);
-if (MP4) console.log(`\nselesai — ${MP4} (${total} frame, ${secs} dtk${vo ? ', dengan VO' : ''})`);
+if (MP4) console.log(`\nselesai — ${MP4} (${total} frame, ${secs} dtk${vo ? ', dengan VO' : ''}${wc ? ', webcodecs' : ''})`);
 else {
   const audio = vo ? ` -i "${vo}" -c:a aac -b:a 192k -shortest` : '';
   console.log(`\nselesai — ${total} frame di ${OUT}/ (${secs} dtk)\ngabungkan (dari folder proyek):\n` +

@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><title>kanvas-mini</title>
+<style>html,body{margin:0;background:#000;overflow:hidden}canvas{display:block}</style></head>
+<body><canvas id="c" width="640" height="360"></canvas>
+<script>
+/* Halaman uji ekspor: seluruh frame = SATU kanvas 2D (640x360, 2 dtk). Kontrak OPENER + kait OPENER.canvas untuk
+   MODE=webcodecs. Isi: 8 batang warna murni (uji warna), tanjakan abu-abu, kotak bergerak, dan nomor frame sebagai
+   10 bit hitam/putih di baris bawah (bit b di x = 16*b + 8; uji urutan dan jumlah frame setelah encode).
+   Query: ?fps= (bawaan 30, hanya untuk nomor frame) dan ?dur= (detik, bawaan 2; maks. 34 dtk pada 30 fps karena nomor 10 bit):
+   URL=file:///.../kanvas-mini.html?fps=15&dur=6 */
+const Q=new URLSearchParams(location.search),W=640,H=360,DUR=+Q.get('dur')||2,FPS=+Q.get('fps')||30,cv=document.getElementById('c'),g=cv.getContext('2d');
+const BATANG=['#ffffff','#ffff00','#00ffff','#00ff00','#ff00ff','#ff0000','#0000ff','#000000'];
+function seek(t){
+  g.fillStyle='#202830';g.fillRect(0,0,W,H);
+  BATANG.forEach((c,i)=>{g.fillStyle=c;g.fillRect(i*80,0,80,150)});
+  const r=g.createLinearGradient(0,0,W,0);r.addColorStop(0,'#000');r.addColorStop(1,'#fff');g.fillStyle=r;g.fillRect(0,150,W,30);
+  const x=Math.round(t/DUR*(W-60));g.fillStyle='#ff8800';g.fillRect(x,200,60,60);g.strokeStyle='#fff';g.lineWidth=3;g.strokeRect(x+1.5,201.5,57,57);
+  g.fillStyle='#fff';g.font='700 28px monospace';g.fillText('t='+t.toFixed(3),20,300);
+  const n=Math.round(t*FPS);for(let b=0;b<10;b++){g.fillStyle=(n>>b)&1?'#fff':'#000';g.fillRect(b*16,H-16,16,16)}
+}
+window.OPENER={W,H,DURATION:DUR,ready:true,syncSeek:true,tl:{pause(){},time(t){seek(t)}},seek,canvas:cv};
+seek(0);
+</script></body></html>

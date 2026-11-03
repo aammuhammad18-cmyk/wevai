@@ -9,7 +9,9 @@ const CAM={mode:'dom',          // 'dom' (2.5D) | 'three' — diisi backend
   mm:35,                        // lensa (filmGauge 36); 2.5D: perspective = W*mm/36 px
   focus:0,aperture:0,           // rack focus (aperture 0 = mati)
   shake:0,seed:1,               // handheld: value-noise ber-seed, bukan Math.random
-  blur:0};                      // blur berarah saat whip
+  blur:0,                       // blur berarah saat whip
+  rail:-1,railU:0};             // jalur aktif: indeks RAILS (-1 = mati) — rail() 3D, terbang() (terbang.js)
+const RAILS=[];                 // dibuat saat setup: {curve,look} dari rail(), fungsi t→pose dari terbang()
 /* RENCANA: bayangan CAM saat setup. Nilai relatif ('+=220', '*=1.4') diselesaikan DI SINI menjadi angka
    absolut — GSAP menyelesaikan nilai relatif saat tween pertama kali dirender, sehingga hasilnya bergantung
    jalur seek (putar ≠ lompat ≠ worker export). Karena itu gerak relatif wajib dipanggil urut waktu. */

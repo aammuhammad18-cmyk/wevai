@@ -24,6 +24,8 @@ Daftar berkas skill ini; dibaca bila perlu. Dipindah utuh dari SKILL.md (3 Nov 2
 | `assets/starter-relief.html` | EXPLAINER relief candi hidup 100 % kode: cahaya obor menyapu pahatan andesit, tokoh relief hidup pelan, kamera menyusuri galeri |
 | `references/pustaka.md` | PUSTAKA ASET JAWA KUNO `pustaka.*`: candi, gapura, rumah panggung, beringin, lontar, gunung, sawah, obor/api/asap, relief, kain — kontrak, opsi, jebakan, catatan budaya |
 | `assets/katalog-pustaka.html` | KATALOG pustaka aset: tiga tableau sinematik 26 dtk (bukti jalan + bahan galeri) |
+| `references/mata-elang.md` | SHOT MATA ELANG: `terbang()` 3D/2.5D, `lanskap()`, tone mapping film, motion blur akumulasi, resep + jebakan |
+| `assets/starter-elang.html` | MATA ELANG 3D: sawah berundak → gapura bentar → gunung saat senja, lanskap prosedural ber-seed, Three.js r161 |
 | `assets/starter-explainer-kartun.html` | EXPLAINER kartun kolase: kertas krem + grain + noda, cutout ilustrasi, Bricolage + Caveat, pill warna |
 | `assets/starter-explainer-jurnalisme.html` | EXPLAINER jurnalisme visual: hitam + grain, foto asli + tag sumber, Barlow Condensed + Plex Mono, highlighter kuning/merah, anotasi putus |
 | `assets/starter-explainer-katalog.html` | EXPLAINER katalog putih: grid samar, cutout foto, Archivo Black + Caveat + Inter, highlighter kuning |

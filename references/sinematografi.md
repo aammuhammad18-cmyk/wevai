@@ -157,9 +157,16 @@ terpenuhi:
 4. **mendarat di subjek**: gerak melambat dan berakhir pada shot yang membingkai subjek berikutnya.
 
 *Kenapa:* terbang yang termotivasi memberi skala dan geografi yang tak bisa diberikan cut; terbang di setiap
-transisi menjadi pola "tahan → terbang jauh → cut" yang melelahkan dan terbaca preset editor. Alat sekarang: 3D
-`rail()` dengan roll lewat `camTo({roll})`; 2.5D `camTo` melintasi bidang `[data-z]`. *Kegagalan:* tiga
+transisi menjadi pola "tahan → terbang jauh → cut" yang melelahkan dan terbaca preset editor. *Kegagalan:* tiga
 penerbangan dalam satu bab, masing-masing berakhir di langit kosong lalu cut.
+
+Alat: `terbang(at,dur,titik,opsi)`: 3D di `assets/starter-elang.html` (lanskap prosedural), 2.5D lewat bidang `[data-z]`
+(salin blok `terbang`). Resep lengkap dan opsi: `mata-elang.md`. Ringkasnya:
+- matahari rendah di DEPAN (siluet, rim, air cermin);
+- saat cepat, belok berjari-jari ratusan meter, karena roll = tan⁻¹(v²κ/g): pada 30 m/dtk, geser 4 m per 120 m = 45°;
+- lurus ≥ 25 m menembus celah (`lewati()`);
+- naik sambil menatap datar, lalu mendarat melambat di subjek;
+- motion blur akumulasi hanya di segmen menembus.
 
 **≥ 2 sudut per dunia.** Tiap dunia dilihat dari minimal dua sudut berbeda (`angle()` atau yaw ≥ 30°).
 *Kenapa:* satu sudut + dolly in/out = diorama di balik kaca — PPT 3D. *Kegagalan:* 45 detik dari eye-level 3/4
@@ -250,9 +257,11 @@ focus(6,.8,'peti');                    // hero shot
 
 ## 6. Jebakan
 
-**Warna brand bergeser lewat composer.** `EffectComposer` + `OutputPass` menerapkan `renderer.toneMapping` ke
-seluruh frame dan **mengabaikan** `material.toneMapped:false`. Terukur: ACES menggeser `#EE1C25` menjadi 241,26,37.
-Warna brand tepat WAJIB `renderer.toneMapping = THREE.NoToneMapping` — kedua starter 3D sudah begitu; biarkan.
+**Tone mapping: brand atau film.** `EffectComposer` + `OutputPass` menerapkan `renderer.toneMapping` ke seluruh frame
+dan **mengabaikan** `material.toneMapped:false` (ACES: `#EE1C25` → 241,26,37).
+- Brand/produk WAJIB `THREE.NoToneMapping` (starter explainer 3D dan opener; biarkan).
+- Sejarah/sinematik (api, matahari, senja): `ACESFilmicToneMapping`, exposure ±.5. Tanpanya highlight menggunting.
+  AgX r161 memucatkan api jadi salem (`mata-elang.md`).
 
 **`composer.render()` tanpa argumen** membaca jam sendiri → frame berbeda tiap ekspor. Selalu `composer.render(0)`
 (lint `composer-render-jam`). Sama: tanpa `THREE.Clock`, `getDelta`, `mixer.update(` di jalur render.
@@ -267,9 +276,9 @@ jauh: besarkan lantai dan naikkan near/far, atau buang kabut dan tutup tepi lant
 
 **Low/worm angle di bawah lantai → `CAM.lantai`.** Tinggi kamera = `fy − dist·sin(pitch)`; sesudah `shot(…,'WS')`
 pada kubus 1,6 (dist ±7) `angle('low')` menaruh kamera di y −2,2, `worm` −5,3 — lantai lenyap, layar hitam.
-`CAM.lantai` (y bidang tanah) menjepit kamera di `lantai + near·(1 + tan(½ fov vertikal))` (min. 0,05) setiap frame — margin itu menjaga near plane tidak memotong lantai pada lensa lebar (`worm` 16 mm) (juga dip di tengah tween, kamera
-bayangan zona aman, dan jarak `focus()`); kamera tetap menatap fokus, jadi low angle yang terlalu jauh berubah
-jadi eye level tepat di atas lantai. Opt-in: default `null` (tanpa jepit — opener/luar angkasa). Starter 3D
+`CAM.lantai` (y bidang tanah) menjepit kamera di `lantai + near·(1 + tan(½ fov vertikal))` (min. 0,05) setiap frame, juga di
+tengah tween, kamera bayangan zona aman, dan jarak `focus()`; margin itu menjaga near plane tidak memotong lantai pada lensa
+lebar. Kamera tetap menatap fokus: low angle yang terlalu jauh jadi eye level tepat di atas lantai. Opt-in: default `null` (tanpa jepit — opener/luar angkasa). Starter 3D
 memasang `camDefaults({lantai:0})` di samping lantainya; dunia tanpa lantai: hapus baris itu. Low angle yang
 sungguh menengadah: dekatkan kamera (MCU/CU) atau pakai subjek yang tinggi.
 
@@ -281,9 +290,8 @@ memakai ukuran dekat, beri subjek detail permukaan tanpa tekstur: bevel, panel/r
 angka/label sebagai bentuk.
 
 **Biaya di GPU lemah** (mesin acuan i3-3217U/HD 4000): bayangan PCFSoft +29 ms/frame; `BokehPass` 169 ms vs
-42 ms tanpa. DOF hanya untuk hero shot, matikan (`aperture:0`) sesudahnya. Starter 3D mengekspor ≥ 3 frame/dtk
-karena `OPENER.syncSeek:true` dan loop rAF hanya menggambar saat `tl.time()` berubah — loop render kedua yang
-berjalan bebas menurunkannya (sebelum perbaikan itu: 1,6 frame/dtk).
+42 ms tanpa. DOF hanya untuk hero shot, matikan (`aperture:0`) sesudahnya. Ekspor ≥ 3 frame/dtk berkat
+`OPENER.syncSeek:true` + loop rAF yang hanya menggambar saat `tl.time()` berubah; jangan menambah loop render kedua.
 
 **Preset terbaca dari pose 3/4.** Key datang dari arah dunia; dari depan lurus beda antar preset (terutama
 `day`/`studio`/`lowkey`) sulit terbaca. Nilai `lowkey` (key az 80/el 12/I 1,4, fill ,12, rim 0) disetel supaya terukur gelap dari yaw −55,
@@ -326,12 +334,13 @@ ke z = 0, paralaks mati. Efek itu dipasang pada ANAK bidang. Transform 3D di DAL
 Starter 3D sudah mendeklarasikan nama di bawah; mendeklarasikannya ulang di rundown (`const fill=…`) membuat
 seluruh module gagal dimuat — layar kosong. Pakai nama lain (`isi`, `kunci`, `tepi`).
 
-- Inti `kamera.js`: `CAM PLAN P0 planAt camDefaults mutlak camTo cutTo camReset look home into settle breath hash
+- Inti `kamera.js`: `CAM RAILS PLAN P0 planAt camDefaults mutlak camTo cutTo camReset look home into settle breath hash
   noise SHOT rectIn lastShot shot ANGLE angle dolly truck pedestal pan tilt crane AXIS rule180 arc lens dollyZoom
   whipPan handheld HUD hud pose jarakBingkai`.
-- Backend `kamera-three.js`: `warna RAILS arahkan rail applyCam objek3 kotak3 LUX key fill rim applyLux CAHAYA3
+- Backend `kamera-three.js`: `warna arahkan rail applyCam objek3 kotak3 LUX key fill rim applyLux CAHAYA3
   nilaiLux lampAt light practical bokeh jarakFokus focus rackFocus TOON MAT mat fromSVG demoKamera3`; properti
   `CAM.frame3d`, `CAM.cek3`; `window.CAM3_UJI`, `window.DEMO_AKHIR` (kait uji/katalog).
+- Blok `terbang` dan `lanskap-3d` (starter elang): `mata-elang.md` › Nama global.
 - Disediakan starter SEBELUM blok kamera (wajib ada): `THREE scene camera renderer composer BokehPass SVGLoader tl rig
   W H DUR $`. Milik starter sendiri (`lantai subjek render tGambar q fit vo start …`) terlihat di
   berkasnya.

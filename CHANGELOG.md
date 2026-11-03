@@ -186,6 +186,38 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
       (lihat `pustaka.md`);
     - sawah senja perlu dinilai pemilik (masih terbaca seperti pasir).
   - **Status penerimaan**: menunggu vonis visual pemilik.
+- **Mata elang 3D** (sub-proyek 5, H di `docs/rencana-1.4.0.md`).
+  - **Berkas**: `src/runtime/terbang.js` (blok baru `<wv:terbang>`) dan `src/runtime/lanskap-3d.js`; `assets/starter-elang.html`,
+    `references/mata-elang.md`, dan `scripts/test-elang.mjs` (baru). `RAILS` pindah ke `kamera.js` inti; `kamera-three.js` dan
+    `kamera-dom.js` mendapat kait kecil; `sinematografi.md` §3/§6/§7 dan penunjuk di `techniques.md`.
+  - **`terbang(at, dur, titik, opsi)`**, fungsi murni dari `tl.time()`, untuk kamera 3D dan 2.5D:
+    - Catmull-Rom sentripetal berparameter panjang busur; look-ahead atau satu target per titik;
+    - roll dari tan φ = v²κ/g, dihaluskan (jendela Hann) lalu dijepit lunak (tanh); guncang trauma² × derau ber-seed;
+    - di 2.5D titiknya `[fx, fy, zoom]`, dan zoom diwujudkan sebagai dolly sungguhan menembus bidang `[data-z]`, jadi ada
+      paralaks kedalaman (`terbang25.jpg`).
+  - **Demo `assets/starter-elang.html`** (11,5 dtk): terbang rendah di atas sawah berundak, menembus celah gapura bentar berobor,
+    naik di atas lembah, mendarat di gunung berlapis saat senja, dengan legenda.
+    - `lanskap()` + `tumbuh()` ber-seed: terrain fBm, sawah bercermin air, sungai Catmull-Rom, hutan dan palem InstancedMesh, Sky
+      three r161 yang dipanggang sekali ke PMREM, kabut.
+    - Motion blur akumulasi 8 sub-frame hanya di segmen menembus gapura (4,53–5,43 dtk).
+    - Starter sendiri, bukan `?demo=elang`: demo di starter 3D akan menambah ±70 KB ke jalur Explainer 3D.
+  - **Tone mapping film**: ACESFilmic (exposure ,5) untuk sejarah dan sinematik; starter brand dan produk tetap `NoToneMapping`, dan
+    `test-starters` memeriksanya per starter. ACES, bukan AgX: api tetap jingga jenuh, sedangkan AgX memudarkannya ke salem
+    (`tonemap.jpg`). three tetap r161.
+  - **Uji**:
+    - `test-elang` (6 uji: kontinuitas, look-ahead, fisika roll, determinisme guncang, tween 3D dan 2.5D) masuk `rilis.mjs` dan CI.
+    - `test-starters`: `ELANG_UJI` (kamera sungguh terbang, jarak bebas di celah gapura 1,47 m, roll maks. 12,65° dari batas 23,1°);
+      `terbang()` 2.5D disuntikkan ke setiap starter 2.5D; halaman berat dilewati bila WebGL jatuh ke perangkat lunak (CI tanpa GPU:
+      satu frame 66,6 dtk). Run penuh kedua 10 dari 11 lolos; sesudah perbaikan, ketiga starter kamera-three lolos.
+  - **Anggaran konteks**: jalur baru **Mata elang 3D** (`sinematografi.md` + `mata-elang.md` + `starter-elang.html`) 149 KB, batas
+    pelacak 155 KB. Jalur lain naik 0,3–1,2 KB (kait kamera dan dokumen); batasnya tidak diubah.
+  - **Bukti**: `evals/bukti/2026-11-03-mata-elang/` (`kontak.jpg`, `elang.gif`, `tonemap.jpg`, `terbang25.jpg`). `nilai-visual`
+    dengan subjek dan sumber dideklarasikan: gapura + dua obor kontras 59,9, obor +71,6; gunung di 11 dtk kontras 27,2.
+  - **Celah yang diketahui**:
+    - ms/frame belum diukur (mesin sedang merender). Bila > 350 ms, kenop pertamanya MSAA → FXAA, peta bayangan 1024, jumlah pohon;
+    - sawah lembah dekat tampak kotak-kotak pada grid kasar (±14 m) di frame akhir;
+    - `terbang()` 2.5D belum dipasang di starter 2.5D mana pun; shot mata elang brief 10 menyusul bersama babak multi-adegan (E).
+  - **Status penerimaan**: menunggu bench di mesin senggang dan vonis visual pemilik.
 
 ## 1.3.0 — 2026-11-02
 

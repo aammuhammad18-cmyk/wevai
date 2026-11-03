@@ -913,7 +913,8 @@ return{bidang,sprite,siklus,siap,pose,dokumen,opsi,PALET};})();
 /* </wv:lukis> */
 /* ---------- ADEGAN BAWAAN: "Desa di kaki gunung", legenda senja 16 dtk ----------
    Lima bidang [data-z], masing-masing SATU kanvas lukisan: −2000 langit (cuci basah, matahari = kertas tak dicat), −1300 gunung api,
-   −800 bukit, −420 sawah berundak + desa + pematang, 0 beringin + tanah. Yang hidup = sprite di bidangnya: asap kawah (7 gumpal),
+   −800 bukit, −420 sawah berundak + desa + pematang, 0 beringin + tebing gelap kiri bawah (kantong gelap legenda). Yang hidup =
+   sprite di bidangnya: asap kawah (9 gumpal),
    kabut kaki gunung, burung pulang (2 pose), petani menanam (2), pemikul berjalan (8 pose). Kamera: geser kanan + dolly pelan.
    Warna aset dari pustaka (LANGIT.horizon = kabut senja kusam saat membangun aset jauh, cakrawala terang saat membangun air sawah);
    palet nada 'senja' di lukis menyerasikannya. Dipanggil saat setup, sesudah tl ada. */
@@ -943,7 +944,7 @@ function desaKakiGunung(){
       `<g filter="url(#lb)">${awan}</g><circle cx="${MT.x}" cy="${MT.y}" r="27" fill="#fff6e2"/>`,
     {kuas:9,panjang:.9,liuk:.12,variasi:.08,sapuan:.12,tepi:.25,butir:.65,aliran:.6,basah:.85,goyang:1,kertas:.65,nada:.15});
 
-  /* −1300 gunung api + kabut kaki gunung + asap kawah (7 gumpal: tiap gumpal sprite yang dilukis sekali; posisi/skala/opacity
+  /* −1300 gunung api + kabut kaki gunung + asap kawah (9 gumpal: tiap gumpal sprite yang dilukis sekali; posisi/skala/opacity
      = fungsi murni tl.time(), fase sendiri) */
   const B1=bidang(-1300),gm=PU.gunungBerlapis({x:880,y:800,lebar:3600,tinggi:560,lapis:2,puncak:1,seed:4,jarak:-1300,cahaya:MT,warna:'#4e4166',detail:1}),[kx,ky]=puncak(gm);
   LK.bidang(B1,gm,{kuas:7,panjang:.75,liuk:.35,variasi:.2,sapuan:.35,tepi:.7,butir:.8,basah:.45,aliran:.45});

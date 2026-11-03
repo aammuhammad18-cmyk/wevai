@@ -43,6 +43,11 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
   tindak lanjut di mesin senggang, batas 350 ms. Kait modul (`ATM_UJI`, `CAHAYA_UJI`, `PASCA_UJI`, `CAM_UJI`) belum bisa dijalankan di
   halaman yang sudah memakai modul (mis. `PASCA_UJI` menuntut tanpa lapisan grade; `ATM_UJI` mengganti langit halaman) — sampai kait itu
   tahan terhadap halaman terisi, starter ber-adegan harus punya mode tanpa adegan seperti `?kosong=1`.
+- **Aturan rilis** (`docs/aturan-rilis.md`, baru): SemVer untuk seluruh skill, CHANGELOG dengan `## Belum dirilis`, 8 gerbang
+  yang sama dengan CI, gerbang rupa (bukti, bench saat mesin menganggur, vonis pemilik), alur branch → `main` → commit
+  `rilis X.Y.Z` → tag → push hanya dengan izin pemilik → GitHub Release. `scripts/rilis.mjs` menjalankan semua gerbang
+  (`--tanpa-browser` saat mesin merender). Bila diberi versi, skrip menyiapkan CHANGELOG, `bump-version`, dan catatan rilis, tanpa
+  commit, tag, atau push. Penyesuaian yang tertunda: tag `v1.2.0` (7fa0791) dan `v1.3.0` (0748e0b), yang belum di-push.
 
 ## 1.3.0 — 2026-11-02
 

@@ -132,7 +132,7 @@ detik menembus celah ±0,45 dtk.
 - **Profil roll tanpa browser**: muat `kamera.js` + `terbang.js` di Node seperti `scripts/test-elang.mjs`, panggil `terbang()`
   dengan `ease` yang sama, lalu cetak `R(t).roll` per 0,5 dtk. Tinggi tidak memengaruhi roll.
 - **Pohon "lolipop"**: tajuk tunggal di batang terbuka di dasar ladang terbaca game. Tanam berkelompok (`kelompok`);
-  di petak ladang hanya 3 % yang lolos.
+  di petak ladang hanya 1,5 % yang lolos.
 - **Kabut lembah** menutup dasar lembah menjadi lantai merah muda bila terlalu dekat/terlalu pekat. Taruh jauh
   (`z`, `ukuran`), opasitas ≤ .25.
 - **Matahari di bawah rabung jauh** = seluruh lembah dalam bayangan tepat saat reveal (layar hitam sesudah gapura). Hitung:

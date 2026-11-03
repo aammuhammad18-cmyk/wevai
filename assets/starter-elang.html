@@ -493,7 +493,7 @@ function lanskap({seed=1,bentuk=()=>0,detail=2.5,sawah=null,ladang=null,sungai=n
       if(!c){const g=Math.hypot(dasar(x+2,z)-dasar(x-2,z),dasar(x,z+2)-dasar(x,z-2))/4;
         if(ladang&&h<ladang.bawah&&g<ladang.miring){const rx=.906*x+.423*z,rz=.906*z-.423*x,lx=(rx+14*N.noise(x/90,z/90,s0+60))/42,lz=(rz+14*N.noise(z/90,x/90,s0+61))/42,st=hash(Math.floor(lx)*7919+Math.floor(lz)*104729,seed+1),
           m=ss(ladang.miring,ladang.miring*.5,g)*ss(ladang.bawah,ladang.bawah-4,h);   // sawah lembah: petak 42 m diputar 25° (tak sejajar grid kasar)
-          f=m;b=m*(st<.45?.85:st<.85?.25:0);c=(st<.45?W_.air:st<.85?W_.padi:W_.jerami).clone().lerp(W_.rumput,1-m);}
+          f=m;b=m*(st<.45?.7:st<.85?.2:0);c=(st<.45?W_.air:st<.85?W_.padi:W_.jerami).clone().lerp(W_.rumput,1-m);}
         else c=W_.rumput.clone().lerp(W_.hutan,ss(.08,.3,g)+.3*fbm(x/90,z/90,2)).lerp(W_.tebing,ss(.45,.9,g)).lerp(W_.batu,ss(160,420,h));}
       const v=1+.1*N.noise(x/7,z/7,s0+9);return{h,b,f,c:[c.r*v,c.g*v,c.b*v]};},
     grid=(xs,zs,lubang,kulit)=>{const nx=xs.length,nz=zs.length,pos=new Float32Array(nx*nz*3),col=pos.slice(),bas=new Float32Array(nx*nz),idx=[];
@@ -524,7 +524,7 @@ function lanskap({seed=1,bentuk=()=>0,detail=2.5,sawah=null,ladang=null,sungai=n
   const tanam=(n,geo,mat,{tinggi:[h0,h1],kelompok=-1,boleh=()=>true,warna:[w0,w1],pusat:[px,pz]=[0,0],jari=luas*.35,bayang=true})=>{const im=new THREE.InstancedMesh(geo,mat,n),m=new THREE.Matrix4(),
       q=new THREE.Quaternion(),e=new THREE.Euler(),c=new THREE.Color();let k=0;
     for(let coba=0;k<n&&coba<n*40;coba++){const r=jari*acak()**1.6,a=acak()*6.283,x=px+r*Math.cos(a),z=pz+r*Math.sin(a),t=titik(x,z),h=h0+(h1-h0)*acak();   // rapat di pusat
-      if(t.b>.05||(t.f>.5&&acak()<.97)||fbm(x/260,z/260,3)<kelompok||!boleh(x,z,t.h)||hindari(x,z,t.h+h,h*.35)||(S&&keSungai(x,z)[0]<S.lebar*1.4))continue;
+      if(t.b>.05||(t.f>.5&&acak()<.985)||fbm(x/260,z/260,3)<kelompok||!boleh(x,z,t.h)||hindari(x,z,t.h+h,h*.35)||(S&&keSungai(x,z)[0]<S.lebar*1.4))continue;
       e.set((acak()-.5)*.12,acak()*6.3,(acak()-.5)*.12);m.compose(new THREE.Vector3(x,t.h-.3,z),q.setFromEuler(e),new THREE.Vector3(h,h*(.85+acak()*.3),h));
       im.setMatrixAt(k,m);im.setColorAt(k++,c.copy(w0).lerp(w1,acak()));pohon.push([x,z,h]);}
     im.count=k;im.castShadow=bayang;im.receiveShadow=true;scene.add(im);return im;};   // bayang: InstancedMesh menggambar SEMUA instans ke peta bayang — beri hanya lapis dekat

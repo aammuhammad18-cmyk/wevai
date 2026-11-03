@@ -165,6 +165,28 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
     - Blok warna rata yang rentangnya lebar (panggung t 10) hanya tertangkap lewat deklarasi sumber.
     - `eval-run --snap` belum menjalankan `nilai-visual`.
 
+- **Pustaka aset Jawa kuno** (sub-proyek 4a; `src/runtime/pustaka.js`, blok `<wv:pustaka>`, 27,6 KB; satu global `pustaka`).
+  - **Generator**, menghasilkan markup SVG ber-seed yang dipanggang:
+    - `candi` (andesit Mataram Kuno / bata Majapahit), `gapura` (bentar / paduraksa);
+    - `rumahPanggung`, `beringin`, `lontar`, `gunungBerlapis`, `sawahTerasering`;
+    - `obor`, `asap`, `relief`, `kain({motif})` (kawung, parang, ceplok, truntum).
+  - **Deterministik**: seed, opsi, cahaya, dan `LANGIT` yang sama menghasilkan keluaran byte-identik.
+  - **Cahaya dan jarak**: menerima `cahaya` (nama `SUMBER`, `{x,y}`, `{arah}`, `kuat`) dan `jarak` (lewat `warnaJarak`).
+    Rim dibuat tanpa filter. Setiap aset menyediakan clipPath `#<id>-k` untuk `redup()`.
+  - **Kait kanvas**: `pustaka.api` dan `pustaka.asapHidup` digambar dari `tl.time()`.
+  - **Etalase**: `assets/katalog-pustaka.html`, tiga tableau dalam 26 dtk (senja Mataram, malam Majapahit, relief + kain).
+    `test-starters` menguji halaman ini sebagai halaman ber-adegan.
+  - **Dokumen dan uji**: `references/pustaka.md`; penunjuk di `techniques.md` §7d dan langkah 3 `SKILL.md`;
+    `scripts/test-pustaka.mjs` masuk `rilis.mjs` dan CI.
+  - **Bukti**: `evals/bukti/2026-11-03-pustaka-jawa/kontak.jpg`. Hasil `nilai-visual`: rentang 33,7–38,9; titik obor +68,5…+73,1.
+  - **Celah yang diketahui**:
+    - candi senja berkontras subjek 4,7–7,8, di bawah ambang 10, karena larut dalam kabut yang sama;
+    - biaya per frame belum diukur (tableau tersembunyi tetap menjalankan callback);
+    - akurasi budaya bersifat suasana, bukan rekonstruksi; parang dan truntum anakronistik untuk Majapahit
+      (lihat `pustaka.md`);
+    - sawah senja perlu dinilai pemilik (masih terbaca seperti pasir).
+  - **Status penerimaan**: menunggu vonis visual pemilik.
+
 ## 1.3.0 — 2026-11-02
 
 Atmosfer, cahaya 2D, dan grade (sub-proyek 2 dari `docs/peta-peningkatan-gaya-2026-11-01.md`): tiga modul runtime

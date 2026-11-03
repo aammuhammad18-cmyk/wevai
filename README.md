@@ -322,6 +322,7 @@ assets/
   starter-explainer*.html        one starter per explainer style
   starter-explainer-3d.html      3D world explainer (Three.js + shared cinematic camera)
   starter-sinematik.html         cinematic silhouette scene, 100% code (torchlight, fog, embers, one grade)
+  katalog-pustaka.html           showcase of the procedural ancient-Java asset library (src/runtime/pustaka.js)
 scripts/
   lint-motion.mjs                check the mechanical rules on a deliverable
   snap.mjs                       verify: capture key seconds
@@ -332,6 +333,7 @@ scripts/
   bantuan.mjs                    makes `--help` / `-h` print a script's usage instead of running it
   vo-gemini.mjs                  voice-over from the Gemini TTS API: up to 10 keys with automatic failover, resumable, exact durations
   test-vo.mjs                    tests for vo-gemini.mjs (no network, no keys)
+  test-pustaka.mjs               tests for the ancient-Java asset library (no browser)
   serve.py                       no-cache dev server (optional)
   vendor-libs.mjs                inline GSAP + fonts for an offline archive copy
   build-starters.mjs             inline src/runtime into the starters (repo maintenance)
@@ -396,6 +398,7 @@ npm install --prefix scripts            # once
 node --test scripts/test-kamera.mjs        # camera core (no browser)
 node --test scripts/test-vo.mjs            # voice-over tool (no network, no keys)
 node --test scripts/test-nilai.mjs        # visual scoring tool (synthetic PNGs, no browser)
+node --test scripts/test-pustaka.mjs       # ancient-Java asset library (no browser)
 node scripts/build-starters.mjs --check   # starters match src/runtime
 node scripts/bump-version.mjs --check     # version is the same everywhere
 node scripts/lint-motion.mjs assets/*.html

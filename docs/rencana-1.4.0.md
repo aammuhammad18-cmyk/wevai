@@ -18,7 +18,7 @@ Sumber rincian:
 | C | Dukungan Antigravity: Chrome otomatis, `--help`, `SKILL.md` ≤ 24 KB, plugin | kode selesai; uji pemilik menunggu | f414a57, dfedd42, d80eb56 |
 | D | Alat VO Gemini (hingga 10 kunci, failover aman) | kode selesai; uji langsung pemilik menunggu | 73eb11f |
 | E | Sub-proyek 3, sisa: babak multi-adegan 60 dtk + `CAM` di kartun panggung | belum | |
-| F | Sub-proyek 4a: pustaka aset prosedural Jawa kuno | belum | |
+| F | Sub-proyek 4a: pustaka aset prosedural Jawa kuno | kode selesai; vonis visual pemilik menunggu | 31172c7..0f1bef0 |
 | G | Sub-proyek 4b: rig tokoh v2 | belum | |
 | H | Sub-proyek 5: mata elang 3D | belum | |
 | I | Sub-proyek 6: ekspor panjang | belum | |
@@ -52,7 +52,7 @@ Rilis 1.4.0 (L) mencakup:
 - Kait uji modul tahan terhadap halaman yang sudah terisi, sehingga `?kosong=1` tidak lagi dibutuhkan.
 - Kartun panggung memakai `CAM` (kamera 2.5D).
 
-### F. Pustaka aset Jawa kuno (`src/pustaka/`)
+### F. Pustaka aset Jawa kuno (`src/runtime/pustaka.js`, blok `<wv:pustaka>`; `build-starters` hanya membaca `src/runtime`)
 
 - Isi: `candi`, `gapura` (bentar + paduraksa), `rumahPanggung`, `beringin`, `lontar`, `gunungBerlapis`,
   `sawahTerasering`, `obor`/`api`/`asap`, `relief`, `kain({motif})`.

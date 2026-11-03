@@ -232,12 +232,27 @@ The skill triggers on requests like "make an opener…", "promo video…", "expl
 | Verify frames automatically | Node + puppeteer (`scripts/snap.mjs`) — optional; `?debug=1` works by hand. Run `npm install` once inside the skill's `scripts/` folder, then run the scripts from your project folder |
 | Export MP4 | Node + puppeteer + ffmpeg (`scripts/export-frames.mjs`, 16:9 or 9:16, voice-over muxed) — optional |
 | Sync to voice-over | ffmpeg, **or** nothing: `scripts/vo-pauses.html` detects pauses in the browser |
+| Generate a voice-over | optional: Node ≥ 18 + a Gemini API key for `scripts/vo-gemini.mjs` ([details below](#voice-over-with-gemini-optional)); or bring your own recording |
 | Keep an offline archive copy | `scripts/vendor-libs.mjs` — inlines GSAP and the fonts (WebGL openers still need the CDN) |
 | Use video clips | MP4 (H.264) or WebM files in `assets/` — optional |
 | Generate images | any image MCP the agent can call — optional |
 | Build in After Effects | After Effects + the Higgsfield MCP bridge — optional |
 
 A deliverable never needs `npm install` to be watched.
+
+### Voice-over with Gemini (optional)
+
+`scripts/vo-gemini.mjs` turns a JSON script into voice-over files with the official Gemini text-to-speech API (Node ≥ 18, zero dependencies). Each segment gets `<id>.wav` (24 kHz mono 16-bit) and `<id>.json` with the **exact** duration computed from the sample count; re-running resumes where it stopped.
+
+```bash
+node scripts/vo-gemini.mjs script.json --keluar audio/vo --suara Kore
+node scripts/vo-gemini.mjs --cek-kunci        # check your keys (uses no TTS quota)
+node scripts/vo-gemini.mjs --daftar-suara     # list voices, including regional accents
+```
+
+It accepts up to **10 API keys** (env `GEMINI_API_KEYS` / `GEMINI_API_KEY`, or a key file *outside* any repo: `~/.wevai/gemini-kunci.txt`, one key per line) and fails over on its own: when a key hits a per-minute or daily limit, is invalid, or errors, it moves to the next key, paces itself to the limit it is told about, and picks up again after the daily reset (midnight Pacific). The tool never prints a key in full or writes one anywhere (its state file keeps only a hash), and you should never commit them.
+
+> **Read this before adding keys.** Gemini API quotas are applied **per Google Cloud project, not per API key** — keys from the same project share one quota, so extra keys from one project add nothing. The Google APIs Terms of Service (§2(d)) say you "will not attempt to circumvent" the limits documented with each API. Use only keys you are entitled to use — for example projects that belong to different team members, or a paid key as a backup. Creating projects or accounts just to multiply free quota risks account suspension. This tool is for resilience, **not** for extra quota. See the [Google APIs Terms](https://developers.google.com/terms) and the [Gemini rate limits](https://ai.google.dev/gemini-api/docs/rate-limits). Full usage notes: `references/alat-kerja.md` › "VO Gemini (banyak kunci)" (in Indonesian).
 
 ## How the rules work
 
@@ -278,6 +293,8 @@ scripts/
   snap.mjs                       verify: capture key seconds
   export-frames.mjs              export: frame-by-frame → MP4, piped to ffmpeg, optional parallel workers (16:9 or 9:16, voice-over muxed)
   vo-pauses.html                 voice-over pause detection, no ffmpeg needed
+  vo-gemini.mjs                  voice-over from the Gemini TTS API: up to 10 keys with automatic failover, resumable, exact durations
+  test-vo.mjs                    tests for vo-gemini.mjs (no network, no keys)
   serve.py                       no-cache dev server (optional)
   vendor-libs.mjs                inline GSAP + fonts for an offline archive copy
   build-starters.mjs             inline src/runtime into the starters (repo maintenance)
@@ -340,6 +357,7 @@ Before opening a PR (same checks CI runs):
 ```bash
 cd scripts && npm install && cd ..     # once
 node --test scripts/test-kamera.mjs        # camera core (no browser)
+node --test scripts/test-vo.mjs            # voice-over tool (no network, no keys)
 node scripts/build-starters.mjs --check   # starters match src/runtime
 node scripts/bump-version.mjs --check     # version is the same everywhere
 node scripts/lint-motion.mjs assets/*.html

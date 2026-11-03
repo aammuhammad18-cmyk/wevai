@@ -48,6 +48,28 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
   `rilis X.Y.Z` → tag → push hanya dengan izin pemilik → GitHub Release. `scripts/rilis.mjs` menjalankan semua gerbang
   (`--tanpa-browser` saat mesin merender). Bila diberi versi, skrip menyiapkan CHANGELOG, `bump-version`, dan catatan rilis, tanpa
   commit, tag, atau push. Penyesuaian yang tertunda: tag `v1.2.0` (7fa0791) dan `v1.3.0` (0748e0b), yang belum di-push.
+- **VO Gemini** (`scripts/vo-gemini.mjs` dan `scripts/test-vo.mjs`, baru; `references/alat-kerja.md` › "VO Gemini (banyak kunci)";
+  README › "Voice-over with Gemini"): VO dari Gemini TTS lewat API resmi (Interactions API `POST /v1beta/interactions`, model bawaan
+  `gemini-3.8-flash-tts`, suara bawaan Iapetus), Node ≥ 18 tanpa dependensi. Naskah JSON `[{id, teks, suara?, gaya?}]` → `<id>.wav`
+  (24 kHz mono 16-bit) + `<id>.json` `{teks, suara, model, gaya, dur}`; `dur` = jumlah sampel ÷ laju, persis (bukan ffprobe). Segmen
+  yang json-nya cocok dan wav-nya ada dilewati, jadi menjalankan ulang = melanjutkan. Sampai 10 kunci (env `GEMINI_API_KEYS` /
+  `GEMINI_API_KEY`, atau `~/.wevai/gemini-kunci.txt`), tak pernah tercetak atau tertulis utuh; status istirahat di
+  `~/.wevai/gemini-kunci-status.json` berkunci hash sha256. Pindah kunci otomatis: 429 per menit (istirahat sebesar `retryDelay`),
+  429 per hari (sampai tengah malam Pasifik, dihitung dengan Intl, benar untuk PST dan PDT; `retryDelay` diabaikan karena Google
+  pernah mengirim "1s" untuk kuota harian), kunci tidak sah (24 jam), 5xx atau jaringan (ulang 1, 2, 4 dtk, lalu kunci berikutnya);
+  gagal konten atau `status: incomplete` = gagal segmen, bukan salah kunci. Semua kunci istirahat: ≤ 15 mnt tidur, selebihnya
+  menunggu reset harian dan lanjut sendiri (`--jangan-tunggu` = kode keluar 2 + perintah ulang). `--cek-kunci` (GET `/models`, tanpa
+  kuota TTS) dan `--daftar-suara` (GET `/voices`, tempat suara beraksen regional dicari).
+  **Keputusan**: pemilik memilih "failover + aman" setelah dua fakta: kuota Gemini dihitung per proyek, bukan per kunci, dan Google
+  APIs Terms §2(d) melarang menyiasati batas. Karena itu README dan `alat-kerja.md` memuat peringatannya, dan alat ini tidak
+  dipasarkan sebagai cara menggandakan kuota gratis. Kunci dipakai berurutan (kunci pertama sampai gagal), bukan bergilir.
+  **Gerbang**: `node --test scripts/test-vo.mjs` (tanpa jaringan dan tanpa kunci; fetch, jam, dan tidur palsu) masuk
+  `scripts/rilis.mjs`, `.github/workflows/ci.yml`, dan `docs/aturan-rilis.md`; `.gitignore` menolak `gemini-kunci*.txt`.
+  **Celah yang diketahui**: belum dicoba dengan kunci sungguhan. Bentuk permintaan dan galat 429 diambil dari dokumen resmi
+  (`aistudio.google.com/docs/speech-generation`, `/docs/api-errors`) dan laporan forum Google. Panduan memakai
+  `generation_config.speech_config`, sedangkan referensi API menyebut `structured_speech_config`; bila Google menjawab 400
+  `parameter_unknown`, ubah `bangunPermintaan()` (satu fungsi). Batas per menit tidak ditebak: alat mengikuti jawaban 429.
+  **Status penerimaan**: menunggu uji langsung pemilik dengan kunci sendiri.
 
 ## 1.3.0 — 2026-11-02
 

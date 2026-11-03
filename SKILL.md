@@ -33,7 +33,7 @@ menurunkan kepatuhan pada aturan yang penting.
 | Explainer 3D & kamera sinematik | + `references/sinematografi.md`, `assets/starter-explainer-3d.html` (opener 3D: jalur opener + `sinematografi.md`) | kosakata shot/sudut/gerak/lensa/cahaya, resep 2.5D & 3D, jebakan |
 | Shot mata elang (terbang 3D/2.5D) | + `references/sinematografi.md`, `references/mata-elang.md`, `assets/starter-elang.html` | terbang(), lanskap prosedural, tone mapping film |
 | Explainer kartun panggung | + `references/kartun-panggung.md`, `assets/starter-explainer-panggung.html` | satu panggung per adegan, rig sendi, kulit flat cerah atau ilustrasi sinematik |
-| Relief candi hidup (sejarah Hindu–Buddha) | + jalur Explainer, `references/relief-candi.md`, `assets/starter-relief.html` | dinding berpahat, SINAR bergerak, tokoh hidup |
+| Gaya lanjutan sejarah | + jalur Explainer, lalu satu gaya: relief candi (`references/relief-candi.md`, `assets/starter-relief.html`) · painterly, legenda/kilas balik (`references/lukis.md`, `assets/starter-lukis.html`) | dokumen gaya + starter contoh |
 | Build di After Effects | + `references/ae-bridge-higgsfield.md` | batas bridge, arsitektur CAM, rig native, penyerahan |
 | Scaffold multi-file / alasan struktur | + `references/architecture.md` | panggung, rig kamera, determinisme, export |
 | Memasang alat (snap, lint, export, tanpa ffmpeg) | + `references/alat-kerja.md` | perintah dan jalan pintasnya |

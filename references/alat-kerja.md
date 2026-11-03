@@ -212,6 +212,7 @@ Riset awal: 81 ms/frame di HD 4000 pada satu worker (60 mnt ±2,4 jam). Kualitas
 | Uji pustaka aset | `node --test scripts/test-pustaka.mjs` | uji `src/runtime/pustaka.js` tanpa browser: determinisme, opsi salah ditolak, SVG well-formed; bagian dari `rilis.mjs` dan CI |
 | Uji mata elang | `node --test scripts/test-elang.mjs` | matematika `terbang()` (Catmull-Rom, look-ahead, roll, guncang trauma) tanpa browser; bagian dari `rilis.mjs` dan CI |
 | Uji rig tokoh | `node --test scripts/test-tokoh.mjs` | uji `src/runtime/tokoh.js` tanpa browser: IK, determinisme dan campuran pose, telapak tanpa selip, kerumunan ber-seed, SVG well-formed; bagian dari `rilis.mjs` dan CI |
+| Uji lukis | `node --test scripts/test-lukis.mjs` | uji `src/runtime/lukis.js` tanpa browser: kenop, antrean lukis, siklus pose; bagian dari `rilis.mjs` dan CI |
 | Uji relief hidup | `node --test scripts/test-relief.mjs` | uji `src/runtime/relief-hidup.js` tanpa browser: peta normal + AO dari larik tinggi, lapis, redaman lampu, pose bagian hidup; `pustaka.dindingRelief` deterministik dan menolak opsi salah; bagian dari `rilis.mjs` dan CI |
 | Uji ekspor panjang | `node --test scripts/test-ekspor.mjs` | uji `antre-render.mjs` dan `ekspor-inti.mjs` (WORKERS standar, level WebCodecs) tanpa Chrome dan tanpa ffmpeg: urai antrean, aturan lewati, ETA, perintah penahan sleep per platform (spawn palsu), jalannya antrean; bagian dari `rilis.mjs` dan CI |
 

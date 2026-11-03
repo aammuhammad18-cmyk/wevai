@@ -315,6 +315,36 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
     - kecepatan WebCodecs di 1080p, dan halaman WebGL nyata;
     - jalur macOS/Linux dan Ctrl+C asli di Windows (baru lewat uji unit);
     - ETA belum menghitung waktu peluncuran Chrome.
+- **Painterly `lukis`** (sub-proyek 7, gaya lanjutan kedua; J di `docs/rencana-1.4.0.md`).
+  - **Berkas**: `src/runtime/lukis.js` (blok baru `<wv:lukis>`, butuh `atmosfer`), `assets/starter-lukis.html`, `references/lukis.md`,
+    dan `scripts/test-lukis.mjs` (baru); penunjuk di `explainer.md`, `techniques.md`, `isi-paket.md`, dan README.
+  - **Teknik**: Kuwahara anisotropik + cat air (gelap tepi, granulasi pigmen, mekar basah) di WebGL2, di atas kertas yang
+    dibangkitkan. Tiap bidang `[data-z]` dilukis SEKALI saat setup ke kanvasnya sendiri, lalu kamera 2.5D hanya menggesernya.
+    Sapuan menempel pada lukisan seperti latar film animasi lukis tangan di kamera multiplane, jadi tidak "mendidih"; derau diikat
+    ke ruang objek, bukan layar. Teks tetap DOM tajam di atas lukisan.
+  - **Demo** (16 dtk): legenda senja "Desa di kaki gunung": gunung api berasap, rumah panggung berjendela menyala, petani di sawah
+    berundak, pemikul di pematang, burung pulang, dan legenda "Kisah dari masa lampau" di kantong gelap tebing. `?kenang=1` =
+    kilas balik sepia.
+  - **Bukti tidak mendidih** (`potong.jpg`: potongan 1:1, 4 bingkai berurutan): kamera ditahan → 0 % piksel berubah; putar biasa
+    (kamera bergeser sub-piksel) → 0,5 % piksel berubah > 8 level; pembanding filter layar naif ber-seed per frame → 30 % > 8 level.
+    Bingkai dari dua peluncuran Chrome terpisah identik byte demi byte.
+  - **Biaya** (diukur saat render pemilik berjalan, jadi batas atas): 197 ms/frame (sinematik di sesi yang sama 257 ms), karena
+    bidang lukisan adalah bitmap diam; siap 15,5 dtk per muat halaman (melukis 5 bidang + 22 kanvas sprite), sekali per worker.
+  - **Uji**: `test-lukis` (kenop, antrean lukis, siklus pose) masuk `rilis.mjs` dan CI. `test-starters`: kait `LUKIS_UJI` (lukis
+    ulang = byte sama, seed lain = sapuan lain, derau ikut objek, tanpa WebGL2 = raster mentah, kenop salah ditolak) dan blok lukis
+    berbasis screenshot (sidik dua muat, seek dua jalur, diam, tepi, geser) dengan dua mutasi wajib tertangkap: filter layar ber-seed
+    per frame dan tekstur layar diam. Halaman dilewati di WebGL perangkat lunak (satu bidang 81,7 dtk di SwiftShader).
+  - **Anggaran konteks**: jalur baru **Painterly (legenda)** (`explainer.md` + `techniques.md` + `lukis.md` + `starter-lukis.html`)
+    264 KB, batas pelacak 266 KB.
+  - **Bukti**: `evals/bukti/2026-11-03-lukis/` (`kontak.jpg`, `potong.jpg`, `kenang.jpg`, `nilai.json`). `nilai-visual` 6 dari 6 ok:
+    rentang 47,7–48,5, kontras subjek 14,8–15,9, matahari +51,6…+54,6, 4 warna.
+  - **Celah yang diketahui**:
+    - butuh WebGL2 + `EXT_color_buffer_float`; tanpa itu raster mentah tanpa sapuan;
+    - dolly > 1,1 melunakkan kertas dan sapuan (kanvas = bitmap); garis yang lebih tipis dari `kuas` hilang;
+    - memori GPU sementara ±112 MB per bidang 2240×1400 saat dilukis;
+    - ms/frame ekspor penuh belum diukur di mesin senggang;
+    - agen pembuatnya macet sesudah bukti di-commit, jadi laporan akhirnya tidak ada; gerbang dan uji penggabungan dijalankan controller.
+  - **Status penerimaan**: menunggu bench di mesin senggang dan vonis visual pemilik.
 
 ## 1.3.0 — 2026-11-02
 

@@ -22,7 +22,7 @@ Sumber rincian:
 | G | Sub-proyek 4b: rig tokoh v2 | kode selesai; bench + vonis visual pemilik menunggu | 5c9a3b1..ca20078 |
 | H | Sub-proyek 5: mata elang 3D | kode selesai; bench + vonis visual pemilik menunggu | 93e1629..087736e |
 | I | Sub-proyek 6: ekspor panjang | selesai (masuk `main` 3 Nov dengan izin pemilik); 2 worker 1,2–1,5× di halaman nyata 1080p, frame identik 98–99 %, sisanya ±1 level | 429c64f..7310d5a |
-| J | Sub-proyek 7: gaya lanjutan | relief candi: kode selesai, bench + vonis pemilik menunggu; peta relief 3D berjalan; wayang, painterly, diorama belum | relief: bfdac93..811ddca |
+| J | Sub-proyek 7: gaya lanjutan | relief candi dan painterly: kode selesai, bench + vonis pemilik menunggu; peta relief 3D berjalan; wayang, diorama belum | relief: bfdac93..811ddca; painterly: 1f6d91f..d71c88c |
 | K | Sub-proyek 8: penilaian visual otomatis + galeri | K1 selesai; K2 galeri belum | K1: a3486a1..f114d7d |
 | L | Rilis 1.4.0 | belum | |
 
@@ -121,6 +121,8 @@ Rilis 1.4.0 (L) mencakup:
 - Tindak lanjut relief candi sesudah masuk `main`:
   - bench di mesin senggang: `bench-frame.mjs assets/starter-relief.html "clean=1" 20`, ≥ 3 run bergantian; ukur juga setup;
   - vonis pemilik, termasuk legenda "BOROBUDUR · ABAD IX" di atas panel rekaan (perlu penanda ilustrasi atau tidak).
+- Tindak lanjut painterly sesudah masuk `main`: bench di mesin senggang (`bench-frame.mjs assets/starter-lukis.html "clean=1" 20`);
+  vonis pemilik. Agen pembuatnya macet sesudah bukti di-commit, jadi gerbang dan uji penggabungan dijalankan controller.
 
 ### K. Penilaian visual + galeri
 

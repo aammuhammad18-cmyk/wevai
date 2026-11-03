@@ -843,7 +843,8 @@ window.WAYANG_UJI=()=>{const r={},O=window.OPENER,P=wayang.PANGGUNG,b0={...BLENC
   bersih();
   /* sisi dalang: dunia tercermin (x 500 tampak di x 1420), lukisan berwarna */
   c=wayang.panggung({simping:false,seed:2,res:1,tinggi:520,sisi:'dalang'});wayang.figur({jenis:'alusan',x:500,z:4,seed:2});seek(.5);
-  const A1=c.getContext('2d').getImageData(1250,560,340,200).data;let w=0;for(let i=0;i<A1.length;i+=4)if(A1[i]-A1[i+2]>70&&A1[i]>120&&A1[i+1]>70)w++;r.pradaPiksel=w;r.dalangCermin=w>120;bersih();
+  const lompat=q=>{const o=[];for(let i=1;i<q.length;i++)if(Math.abs(q[i]-q[i-1])>25)o.push(i);return o;},dada=980-Math.round(520*.62),Bc=baris(c,dada,1250,1590),Jb=lompat(Bc),Jk=lompat(baris(c,dada,330,670));
+  r.lompat=[Jb.length,Jk.length];r.dalangCermin=Jb.length>=2&&Jk.length<=1;const tengah=Jb.length?Bc.slice(Jb[0]+2,Jb[Jb.length-1]-1).sort((m,n)=>m-n):[0];r.pradaL=+(tengah[tengah.length>>1]||0).toFixed(1);r.dalangLukis=r.pradaL>70;bersih();
   Object.assign(BLENCONG,b0);return r;};
 /* </wv:wayang> */
 /* ---------- ADEGAN BAWAAN: pagelaran singkat 22 dtk. Kunci figur = jadwal lengkap; kiri/kanan layar = sisi bayang ---------- */

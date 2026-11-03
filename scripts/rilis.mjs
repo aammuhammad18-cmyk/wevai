@@ -38,6 +38,7 @@ const sintaksGagal = skrip.filter(f => node('--check', f).status !== 0);
 cek('sintaks skrip', !sintaksGagal.length, sintaksGagal.join('\n'));
 jalan('test-kamera', '--test', 'scripts/test-kamera.mjs');
 jalan('test-vo', '--test', 'scripts/test-vo.mjs');
+jalan('test-nilai', '--test', 'scripts/test-nilai.mjs');
 jalan('build-starters --check', 'scripts/build-starters.mjs', '--check');
 jalan('bump-version --check', 'scripts/bump-version.mjs', '--check');
 jalan('context-budget --check', 'scripts/context-budget.mjs', '--check');

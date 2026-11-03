@@ -61,7 +61,7 @@ lain (`sinematografi.md` §6); brand/produk dengan gaya ini memakai `NoToneMappi
 ## Biaya
 
 Diukur di halaman (`performance.now()`, sinkron lewat `readPixels` 1 px), mesin acuan i3-3217U / HD 4000, 1080p, median 21 detik, Chrome Idle, tanpa render pemilik (3–4 Nov).
-`bench-frame.mjs` (termasuk screenshot) dijalankan controller sesudah merge; target ≤ 350 ms/frame.
+`bench-frame.mjs` (termasuk screenshot, 3 putaran): median 240 ms/frame; ekspor penuh rata-rata 287 ms/frame. Batas 350 ms.
 
 | Ukuran | Nilai |
 |---|---|

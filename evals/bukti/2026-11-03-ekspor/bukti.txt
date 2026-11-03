@@ -59,3 +59,8 @@ mesin yang sama, semua Chrome uji berprioritas Idle dan memegang kunci Chrome be
    1 worker (sebelum ekspor masuk main): 03 = 20078 fr / 5458 dtk (3,7 fps), 04 = 3,97, 05 = 4,16, 06 = 21788 fr / 7113 dtk (3,06)
    2 worker (sesudah main 611bbcf):       07 = 15777 fr / 2631 dtk (6,0 fps), 08 = 12047 / 2040 (5,9), 09 = 7233 / 1125 (6,4)
    Hasil: MP4 akhir BABAD-apa-itu-bali.mp4 5361,6 dtk, digabung tanpa galat. Tiga agen WeVai bekerja (Chrome Idle) selama kedua periode.
+7. Babak 60 dtk, WORKERS=1 vs 2 (controller, 4 Nov 01.00; render ditahan, dua agen lain aktif; FPS=30, FORMAT=jpeg, QUALITY=95)
+   assets/starter-babak.html (1800 frame): 1 worker 605 dtk, 2 worker 488 dtk = 1,24×; 1678/1800 hash sama.
+   Beda: f00880, f00888, f00900–f01019 (titik belah 900 = t 30, di dalam shot mata elang, sampai sesudah mendarat).
+   Sampel 25 frame beda: PSNR terendah 64,9 dB, selisih abu maks 9 (JPEG q95, jadi termasuk selisih enkoder).
+   Kesimpulan: tak terlihat, tetapi bukan "maks. 1 level". Penyebab selisih di tengah terbang belum terbukti.

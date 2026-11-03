@@ -378,6 +378,38 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
     - label tanpa uji oklusi; gunung Sumatra barat 104,5° BT tidak dimodelkan (tertutup kabut di gambar besar);
     - kerucut gunung masih seragam dan dataran lembah polos (pengamatan controller pada lembar kontak).
   - **Status penerimaan**: menunggu bench di mesin senggang dan vonis visual pemilik.
+- **Babak sinematik 60 dtk** (sub-proyek 3, E di `docs/rencana-1.4.0.md`): `assets/starter-babak.html` (baru), babak "Penjaga Gerbang" untuk eval 10.
+  - **Isi**: lima adegan di tiga dunia: gerbang dari dalam, lembah + keraton, satu shot mata elang `terbang()` 2.5D 24–31 dtk yang menembus
+    celah gapura dan mendarat di penjaga, penjaga dekat, penutup. Transisi berpemicu: match cut di langit, push-through gapura, cut on
+    action, larut lewat asap obor. Penjaga = rig `tokoh.*` v2, tampak samping, rim di sisi obor.
+  - **Keputusan pemilik** (4 Nov): babak jadi starter sendiri. `starter-sinematik.html` tetap satu adegan dengan penjaga berzirah (rupa
+    f_7), jalur Siluet 233 KB (pelacak 235); jalur baru **Babak sinematik** (`explainer.md` + `techniques.md` + `sinematografi.md` +
+    starter) 364 KB, pelacak 366 KB. `SKILL.md` kini merujuk `pustaka.*` dan `tokoh.*` lewat starter babak; eval 10 memakai starter ini.
+  - **Blok baru `src/runtime/babak.js`**: `adegan(rentang, bangun)` (dunia hidup hanya di rentangnya; tersembunyi = tanpa callback, tanpa
+    gambar: 0 panggilan kanvas tersembunyi vs 49 471 yang tampil, 240 seek) dan `panggang(svg)` (svg bidang → kanvas GPU). Resep:
+    `sinematografi.md` §5 "Babak multi-adegan".
+  - **Akar beda latar sesudah lompat mundur** (katalog maks. 76/84): lapisan `will-change` (svg bidang, kabut, pendar) dirasterisasi saat
+    DIBUAT lalu hanya ditransform, jadi seek langsung, lompat, tiba berurutan, dan worker ekspor kedua memberi piksel berbeda. Dugaan
+    viewport terbukti salah (viewport sebelum `goto` memberi selisih sama). Obat di halaman/runtime: svg bidang dipanggang (babak + kedua
+    katalog), `kabut` dan pendar `sumber()` = kanvas tetap. `starter-sinematik.html` tidak memanggang bidangnya (blok `babak` tidak masuk
+    anggaran jalurnya), jadi selisih kecil itu masih ada di sana.
+  - **Uji**: `ATM_UJI`/`CAHAYA_UJI`/`PASCA_UJI`/`CAM_UJI` tahan halaman berisi; muat ulang `?kosong=1` tersisa untuk `RELIEF_UJI` dan
+    `starter-lukis`. `BABAK_UJI` dan `SINEMA_UJI.tersembunyiDiam` baru; satu mutasi per kait tertangkap. `test-starters` 16 dari 16 lolos
+    di pohon gabungan.
+  - **WORKERS 1 vs 2 pada babak** (1800 frame): 1,24× lebih cepat; 1678/1800 frame identik; sisanya di sekitar titik belah (t 29,3–34),
+    PSNR ≥ 64,9 dB, tak terlihat (`evals/bukti/2026-11-03-ekspor/bukti.txt` §7).
+  - **Bukti**: `evals/bukti/2026-11-03-babak-sinematik/`. `nilai-visual` 12 dari 12 lolos; kontras subjek paling tipis 12,9 (batas 10).
+  - **Bench semua gaya** (4 Nov, HD 4000, 3 putaran, median ms/frame, 20 frame mulai t = 2, semua deterministik, dua agen aktif):
+    sinematik 221, babak 251, elang 292, relief 233, lukis 219, peta 288, pustaka 237; **katalog tokoh 437, melewati batas 350** (tableau
+    6 tokoh detail 2). Belum tercakup: segmen motion blur elang, tableau selain pembuka, adegan babak sesudah t ±2,7 (rata-rata seluruh
+    babak: 336 ms/frame pada ekspor JPEG q95).
+  - **Celah yang diketahui**:
+    - t 27,5 lewat jalur berurutan vs seek langsung: ±3 level di 0,49 % piksel; penyebab belum terbukti;
+    - penjaga rig v2 lebih ramping dan tanpa zirah dibanding versi lama (`sebelum-sesudah.jpg`); di t 33,6 ada bidang pink rata dan ujung
+      api terpotong;
+    - kanvas panggang tidak dipanggang ulang bila konteks GPU hilang; halaman ±52 MP kanvas (87 MP pernah menghilangkan konteks);
+    - setup 2–5 dtk di mesin senggang, sampai 147 dtk saat render pemilik berjalan.
+  - **Status penerimaan**: menunggu vonis visual pemilik.
 
 ## 1.3.0 — 2026-11-02
 

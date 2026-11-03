@@ -86,8 +86,9 @@ pita rim tajam di atas, bayangan jatuh di lantai. SVG `buat()` = warna rata saja
 - Benda selalu tegak. `tongkat`/`cangkul` selalu bertumpu di tanah; `tombak`/`payung` di tanah pada pose `tombak`, ikut genggaman
   di pose lain; `perisai`/`sesaji` ikut genggaman. Belum ada: mendayung, menunggang (butuh benda bersudut).
 - Panel kain menempel di paha (ikut ayun); pose `duduk` menukarnya dengan `pangku` dan menyembunyikan wiron + sampur.
-- Biaya: tokoh detail 2 = siluet offscreen + 2 blur + ±60 isi per frame; kerumunan detail 0 tanpa blur. Belum di-bench (mesin
-  render pemilik sibuk): ukur `bench-frame.mjs` saat senggang.
+- Biaya: tokoh detail 2 = siluet offscreen + 2 blur + ±60 isi per frame; kerumunan detail 0 tanpa blur. Terukur (HD 4000):
+  tableau 6 tokoh detail 2 = 437 ms/frame, MELEWATI batas 350 ms; babak 1 tokoh = 251 ms. Batasi tokoh detail 2 per bingkai dan pakai
+  detail 0 untuk sisanya; jumlah batas persisnya belum diukur.
 
 ## Akurasi budaya — yang pasti dan yang diragukan
 

@@ -94,7 +94,7 @@ melakukan apa pun. Aman dijalankan lebih dulu untuk melihat pemakaian dan env-ny
 ## Render panjang (lebih dari ±10 menit)
 
 Render 60 menit di laptop 2 core memakan ±7,5–10 jam dengan 1 worker (antrean Bali pemilik: 3–4 frame/dtk pada 30 fps,
-`SYNC=1`); `WORKERS=2` (standar) terukur 1,2–1,5× lebih cepat di halaman nyata 1080p.`WORKERS=2` (standar) terukur 1,2–1,5× lebih cepat di halaman WeVai 1080p dan ±1,5–2× di antrean Bali pemilik (5,9–6,4 frame/dtk
+`SYNC=1`); `WORKERS=2` (standar) terukur 1,2–1,5× lebih cepat di halaman WeVai 1080p dan ±1,5–2× di antrean Bali pemilik (5,9–6,4 frame/dtk
 vs 3,1–4,2). Pecah video 45–90 menit menjadi babak (satu HTML
 dan satu VO per babak) lalu render lewat `scripts/antre-render.mjs`: babak yang gagal tidak mengulang semuanya, babak yang
 sudah jadi tidak dirender lagi, dan laptop ditahan agar tidak sleep. Ia menjalankan `export-frames.mjs` untuk tiap babak

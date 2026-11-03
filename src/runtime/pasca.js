@@ -89,7 +89,7 @@ function gambarPasca(){const P=pascaL,G=GRADE;if(!P||!P.hal.isConnected)return; 
    Halaman ber-grade(): lapisan + tween GRADE-nya dipertahankan, seek ke DURATION dulu (seperti ATM_UJI). */
 window.PASCA_UJI=()=>{const r={},O=window.OPENER,st=$('#stage'),ind=document.createElement('div'),b=document.createElement('div'),ada=!!pascaL,
     /* gaya rig + pembungkus [data-z] pada t yang sama, sebelum dan sesudah lapisan ada: tak boleh berubah. Bukan === '' —
-       #world panggung memang ber-filter blur(0px) dari animasi cut-nya sendiri */
+       rig panggung ber-filter blur() milik CAM.blur selama slide() (dan rig mana pun selama whipPan) */
     gaya=()=>[rigDunia(),...document.querySelectorAll('[data-z]')].map(e=>['filter','opacity','mixBlendMode','clipPath','mask'].map(k=>e.style[k]).join('|')).join();
   r.awalBersih=ada?tl.getTweensOf(GRADE).length>0&&document.querySelectorAll('.wv-pasca').length===4:!$('.wv-pasca');
   O.seek(O.DURATION);O.seek(5);const g1=gaya(),g0={...GRADE};

@@ -39,9 +39,9 @@ const browser = await luncurkan({
   args: ['--autoplay-policy=no-user-gesture-required', '--enable-unsafe-swiftshader', '--use-gl=angle', '--ignore-gpu-blocklist'],
 });
 
-// starter yang wajib punya kait atmosfer/cahaya-2d/pasca; BERKAMERA = yang juga punya CAM (kabut berparalaks hanya terukur di sana: panggung belum punya CAM)
+// starter yang wajib punya kait atmosfer/cahaya-2d/pasca; BERKAMERA = yang juga punya CAM (kabut berparalaks hanya terukur di sana)
 const MODUL = ['starter-explainer.html', 'starter-explainer-panggung.html', 'starter-sinematik.html', 'starter-babak.html', 'katalog-pustaka.html', 'starter-relief.html', 'katalog-tokoh.html'];
-const BERKAMERA = ['starter-explainer.html', 'starter-sinematik.html', 'starter-babak.html', 'katalog-pustaka.html', 'starter-relief.html', 'katalog-tokoh.html'];
+const BERKAMERA = ['starter-explainer.html', 'starter-explainer-panggung.html', 'starter-sinematik.html', 'starter-babak.html', 'katalog-pustaka.html', 'starter-relief.html', 'katalog-tokoh.html'];
 // halaman ber-adegan bawaan (SINEMA_UJI wajib): starter sinematik, starter babak, katalog pustaka aset, starter relief, katalog tokoh
 const ADEGAN = ['starter-sinematik.html', 'starter-babak.html', 'katalog-pustaka.html', 'starter-relief.html', 'katalog-tokoh.html'];
 // starter painterly (src/runtime/lukis.js): adegan bawaan juga, tetapi kaitnya LUKIS_UJI + blok lukis di bawah, bukan SINEMA_UJI
@@ -258,7 +258,7 @@ for (const file of files) {
 
     // atmosfer (src/runtime/atmosfer.js): langit/partikel/kabut sama di dua jalur seek, kabut berparalaks, langit tanpa
     // WebGL2 jatuh ke gradien CSS, jenis partikel salah dan bidang non-HTML (<g> SVG) ditolak. Kait membangun fixture sendiri lalu membersihkannya.
-    // Field null = butuh CAM (panggung belum punya) → dilewati; di halaman bawaan, sebelum blok kamera memuat ulang.
+    // Field null = butuh CAM (halaman tanpa CAM) → dilewati; di halaman bawaan, sebelum blok kamera memuat ulang.
     // blok di ATAS kode adegan: const-nya (LANGIT, JENIS_PARTIKEL, …) masih TDZ bagi kode sebelum blok, dan kode adegan
     // yang memakai modul selalu sesudah `const tl=` (rantaiUpdate butuh tl) — blok sesudahnya = ReferenceError saat dimuat
     const html = html0, iAtm = html.indexOf('<wv:atmosfer>');

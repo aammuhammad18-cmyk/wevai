@@ -228,7 +228,8 @@ sebagai titik nyasar. Garis putus-putus tidak bisa pakai dashoffset (akan
 
 **Peta**: citra satelit domain publik (NASA MODIS/Worldview) sebagai dasar +
 label `.tag` mono dengan garis kiri kuning + lingkaran merah + garis putus
-jalur. Lebih jujur dan lebih cepat daripada menggambar peta sendiri.
+jalur. Lebih jujur dan lebih cepat daripada menggambar peta sendiri. Tanpa raster: relief 3D 100 % kode
+(pantai Natural Earth, gunung GVP, rute menyala) di `references/peta-relief.md`.
 
 **Grafik garis**: hitung titik dari data di JS, `path` digambar dengan
 dashoffset, area gradasi fade-in setelahnya, titik data pop stagger, label

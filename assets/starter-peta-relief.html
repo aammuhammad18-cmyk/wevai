@@ -42,6 +42,7 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden}
 .lp.sungai b{transform:translate(-50%,-50%);font:italic 500 40px/1 'Source Serif 4',serif;color:var(--sungai);letter-spacing:.03em}
 .lp.laut b{transform:translate(-50%,-50%);font:italic 500 46px/1 'Source Serif 4',serif;letter-spacing:.22em;color:rgba(42,38,32,.78)}
 .lp.tempat b{bottom:-17px;left:30px;font:400 46px/1 'Young Serif',serif}
+.lp.tempat.kiri b{left:auto;right:30px}
 .lp.tempat i{position:absolute;left:-9px;top:-9px;width:18px;height:18px;border-radius:50%;background:var(--soga);box-shadow:0 0 0 3px var(--kertas)}
 .lp.tempat u{position:absolute;left:-30px;top:-30px;width:60px;height:60px;border-radius:50%;border:3px solid var(--soga);box-sizing:border-box;opacity:0}
 /* kantong teks: kertas lembut di kiri bawah (laut selatan), luminans ≥ 80 % di bawah legenda */
@@ -84,7 +85,7 @@ const tl=gsap.timeline({paused:true});const rig=$('#world');
 /* ---------- dunia WebGL: TANPA jam sendiri, digambar dari tl.time(). Satuan km ---------- */
 const renderer=new THREE.WebGLRenderer({canvas:$('#gl')});
 renderer.setPixelRatio(1);renderer.setSize(W,H,false);
-renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.62;   // FILM: sejarah/sinematik (brand/produk: NoToneMapping)
+renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.72;   // FILM: sejarah/sinematik (brand/produk: NoToneMapping)
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 const scene=new THREE.Scene();
 const camera=new THREE.PerspectiveCamera(35,W/H,.5,9000);   // near/far disetel ulang tiap render dari ketinggian kamera (siapkan)
@@ -555,10 +556,10 @@ function medan(D=JAWA,{seed=3}={}){
       return{dalam,jarak,sdf:(x,z)=>dalam(x,z)?jarak(x,z):-jarak(x,z)};},
     darat=bidang(D.pantai),laut=bidang(D.dalam),
     G=[...D.gunung.map(g=>[g,0]),...D.gunungTua.map(g=>[g,1])].map(([[nama,lon,lat,m,R,o={}],tua])=>{const[x,z]=proyeksi(lon,lat);
-      return{nama,lon,lat,x,z,E:m/1e3,R,tua,k:tua?1.35:1.7,kawah:tua?0:.45,cekung:.12,alur:tua?.16:.08,lancip:tua?.09:.03,...o};}),
+      return{nama,lon,lat,x,z,E:m/1e3,R,tua,k:tua?1.35:1.7,kawah:tua?0:.45,cekung:.12,alur:tua?.22:.13,lancip:tua?.09:.03,...o};}),
     kerucut=(g,x,z)=>{const dx=x-g.x,dz=z-g.z;if(dx*dx+dz*dz>=g.R*g.R)return 0;const d=Math.hypot(dx,dz),a=Math.atan2(dz,dx),
         r0=(d-g.kawah)/(g.R-g.kawah),c=g.lancip,r=(Math.sqrt(r0*r0+c*c)-c)/(Math.sqrt(1+c*c)-c),   // puncak sedikit membulat
-        al=g.alur*ss(.1,.45,r)*(1-ss(.8,1,r)),n=al?1-Math.abs(2*vn(Math.cos(a)*3.1+g.x,Math.sin(a)*3.1+g.z+r*2.2)-1):0;   // alur radial ber-seed (punggungan + jurang)
+        al=g.alur*ss(.1,.45,r)*(1-ss(.8,1,r)),n=al?.65*(1-Math.abs(2*vn(Math.cos(a)*2.2+g.x,Math.sin(a)*2.2+g.z+r*1.6)-1))+.35*(1-Math.abs(2*vn(Math.cos(a)*5.5+g.z,Math.sin(a)*5.5+g.x+r*3)-1)):0;   // punggungan + jurang radial ber-seed, dua oktaf
       if(g.kaldera){const[rb,hb,lt,rk]=g.kaldera,luar=d<rb?lt+(hb-lt)*ss(rb-1.4,rb,d):hb*Math.pow(1-(d-rb)/(g.R-rb),g.k)*(1-al*n);
         return Math.max(luar,d<rk?lt+(g.E-lt)*Math.pow(1-d/rk,1.2):0);}   // dinding kaldera, lantai pasir, kerucut tengah = puncak GVP
       if(d<g.kawah)return g.E-g.cekung*(1-(d/g.kawah)**2);   // kawah: bibir = puncak GVP
@@ -581,9 +582,9 @@ function medan(D=JAWA,{seed=3}={}){
       return h;};
   return{tinggi,darat,laut,gunung:G,sungai:S,kerucut};}
 /* RUTE: lengkung skematis di atas peta, berparameter panjang busur 3D (jalurElang): jejak tanah Catmull-Rom lewat titik [lon,lat],
-   ujung menempel tanah (+turun km), tengah naik `puncak` km (visual) sebagai busur sin^.85 — tanda perpindahan, bukan jalan. */
+   ujung menempel tanah (+turun km), tengah naik `puncak` km (visual) sebagai busur sin^½ (puncak datar) — tanda perpindahan, bukan jalan. */
 function jalurRute(M,titik,{tegak=4,puncak=20,turun=1.2,n=160}={}){const J=jalurElang(titik.map(([lon,lat])=>proyeksi(lon,lat)));
-  return jalurElang(Array.from({length:n+1},(_,i)=>{const u=i/n,[x,z]=J.pos(u);return[x,Math.max(0,M.tinggi(x,z))*tegak+turun+puncak*Math.sin(Math.PI*u)**.85,z];}));}
+  return jalurElang(Array.from({length:n+1},(_,i)=>{const u=i/n,[x,z]=J.pos(u);return[x,Math.max(0,M.tinggi(x,z))*tegak+turun+puncak*Math.sin(Math.PI*u)**.5,z];}));}
 /* JARING: kisi tensor (rapat `langkah` km di `kotak`, lalu tumbuh 40 %/baris sampai ±tepi km: laut jauh di kabut) + satu tambalan
    `halus` (kotak lon/lat, `bagi` per sel kasar) di lubang kisi kasar. Tepi tambalan = interpolasi tepi kasar (tanpa retak), dilebur ke
    detail penuh dalam 2 langkah. Bahan: MeshStandard + warna hipsometrik (sawah → tegal → hutan → tanah vulkanik → abu), garis kontur
@@ -596,7 +597,7 @@ function petaRelief(M,{kotak=[105,-9.1,115.9,-5.5],langkah=1.8,halus=null,tegak=
       return[...t.map(d=>a-d).reverse(),...v,...t.map(d=>b+d)];},
     xs=sumbu(ax0,ax1,langkah),zs=sumbu(az0,az1,langkah),nx=xs.length,Hc=new Float32Array(nx*zs.length);
   for(let j=0;j<zs.length;j++)for(let i=0;i<nx;i++)Hc[j*nx+i]=M.tinggi(xs[i],zs[j]);   // urut baris: tembolok baris z di medan()
-  const P={sawah:C('#6f8a45'),tegal:C('#9a9a5e'),hutan:C('#55693d'),tanah:C('#8b6a47'),abu:C('#6a5a4e'),cadas:C('#76604f')},c=new THREE.Color(),
+  const P={sawah:C('#9aa86a'),tegal:C('#b9b07c'),hutan:C('#7f9156'),tanah:C('#a98962'),abu:C('#8a7b6e'),cadas:C('#9a8069')},c=new THREE.Color(),
     jaring=(X,Z,H,lubang,luar)=>{const nx=X.length,nz=Z.length,n=nx*nz,pos=new Float32Array(n*3),nor=new Float32Array(n*3),col=new Float32Array(n*3),idx=[],
         Y=k=>Math.max(H[k],0)*tegak,r=Math.max(1,Math.round(3.6/Math.min(...X.slice(1).map((v,i)=>v-X[i])))),at=(i,j)=>H[Math.min(nz-1,Math.max(0,j))*nx+Math.min(nx-1,Math.max(0,i))];
       for(let j=0;j<nz;j++)for(let i=0;i<nx;i++){const k=j*nx+i,il=Math.max(0,i-1),ir=Math.min(nx-1,i+1),jl=Math.max(0,j-1),jr=Math.min(nz-1,j+1),
@@ -609,14 +610,14 @@ function petaRelief(M,{kotak=[105,-9.1,115.9,-5.5],langkah=1.8,halus=null,tegak=
       for(let j=0;j<nz-1;j++)for(let i=0;i<nx-1;i++){if(lubang&&i>=lubang[0]&&i<lubang[1]&&j>=lubang[2]&&j<lubang[3])continue;const a=j*nx+i,b=a+1,d=a+nx;idx.push(a,d,b,b,d,d+1);}
       const g=new THREE.BufferGeometry();g.setIndex(idx);g.setAttribute('position',new THREE.BufferAttribute(pos,3));g.setAttribute('normal',new THREE.BufferAttribute(nor,3));
       g.setAttribute('color',new THREE.BufferAttribute(col,3));g.setAttribute('tinggi',new THREE.BufferAttribute(H,1));return g;},
-    U={uWaktu:{value:0},uAwan:{value:.18},uDetail:{value:.9},uKontur:{value:1},uTinta:{value:C('#4b4536')},
-      uPantai:{value:C(warnaLaut.pantai||'#d3d8c9')},uDangkal:{value:C(warnaLaut.dangkal||'#aebfbd')},uLaut:{value:C(warnaLaut.laut||'#7f98a6')},uLautDalam:{value:C(warnaLaut.dalam||'#566f80')}},
+    U={uWaktu:{value:0},uAwan:{value:.1},uDetail:{value:.9},uKontur:{value:1},uCetak:{value:0},uTerang:{value:.9},uTinta:{value:C('#5a5244')},
+      uPantai:{value:C(warnaLaut.pantai||'#dfe2d6')},uDangkal:{value:C(warnaLaut.dangkal||'#c3cfcb')},uLaut:{value:C(warnaLaut.laut||'#93a8b1')},uLautDalam:{value:C(warnaLaut.dalam||'#6b8592')}},
     mat=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.93,metalness:0}),grup=new THREE.Group();
   mat.onBeforeCompile=s=>{Object.assign(s.uniforms,U);
     s.vertexShader=s.vertexShader.replace('#include <common>','#include <common>\nattribute float tinggi;varying float vH;varying vec3 vDunia;')
       .replace('#include <begin_vertex>','#include <begin_vertex>\nvH=tinggi;vDunia=(modelMatrix*vec4(transformed,1.)).xyz;');
     s.fragmentShader=s.fragmentShader.replace('#include <common>',`#include <common>
-uniform float uWaktu,uAwan,uDetail,uKontur;uniform vec3 uTinta,uPantai,uDangkal,uLaut,uLautDalam;varying float vH;varying vec3 vDunia;
+uniform float uWaktu,uAwan,uDetail,uKontur,uCetak,uTerang;uniform vec3 uTinta,uPantai,uDangkal,uLaut,uLautDalam;varying float vH;varying vec3 vDunia;
 float h21(vec2 p){vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
 float vn(vec2 p){vec2 i=floor(p),f=fract(p),u=f*f*(3.-2.*f);return mix(mix(h21(i),h21(i+vec2(1,0)),u.x),mix(h21(i+vec2(0,1)),h21(i+1.),u.x),u.y);}
 float iso(float v,float px){float f=max(fwidth(v),1e-6),d=abs(fract(v+.5)-.5)/f;return(1.-smoothstep(px*.5,px*.5+1.,d))*(1.-smoothstep(.1,.3,f));}
@@ -624,14 +625,15 @@ float alur(vec2 p,vec2 t,vec2 s){return 1.-abs(2.*vn(vec2(dot(p,s)*.7,dot(p,t)*.
       .replace('#include <color_fragment>',`#include <color_fragment>
 float fh=max(fwidth(vH),1e-6),darat=smoothstep(-fh,fh,vH),paparan=smoothstep(-.2-fh,-.2+fh,vH);
 diffuseColor.rgb=mix(mix(mix(uLaut,uLautDalam,smoothstep(.2,2.6,-vH)),mix(uPantai,uDangkal,smoothstep(0.,.2,-vH)),paparan),diffuseColor.rgb,darat);
-float kontur=max(iso(vH*10.,1.)*.3,iso(vH*2.,2.)*.55)*step(0.,vH)*uKontur,pantai=1.-smoothstep(.6,1.6,abs(vH)/fh),g200=1.-smoothstep(.5,1.5,abs(vH+.2)/fh);
+float kontur=max(iso(vH*10.,1.)*.14*(1.-smoothstep(.04,.08,fwidth(vH*10.))),iso(vH*2.,1.6)*.32)*step(0.,vH)*uKontur,pantai=1.-smoothstep(.6,1.6,abs(vH)/fh),g200=1.-smoothstep(.5,1.5,abs(vH+.2)/fh);
 diffuseColor.rgb=mix(diffuseColor.rgb,uTinta,max(kontur,max(pantai*.75,g200*.4)));`)
       .replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\nroughnessFactor=mix(.42,roughnessFactor,darat);')
       .replace('#include <normal_fragment_maps>',`#include <normal_fragment_maps>
 {vec3 nw=normalize((vec4(normal,0.)*viewMatrix).xyz);float kuat=uDetail*smoothstep(.03,.3,1.-nw.y)*darat;
  vec2 t=normalize(nw.xz+1e-5),s=vec2(-t.y,t.x),p=vDunia.xz;kuat*=1.-smoothstep(.25,.7,fwidth(dot(p,s)*.7));
  if(kuat>.001){float e=.2,a=alur(p,t,s);nw=normalize(nw-kuat*.3*vec3(alur(p+vec2(e,0.),t,s)-a,0.,alur(p+vec2(0.,e),t,s)-a)/e);normal=normalize((viewMatrix*vec4(nw,0.)).xyz);}}`)
-      .replace('#include <opaque_fragment>',`outgoingLight*=1.-uAwan*smoothstep(.52,.74,.65*vn(vDunia.xz/70.+vec2(uWaktu*.035,uWaktu*.012))+.35*vn(vDunia.xz/23.-vec2(uWaktu*.05,0.)));
+      .replace('#include <opaque_fragment>',`outgoingLight*=1.-uAwan*smoothstep(.52,.74,.65*vn(vDunia.xz/90.+vec2(uWaktu*.03,uWaktu*.01))+.35*vn(vDunia.xz/30.-vec2(uWaktu*.045,0.)));
+outgoingLight=mix(outgoingLight,diffuseColor.rgb*uTerang,uCetak);   // uCetak 1 = peta cetak datar (kulit topografi), 0 = relief bercahaya
 #include <opaque_fragment>`);};
   const dek=(A,v)=>A.reduce((m,a,i)=>Math.abs(a-v)<Math.abs(A[m]-v)?i:m,0),[p0,p1]=halus?[proyeksi(halus.kotak[0],halus.kotak[3]),proyeksi(halus.kotak[2],halus.kotak[1])]:[],
     lubang=halus&&[dek(xs,p0[0]),dek(xs,p1[0]),dek(zs,p0[1]),dek(zs,p1[1])],gk=jaring(xs,zs,Hc,lubang,null),mesh=[new THREE.Mesh(gk,mat)];
@@ -708,11 +710,11 @@ function ikutMatahariPeta(arah,{min=40,maks=900}={}){const d=camera.getWorldDire
 const M=medan(JAWA),PETA=petaRelief(M,{tegak:4,langkah:1.8,halus:{kotak:[111.8,-8.4,113.05,-7.3],bagi:4}}),
   SUNGAI=sungaiPeta(PETA,{lebar:3.4}),
   /* busur skematis: Prambanan (jantung Medang/Mataram Kuno) → lembah Brantas dekat Jombang. Tanda perpindahan, BUKAN jalan atau rute pasukan */
-  RUTE=rutePeta(PETA,jalurRute(M,[[110.491,-7.752],[111.35,-7.5],[112.25,-7.54]],{tegak:4,puncak:22}),{lebar:7});
+  RUTE=rutePeta(PETA,jalurRute(M,[[110.491,-7.752],[111.35,-7.5],[112.25,-7.54]],{tegak:4,puncak:9}),{lebar:7});
 scene.background=warna('--kertas');scene.fog=new THREE.Fog(warna('--kertas'),900,4000);   // near/far ikut jarak kamera (siapkan): jauh larut ke kertas
 /* matahari sore rendah dari barat-barat laut (az diukur dari +z = selatan ke +x = timur): bayangan gunung memanjang ke timur, seperti diorama */
-const SORE={kAz:250,kEl:13,kI:3.1,fI:.95,rI:0},langit=(s,g)=>{const a=new THREE.Color(s),b=new THREE.Color(g);return{fsR:a.r,fsG:a.g,fsB:a.b,fgR:b.r,fgG:b.g,fgB:b.b};};
-Object.assign(SORE,langit('#a9bccd','#5f4d3b'));Object.assign(LUX,nilaiLux('golden'),SORE);light(0,0,'golden',SORE);
+const SORE={kAz:250,kEl:22,kI:5.5,fI:1.4,rI:0},langit=(s,g)=>{const a=new THREE.Color(s),b=new THREE.Color(g);return{fsR:a.r,fsG:a.g,fsB:a.b,fgR:b.r,fgG:b.g,fgB:b.b};};
+Object.assign(SORE,langit('#c3d1dd','#7d6b56'));Object.assign(LUX,nilaiLux('golden'),SORE);light(0,0,'golden',SORE);
 const MATAHARI=new THREE.Vector3().setFromSphericalCoords(1,(90-SORE.kEl)*Math.PI/180,SORE.kAz*Math.PI/180);
 key.shadow.bias=-.0005;
 
@@ -722,26 +724,28 @@ const lbl=(teks,o,masuk,keluar)=>{const el=labelPeta(PETA,o.kelas==='tempat'?`<i
 lbl('Laut Jawa',{lon:110.1,lat:-5.95,kelas:'laut'},1.2,5.2);
 lbl('Samudra Hindia',{lon:110.6,lat:-8.85,kelas:'laut'},1.5,5.2);
 lbl('MERAPI',{lon:110.446,lat:-7.54,naik:.4,kelas:'gunung'},4.6,8.6);
-lbl('MERBABU',{lon:110.44,lat:-7.454,naik:.4,kelas:'gunung'},4.9,8.6);
 const MATARAM=lbl('Mataram Kuno',{lon:110.491,lat:-7.752,kelas:'tempat'},5.2,9.2);
 lbl('Bengawan Solo',{lon:111.15,lat:-7.405,kelas:'sungai',sepanjang:[111.35,-7.4]},8.4,12.2);
 lbl('LAWU',{lon:111.192,lat:-7.625,naik:.4,kelas:'gunung'},8.8,12.2);
-lbl('KELUD',{lon:112.314,lat:-7.935,naik:.3,kelas:'gunung'},13.4);
+lbl('KELUD',{lon:112.314,lat:-7.935,naik:2.5,kelas:'gunung'},13.4);
 lbl('ARJUNO-WELIRANG',{lon:112.575,lat:-7.733,naik:.4,kelas:'gunung'},13.7);
 lbl('Brantas',{lon:112.02,lat:-7.78,kelas:'sungai',sepanjang:[112.06,-7.68]},12.9);
-const BRANTAS=lbl('Lembah Brantas',{lon:112.25,lat:-7.54,kelas:'tempat'},14.1);
+const BRANTAS=lbl('Lembah Brantas',{lon:112.25,lat:-7.54,kelas:'tempat kiri'},14.1);
 
 /* kamera: dua terbang() — turun dari seluruh Jawa ke jantung Mataram (mendarat, jeda sebentar), lalu mengikuti busur ke timur dan
    mendarat di lembah Brantas. Titik = pose bola di sekitar fokus (kamera.js pose), tatap = fokus itu. g besar: roll tipis (peta, bukan pesawat) */
 const P=(f,dist,yaw,pitch)=>{const p=pose({fx:f[0],fy:0,fz:f[1],dist,yaw,pitch});return[p.x,p.y,p.z];},
-  RUAS=[[[20,10],1500,-9,-56],[[46,36],520,-14,-42],[[60,42],175,-24,-30]],
-  RUAS2=[[[60,42],175,-24,-30],[[125,44],155,-33,-27],[[200,44],140,-38,-24],[[257,52],124,-38,-22]],
-  JALAN1=terbang(.4,6.2,RUAS.map(r=>P(...r)),{look:RUAS.map(([f])=>[f[0],0,f[1]]),ease:'sine.inOut',g:450,rollMaks:6,guncang:.3,trauma0:.1}),
-  JALAN2=terbang(6.6,9.4,RUAS2.map(r=>P(...r)),{look:RUAS2.map(([f])=>[f[0],0,f[1]]),ease:'sine.inOut',g:450,rollMaks:6,guncang:.3,trauma0:.1});
-cutTo(0,{mm:50});lens(3.2,4,35,'sine.inOut');dolly(16,2,1.04,'sine.inOut');   // 50 mm datar untuk seluruh pulau → 35 mm saat turun; napas akhir
+  RUAS=[[[20,10],1500,-9,-56],[[46,36],520,-14,-42],[[60,42],175,-24,-30]],   // [fokus x,z km], jarak km, yaw°, pitch°
+  RUAS2=[[[60,42],175,-24,-30],[[125,44],155,-33,-27],[[200,44],140,-38,-24],[[258,54],100,-38,-24]],
+  [f0,d0,y0,p0]=RUAS[0],T=[.5,6.5,16],   // detik: terbang 1, terbang 2 (= akhir terbang 1), mendarat. Kelipatan ,5: at+dur tepat biner (terbang() menolak at < akhir ruas lalu)
+  terbangPeta=(at,dur,R)=>terbang(at,dur,R.map(r=>P(...r)),{look:R.map(([f])=>[f[0],0,f[1]]),ease:'sine.inOut',g:450,rollMaks:6,guncang:.3,trauma0:.1});
+cutTo(0,{fx:f0[0],fy:0,fz:f0[1],dist:d0,yaw:y0,pitch:p0,roll:0,mm:50});   // seluruh Jawa, 50 mm datar, sebelum terbang pertama
+const JALAN1=terbangPeta(T[0],T[1]-T[0],RUAS),JALAN2=terbangPeta(T[1],T[2]-T[1],RUAS2);
+lens(3.2,4,35,'sine.inOut');dolly(T[2],2,1.04,'sine.inOut');   // 50 → 35 mm saat turun; napas akhir sesudah mendarat
 
 /* relief naik dari peta datar berkontur (kulit topografi) → 3D */
 tl.fromTo(PETA.grup.scale,{y:.03},{y:1,duration:2.8,ease:'power2.inOut'},.5);
+tl.fromTo(PETA.U.uCetak,{value:1},{value:0,duration:2.4,ease:'sine.inOut'},.7);   // peta cetak datar → matahari menyapu relief
 tl.fromTo(RUTE.maju,{v:0},{v:1,duration:6.6,ease:'sine.inOut'},7);
 {const a=SUNGAI.Brantas.mat.color,b=warna('#4fb3d9').multiplyScalar(1.6);   // sungai yang diceritakan menyala (warna linear > 1: ACES)
   tl.fromTo(a,{r:a.r,g:a.g,b:a.b},{r:b.r,g:b.g,b:b.b,duration:1.2,ease:'sine.inOut'},12.6);}

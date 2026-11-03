@@ -88,10 +88,10 @@ function medan(D=JAWA,{seed=3}={}){
       return{dalam,jarak,sdf:(x,z)=>dalam(x,z)?jarak(x,z):-jarak(x,z)};},
     darat=bidang(D.pantai),laut=bidang(D.dalam),
     G=[...D.gunung.map(g=>[g,0]),...D.gunungTua.map(g=>[g,1])].map(([[nama,lon,lat,m,R,o={}],tua])=>{const[x,z]=proyeksi(lon,lat);
-      return{nama,lon,lat,x,z,E:m/1e3,R,tua,k:tua?1.35:1.7,kawah:tua?0:.45,cekung:.12,alur:tua?.16:.08,lancip:tua?.09:.03,...o};}),
+      return{nama,lon,lat,x,z,E:m/1e3,R,tua,k:tua?1.35:1.7,kawah:tua?0:.45,cekung:.12,alur:tua?.22:.13,lancip:tua?.09:.03,...o};}),
     kerucut=(g,x,z)=>{const dx=x-g.x,dz=z-g.z;if(dx*dx+dz*dz>=g.R*g.R)return 0;const d=Math.hypot(dx,dz),a=Math.atan2(dz,dx),
         r0=(d-g.kawah)/(g.R-g.kawah),c=g.lancip,r=(Math.sqrt(r0*r0+c*c)-c)/(Math.sqrt(1+c*c)-c),   // puncak sedikit membulat
-        al=g.alur*ss(.1,.45,r)*(1-ss(.8,1,r)),n=al?1-Math.abs(2*vn(Math.cos(a)*3.1+g.x,Math.sin(a)*3.1+g.z+r*2.2)-1):0;   // alur radial ber-seed (punggungan + jurang)
+        al=g.alur*ss(.1,.45,r)*(1-ss(.8,1,r)),n=al?.65*(1-Math.abs(2*vn(Math.cos(a)*2.2+g.x,Math.sin(a)*2.2+g.z+r*1.6)-1))+.35*(1-Math.abs(2*vn(Math.cos(a)*5.5+g.z,Math.sin(a)*5.5+g.x+r*3)-1)):0;   // punggungan + jurang radial ber-seed, dua oktaf
       if(g.kaldera){const[rb,hb,lt,rk]=g.kaldera,luar=d<rb?lt+(hb-lt)*ss(rb-1.4,rb,d):hb*Math.pow(1-(d-rb)/(g.R-rb),g.k)*(1-al*n);
         return Math.max(luar,d<rk?lt+(g.E-lt)*Math.pow(1-d/rk,1.2):0);}   // dinding kaldera, lantai pasir, kerucut tengah = puncak GVP
       if(d<g.kawah)return g.E-g.cekung*(1-(d/g.kawah)**2);   // kawah: bibir = puncak GVP
@@ -114,9 +114,9 @@ function medan(D=JAWA,{seed=3}={}){
       return h;};
   return{tinggi,darat,laut,gunung:G,sungai:S,kerucut};}
 /* RUTE: lengkung skematis di atas peta, berparameter panjang busur 3D (jalurElang): jejak tanah Catmull-Rom lewat titik [lon,lat],
-   ujung menempel tanah (+turun km), tengah naik `puncak` km (visual) sebagai busur sin^.85 — tanda perpindahan, bukan jalan. */
+   ujung menempel tanah (+turun km), tengah naik `puncak` km (visual) sebagai busur sin^½ (puncak datar) — tanda perpindahan, bukan jalan. */
 function jalurRute(M,titik,{tegak=4,puncak=20,turun=1.2,n=160}={}){const J=jalurElang(titik.map(([lon,lat])=>proyeksi(lon,lat)));
-  return jalurElang(Array.from({length:n+1},(_,i)=>{const u=i/n,[x,z]=J.pos(u);return[x,Math.max(0,M.tinggi(x,z))*tegak+turun+puncak*Math.sin(Math.PI*u)**.85,z];}));}
+  return jalurElang(Array.from({length:n+1},(_,i)=>{const u=i/n,[x,z]=J.pos(u);return[x,Math.max(0,M.tinggi(x,z))*tegak+turun+puncak*Math.sin(Math.PI*u)**.5,z];}));}
 /* JARING: kisi tensor (rapat `langkah` km di `kotak`, lalu tumbuh 40 %/baris sampai ±tepi km: laut jauh di kabut) + satu tambalan
    `halus` (kotak lon/lat, `bagi` per sel kasar) di lubang kisi kasar. Tepi tambalan = interpolasi tepi kasar (tanpa retak), dilebur ke
    detail penuh dalam 2 langkah. Bahan: MeshStandard + warna hipsometrik (sawah → tegal → hutan → tanah vulkanik → abu), garis kontur
@@ -129,7 +129,7 @@ function petaRelief(M,{kotak=[105,-9.1,115.9,-5.5],langkah=1.8,halus=null,tegak=
       return[...t.map(d=>a-d).reverse(),...v,...t.map(d=>b+d)];},
     xs=sumbu(ax0,ax1,langkah),zs=sumbu(az0,az1,langkah),nx=xs.length,Hc=new Float32Array(nx*zs.length);
   for(let j=0;j<zs.length;j++)for(let i=0;i<nx;i++)Hc[j*nx+i]=M.tinggi(xs[i],zs[j]);   // urut baris: tembolok baris z di medan()
-  const P={sawah:C('#6f8a45'),tegal:C('#9a9a5e'),hutan:C('#55693d'),tanah:C('#8b6a47'),abu:C('#6a5a4e'),cadas:C('#76604f')},c=new THREE.Color(),
+  const P={sawah:C('#9aa86a'),tegal:C('#b9b07c'),hutan:C('#7f9156'),tanah:C('#a98962'),abu:C('#8a7b6e'),cadas:C('#9a8069')},c=new THREE.Color(),
     jaring=(X,Z,H,lubang,luar)=>{const nx=X.length,nz=Z.length,n=nx*nz,pos=new Float32Array(n*3),nor=new Float32Array(n*3),col=new Float32Array(n*3),idx=[],
         Y=k=>Math.max(H[k],0)*tegak,r=Math.max(1,Math.round(3.6/Math.min(...X.slice(1).map((v,i)=>v-X[i])))),at=(i,j)=>H[Math.min(nz-1,Math.max(0,j))*nx+Math.min(nx-1,Math.max(0,i))];
       for(let j=0;j<nz;j++)for(let i=0;i<nx;i++){const k=j*nx+i,il=Math.max(0,i-1),ir=Math.min(nx-1,i+1),jl=Math.max(0,j-1),jr=Math.min(nz-1,j+1),
@@ -142,14 +142,14 @@ function petaRelief(M,{kotak=[105,-9.1,115.9,-5.5],langkah=1.8,halus=null,tegak=
       for(let j=0;j<nz-1;j++)for(let i=0;i<nx-1;i++){if(lubang&&i>=lubang[0]&&i<lubang[1]&&j>=lubang[2]&&j<lubang[3])continue;const a=j*nx+i,b=a+1,d=a+nx;idx.push(a,d,b,b,d,d+1);}
       const g=new THREE.BufferGeometry();g.setIndex(idx);g.setAttribute('position',new THREE.BufferAttribute(pos,3));g.setAttribute('normal',new THREE.BufferAttribute(nor,3));
       g.setAttribute('color',new THREE.BufferAttribute(col,3));g.setAttribute('tinggi',new THREE.BufferAttribute(H,1));return g;},
-    U={uWaktu:{value:0},uAwan:{value:.18},uDetail:{value:.9},uKontur:{value:1},uTinta:{value:C('#4b4536')},
-      uPantai:{value:C(warnaLaut.pantai||'#d3d8c9')},uDangkal:{value:C(warnaLaut.dangkal||'#aebfbd')},uLaut:{value:C(warnaLaut.laut||'#7f98a6')},uLautDalam:{value:C(warnaLaut.dalam||'#566f80')}},
+    U={uWaktu:{value:0},uAwan:{value:.1},uDetail:{value:.9},uKontur:{value:1},uCetak:{value:0},uTerang:{value:.9},uTinta:{value:C('#5a5244')},
+      uPantai:{value:C(warnaLaut.pantai||'#dfe2d6')},uDangkal:{value:C(warnaLaut.dangkal||'#c3cfcb')},uLaut:{value:C(warnaLaut.laut||'#93a8b1')},uLautDalam:{value:C(warnaLaut.dalam||'#6b8592')}},
     mat=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.93,metalness:0}),grup=new THREE.Group();
   mat.onBeforeCompile=s=>{Object.assign(s.uniforms,U);
     s.vertexShader=s.vertexShader.replace('#include <common>','#include <common>\nattribute float tinggi;varying float vH;varying vec3 vDunia;')
       .replace('#include <begin_vertex>','#include <begin_vertex>\nvH=tinggi;vDunia=(modelMatrix*vec4(transformed,1.)).xyz;');
     s.fragmentShader=s.fragmentShader.replace('#include <common>',`#include <common>
-uniform float uWaktu,uAwan,uDetail,uKontur;uniform vec3 uTinta,uPantai,uDangkal,uLaut,uLautDalam;varying float vH;varying vec3 vDunia;
+uniform float uWaktu,uAwan,uDetail,uKontur,uCetak,uTerang;uniform vec3 uTinta,uPantai,uDangkal,uLaut,uLautDalam;varying float vH;varying vec3 vDunia;
 float h21(vec2 p){vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
 float vn(vec2 p){vec2 i=floor(p),f=fract(p),u=f*f*(3.-2.*f);return mix(mix(h21(i),h21(i+vec2(1,0)),u.x),mix(h21(i+vec2(0,1)),h21(i+1.),u.x),u.y);}
 float iso(float v,float px){float f=max(fwidth(v),1e-6),d=abs(fract(v+.5)-.5)/f;return(1.-smoothstep(px*.5,px*.5+1.,d))*(1.-smoothstep(.1,.3,f));}
@@ -157,14 +157,15 @@ float alur(vec2 p,vec2 t,vec2 s){return 1.-abs(2.*vn(vec2(dot(p,s)*.7,dot(p,t)*.
       .replace('#include <color_fragment>',`#include <color_fragment>
 float fh=max(fwidth(vH),1e-6),darat=smoothstep(-fh,fh,vH),paparan=smoothstep(-.2-fh,-.2+fh,vH);
 diffuseColor.rgb=mix(mix(mix(uLaut,uLautDalam,smoothstep(.2,2.6,-vH)),mix(uPantai,uDangkal,smoothstep(0.,.2,-vH)),paparan),diffuseColor.rgb,darat);
-float kontur=max(iso(vH*10.,1.)*.3,iso(vH*2.,2.)*.55)*step(0.,vH)*uKontur,pantai=1.-smoothstep(.6,1.6,abs(vH)/fh),g200=1.-smoothstep(.5,1.5,abs(vH+.2)/fh);
+float kontur=max(iso(vH*10.,1.)*.14*(1.-smoothstep(.04,.08,fwidth(vH*10.))),iso(vH*2.,1.6)*.32)*step(0.,vH)*uKontur,pantai=1.-smoothstep(.6,1.6,abs(vH)/fh),g200=1.-smoothstep(.5,1.5,abs(vH+.2)/fh);
 diffuseColor.rgb=mix(diffuseColor.rgb,uTinta,max(kontur,max(pantai*.75,g200*.4)));`)
       .replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\nroughnessFactor=mix(.42,roughnessFactor,darat);')
       .replace('#include <normal_fragment_maps>',`#include <normal_fragment_maps>
 {vec3 nw=normalize((vec4(normal,0.)*viewMatrix).xyz);float kuat=uDetail*smoothstep(.03,.3,1.-nw.y)*darat;
  vec2 t=normalize(nw.xz+1e-5),s=vec2(-t.y,t.x),p=vDunia.xz;kuat*=1.-smoothstep(.25,.7,fwidth(dot(p,s)*.7));
  if(kuat>.001){float e=.2,a=alur(p,t,s);nw=normalize(nw-kuat*.3*vec3(alur(p+vec2(e,0.),t,s)-a,0.,alur(p+vec2(0.,e),t,s)-a)/e);normal=normalize((viewMatrix*vec4(nw,0.)).xyz);}}`)
-      .replace('#include <opaque_fragment>',`outgoingLight*=1.-uAwan*smoothstep(.52,.74,.65*vn(vDunia.xz/70.+vec2(uWaktu*.035,uWaktu*.012))+.35*vn(vDunia.xz/23.-vec2(uWaktu*.05,0.)));
+      .replace('#include <opaque_fragment>',`outgoingLight*=1.-uAwan*smoothstep(.52,.74,.65*vn(vDunia.xz/90.+vec2(uWaktu*.03,uWaktu*.01))+.35*vn(vDunia.xz/30.-vec2(uWaktu*.045,0.)));
+outgoingLight=mix(outgoingLight,diffuseColor.rgb*uTerang,uCetak);   // uCetak 1 = peta cetak datar (kulit topografi), 0 = relief bercahaya
 #include <opaque_fragment>`);};
   const dek=(A,v)=>A.reduce((m,a,i)=>Math.abs(a-v)<Math.abs(A[m]-v)?i:m,0),[p0,p1]=halus?[proyeksi(halus.kotak[0],halus.kotak[3]),proyeksi(halus.kotak[2],halus.kotak[1])]:[],
     lubang=halus&&[dek(xs,p0[0]),dek(xs,p1[0]),dek(zs,p0[1]),dek(zs,p1[1])],gk=jaring(xs,zs,Hc,lubang,null),mesh=[new THREE.Mesh(gk,mat)];

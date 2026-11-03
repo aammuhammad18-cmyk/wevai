@@ -317,6 +317,7 @@ references/
   architecture.md                stage, camera rig, determinism, export
   ae-bridge-higgsfield.md        building inside After Effects via the MCP bridge
   roadmap.md                     where the skill is heading
+  peta-relief.md                 3D relief map: Natural Earth coast, GVP volcanoes, glowing route, accuracy limits
 assets/
   starter-opener.html            opener / promo architecture (GSAP + Three.js)
   starter-explainer*.html        one starter per explainer style
@@ -324,6 +325,7 @@ assets/
   starter-sinematik.html         cinematic silhouette scene, 100% code (torchlight, fog, embers, one grade)
   katalog-pustaka.html           showcase of the procedural ancient-Java asset library (src/runtime/pustaka.js)
   starter-elang.html             3D eagle-eye establishing shot: procedural landscape, flight path, film tone mapping
+  starter-peta-relief.html       3D relief map of Java: printed contour map rises into a lit relief, route lights up
 scripts/
   lint-motion.mjs                check the mechanical rules on a deliverable
   snap.mjs                       verify: capture key seconds
@@ -336,6 +338,8 @@ scripts/
   test-vo.mjs                    tests for vo-gemini.mjs (no network, no keys)
   test-pustaka.mjs               tests for the ancient-Java asset library (no browser)
   test-elang.mjs                 tests for the eagle-eye flight maths (no browser)
+  test-peta.mjs                  tests for the relief-map terrain and route maths (no browser)
+  peta-data.mjs                  rebuild the encoded coastline / 200 m isobath from Natural Earth (maintenance)
   serve.py                       no-cache dev server (optional)
   vendor-libs.mjs                inline GSAP + fonts for an offline archive copy
   build-starters.mjs             inline src/runtime into the starters (repo maintenance)

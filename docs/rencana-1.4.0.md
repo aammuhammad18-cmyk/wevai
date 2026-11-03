@@ -22,7 +22,7 @@ Sumber rincian:
 | G | Sub-proyek 4b: rig tokoh v2 | belum | |
 | H | Sub-proyek 5: mata elang 3D | kode selesai; bench + vonis visual pemilik menunggu | 93e1629..087736e |
 | I | Sub-proyek 6: ekspor panjang | belum | |
-| J | Sub-proyek 7: gaya lanjutan | belum | |
+| J | Sub-proyek 7: gaya lanjutan | relief candi: kode selesai, bench + vonis pemilik menunggu; peta relief 3D berjalan; wayang, painterly, diorama belum | relief: bfdac93..811ddca |
 | K | Sub-proyek 8: penilaian visual otomatis + galeri | K1 selesai; K2 galeri belum | K1: a3486a1..f114d7d |
 | L | Rilis 1.4.0 | belum | |
 
@@ -112,6 +112,9 @@ Rilis 1.4.0 (L) mencakup:
 - **Painterly** (Kuwahara / cat air), tanpa sapuan yang "mendidih".
 - **Diorama cel-shaded**: toon + outline + tilt-shift, kartu 2D di ruang 3D.
 - Setiap gaya punya starter atau kulit, dokumen, dan lembar kontak.
+- Tindak lanjut relief candi sesudah masuk `main`:
+  - bench di mesin senggang: `bench-frame.mjs assets/starter-relief.html "clean=1" 20`, ≥ 3 run bergantian; ukur juga setup;
+  - vonis pemilik, termasuk legenda "BOROBUDUR · ABAD IX" di atas panel rekaan (perlu penanda ilustrasi atau tidak).
 
 ### K. Penilaian visual + galeri
 

@@ -218,6 +218,32 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
     - sawah lembah dekat tampak kotak-kotak pada grid kasar (±14 m) di frame akhir;
     - `terbang()` 2.5D belum dipasang di starter 2.5D mana pun; shot mata elang brief 10 menyusul bersama babak multi-adegan (E).
   - **Status penerimaan**: menunggu bench di mesin senggang dan vonis visual pemilik.
+- **Relief candi hidup** (sub-proyek 7, gaya lanjutan pertama; J di `docs/rencana-1.4.0.md`).
+  - **Berkas**: `assets/starter-relief.html`, `src/runtime/relief-hidup.js` (blok baru `<wv:relief-hidup>`: `reliefHidup()`,
+    `SINAR`), `references/relief-candi.md`, dan `scripts/test-relief.mjs` (baru); `pustaka.dindingRelief` di `pustaka.js`.
+  - **Demo** (20 dtk): galeri tiga panel ala Borobudur dibaca searah pradaksina (prosesi → kapal bercadik → kalpataru). Obor
+    `SINAR` menyapu dinding, kamera berjalan lalu berhenti di tiap panel, legenda "Kapal Bercadik". 17 bagian pahatan bergerak
+    pelan (lengan, dayung, layar, ombak, untaian, payung).
+  - **Teknik cahaya**:
+    - sekali saat setup: peta tinggi pahatan (764 lapis Path2D, profil membulat dari jarak-ke-tepi, erosi, lubang, butir batu)
+      dipanggang jadi normal + AO, dan warna andesit (belang, nada per blok, lumut, jejak hujan) dipanggang di GPU;
+    - tiap frame, WebGL2 dua pass: bagian hidup sebagai sprite peta tinggi, lalu lampu titik `SINAR` (Lambert, redaman
+      1/(1+d²/J²), bayangan pahatan lunak 24 langkah, ambien langit × AO). `SINAR` di-tween seperti `CAM`.
+  - **Biaya terukur** (di bawah beban render pemilik): 29–32 ms/frame untuk dinding 4300×1000, bayangan ikut bergerak. Pembanding:
+    Canvas 2D per piksel 737 ms tanpa bayangan; filter SVG dinamis 358 ms tanpa bayangan jatuh. Setup 4,1–5,1 dtk per muat halaman.
+  - **Deterministik**: kanvas di t 9,2 byte-identik lewat tiga jalur seek (langsung, lompat, putar berurutan).
+  - **Uji**: `test-relief` (11 uji; lima mutasi sengaja semuanya tertangkap) masuk `rilis.mjs` dan CI; `RELIEF_UJI` dan
+    `SINEMA_UJI` di `test-starters`.
+  - **Anggaran konteks**: jalur baru **Relief candi hidup** (`explainer.md` + `techniques.md` + `relief-candi.md` +
+    `starter-relief.html`) 293 KB, batas pelacak 295 KB; ±4/5 starter adalah blok runtime.
+  - **Bukti**: `evals/bukti/2026-11-03-relief-candi/` (`kontak.jpg`, `nilai.txt`). `nilai-visual` 9 dari 9 ok: rentang 39–46,
+    kontras subjek 18–33, titik terang dekat lampu +31…+39, 3–4 warna.
+  - **Celah yang diketahui**:
+    - ms/frame ekspor penuh dan setup di mesin senggang belum diukur;
+    - kanvas relief 1:1 di bidang z = 0, jadi melunak di atas zoom ±1,25; close-up butuh dinding kedua yang lebih kecil;
+    - satu konteks WebGL2 per dinding, jadi 1–2 dinding per halaman;
+    - sosok dan panel adalah kosakata bergaya, bukan salinan panel nyata, sedangkan legendanya "BOROBUDUR · ABAD IX".
+  - **Status penerimaan**: menunggu bench di mesin senggang dan vonis visual pemilik.
 
 ## 1.3.0 — 2026-11-02
 

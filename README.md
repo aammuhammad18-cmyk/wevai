@@ -314,6 +314,7 @@ references/
   sinematografi.md               cinematic camera & lighting vocabulary, 2.5D vs 3D, 3D pitfalls
   explainer.md                   explainer styles, camera recipes, VO re-timing
   kartun-panggung.md             cartoon stage explainers
+  diorama.md                     museum-miniature diorama style: API, cost, accuracy + sources for the tri mandala layout
   architecture.md                stage, camera rig, determinism, export
   ae-bridge-higgsfield.md        building inside After Effects via the MCP bridge
   roadmap.md                     where the skill is heading

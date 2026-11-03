@@ -423,7 +423,7 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
   - **Uji**: `test-wayang` (8 uji) masuk `rilis.mjs` dan CI; `WAYANG_UJI` dan `SINEMA_UJI` di `test-starters`; lima mutasi sengaja tertangkap.
   - **Biaya** (bench controller, 3 putaran; dua agen aktif): sisi bayangan median 234 ms/frame, sisi dalang 293 ms (satu putaran 356, di atas
     batas 350). Ekspor penuh 660 frame: rata-rata 271 dan 314 ms/frame.
-  - **Anggaran konteks**: jalur baru **Wayang kulit** (`explainer.md` + `techniques.md` + `wayang.md` + `starter-wayang.html`) 252 KB, pelacak 254 KB;
+  - **Anggaran konteks**: jalur baru **Wayang kulit** (`explainer.md` + `techniques.md` + `wayang.md` + `starter-wayang.html`) 244 KB, pelacak 246 KB;
     pelacak Relief candi hidup naik 295 → 297 KB karena `explainer.md` dan `SKILL.md` kini menyebut gaya ini.
   - **Bukti**: `evals/bukti/2026-11-03-wayang/` (`kontak.jpg`, `nilai.txt`). `nilai-visual` 8 dari 8 ok; kontras 13,8 dtk bergantung pada kotak subjek.
   - **Celah yang diketahui**:

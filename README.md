@@ -75,6 +75,28 @@ Every deliverable is one `index.html`: double-click to play, autoplay + loop, `?
 </tr>
 </table>
 
+### Cinematic history styles, 100% code
+
+Every frame below is rendered straight from a starter's default scene: SVG, Canvas, and WebGL, with no generated images and no photos. Sample content is about Javanese and Balinese history; scenes are stylized illustrations, not reconstructions of specific monuments.
+
+<table>
+<tr>
+<td colspan="2"><img src="docs/gallery/14-cinematic-act.jpg" alt="A 60 second act: the camera banks through a torch-lit split gate toward a guard at night"><br><b>Multi-scene act</b><br><sub>Five scenes, one eagle-eye flight through the gate, a rigged character. <code>assets/starter-babak.html</code></sub></td>
+</tr>
+<tr>
+<td width="50%"><img src="docs/gallery/15-eagle-eye-3d.jpg" alt="Procedural 3D valley at dusk with a river, rice fields, and a layered volcano"><br><b>Eagle-eye 3D</b><br><sub>Procedural landscape, flight path with banking, film tone mapping. <code>assets/starter-elang.html</code></sub></td>
+<td width="50%"><img src="docs/gallery/16-living-relief.jpg" alt="Carved andesite temple wall with an outrigger ship relief lit by a passing torch"><br><b>Living temple relief</b><br><sub>Carved stone, torchlight whose shadows move, figures that stir. <code>assets/starter-relief.html</code></sub></td>
+</tr>
+<tr>
+<td><img src="docs/gallery/17-painterly-legend.jpg" alt="Watercolor legend scene: a village on stilts below a smoking volcano at dusk"><br><b>Painterly legend</b><br><sub>Kuwahara and watercolor, each plane painted once so strokes never boil. <code>assets/starter-lukis.html</code></sub></td>
+<td><img src="docs/gallery/18-relief-map-3d.jpg" alt="Lit 3D relief map of Java with a glowing route heading east from Mataram Kuno"><br><b>3D relief map</b><br><sub>Real coastline and volcanoes, a route that draws on, labels pinned to the map. <code>assets/starter-peta-relief.html</code></sub></td>
+</tr>
+<tr>
+<td><img src="docs/gallery/19-wayang-kulit.jpg" alt="Wayang shadow puppets on a lit screen, a refined figure facing a giant"><br><b>Wayang kulit</b><br><sub>Perforated puppets, flickering lamp, shadows that blur with distance to the screen. <code>assets/starter-wayang.html</code></sub></td>
+<td><img src="docs/gallery/20-cel-shaded-diorama.jpg" alt="Museum miniature of a generic Balinese temple complex with zone labels and tilt-shift"><br><b>Cel-shaded diorama</b><br><sub>Toon shading, ink outlines, tilt-shift, to explain how a place is laid out. <code>assets/starter-diorama.html</code></sub></td>
+</tr>
+</table>
+
 ## The menus behind the looks
 
 <details>

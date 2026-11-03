@@ -455,6 +455,7 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
     - legenda "makin dekat ke gunung, makin suci" adalah ringkasan, perlu dinilai pemilik;
     - lipatan di dalam siluet tanpa garis (`garis.jpg`).
   - **Status penerimaan**: menunggu tinjauan arsitektur pura dan vonis visual pemilik.
+- **Galeri gaya sinematik** (sub-proyek 8, K2): `docs/gallery/14`–`20` dan tabel baru di README, satu still per gaya dari adegan bawaan starternya (babak, mata elang, relief candi, painterly, peta relief, wayang, diorama). Rekomendasi "sejarah → 4 atau 1" di `explainer.md` sudah bersyarat izin raster.
 
 ## 1.3.0 — 2026-11-02
 

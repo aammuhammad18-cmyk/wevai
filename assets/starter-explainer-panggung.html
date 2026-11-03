@@ -148,8 +148,7 @@ function warnaJarak(warna,z,zJauh=-800){const k=Math.max(0,Math.min(1,z/zJauh)),
 
 /* kabut(bidang,{y,…}) → <canvas class="wv-kabut"> anak bidang (ikut paralaks). Tile fBm 2D ber-seed lebar×tebal
    dipanggang SEKALI (kisi berperiode → menyambung di tepi; alfa memudar ke atas/bawah), tiga kali berjajar di kanvas; per frame
-   hanya translateX dari t, digeser kompositor (div ber-background dirasterisasi ulang = piksel bergantung riwayat seek: lihat
-   panggang()). y = garis tengah pita (px bidang). Bidang jauh: rapat lebih besar + warna warnaJarak(…, z). Mulai x −lebar/2: di SETIAP fase hanyut pita menutup
+   hanya translateX dari t (bitmap tetap, digeser kompositor). y = garis tengah pita (px bidang). Bidang jauh: rapat lebih besar + warna warnaJarak(…, z). Mulai x −lebar/2: di SETIAP fase hanyut pita menutup
    [−lebar/2, 3·lebar/2] bidangnya, jadi kamera boleh bergeser ±lebar/2 (truck, zoom < 1, roll, handheld) tanpa
    ujung pita masuk frame. */
 function kabut(bidang,{y,tebal=180,warna=LANGIT.horizon,rapat=.6,hanyut=20,seed=1,lebar=W}={}){
@@ -206,8 +205,7 @@ function partikel(bidang,{jenis,n=60,area=[0,0,W,H],seed=1,warna}={}){
 
 /* kait untuk scripts/test-starters.mjs — tidak dipanggil deliverable. Fixture sendiri (dua bidang, keempat jenis partikel,
    dua kabut, dua lapisan depan; langit bila halaman belum punya), lalu dibersihkan; callback rantai yang tertinggal jadi no-op.
-   Halaman berisi: langitnya dipakai lalu dipulihkan, hanya fixture yang dibandingkan, seek ke DURATION dulu (tween halaman
-   mencatat nilai awalnya sebelum CAM ditulis langsung), CAM dinetralkan (juga rail) tiap ukur. */
+   Halaman berisi: langitnya dipakai lalu dipulihkan; seek ke DURATION dulu (tween halaman mencatat nilai awal) sebelum CAM ditulis. */
 window.ATM_UJI=()=>{const r={},O=window.OPENER,cam=typeof CAM!=='undefined',buang=[],lama=$('#wv-langit');O.seek(O.DURATION);
   const bidang=z=>{const b=document.createElement('div');b.dataset.z=z;b.style.cssText=`position:absolute;left:0;top:0;width:${W}px;height:${H}px`;
       rigDunia().appendChild(b);buang.push(b);if(cam)BIDANG.push({el:b,z});return b;},jauh=bidang(-600),dekat=bidang(0),L=lama||langit(),
@@ -243,13 +241,11 @@ window.ATM_UJI=()=>{const r={},O=window.OPENER,cam=typeof CAM!=='undefined',buan
    ubah sumbernya lalu jalankan: node scripts/build-starters.mjs */
 /* CAHAYA-2D (spec sub-proyek 2 §4.2) — cahaya bersumber untuk adegan SVG: pendar berkedip, gelap yang meredup
    menjauhi sumber, rim pada siluet, bayangan jatuh, relief. Filter dan mask DIPANGGANG sekali saat dipanggil —
-   atributnya tidak pernah ditulis lagi; per frame hanya opacity/scale pendar (tanpa will-change: lihat panggang()).
+   atributnya tidak pernah ditulis lagi; per frame hanya opacity/scale pendar.
    x, y sumber = px bidang = satuan pengguna svg bidang (<svg viewBox="0 0 1920 1080"> di 0,0 bidangnya). Sumber yang
    pindah: geser pendar-nya (tl.to(SUMBER.obor.el,{x:…})); rim/redup/relief dipasang ulang di cut. Membaca tl saat
    dipanggil saja — tidak dipanggil = halaman tidak berubah sedikit pun.
-   Kamera yang men-zoom (dolly) mengubah skala bidang tiap frame → Chrome me-raster ulang svg-nya dan filter yang
-   dipanggang ikut dihitung ulang (adegan uji: +125–170 ms/frame). will-change:transform pada <svg> menskalakan bitmap, tetapi
-   bitmap itu milik saat lapisan dibuat: piksel bergantung jalur seek. Babak: panggang() (blok babak) svg bidang ke kanvas.
+   Dolly = svg bidang + filternya di-raster ulang tiap frame (+125–170 ms): panggang() (blok babak) atau will-change (techniques.md §7d).
    Butuh dari atmosfer: rantaiUpdate, vnoise, warnaRGB (hook uji: rigDunia). */
 
 /* SUMBER: nama → {x, y, bidang, warna, jangkau, kuat, kedip, el}. kuat/kedip dibaca tiap frame, jadi boleh di-tween
@@ -269,7 +265,7 @@ function filterCahaya(el,b,m,isi){const f=elSVG('filter',{id:'wv-cahaya-'+(++cah
   f.innerHTML=isi;el.setAttribute('filter',`url(#${f.id})`);return f;}
 
 /* sumber(nama,{x,y,bidang,…}) → <canvas class="wv-pendar"> di bidang (elemen HTML: <div data-z> atau anaknya): gradien
-   radial warna → transparan, screen, dipanggang sekali di 256 px lalu diregang (bitmap tetap; div bergradien dirasterisasi ulang). Inti panas + ekor panjang (dua skala glowA/glowB spike) supaya terbaca sebagai
+   radial warna → transparan, screen, kanvas 256 px yang diregang (bitmap tetap). Inti panas + ekor panjang (dua skala glowA/glowB spike) supaya terbaca sebagai
    cahaya, bukan bulatan. Kedip dari tl.time() tanpa akumulasi; skala lewat properti CSS `scale`, bukan transform,
    supaya x/y GSAP pada pendar (sumber yang pindah) tidak saling timpa. Nama yang sama = entri baru menggantikan. */
 function sumber(nama,{x,y,bidang,warna='#ffb347',jangkau=420,kuat=1,kedip=0,seed=1}={}){
@@ -478,8 +474,7 @@ function gambarPasca(){const P=pascaL,G=GRADE;if(!P||!P.hal.isConnected)return; 
 /* kait untuk scripts/test-starters.mjs — tidak dipanggil deliverable. Fixture sendiri (satu bidang + satu sumber
    sementara, didaftarkan SESUDAH lapisan dibuat), lalu semuanya dibersihkan — juga lapisan singleton dan listener ticker,
    supaya grade() sungguhan sesudahnya mulai dari nol. Callback kedip yang tertinggal di rantai tl jadi no-op (isConnected).
-   Halaman ber-grade(): lapisan + tween GRADE-nya dipertahankan (hanya tween uji dibuang), seek ke DURATION dulu (tween halaman
-   mencatat nilai awal), kontras/saturasi dinetralkan sebelum filter view dibandingkan. */
+   Halaman ber-grade(): lapisan + tween GRADE-nya dipertahankan, seek ke DURATION dulu (seperti ATM_UJI). */
 window.PASCA_UJI=()=>{const r={},O=window.OPENER,st=$('#stage'),ind=document.createElement('div'),b=document.createElement('div'),ada=!!pascaL,
     /* gaya rig + pembungkus [data-z] pada t yang sama, sebelum dan sesudah lapisan ada: tak boleh berubah. Bukan === '' —
        #world panggung memang ber-filter blur(0px) dari animasi cut-nya sendiri */
@@ -516,8 +511,7 @@ window.PASCA_UJI=()=>{const r={},O=window.OPENER,st=$('#stage'),ind=document.cre
   const alfa=k=>{ind.style.opacity=k;O.seek(5);const d=P.H['wv-uji-pasca'];return d?d.style.display==='none'?'none':+d.style.opacity:'tak ada';},a1=alfa(1),a5=alfa(.5),a0=alfa(0);
   ind.style.opacity='';r.halationLeluhur=a1>0&&Math.abs(a5/a1-.5)<.02&&a0==='none';r.alfaLeluhur=[a1,a5,a0];
   ind.remove();delete SUMBER['wv-uji-pasca'];O.seek(5);r.halationIkut=r.halationIkut&&!P.H['wv-uji-pasca'];   // sumber lepas → halation hilang
-  /* grade() sungguhan: tl → seek → GRADE → lapisan, sesudah DURATION (tak bertumpuk grade() halaman). ease 'none' di tengah = titik
-     tengah persis; hanya tween uji dibuang lagi */
+  /* grade() sungguhan sesudah DURATION (tak bertumpuk grade() halaman); ease 'none' di tengah = titik tengah persis */
   const T=O.DURATION+2,tw0=new Set(tl.getTweensOf(GRADE));r.gradeKosong=grade(T,2,{bayangan:'#ffffff',bayanganKuat:1},'none')===undefined;
   O.seek(T);const w0=warnaRGB(GRADE.bayangan),k0=GRADE.bayanganKuat;O.seek(T+1);
   const cs=getComputedStyle(P.bay),m=warnaRGB(GRADE.bayangan),bg=warnaRGB(cs.backgroundColor);

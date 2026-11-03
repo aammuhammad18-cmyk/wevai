@@ -91,8 +91,7 @@ function warnaJarak(warna,z,zJauh=-800){const k=Math.max(0,Math.min(1,z/zJauh)),
 
 /* kabut(bidang,{y,…}) → <canvas class="wv-kabut"> anak bidang (ikut paralaks). Tile fBm 2D ber-seed lebar×tebal
    dipanggang SEKALI (kisi berperiode → menyambung di tepi; alfa memudar ke atas/bawah), tiga kali berjajar di kanvas; per frame
-   hanya translateX dari t, digeser kompositor (div ber-background dirasterisasi ulang = piksel bergantung riwayat seek: lihat
-   panggang()). y = garis tengah pita (px bidang). Bidang jauh: rapat lebih besar + warna warnaJarak(…, z). Mulai x −lebar/2: di SETIAP fase hanyut pita menutup
+   hanya translateX dari t (bitmap tetap, digeser kompositor). y = garis tengah pita (px bidang). Bidang jauh: rapat lebih besar + warna warnaJarak(…, z). Mulai x −lebar/2: di SETIAP fase hanyut pita menutup
    [−lebar/2, 3·lebar/2] bidangnya, jadi kamera boleh bergeser ±lebar/2 (truck, zoom < 1, roll, handheld) tanpa
    ujung pita masuk frame. */
 function kabut(bidang,{y,tebal=180,warna=LANGIT.horizon,rapat=.6,hanyut=20,seed=1,lebar=W}={}){
@@ -149,8 +148,7 @@ function partikel(bidang,{jenis,n=60,area=[0,0,W,H],seed=1,warna}={}){
 
 /* kait untuk scripts/test-starters.mjs — tidak dipanggil deliverable. Fixture sendiri (dua bidang, keempat jenis partikel,
    dua kabut, dua lapisan depan; langit bila halaman belum punya), lalu dibersihkan; callback rantai yang tertinggal jadi no-op.
-   Halaman berisi: langitnya dipakai lalu dipulihkan, hanya fixture yang dibandingkan, seek ke DURATION dulu (tween halaman
-   mencatat nilai awalnya sebelum CAM ditulis langsung), CAM dinetralkan (juga rail) tiap ukur. */
+   Halaman berisi: langitnya dipakai lalu dipulihkan; seek ke DURATION dulu (tween halaman mencatat nilai awal) sebelum CAM ditulis. */
 window.ATM_UJI=()=>{const r={},O=window.OPENER,cam=typeof CAM!=='undefined',buang=[],lama=$('#wv-langit');O.seek(O.DURATION);
   const bidang=z=>{const b=document.createElement('div');b.dataset.z=z;b.style.cssText=`position:absolute;left:0;top:0;width:${W}px;height:${H}px`;
       rigDunia().appendChild(b);buang.push(b);if(cam)BIDANG.push({el:b,z});return b;},jauh=bidang(-600),dekat=bidang(0),L=lama||langit(),

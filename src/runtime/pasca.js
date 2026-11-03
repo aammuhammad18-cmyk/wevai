@@ -86,8 +86,7 @@ function gambarPasca(){const P=pascaL,G=GRADE;if(!P||!P.hal.isConnected)return; 
 /* kait untuk scripts/test-starters.mjs — tidak dipanggil deliverable. Fixture sendiri (satu bidang + satu sumber
    sementara, didaftarkan SESUDAH lapisan dibuat), lalu semuanya dibersihkan — juga lapisan singleton dan listener ticker,
    supaya grade() sungguhan sesudahnya mulai dari nol. Callback kedip yang tertinggal di rantai tl jadi no-op (isConnected).
-   Halaman ber-grade(): lapisan + tween GRADE-nya dipertahankan (hanya tween uji dibuang), seek ke DURATION dulu (tween halaman
-   mencatat nilai awal), kontras/saturasi dinetralkan sebelum filter view dibandingkan. */
+   Halaman ber-grade(): lapisan + tween GRADE-nya dipertahankan, seek ke DURATION dulu (seperti ATM_UJI). */
 window.PASCA_UJI=()=>{const r={},O=window.OPENER,st=$('#stage'),ind=document.createElement('div'),b=document.createElement('div'),ada=!!pascaL,
     /* gaya rig + pembungkus [data-z] pada t yang sama, sebelum dan sesudah lapisan ada: tak boleh berubah. Bukan === '' —
        #world panggung memang ber-filter blur(0px) dari animasi cut-nya sendiri */
@@ -124,8 +123,7 @@ window.PASCA_UJI=()=>{const r={},O=window.OPENER,st=$('#stage'),ind=document.cre
   const alfa=k=>{ind.style.opacity=k;O.seek(5);const d=P.H['wv-uji-pasca'];return d?d.style.display==='none'?'none':+d.style.opacity:'tak ada';},a1=alfa(1),a5=alfa(.5),a0=alfa(0);
   ind.style.opacity='';r.halationLeluhur=a1>0&&Math.abs(a5/a1-.5)<.02&&a0==='none';r.alfaLeluhur=[a1,a5,a0];
   ind.remove();delete SUMBER['wv-uji-pasca'];O.seek(5);r.halationIkut=r.halationIkut&&!P.H['wv-uji-pasca'];   // sumber lepas → halation hilang
-  /* grade() sungguhan: tl → seek → GRADE → lapisan, sesudah DURATION (tak bertumpuk grade() halaman). ease 'none' di tengah = titik
-     tengah persis; hanya tween uji dibuang lagi */
+  /* grade() sungguhan sesudah DURATION (tak bertumpuk grade() halaman); ease 'none' di tengah = titik tengah persis */
   const T=O.DURATION+2,tw0=new Set(tl.getTweensOf(GRADE));r.gradeKosong=grade(T,2,{bayangan:'#ffffff',bayanganKuat:1},'none')===undefined;
   O.seek(T);const w0=warnaRGB(GRADE.bayangan),k0=GRADE.bayanganKuat;O.seek(T+1);
   const cs=getComputedStyle(P.bay),m=warnaRGB(GRADE.bayangan),bg=warnaRGB(cs.backgroundColor);

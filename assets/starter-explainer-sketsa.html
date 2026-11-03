@@ -294,8 +294,8 @@ function demoKamera(){camReset();const O={pitch:0,yaw:0,roll:0,shake:0};cutTo(0,
   for(const [f,a] of [[dolly,1.4],[truck,220],[pedestal,-120],[pan,6],[tilt,5]]){f(t,step*.8,a);t+=step;}cutTo(t,O);home(t,W/2,H/2,step*.7);t+=step;
   for(const k in CAHAYA){light(t,step*.5,k);t+=step;}handheld(t,t+step,.8);t+=step;
   window.DEMO_AKHIR=t;}
-/* kait untuk scripts/test-starters.mjs — tidak dipanggil deliverable. Halaman berisi: BIDANG-nya disimpan (jalur 2D = tanpa
-   bidang), goyang + cahaya diuji di rentang sunyi sesudah DURATION (tween kamera halaman sudah selesai), lalu semua dipulihkan. */
+/* kait untuk scripts/test-starters.mjs — tidak dipanggil deliverable. Halaman berisi: BIDANG disimpan,
+   goyang + cahaya diuji sesudah DURATION, lalu dipulihkan. */
 window.CAM_UJI=()=>{const r={},O=window.OPENER,simpanB=BIDANG.splice(0),simpanC={...CAM},T=O.DURATION+1,sunyi=tl.to({},{duration:3},T),
     lamp0=[lamp,lampAt,...LAMP.map(d=>d.style.cssText)],lt0=new Set(tl.getTweensOf(LAMP));
   tl.pause(T);rig.style.transformStyle='';

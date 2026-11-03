@@ -1,12 +1,10 @@
 /* CAHAYA-2D (spec sub-proyek 2 §4.2) — cahaya bersumber untuk adegan SVG: pendar berkedip, gelap yang meredup
    menjauhi sumber, rim pada siluet, bayangan jatuh, relief. Filter dan mask DIPANGGANG sekali saat dipanggil —
-   atributnya tidak pernah ditulis lagi; per frame hanya opacity/scale pendar (tanpa will-change: lihat panggang()).
+   atributnya tidak pernah ditulis lagi; per frame hanya opacity/scale pendar.
    x, y sumber = px bidang = satuan pengguna svg bidang (<svg viewBox="0 0 1920 1080"> di 0,0 bidangnya). Sumber yang
    pindah: geser pendar-nya (tl.to(SUMBER.obor.el,{x:…})); rim/redup/relief dipasang ulang di cut. Membaca tl saat
    dipanggil saja — tidak dipanggil = halaman tidak berubah sedikit pun.
-   Kamera yang men-zoom (dolly) mengubah skala bidang tiap frame → Chrome me-raster ulang svg-nya dan filter yang
-   dipanggang ikut dihitung ulang (adegan uji: +125–170 ms/frame). will-change:transform pada <svg> menskalakan bitmap, tetapi
-   bitmap itu milik saat lapisan dibuat: piksel bergantung jalur seek. Babak: panggang() (blok babak) svg bidang ke kanvas.
+   Dolly = svg bidang + filternya di-raster ulang tiap frame (+125–170 ms): panggang() (blok babak) atau will-change (techniques.md §7d).
    Butuh dari atmosfer: rantaiUpdate, vnoise, warnaRGB (hook uji: rigDunia). */
 
 /* SUMBER: nama → {x, y, bidang, warna, jangkau, kuat, kedip, el}. kuat/kedip dibaca tiap frame, jadi boleh di-tween
@@ -26,7 +24,7 @@ function filterCahaya(el,b,m,isi){const f=elSVG('filter',{id:'wv-cahaya-'+(++cah
   f.innerHTML=isi;el.setAttribute('filter',`url(#${f.id})`);return f;}
 
 /* sumber(nama,{x,y,bidang,…}) → <canvas class="wv-pendar"> di bidang (elemen HTML: <div data-z> atau anaknya): gradien
-   radial warna → transparan, screen, dipanggang sekali di 256 px lalu diregang (bitmap tetap; div bergradien dirasterisasi ulang). Inti panas + ekor panjang (dua skala glowA/glowB spike) supaya terbaca sebagai
+   radial warna → transparan, screen, kanvas 256 px yang diregang (bitmap tetap). Inti panas + ekor panjang (dua skala glowA/glowB spike) supaya terbaca sebagai
    cahaya, bukan bulatan. Kedip dari tl.time() tanpa akumulasi; skala lewat properti CSS `scale`, bukan transform,
    supaya x/y GSAP pada pendar (sumber yang pindah) tidak saling timpa. Nama yang sama = entri baru menggantikan. */
 function sumber(nama,{x,y,bidang,warna='#ffb347',jangkau=420,kuat=1,kedip=0,seed=1}={}){

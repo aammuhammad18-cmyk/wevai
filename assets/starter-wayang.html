@@ -790,6 +790,9 @@ function gambarFigur(x,F,S,M,warna,p){const res=warna?F.sw:F.sb;
   pakai(M);x.strokeStyle=warnaR;x.lineWidth=warna?3.6:5;x.beginPath();x.moveTo(6,-880);x.lineTo(2,-520);x.lineTo(0,240);x.stroke();
   if(D){lengan(D);rotan(D,warnaR);}}
 
+/* kotak layar sebuah figur: batas satuan figur (lengan terjulur, tuding sampai debog) lewat M, + ekor blur, dipotong frame */
+const kotakLayar=(M,r)=>{let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const[X,Y]of[[-640,-1240],[640,-1240],[-640,520],[640,520]]){const px=M[0]*X+M[2]*Y+M[4],py=M[1]*X+M[3]*Y+M[5];a=min(a,px);b=min(b,py);c=max(c,px);d=max(d,py);}
+    const e=ceil(3*r)+2,x0=max(0,floor(a-e)),y0=max(0,floor(b-e));return[x0,y0,min(W,ceil(c+e))-x0,min(H,ceil(d+e))-y0];};
 /* frame: kelir → bayangan semua figur (proyeksi + blur menurut z) → lukisan figur (sisi dalang) → cahaya kedip */
 function gambar(){const P=PANGGUNG;if(!P.c||!P.c.isConnected)return;const t=tl.time(),x=P.x,xs=P.xs,p=P.opsi,B=BLENCONG,K=kedipan(t,B.seed,B.kedip),warna=p.sisi==='dalang',
     z=typeof CAM!=='undefined'?CAM.zoom:1,fx=typeof CAM!=='undefined'?CAM.fx:W/2,fy=typeof CAM!=='undefined'?CAM.fy:H/2,
@@ -799,11 +802,13 @@ function gambar(){const P=PANGGUNG;if(!P.c||!P.c.isConnected)return;const t=tl.t
   const Lx=B.x+K.dx,Ly=B.y+K.dy;
   /* bayangan */
   for(const F of P.figur){const S=keadaan(F,t);F.S=S;if(S.tampak<=.004)continue;const q=proyeksi(S.z,B.jarak,B.nyala),M0=mFigur(F,S,p.dasar),T=[q.skala,0,0,q.skala,Lx*(1-q.skala),Ly*(1-q.skala)],M=kali(V,kali(T,M0)),rp=q.blur*z;
-    xs.setTransform(1,0,0,1,0,0);xs.clearRect(0,0,W,H);xs.imageSmoothingQuality='high';gambarFigur(xs,F,S,M,0,p);
-    x.setTransform(1,0,0,1,0,0);x.globalAlpha=.94*S.tampak;x.filter=rp>.3?`blur(${f(rp)}px)`:'none';x.drawImage(P.S,0,0);x.filter='none';x.globalAlpha=1;}
+    /* hanya kotak layar figur: kanvas kerja tak perlu dihapus dan disalin penuh; di luar frame = lewati */
+    const[kx,ky,kw,kh]=kotakLayar(M,rp);if(kw<=0||kh<=0)continue;
+    xs.setTransform(1,0,0,1,0,0);xs.clearRect(kx,ky,kw,kh);xs.imageSmoothingQuality='high';gambarFigur(xs,F,S,M,0,p);
+    x.setTransform(1,0,0,1,0,0);x.globalAlpha=.94*S.tampak;x.filter=rp>.3?`blur(${f(rp)}px)`:'none';x.drawImage(P.S,kx,ky,kw,kh,kx,ky,kw,kh);x.filter='none';x.globalAlpha=1;}
   /* sisi dalang: lukisan di depan kelir */
   if(warna){x.setTransform(...V);if(P.simpingWarna)x.drawImage(P.simpingWarna,0,0);
-    for(const F of P.figur){const S=F.S;if(!S||S.tampak<=.004)continue;x.globalAlpha=S.tampak;const k=1+S.z/2600,M0=mFigur(F,S,p.dasar),M=kali(V,kali([k,0,0,k,(1-k)*fx,(1-k)*fy],M0));gambarFigur(x,F,S,M,1,p);x.globalAlpha=1;}
+    for(const F of P.figur){const S=F.S;if(!S||S.tampak<=.004)continue;x.globalAlpha=S.tampak;const k=1+S.z/2600,M0=mFigur(F,S,p.dasar),M=kali(V,kali([k,0,0,k,(1-k)*fx,(1-k)*fy],M0)),[,,kw,kh]=kotakLayar(M,0);if(kw>0&&kh>0)gambarFigur(x,F,S,M,1,p);x.globalAlpha=1;}
     debog(x,V,p);lampu(x,K,V,Lx);}
   /* cahaya: pengali kedip + kolam yang ikut api */
   x.setTransform(1,0,0,1,0,0);x.globalCompositeOperation='multiply';const c0=warna?W-(W/2-fx*z+Lx*z):W/2-fx*z+Lx*z,c1=H/2-fy*z+Ly*z,g=x.createRadialGradient(c0,c1,40*z,c0,c1,1250*z),a=max(0,min(1,B.kuat*K.kuat));

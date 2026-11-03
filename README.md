@@ -326,6 +326,7 @@ assets/
   katalog-tokoh.html             showcase of the character rig v2: archetypes, IK walk, crowd (src/runtime/tokoh.js)
   starter-elang.html             3D eagle-eye establishing shot: procedural landscape, flight path, film tone mapping
   starter-relief.html            living temple relief, 100% code (carved andesite, moving torchlight, figures that move)
+  starter-wayang.html            wayang kulit shadow theatre, 100% code (kelir, flickering blencong, gunungan, shadow blur by distance)
 scripts/
   lint-motion.mjs                check the mechanical rules on a deliverable
   snap.mjs                       verify: capture key seconds
@@ -341,6 +342,7 @@ scripts/
   test-elang.mjs                 tests for the eagle-eye flight maths (no browser)
   test-relief.mjs                tests for the living-relief engine (no browser)
   test-tokoh.mjs                 tests for the character rig v2 (no browser)
+  test-wayang.mjs                tests for wayang kulit (no browser)
   test-ekspor.mjs                tests for antre-render.mjs and the export defaults (no browser, no ffmpeg)
   serve.py                       no-cache dev server (optional)
   vendor-libs.mjs                inline GSAP + fonts for an offline archive copy
@@ -410,6 +412,7 @@ node --test scripts/test-pustaka.mjs       # ancient-Java asset library (no brow
 node --test scripts/test-elang.mjs        # eagle-eye flight maths (no browser)
 node --test scripts/test-relief.mjs        # living temple relief engine (no browser)
 node --test scripts/test-tokoh.mjs         # character rig v2 (no browser)
+node --test scripts/test-wayang.mjs        # wayang kulit (no browser)
 node --test scripts/test-ekspor.mjs        # render queue + export defaults (no browser, no ffmpeg)
 node scripts/build-starters.mjs --check   # starters match src/runtime
 node scripts/bump-version.mjs --check     # version is the same everywhere

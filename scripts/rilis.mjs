@@ -43,6 +43,7 @@ jalan('test-nilai', '--test', 'scripts/test-nilai.mjs');
 jalan('test-pustaka', '--test', 'scripts/test-pustaka.mjs');
 jalan('test-relief', '--test', 'scripts/test-relief.mjs');
 jalan('test-tokoh', '--test', 'scripts/test-tokoh.mjs');
+jalan('test-wayang', '--test', 'scripts/test-wayang.mjs');
 jalan('test-ekspor', '--test', 'scripts/test-ekspor.mjs');
 jalan('build-starters --check', 'scripts/build-starters.mjs', '--check');
 jalan('bump-version --check', 'scripts/bump-version.mjs', '--check');

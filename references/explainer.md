@@ -33,7 +33,7 @@ Lewati bagian yang sudah disebut user; bila ada video referensi, gaya
 diambil dari sana (ritmenya — lihat SKILL.md Hukum #3).
 
 **Gaya** (sertakan satu baris rekomendasi: sejarah → 6 kulit ilustrasi sinematik
-atau `starter-sinematik.html` (siluet 100 % kode: `techniques.md` §7d) atau `starter-relief.html` (relief candi hidup, kisah dibaca dari dinding candi: `relief-candi.md`), dan 4/1 hanya bila gambar generate diizinkan; berita → 2; produk → 3;
+atau `starter-sinematik.html` (siluet 100 % kode: `techniques.md` §7d) atau `starter-relief.html` (relief candi hidup, kisah dibaca dari dinding candi: `relief-candi.md`) atau `starter-wayang.html` (legenda sebagai bayangan: `wayang.md`), dan 4/1 hanya bila gambar generate diizinkan; berita → 2; produk → 3;
 gerak/rute → 5; sains/edukasi berkarakter → 6; topik ringan → 1). Gaya 1–4 butuh
 gambar generate atau foto; untuk proyek 100 % kode pilih 5 atau 6:
 

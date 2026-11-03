@@ -37,6 +37,8 @@ jobs:
         run: node --test scripts/test-relief.mjs
       - name: Uji rig tokoh v2 (node:test, tanpa browser)
         run: node --test scripts/test-tokoh.mjs
+      - name: Uji wayang kulit (node:test, tanpa browser)
+        run: node --test scripts/test-wayang.mjs
       - name: Uji ekspor panjang (node:test, tanpa browser dan tanpa ffmpeg)
         run: node --test scripts/test-ekspor.mjs
 

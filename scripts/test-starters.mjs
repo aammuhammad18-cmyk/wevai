@@ -40,9 +40,9 @@ const browser = await luncurkan({
 
 // starter yang wajib punya kait atmosfer/cahaya-2d/pasca; BERKAMERA = yang juga punya CAM (kabut berparalaks hanya terukur di sana: panggung belum punya CAM)
 const MODUL = ['starter-explainer.html', 'starter-explainer-panggung.html', 'starter-sinematik.html', 'katalog-pustaka.html', 'starter-relief.html', 'katalog-tokoh.html'];
-const BERKAMERA = ['starter-explainer.html', 'starter-sinematik.html', 'katalog-pustaka.html', 'starter-relief.html', 'katalog-tokoh.html'];
+const BERKAMERA = ['starter-explainer.html', 'starter-sinematik.html', 'katalog-pustaka.html', 'starter-relief.html', 'katalog-tokoh.html', 'starter-wayang.html'];
 // halaman ber-adegan bawaan (SINEMA_UJI wajib; kait modul + kamera di ?kosong=1): starter sinematik, katalog pustaka aset, starter relief, katalog tokoh
-const ADEGAN = ['starter-sinematik.html', 'katalog-pustaka.html', 'starter-relief.html', 'katalog-tokoh.html'];
+const ADEGAN = ['starter-sinematik.html', 'katalog-pustaka.html', 'starter-relief.html', 'katalog-tokoh.html', 'starter-wayang.html'];
 // 3D tanpa subjek/#hud (field CAM3_UJI null sah); tone mapping film hanya di starter sejarah/sinematik, sisanya NoToneMapping (0) = warna brand tepat
 const TANPA_SUBJEK = ['starter-opener.html', 'starter-elang.html'];
 const FILM = { 'starter-elang.html': 4 };   // THREE.ACESFilmicToneMapping (r161): api tetap jingga jenuh, AgX r161 memucatkannya (evals/bukti/2026-11-03-mata-elang)
@@ -159,7 +159,7 @@ for (const file of files) {
     if (sinema) {
       if (!sinema.paralaks) masalah.push('sinema: bidang terjauh dan terdekat (yang tampil) tidak bergeser berbeda (> 1 px) saat CAM.fx += 300');
       if (!sinema.rigBersih) masalah.push(`sinema: rig atau pembungkus [data-z] ber-filter/mix-blend-mode/opacity/clip-path/mask (computed) — paralaks rata: ${sinema.kotor}`);
-      if (!sinema.adaSemua) masalah.push(`sinema: modul tidak lengkap — perlu #wv-langit, ≥ 3 .wv-kabut, ≥ 1 .wv-partikel, .wv-pendar, lapisan GRADE (katalog pustaka: + api, asap, 4 kain, ≥ 10 jenis aset pustaka; relief: ≥ 2 kabut + satu .wv-relief, tanpa pendar; katalog tokoh: + api, 4 kanvas .wv-tokoh, ≥ 30 tokoh, 6 arketipe) (dapat ${JSON.stringify(sinema.ada)})`);
+      if (!sinema.adaSemua) masalah.push(`sinema: modul tidak lengkap — perlu #wv-langit, ≥ 3 .wv-kabut, ≥ 1 .wv-partikel, .wv-pendar, lapisan GRADE (katalog pustaka: + api, asap, 4 kain, ≥ 10 jenis aset pustaka; relief: ≥ 2 kabut + satu .wv-relief, tanpa pendar; katalog tokoh: + api, 4 kanvas .wv-tokoh, ≥ 30 tokoh, 6 arketipe; wayang: satu .wv-wayang, ≥ 3 figur, satu gunungan) (dapat ${JSON.stringify(sinema.ada)})`);
       if (!kanvasSinema.length) masalah.push('sinema: tidak ada kanvas di #stage');
       for (const k of kanvasSinema) {
         if (!k.sama) masalah.push(`sinema: kanvas ${k.nama}: t yang sama lewat jalur seek berbeda memberi piksel berbeda`);
@@ -260,6 +260,25 @@ for (const file of files) {
       if (ada('gerakHidup') && !rel.gerakHidup) masalah.push('relief-hidup: bagian hidup (batang berayun ±30°) tidak mengubah piksel antara t ,5 dan 1');
       if (ada('ditolak') && !rel.ditolak) masalah.push('relief-hidup: bidang <g> SVG, dinding tanpa lapis, opsi asing, dan jenis lapis asing harus ditolak dengan pesan yang menyebut pilihan sah');
       if (ada('fallback') && !rel.fallback) masalah.push('relief-hidup: tanpa WebGL2 reliefHidup() harus console.warn dan menggambar relief diam (kanvas 2D opak), bukan error');
+    }
+
+    // wayang (src/runtime/wayang.js): bayangan tajam menempel kelir, kabur + besar dekat lampu, gunungan berupa renda, piksel sama di dua jalur seek, kedip dan
+    // lengan hidup, sisi dalang tercermin + berwarna, input salah ditolak. Fixture sendiri di ?kosong=1. Blok di atas `const tl=`.
+    const iWayang = html.indexOf('<wv:wayang>');
+    if (iWayang >= 0 && !(iWayang < html.indexOf('const tl='))) masalah.push('wayang: blok <wv:wayang> harus di atas `const tl=` (kode adegan memanggil modul saat dimuat)');
+    const way = await page.evaluate(() => window.WAYANG_UJI ? window.WAYANG_UJI() : null);
+    if (iWayang >= 0 && !way) masalah.push('wayang: WAYANG_UJI tidak ada');
+    if (way) {
+      const ada = k => way[k] != null;
+      for (const k of ['tepiTajam', 'skalaJarak', 'kayonAda', 'seekSama', 'kedipHidup', 'lenganHidup', 'dalangCermin', 'ditolak']) if (!ada(k)) masalah.push(`wayang: field ${k} kosong`);
+      if (ada('tepiTajam') && !way.tepiTajam) masalah.push(`wayang: bayangan menempel kelir harus > 2× lebih tajam daripada dekat lampu (lompatan piksel ${way.keras})`);
+      if (ada('skalaJarak') && !way.skalaJarak) masalah.push(`wayang: bayangan dekat lampu harus lebih lebar > 1,2× (piksel gelap ${way.lebar})`);
+      if (ada('kayonAda') && !way.kayonAda) masalah.push(`wayang: gunungan tidak tampak sebagai renda (${way.kayonGanti} pergantian gelap-terang di satu baris, perlu ≥ 12)`);
+      if (ada('seekSama') && !way.seekSama) masalah.push('wayang: piksel kanvas berbeda antara seek(3) langsung dan seek(7)→seek(.1)→seek(3)');
+      if (ada('kedipHidup') && !way.kedipHidup) masalah.push('wayang: BLENCONG.kedip .6 tidak mengubah piksel antara t 3 dan 3,3');
+      if (ada('lenganHidup') && !way.lenganHidup) masalah.push('wayang: kunci tanganD tidak mengubah piksel');
+      if (ada('dalangCermin') && !way.dalangCermin) masalah.push(`wayang: sisi dalang harus mencerminkan dunia dan melukis figur (piksel prada di posisi cermin ${way.pradaPiksel})`);
+      if (ada('ditolak') && !way.ditolak) masalah.push('wayang: panakawan, jenis asing, dan sisi asing harus ditolak dengan pesan yang menyebut pilihan/alasan');
     }
 
     // kamera 2.5D (src/runtime/kamera-dom.js): jalur 2D tidak menyentuh gaya lain; sudut → transform 3D;

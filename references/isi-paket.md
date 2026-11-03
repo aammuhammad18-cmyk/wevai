@@ -22,6 +22,8 @@ Daftar berkas skill ini; dibaca bila perlu. Dipindah utuh dari SKILL.md (3 Nov 2
 | `assets/starter-sinematik.html` | EXPLAINER siluet sinematik 100 % kode: obor, rim, kabut, grade (`techniques.md` §7d) |
 | `references/relief-candi.md` | RELIEF CANDI HIDUP: dinding galeri berpahat sebagai bingkai narasi — `reliefHidup`, `SINAR`, kosakata `pustaka.dindingRelief`, aturan, biaya, akurasi budaya |
 | `assets/starter-relief.html` | EXPLAINER relief candi hidup 100 % kode: cahaya obor menyapu pahatan andesit, tokoh relief hidup pelan, kamera menyusuri galeri |
+| `references/wayang.md` | WAYANG KULIT: `wayang.panggung`/`figur`/`BLENCONG`, pakem + sumber, kenop, batas, akurasi |
+| `assets/starter-wayang.html` | EXPLAINER wayang kulit 100 % kode: gunungan, figur bertatah, kelir + blencong, blur menurut jarak ke kelir, `?sisi=dalang` |
 | `references/pustaka.md` | PUSTAKA ASET JAWA KUNO `pustaka.*`: candi, gapura, rumah panggung, beringin, lontar, gunung, sawah, obor/api/asap, relief, kain — kontrak, opsi, jebakan, catatan budaya |
 | `assets/katalog-pustaka.html` | KATALOG pustaka aset: tiga tableau sinematik 26 dtk (bukti jalan + bahan galeri) |
 | `references/tokoh.md` | RIG TOKOH V2 `tokoh.*`: rangka 2,5D + slot + IK dua tulang, pose bernama, tiga pandang, kostum Jawa kuno, arketipe, `kerumunan()` — kontrak, determinisme, catatan budaya |

@@ -23,7 +23,7 @@ Sumber rincian:
 | H | Sub-proyek 5: mata elang 3D | belum | |
 | I | Sub-proyek 6: ekspor panjang | belum | |
 | J | Sub-proyek 7: gaya lanjutan | belum | |
-| K | Sub-proyek 8: penilaian visual otomatis + galeri | belum | |
+| K | Sub-proyek 8: penilaian visual otomatis + galeri | K1 selesai; K2 galeri belum | K1: a3486a1..f114d7d |
 | L | Rilis 1.4.0 | belum | |
 
 Rilis 1.4.0 (L) mencakup:

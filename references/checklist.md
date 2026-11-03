@@ -65,6 +65,7 @@ build di After Effects → `references/ae-bridge-higgsfield.md`.
 - [ ] Nol pemakaian `Date.now()` / `Math.random()` di jalur render; acak saat setup
       memakai PRNG ber-seed; loop dari jam, bukan `onComplete`
 - [ ] `lint-motion.mjs` lolos tanpa FAIL (larangan struktural & checklist yang mekanis)
+- [ ] Kulit sinematik: `nilai-visual.mjs shots --sumber '<obor>' --subjek <kotak>` keluar 0; tiap peringatan diperbaiki atau dijelaskan di pesan penutup
 - [ ] Sudah dipotret di detik kunci (snap.mjs / ?debug=1) dan dilihat dengan
       mata — bukan render penuh; MP4 hanya bila diminta
 - [ ] Ada suara? Halaman menahan di frame awal bila autoplay diblokir dan mulai

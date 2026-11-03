@@ -138,6 +138,32 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
   `generation_config.speech_config`, sedangkan referensi API menyebut `structured_speech_config`; bila Google menjawab 400
   `parameter_unknown`, ubah `bangunPermintaan()` (satu fungsi). Batas per menit tidak ditebak: alat mengikuti jawaban 429.
   **Status penerimaan**: menunggu uji langsung pemilik dengan kunci sendiri.
+- **Penilaian visual otomatis** (sub-proyek 8a, K1 di `docs/rencana-1.4.0.md`).
+  - **Berkas**: `scripts/nilai-visual.mjs` dan `scripts/test-nilai.mjs` (baru); `references/alat-kerja.md` › "Nilai visual (membaca
+    angkanya)"; eval brief `evals/briefs/10-sejarah-malam-obor.md`; bukti di `evals/bukti/2026-11-03-nilai-visual/`; satu baris di
+    `checklist.md`.
+  - **Tujuannya**: kriteria visual peta (§5 butir 7) dijadikan angka. Agen tidak bisa menonton video, dan bingkai "flat" lolos bila
+    hanya dinilai dengan mata.
+  - **Teknis**: Node ≥ 18, tanpa dependensi. PNG dibaca sendiri lewat `node:zlib` (8 bit RGB, RGBA, abu-abu, berpalet; filter 0–4),
+    lalu diperiksa silang dengan ffmpeg pada 30 PNG: 0 piksel berbeda.
+  - **Empat ukuran per bingkai**, pada skala L OKLab × 100:
+    1. rentang luminans p95 − p5 ≥ 28;
+    2. kontras subjek vs cincin (`--subjek`), atau tengah vs tepi bila tanpa kotak, ≥ 10. Nilainya diambil yang terbesar dari
+       selisih rata-rata dan sorot, karena siluet ber-rim nyaris sama terang dengan langitnya;
+    3. puncak L dekat tiap sumber yang dideklarasikan (`--sumber`) ≥ median + 30;
+    4. 2–6 warna dominan (≥ 5 % bingkai).
+  - **Keluaran**: kode keluar 0 berarti semua ok, 1 ada peringatan, 2 galat.
+  - **Kalibrasi**:
+    - `starter-sinematik.html` di t 0, 7, 11 dan target rupa `f_7` lolos semua ukuran: rentang 36,3–41,4; titik terang +65,7 sampai
+      +71,2.
+    - Jalur bawaan `starter-explainer.html` dan `starter-explainer-kartun.html` tertandai semua: rentang 4,2–18,8.
+    - Validasi luar, tidak dipakai untuk menetapkan ambang: 13 dari 13 bingkai produksi Babad Mataram tertandai.
+  - **Gerbang**: `test-nilai` (32 uji; ±30 mutasi sengaja semuanya tertangkap) masuk `rilis.mjs`, CI, dan `aturan-rilis.md`.
+  - **Celah yang diketahui**:
+    - Acuan sinematik baru satu adegan, jadi ambang perlu dikalibrasi ulang untuk setiap kulit sinematik baru.
+    - Batas atas 6 warna belum terkalibrasi.
+    - Blok warna rata yang rentangnya lebar (panggung t 10) hanya tertangkap lewat deklarasi sumber.
+    - `eval-run --snap` belum menjalankan `nilai-visual`.
 
 ## 1.3.0 — 2026-11-02
 

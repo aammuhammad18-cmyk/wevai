@@ -22,8 +22,9 @@
      QUALITY kualitas JPEG. Default 80 di mode MP4 (ffmpeg mengencode ulang; terukur ±20 % lebih
              cepat per frame daripada 95) dan 95 di mode folder.
      WORKERS jumlah browser yang merender bagian timeline berbeda secara paralel. Standar 2 bila mesin punya
-             >= 2 thread, selain itu 1 (ekspor-inti.mjs). Terukur ±2× di laptop 2 core (i3-3217U + HD 4000);
-             frame yang dihasilkan identik dengan WORKERS=1 (hash PNG sama). Di 4 core + GPU terintegrasi pernah
+             >= 2 thread, selain itu 1 (ekspor-inti.mjs). Di laptop 2 core (i3-3217U + HD 4000), halaman nyata 1080p:
+             1,2–1,5× lebih cepat (pengukuran awal di halaman ringan: ±2×). Frame sama dengan WORKERS=1: 98–99 %
+             hash PNG identik, sisanya selisih maks. 1 level (PSNR ≥ 110 dB, tak terlihat). Di 4 core + GPU terintegrasi pernah
              terukur lebih lambat: set WORKERS=1 bila begitu. Butuh seek yang deterministik (detik mana pun bisa
              dirender tanpa detik sebelumnya) — kontrak OPENER yang sama dengan snap.mjs.
      SYNC=1  lewati penantian 2×rAF per frame. Hanya untuk halaman yang seek(t)-nya

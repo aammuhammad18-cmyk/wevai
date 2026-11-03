@@ -21,7 +21,7 @@ Sumber rincian:
 | F | Sub-proyek 4a: pustaka aset prosedural Jawa kuno | kode selesai; vonis visual pemilik menunggu | 31172c7..0f1bef0 |
 | G | Sub-proyek 4b: rig tokoh v2 | kode selesai; bench + vonis visual pemilik menunggu | 5c9a3b1..ca20078 |
 | H | Sub-proyek 5: mata elang 3D | kode selesai; bench + vonis visual pemilik menunggu | 93e1629..087736e |
-| I | Sub-proyek 6: ekspor panjang | kode selesai; masuk `main` sesudah render pemilik selesai (2 worker bawaan) | 429c64f..7310d5a |
+| I | Sub-proyek 6: ekspor panjang | selesai (masuk `main` 3 Nov dengan izin pemilik); 2 worker 1,2–1,5× di halaman nyata 1080p, frame identik 98–99 %, sisanya ±1 level | 429c64f..7310d5a |
 | J | Sub-proyek 7: gaya lanjutan | relief candi: kode selesai, bench + vonis pemilik menunggu; peta relief 3D berjalan; wayang, painterly, diorama belum | relief: bfdac93..811ddca |
 | K | Sub-proyek 8: penilaian visual otomatis + galeri | K1 selesai; K2 galeri belum | K1: a3486a1..f114d7d |
 | L | Rilis 1.4.0 | belum | |

@@ -45,3 +45,13 @@ mesin yang sama, semua Chrome uji berprioritas Idle dan memegang kunci Chrome be
 4. Catatan pengamatan: di bawah beban 100 % (render pemilik) Chrome berprioritas Idle sempat 17 menit tanpa menyelesaikan peluncuran; begitu jalan,
    Chrome mematikan renderer yang dianggap macet dan export-frames membuka ulang browser ("Attempted to use detached Frame — membuka ulang
    browser (percobaan 1/3)"): jalur pemulihan bawaan bekerja. Ini artefak uji Idle, bukan perilaku render pemilik.
+5. Halaman nyata 1080p, WORKERS=1 vs 2 (controller, 3 Nov 17.00–17.29; render pemilik DITAHAN, tiga agen lain bekerja dengan Chrome
+   Idle; uji memegang kunci Chrome bersama; skrip: uji-workers.mjs di scratchpad sesi)
+   URL=file:///…/assets/<halaman>?clean=1 FPS=30 FORMAT=png WORKERS=<n> OUT=<folder> node scripts/export-frames.mjs
+   starter-sinematik.html (360 frame): 1 worker 281,2 dtk, 2 worker 234,3 dtk = 1,20×; 344/360 hash sama, beda f00181–f00196
+     (16 frame tepat sesudah titik belah 180), selisih maks. 1 level, PSNR 116 dB
+   katalog-tokoh.html (840 frame):     1 worker 680,3 dtk, 2 worker 463,1 dtk = 1,47×; 834/840 hash sama, beda f00615–f00620,
+     selisih maks. 1 level, PSNR 110–116 dB
+   MP4 2 worker (starter-sinematik, JPEG, PRESET=ultrafast): 76,7 dtk; ffprobe 1920x1080, nb_read_frames=360, durasi 12,000000
+   Kesimpulan: frame tidak bit-identik di halaman nyata, tetapi selisihnya di bawah ambang terlihat (H.264 crf 16 jauh lebih besar).
+   Percepatan di mesin ini 1,2–1,5×, bukan ±2×.

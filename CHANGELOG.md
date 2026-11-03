@@ -284,8 +284,13 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
   - **Berkas baru**: `scripts/antre-render.mjs`, `scripts/ekspor-inti.mjs`, `scripts/test-ekspor.mjs`.
   - **`export-frames.mjs`**:
     - `WORKERS` bawaan kini **2** bila `os.availableParallelism() >= 2`, selain itu 1; env tetap menimpa.
-    - Frame identik dengan `WORKERS=1`: 30 dari 30 hash PNG sama (`evals/bukti/2026-11-03-ekspor/bukti.txt`).
-    - Antrean render pemilik ikut memakai 2 worker begitu ini masuk `main`, sekitar 2× lebih cepat menurut peta §7.
+    - Frame sama dengan `WORKERS=1`: di halaman mini 30 dari 30 hash PNG sama; di halaman nyata 1080p (`starter-sinematik`,
+      `katalog-tokoh`) 344/360 dan 834/840 hash sama, sisanya selisih maks. 1 level (PSNR 110–116 dB, tak terlihat)
+      (`evals/bukti/2026-11-03-ekspor/bukti.txt` §5).
+    - Kecepatan terukur di laptop 2 core: 1,20× (`starter-sinematik`) dan 1,47× (`katalog-tokoh`), bukan ±2× seperti perkiraan peta §7
+      (mesin sambil dipakai tiga agen ber-Chrome Idle).
+    - Antrean render pemilik (Bali, lalu Nabi) ikut memakai 2 worker begitu ini masuk `main` (3 Nov, dengan izin pemilik);
+      `WORKERS=1` di env mengembalikan perilaku lama.
   - **`antre-render.mjs`** (generalisasi `alat/antre-render.sh`):
     - Masukan `antrean.json` `[{html|url, mp4, siap?, audio?, env?}]`.
     - Butir dilewati bila mp4-nya terbaca ffprobe dan lebih baru dari html dan audio.

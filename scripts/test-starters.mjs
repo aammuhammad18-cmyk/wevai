@@ -44,13 +44,13 @@ const BERKAMERA = ['starter-explainer.html', 'starter-sinematik.html', 'katalog-
 // halaman ber-adegan bawaan (SINEMA_UJI wajib; kait modul + kamera di ?kosong=1): starter sinematik dan katalog pustaka aset
 const ADEGAN = ['starter-sinematik.html', 'katalog-pustaka.html'];
 // 3D tanpa subjek/#hud (field CAM3_UJI null sah); tone mapping film hanya di starter sejarah/sinematik, sisanya NoToneMapping (0) = warna brand tepat
-const TANPA_SUBJEK = ['starter-opener.html', 'starter-elang.html'];
-const FILM = { 'starter-elang.html': 4 };   // THREE.ACESFilmicToneMapping (r161): api tetap jingga jenuh, AgX r161 memucatkannya (evals/bukti/2026-11-03-mata-elang)
+const TANPA_SUBJEK = ['starter-opener.html', 'starter-elang.html', 'starter-peta-relief.html'];
+const FILM = { 'starter-elang.html': 4, 'starter-peta-relief.html': 4 };   // THREE.ACESFilmicToneMapping (r161): api tetap jingga jenuh, AgX r161 memucatkannya (evals/bukti/2026-11-03-mata-elang)
 // blok terbang (src/runtime/terbang.js) disuntikkan ke starter 2.5D: jalur terbang() 2.5D diuji di kamera-dom sungguhan tanpa menambah berkas starter
 const TERBANG = readFileSync(join(ROOT, 'src', 'runtime', 'terbang.js'), 'utf8');
 // halaman BERAT dilewati bila WebGL jatuh ke render perangkat lunak (runner CI tanpa GPU). Terukur SwiftShader, laptop acuan:
 // starter-elang siap 80 dtk, satu frame 66,6 dtk, frame motion blur mematikan proses GPU. Uji penuhnya di mesin ber-GPU.
-const BERAT = ['starter-elang.html'];
+const BERAT = ['starter-elang.html', 'starter-peta-relief.html'];   // peta: ±250 rb verteks + bayangan PCF; tidak diukur di SwiftShader
 const glLunak = await (async () => { const p = await browser.newPage();
   const r = await p.evaluate(() => { const g = document.createElement('canvas').getContext('webgl2'), e = g && g.getExtension('WEBGL_debug_renderer_info');
     return e ? g.getParameter(e.UNMASKED_RENDERER_WEBGL) : ''; });
@@ -86,7 +86,8 @@ for (const file of files) {
     const segar = await browser.newPage();
     await segar.goto(pathToFileURL(file).href + '?clean=1', { waitUntil: 'load', timeout: 60000 });
     await segar.waitForFunction('window.OPENER && window.OPENER.ready', { timeout: 60000 });
-    const sidikSegar = await segar.evaluate(() => window.ELANG_SIDIK ? window.ELANG_SIDIK() : null);   // geometri lanskap: sama di tiap muat (worker ekspor)
+    const SIDIK = () => { const f = window.ELANG_SIDIK || window.PETA_SIDIK; return f ? f() : null; };   // geometri lanskap/peta: sama di tiap muat (worker ekspor)
+    const sidikSegar = await segar.evaluate(SIDIK);
     const nol = await segar.evaluate(() => {
       const O = window.OPENER, rig = () => document.querySelector('#world, #stage')?.getAttribute('style') || '', c = document.querySelector('canvas');
       const ambil = () => ({ r: rig(), c: c ? c.toDataURL() : '' });
@@ -296,8 +297,18 @@ for (const file of files) {
       if (!(elang.celah.bebas >= .5 && elang.celah.lintas && elang.celah.lintas[1] > 1)) masalah.push(`elang: kamera tidak menembus celah gapura dengan jarak bebas ≥ 0,5 m (${JSON.stringify(elang.celah)})`);
       if (elang.subLuar !== 1 || !(elang.subDalam > 1)) masalah.push(`elang: motion blur harus hanya di segmen KABUR (luar ${elang.subLuar}, dalam ${elang.subDalam} sub-frame)`);
     }
-    const sidik = await page.evaluate(() => window.ELANG_SIDIK ? window.ELANG_SIDIK() : null);
-    if (sidik !== sidikSegar) masalah.push(`elang: geometri lanskap beda antara dua muat halaman (${sidik} vs ${sidikSegar}) — seed tidak deterministik`);
+    // peta relief (starter-peta-relief.html): label yang tampil (opacity > ,5) di dalam bingkai pada 5 detik uji; rute tergambar sebagai
+    // fungsi waktu (0 sampai 7 dtk, sebagian di 10, utuh sesudah tiba). Di halaman bawaan, sebelum kait kamera 3D (CAM3_UJI menyetel CAM)
+    const peta = await page.evaluate(() => window.PETA_UJI ? window.PETA_UJI() : null);
+    if (name === 'starter-peta-relief.html' && !peta) masalah.push('peta: PETA_UJI tidak ada');
+    if (peta) {
+      const luar = peta.label.filter(l => !l.dalam), [a, b, c, d, e] = peta.rute;
+      if (peta.label.length < 5) masalah.push(`peta: hanya ${peta.label.length} label tampil di detik uji`);
+      if (luar.length) masalah.push(`peta: label di luar bingkai: ${luar.map(l => `${l.teks} @${l.t} [${l.kotak}]`).join('; ')}`);
+      if (!(a === 0 && b === 0 && c > 0 && c < 1 && d === 1 && e === 1)) masalah.push(`peta: rute harus 0 sampai 7 dtk, sebagian di 10 dtk, utuh sesudah tiba (dapat ${peta.rute})`);
+    }
+    const sidik = await page.evaluate(SIDIK);
+    if (sidik !== sidikSegar) masalah.push(`geometri lanskap/peta beda antara dua muat halaman (${sidik} vs ${sidikSegar}) — seed tidak deterministik`);
 
     // kamera 3D (src/runtime/kamera-three.js): pose, shot terpusat & ukuran bingkai, zona aman HUD, warna brand
     // tepat, penolakan input salah. Field null = tidak berlaku di halaman itu (opener) → dilewati.

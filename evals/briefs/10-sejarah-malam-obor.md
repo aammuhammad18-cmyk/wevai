@@ -3,7 +3,7 @@
 - jenis: babak sejarah sinematik, 100 % kode
 - rasio: 16:9
 - durasi: 60 dtk
-- starter: `assets/starter-sinematik.html`
+- starter: `assets/starter-babak.html`
 
 ## Prompt (disalin apa adanya ke agen)
 

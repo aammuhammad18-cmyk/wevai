@@ -233,7 +233,7 @@ Untuk jalur melengkung: `rail()` dengan titik yang menyertai lintasan subjek, `l
 
 ### 2.5D — babak multi-adegan (`adegan()`, `panggang()`; blok `babak`)
 
-Beberapa dunia dalam satu halaman. Contoh hidup: `starter-sinematik.html` (60 dtk, lima adegan, tiga dunia, satu shot mata elang).
+Beberapa dunia dalam satu halaman. Contoh hidup: `starter-babak.html` (60 dtk, lima adegan, tiga dunia, satu shot mata elang).
 - **Satu fungsi bangun per dunia**: `adegan([dari,sampai], ()=>{…})`; dunia yang kembali = `[[0,12],[46,61]]`. Bidang, lapisan
   depan, dan callback (partikel, kabut, sumber, api, tokoh) yang dibuat di dalamnya hidup HANYA di rentangnya. Tersembunyi =
   `display:none` + callback tak dipanggil: tak menggambar apa pun (`ADEGAN[i].panggil` = bukti). Rentang tak bertumpuk; cut di

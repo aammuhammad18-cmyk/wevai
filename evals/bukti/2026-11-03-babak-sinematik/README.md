@@ -1,6 +1,6 @@
 # Babak sinematik 60 dtk (3 Nov 2026)
 
-Bagian E di `docs/rencana-1.4.0.md`. `assets/starter-sinematik.html` kini berisi babak "Penjaga Gerbang", 60 dtk, untuk eval
+Bagian E di `docs/rencana-1.4.0.md`. `assets/starter-babak.html` berisi babak "Penjaga Gerbang", 60 dtk (bukti ini dibuat saat babak masih di `starter-sinematik.html`; pemilik memisahkannya 4 Nov, jadi keterangan di dalam gambar menyebut nama lama), untuk eval
 `evals/briefs/10-sejarah-malam-obor.md`. Blok baru `src/runtime/babak.js` berisi `adegan()` dan `panggang()`. Resepnya ada di
 `references/sinematografi.md` §5 "Babak multi-adegan", aturannya di `references/techniques.md` §7d.
 
@@ -12,7 +12,7 @@ Isi folder:
 - `bukti.json`: angka mentah determinisme, adegan tersembunyi, dan biaya seek di halaman.
 
 Bingkai PNG (±3 MB per bingkai) tidak disimpan. Semua uji Chrome jalan lewat pembungkus berprioritas Idle yang memegang kunci Chrome bersama,
-karena render pemilik bisa berjalan kapan saja. Potret ulang: `URL="file:///<repo>/assets/starter-sinematik.html?clean=1" node scripts/snap.mjs shots <detik…>`.
+karena render pemilik bisa berjalan kapan saja. Potret ulang: `URL="file:///<repo>/assets/starter-babak.html?clean=1" node scripts/snap.mjs shots <detik…>`.
 
 ## Rundown
 
@@ -78,7 +78,7 @@ Ini juga mengenai worker ekspor kedua, yang mulai di tengah tableau.
 
 Obat yang dipasang di halaman/runtime. `snap.mjs`, `bench-frame.mjs`, dan `export-frames.mjs` tidak perlu diubah. Aturannya: semua yang ikut
 kamera adalah bitmap tetap yang ditransform kompositor.
-- Svg bidang dipanggang ke kanvas GPU: `panggang()`, blok `babak`, di starter-sinematik dan kedua katalog.
+- Svg bidang dipanggang ke kanvas GPU: `panggang()`, blok `babak`, di starter-babak dan kedua katalog.
 - `kabut` jadi kanvas tetap tiga tile yang digeser kompositor. Div ber-background tanpa `will-change` masih menyisakan beda ±2 (720–850 px)
   di halaman berriwayat (babak t 20, 52→7→40 lalu berurutan); tanpa kabut identik.
 - Pendar `sumber()` jadi kanvas 256 px yang diregang. Div bergradien tanpa `will-change` menyisakan 17 px ±2 di katalog tokoh.

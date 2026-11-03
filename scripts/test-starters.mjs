@@ -40,10 +40,10 @@ const browser = await luncurkan({
 });
 
 // starter yang wajib punya kait atmosfer/cahaya-2d/pasca; BERKAMERA = yang juga punya CAM (kabut berparalaks hanya terukur di sana: panggung belum punya CAM)
-const MODUL = ['starter-explainer.html', 'starter-explainer-panggung.html', 'starter-sinematik.html', 'katalog-pustaka.html', 'starter-relief.html', 'katalog-tokoh.html'];
-const BERKAMERA = ['starter-explainer.html', 'starter-sinematik.html', 'katalog-pustaka.html', 'starter-relief.html', 'katalog-tokoh.html'];
-// halaman ber-adegan bawaan (SINEMA_UJI wajib): starter sinematik (babak), katalog pustaka aset, starter relief, katalog tokoh
-const ADEGAN = ['starter-sinematik.html', 'katalog-pustaka.html', 'starter-relief.html', 'katalog-tokoh.html'];
+const MODUL = ['starter-explainer.html', 'starter-explainer-panggung.html', 'starter-sinematik.html', 'starter-babak.html', 'katalog-pustaka.html', 'starter-relief.html', 'katalog-tokoh.html'];
+const BERKAMERA = ['starter-explainer.html', 'starter-sinematik.html', 'starter-babak.html', 'katalog-pustaka.html', 'starter-relief.html', 'katalog-tokoh.html'];
+// halaman ber-adegan bawaan (SINEMA_UJI wajib): starter sinematik, starter babak, katalog pustaka aset, starter relief, katalog tokoh
+const ADEGAN = ['starter-sinematik.html', 'starter-babak.html', 'katalog-pustaka.html', 'starter-relief.html', 'katalog-tokoh.html'];
 // starter painterly (src/runtime/lukis.js): adegan bawaan juga, tetapi kaitnya LUKIS_UJI + blok lukis di bawah, bukan SINEMA_UJI
 const LUKIS = ['starter-lukis.html'], KOSONG = [...ADEGAN, ...LUKIS];
 // 3D tanpa subjek/#hud (field CAM3_UJI null sah); tone mapping film hanya di starter sejarah/sinematik, sisanya NoToneMapping (0) = warna brand tepat

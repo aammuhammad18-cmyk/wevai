@@ -1,4 +1,4 @@
-/* BABAK — banyak adegan dalam satu halaman (sinematografi.md §5 "Babak multi-adegan"; contoh hidup: starter-sinematik.html).
+/* BABAK — banyak adegan dalam satu halaman (sinematografi.md §5 "Babak multi-adegan"; contoh hidup: starter-babak.html).
    Butuh atmosfer (rigDunia, rantaiUpdate). Tidak dipanggil = halaman tidak berubah sedikit pun.
    adegan(rentang, bangun): bangun() dipanggil SEKARANG, dalam keadaan tampil (rim/relief membaca kotak elemen). Bidang baru di rig,
    lapisan depan baru (kecuali grade), dan callback onUpdate yang didaftarkan selama bangun (partikel, kabut, sumber, api, tokoh:

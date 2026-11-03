@@ -552,7 +552,7 @@ melompat 12× per detik dari `tl.time()` — deterministik, tile dirasterisasi s
 ### Sinematik 2D: atmosfer, cahaya bersumber, grade (`atmosfer` + `cahaya-2d` + `pasca`)
 
 Tiga blok runtime di `starter-explainer.html`, `-panggung.html`, `starter-sinematik.html` (sumber `src/runtime/`; kontrak = komentar kepala tiap berkas).
-Bukti jalan: `starter-sinematik.html` (babak 60 dtk; `bidang()`/`svgDi()`/`bakar()` = helper lokal `babak()`: salin, bukan API modul; pola babak: `sinematografi.md` §5). Urutan panggilan, sesudah `const tl=`:
+Bukti jalan: `starter-sinematik.html` (satu adegan) dan `starter-babak.html` (`bidang()`/`svgDi()`/`bakar()` = helper lokal: salin, bukan API modul; pola: `sinematografi.md` §5). Urutan panggilan, sesudah `const tl=`:
 ```js
 langit({tengah:'#241b44',horizon:'#b4606e'});   // 1. kanvas WebGL di belakang dunia; SEKALI per halaman (panggilan ke-2 mengganti): langit per adegan = tween LANGIT
 const B=bidang(-500);   // 2. <div data-z> di rig + BIDANG.push({el,z}); isinya <svg>, dipanggang di 5

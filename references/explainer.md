@@ -91,7 +91,7 @@ Naskah yang sama disimpan sebagai `vo-script.md`. Jangan hanya menulis
 Explainer SELALU dimulai dari starter gayanya (folder `assets/`):
 `starter-explainer-kartun.html`, `starter-explainer-jurnalisme.html`,
 `starter-explainer-katalog.html`, `starter-explainer-sketsa.html`, atau
-`starter-explainer.html` untuk aksi kontinu — atau `starter-sinematik.html` untuk siluet sinematik 100 % kode (`techniques.md` §7d) — atau `starter-relief.html` untuk relief candi hidup (`relief-candi.md`) — atau `starter-lukis.html` untuk legenda painterly (`lukis.md`) — atau `starter-explainer-panggung.html`
+`starter-explainer.html` untuk aksi kontinu — atau `starter-sinematik.html` untuk siluet sinematik 100 % kode (`techniques.md` §7d; banyak adegan: `starter-babak.html`) — atau `starter-relief.html` untuk relief candi hidup (`relief-candi.md`) — atau `starter-lukis.html` untuk legenda painterly (`lukis.md`) — atau `starter-explainer-panggung.html`
 untuk kartun panggung (rig berbeda, lihat `kartun-panggung.md`) — atau
 `starter-explainer-3d.html` bila dunianya butuh volume, sudut sungguhan, dan cahaya
 (`sinematografi.md` §1). Lima starter

@@ -1421,7 +1421,7 @@ function katalogTokoh(){
     pudar=(c,z)=>warnaJarak(c,z,-2000),PU=pustaka,TK=tokoh,
     klip=(svg,id,ids)=>svg.insertAdjacentHTML('afterbegin',`<defs><clipPath id="${id}">${ids.map(i=>$('#'+i+'-k').innerHTML).join('')}</clipPath></defs>`),
     lantai=(y,c)=>`<path d="M-400,${y} C300,${y-14} 1100,${y+12} 2320,${y-6} S3000,${y+8} 3400,${y} V1300 H-400Z" fill="${c}"/>`,
-    LA={zenit:'#1b1a3c',tengah:'#57345e',horizon:'#e88a5a',warnaMatahari:'#ffd59a',matahariX:.6,matahariY:.56,matahariR:.05,pendar:.62,bintang:.06,awan:.32,awanWarna:'#5e3b5a',hanyut:6,sinar:.34},
+    LA={zenit:'#1b1a3c',tengah:'#57345e',horizon:'#e88a5a',warnaMatahari:'#ffd59a',matahariX:.573,matahariY:.33,matahariR:.045,pendar:.62,bintang:.06,awan:.32,awanWarna:'#5e3b5a',hanyut:6,sinar:.34},
     LB={zenit:'#0d0b24',tengah:'#241b44',horizon:'#8a4f66',warnaMatahari:'#ffe9c8',matahariX:.82,matahariY:.14,matahariR:.026,pendar:.3,bintang:.5,awan:.55,awanWarna:'#3a3058',hanyut:9,sinar:.1},
     LC={zenit:'#0a0916',tengah:'#1d1630',horizon:'#5c3a50',warnaMatahari:'#e8dcc8',matahariX:.14,matahariY:.12,matahariR:.022,pendar:.2,bintang:.4,awan:.6,awanWarna:'#2e2644',hanyut:7,sinar:0},
     LD={zenit:'#0c0a20',tengah:'#2a1c40',horizon:'#7a4658',warnaMatahari:'#ffe2c0',matahariX:.24,matahariY:.16,matahariR:.024,pendar:.26,bintang:.45,awan:.5,awanWarna:'#3a2c4c',hanyut:8,sinar:.06};
@@ -1431,7 +1431,7 @@ function katalogTokoh(){
      Pandang: resi + prajurit depan, raja tiga perempat, pembawa payung + putri + petani samping. Putri duduk bersila lalu menyembah,
      resi menunjuk candi */
   LANGIT.horizon='#8e5466';
-  const MA={x:1152,y:605,warna:'#ffc278',kuat:.95},A0=bidang(-1500,0),A1=bidang(-800,0),A2=bidang(-300,0),A3=bidang(0,0);
+  const MA={x:1100,y:356,warna:'#ffc278',kuat:.95},A0=bidang(-1500,0),A1=bidang(-800,0),A2=bidang(-300,0),A3=bidang(0,0);
   svgDi(A0,PU.gunungBerlapis({x:1150,y:700,lebar:3600,tinggi:420,lapis:2,puncak:2,seed:4,jarak:-1500,cahaya:{arah:270,warna:MA.warna,kuat:.8}}));
   svgDi(A1,PU.gunungBerlapis({x:960,y:790,lebar:3200,tinggi:200,lapis:2,puncak:0,seed:9,jarak:-800,cahaya:{arah:270,warna:MA.warna,kuat:.8}})+
     PU.candi({x:1180,y:720,tinggi:420,jarak:-800,cahaya:{...MA,kuat:.9},detail:1,warna:'#1d1a22'}));

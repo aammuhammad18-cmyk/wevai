@@ -143,7 +143,7 @@ menggambar frame itu. Hanya yang kedua bisa ditekan:
   menggeser bitmap jadi, filternya tidak dihitung ulang.
 - Cahaya yang berubah (obor berkedip, matahari turun) = opacity/transform lapisan
   pendar di atas gambar yang dipanggang, bukan tween atribut filter.
-- Video panjang diekspor dengan `WORKERS=2` (`alat-kerja.md`).
+- Video panjang diekspor per babak lewat `scripts/antre-render.mjs` (`WORKERS=2` sudah standar; `alat-kerja.md` › Render panjang).
 
 ## Dev server wajib no-cache
 

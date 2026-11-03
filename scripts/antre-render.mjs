@@ -196,11 +196,11 @@ export async function jalankanAntrean(items, o, d) {
     d.hapus(tmp); d.hapus(tmp + '.parts');
     catat(`[render] ${it.nama} (${ke})${Object.keys(it.env).length ? ' env ' + Object.entries(it.env).map(([k, v]) => `${k}=${v}`).join(' ') : ''}`);
 
-    let total = 0, fps = 0, t0 = 0, lapor = 0;
+    let total = 0, t0 = 0, lapor = 0;
     const onBaris = b => {
       const p = bacaBaris(b), now = d.sekarang();
       if (!p) { catat(`  | ${b}`); return; }
-      if (p.jenis === 'mulai') { total = p.total; fps = p.fps; t0 = now; lapor = 0; totals.push(total); catat(`  ${p.total} frame @ ${p.fps} fps (${p.rinci})`); return; }
+      if (p.jenis === 'mulai') { total = p.total; t0 = now; lapor = 0; totals.push(total); catat(`  ${p.total} frame @ ${p.fps} fps (${p.rinci})`); return; }
       if (p.jenis !== 'maju' || !t0 || (lapor && now - lapor < o.lapor * 1000)) return;
       lapor = now;
       const dtk = Math.max(1e-3, (now - t0) / 1000), laju = p.selesai / dtk, global = (frameJadi + p.selesai) / (detikRender + dtk);

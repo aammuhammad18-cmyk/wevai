@@ -146,7 +146,8 @@ semua jadi, `GAGAL` = ada butir yang gagal:
 - **Gagal.** Butir yang gagal dicatat (`[GAGAL]`), antrean jalan terus, kode keluar 1, gabungan ditunda. Perbaiki lalu jalankan
   ulang: hanya butir gagal yang dirender. Butir menunggu penandanya sesuai urutan, tetapi butir yang mp4-nya sudah jadi tidak menunggu.
 - **Perkiraan selesai.** `butir` dari laju butir itu; `antrean` memakai laju seluruh jalan ini, dan panjang butir yang belum jalan
-  dikira dari durasi audionya × FPS, atau rata-rata butir yang sudah terlihat. Waktu menunggu penanda tidak dihitung.
+  dikira dari durasi audionya × FPS, atau rata-rata butir yang sudah terlihat. Waktu menunggu penanda, peluncuran Chrome (±1 menit
+  per butir), dan penyambungan akhir tidak dihitung, jadi jam selesai selalu sedikit lebih awal dari kenyataan.
 - **Gabung.** `--gabung`: ffmpeg `concat -c copy` + `+faststart`, ringkasan ffprobe (durasi, ukuran), dan pemeriksaan terhadap jumlah
   durasi butir. Dilewati bila gabungan sudah lebih baru dari semua butir.
 - **Penahan sleep bawaan.** Hidup selama antrean bekerja (termasuk menunggu penanda), mati di semua jalan keluar: selesai, gagal, galat,

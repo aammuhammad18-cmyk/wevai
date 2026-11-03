@@ -34,7 +34,8 @@ Berlaku untuk generator markup; `asap` tanpa `detail`, `kain` hanya `seed`/`warn
 | `warna` | warna bahan (menimpa bawaan andesit/bata/kayu/daun/batu) |
 | `id` | id `<g>` sendiri (untuk `relief()`/`rim()`/`redup` klip) |
 
-Opsi asing, enum salah, bukan angka, warna bukan `#rrggbb`/`rgb()` → `Error('pustaka.candi: …')` yang menyebut pilihan sah. Rupa: siluet gelap + gradien volume searah cahaya + **rim** (salinan siluet digeser ke cahaya, tanpa filter) + lis
+Opsi asing, enum salah, bukan angka, warna bukan `#rrggbb`/`rgb()` → `Error('pustaka.candi: …')` yang menyebut pilihan sah.
+Rupa: siluet gelap + gradien volume searah cahaya + **rim** (salinan siluet digeser ke cahaya, tanpa filter) + lis
 terang/bayang di bawah tonjolan.
 
 ## Generator
@@ -91,7 +92,7 @@ svgDi(bidang(-900),pustaka.candi({x:1500,y:790,tinggi:460,varian:'bata',jarak:-9
 
 - **Kala-makara**: Jawa Tengah (Mataram Kuno) = kala tanpa rahang bawah + makara di kaki bingkai; Jawa Timur (Majapahit) =
   kala berahang, makara jarang. Generator mengikuti pembagian itu; bentuknya ikonik, bukan salinan arca tertentu.
-- **Gapura**: bentar/paduraksa bata dari situs Trowulan. Proporsi diperkirakan dari foto, bukan ukuran situs.
+- **Gapura**: bentar/paduraksa bata mengikuti tipe situs Trowulan. Proporsinya perkiraan, bukan ukuran situs.
 - **Rumah panggung**: atap pelana berbubungan melengkung + tebeng condong mengikuti penggambaran umum relief Borobudur.
   Variasinya di relief banyak (ada atap limasan, lumbung); ini satu tipe saja.
 - **Kain**: kawung dan ceplok tampil pada arca era Hindu-Buddha; **parang dan truntum** menurut tradisi lahir di Mataram Islam/

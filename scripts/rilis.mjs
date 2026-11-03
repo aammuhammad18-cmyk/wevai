@@ -41,6 +41,7 @@ jalan('test-vo', '--test', 'scripts/test-vo.mjs');
 jalan('test-elang', '--test', 'scripts/test-elang.mjs');
 jalan('test-nilai', '--test', 'scripts/test-nilai.mjs');
 jalan('test-pustaka', '--test', 'scripts/test-pustaka.mjs');
+jalan('test-lukis', '--test', 'scripts/test-lukis.mjs');
 jalan('build-starters --check', 'scripts/build-starters.mjs', '--check');
 jalan('bump-version --check', 'scripts/bump-version.mjs', '--check');
 jalan('context-budget --check', 'scripts/context-budget.mjs', '--check');

@@ -38,7 +38,7 @@ Semua gerbang harus hijau pada commit yang akan di-tag, dengan pohon kerja bersi
 `node scripts/rilis.mjs` menjalankan semua gerbang ini, sama dengan CI (`.github/workflows/ci.yml`):
 
 1. sintaks semua skrip (`node --check`);
-2. `test-kamera`, `test-vo`, `test-nilai`, `test-pustaka`, dan `test-elang` (node:test, tanpa browser dan tanpa jaringan);
+2. `test-kamera`, `test-vo`, `test-nilai`, `test-pustaka`, `test-elang`, dan `test-lukis` (node:test, tanpa browser dan tanpa jaringan);
 3. `build-starters --check`: starter sinkron dengan `src/runtime`;
 4. `bump-version --check`: versi seragam dan CHANGELOG punya judulnya;
 5. `context-budget --check`;

@@ -324,6 +324,7 @@ assets/
   starter-sinematik.html         cinematic silhouette scene, 100% code (torchlight, fog, embers, one grade)
   katalog-pustaka.html           showcase of the procedural ancient-Java asset library (src/runtime/pustaka.js)
   starter-elang.html             3D eagle-eye establishing shot: procedural landscape, flight path, film tone mapping
+  starter-lukis.html             painterly legend scene (Kuwahara + watercolour), each plane painted once, so strokes never boil
 scripts/
   lint-motion.mjs                check the mechanical rules on a deliverable
   snap.mjs                       verify: capture key seconds
@@ -336,6 +337,7 @@ scripts/
   test-vo.mjs                    tests for vo-gemini.mjs (no network, no keys)
   test-pustaka.mjs               tests for the ancient-Java asset library (no browser)
   test-elang.mjs                 tests for the eagle-eye flight maths (no browser)
+  test-lukis.mjs                 tests for the painterly runtime: knobs, paint queue, pose cycle (no browser)
   serve.py                       no-cache dev server (optional)
   vendor-libs.mjs                inline GSAP + fonts for an offline archive copy
   build-starters.mjs             inline src/runtime into the starters (repo maintenance)
@@ -402,6 +404,7 @@ node --test scripts/test-vo.mjs            # voice-over tool (no network, no key
 node --test scripts/test-nilai.mjs        # visual scoring tool (synthetic PNGs, no browser)
 node --test scripts/test-pustaka.mjs       # ancient-Java asset library (no browser)
 node --test scripts/test-elang.mjs        # eagle-eye flight maths (no browser)
+node --test scripts/test-lukis.mjs        # painterly runtime (no browser)
 node scripts/build-starters.mjs --check   # starters match src/runtime
 node scripts/bump-version.mjs --check     # version is the same everywhere
 node scripts/lint-motion.mjs assets/*.html

@@ -33,6 +33,8 @@ jobs:
         run: node --test scripts/test-nilai.mjs
       - name: Uji pustaka aset Jawa kuno (node:test, tanpa browser)
         run: node --test scripts/test-pustaka.mjs
+      - name: Uji lukis painterly (node:test, kenop + antrean + siklus pose, tanpa browser)
+        run: node --test scripts/test-lukis.mjs
 
       - name: Starter sinkron dengan src/runtime
         run: node scripts/build-starters.mjs --check

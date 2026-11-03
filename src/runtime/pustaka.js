@@ -388,7 +388,7 @@ function perahuR(L,G,[x0,y0,w,h],s,r){const X=v=>s<0?x0+v:x0+w-v,yw=y0+h*.64,yg=
 /* C · tiba di bawah kalpataru: pohon kalpataru (jambangan, tajuk kubah dari ikal daun bertumpuk, payung, untaian permata yang berayun,
    dua burung bertengger, satu mengepak), resi duduk berlingkar cahaya di atas lapik menghadap tamu, dua pelancong menyembah (tangan
    bergerak), pengiring berbaki. */
-function kalpataruR(L,G,[x0,y0,w,h],s,r){const X=v=>s<0?x0+v:x0+w-v,yt=y0+h-24,cx=X(150),cy=yt-310,tj=[],dn=[];
+function kalpataruR(L,G,[x0,y0,w,h],s,r){const X=v=>s<0?x0+v:x0+w-v,yt=y0+h-24,cx=X(172),cy=yt-310,tj=[],dn=[];
   L.push(LK('timbul',x0,yt,w,24,.3,4));awanR(L,X(640),y0+82,.95);
   L.push(LP('timbul',[elp(cx,yt-36,36,32),kot(cx-14,yt-84,28,18),elp(cx,yt-86,22,6),kot(cx-26,yt-8,52,8)],.55,8),
     LP('gurat',[gp([[cx-33,yt-44],[cx+33,yt-44]],2.2),gp([[cx-35,yt-28],[cx+35,yt-28]],2.2)],.03,1),

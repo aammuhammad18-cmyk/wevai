@@ -36,9 +36,17 @@ const browser = await puppeteer.launch({
   args: ['--autoplay-policy=no-user-gesture-required', '--enable-unsafe-swiftshader', '--use-gl=angle', '--ignore-gpu-blocklist'],
 });
 
+// starter yang wajib punya kait atmosfer/cahaya-2d/pasca; BERKAMERA = yang juga punya CAM (kabut berparalaks hanya terukur di sana: panggung belum punya CAM)
+const MODUL = ['starter-explainer.html', 'starter-explainer-panggung.html', 'starter-sinematik.html'];
+const BERKAMERA = ['starter-explainer.html', 'starter-sinematik.html'];
+
 let gagal = 0;
 for (const file of files) {
   const name = basename(file);
+  // halaman bawaan starter-sinematik sudah berisi adegan (langit, grade, bidang [data-z]); kait modul dan kamera mengandaikan halaman yang
+  // belum memakai modul (awalBersih, jalur 2D tanpa bidang, grade netral), jadi dijalankan di ?kosong=1 (rig + modul tanpa adegan).
+  // Kait adegan (SINEMA_UJI) dibaca dari halaman bawaan. Katalog ?demo=1 tidak ada di starter ini.
+  const adegan = name === 'starter-sinematik.html';
   const page = await browser.newPage();
   const errs = [];
   page.on('pageerror', e => errs.push(e.message));
@@ -115,18 +123,50 @@ for (const file of files) {
     if (kanvas && !kanvas.sama) masalah.push('kanvas: t yang sama lewat jalur seek berbeda memberi piksel berbeda');
     if (kanvas && kanvas.kosong) masalah.push('kanvas: hasil render kosong saat dibaca setelah seek');
 
+    // adegan bawaan starter-sinematik (SINEMA_UJI): paralaks hidup, rig/[data-z] tanpa efek perata, semua modul terpasang; lalu
+    // determinisme piksel SEMUA kanvas #stage (langit + partikel + nyala), bukan hanya yang pertama seperti pemeriksaan bawaan.
+    // Dibaca dari halaman bawaan SEBELUM kait modul: ATM_UJI mengganti langit adegan, PASCA_UJI membuang lapisan dan tween GRADE-nya.
+    let sinema = null, kanvasSinema = [];
+    if (await page.evaluate(() => !!window.SINEMA_UJI)) {
+      sinema = await page.evaluate(() => window.SINEMA_UJI());
+      kanvasSinema = await page.evaluate(() => {
+        const C = [...document.querySelectorAll('#stage canvas')], O = window.OPENER, t = Math.min(5, O.DURATION * .6), t2 = Math.min(O.DURATION - .1, t + 3),
+          foto = () => C.map(c => c.toDataURL());
+        O.tl.pause(); O.seek(t); const a = foto(); O.seek(t2); O.seek(.1); O.seek(t); const b = foto();
+        return C.map((c, i) => { const k = document.createElement('canvas'); k.width = c.width; k.height = c.height;
+          return { nama: `${c.id || c.className} ${c.width}×${c.height}`, sama: a[i] === b[i], kosong: a[i] === k.toDataURL() }; });
+      });
+    }
+    if (adegan && !sinema) masalah.push('sinema: SINEMA_UJI tidak ada');
+    if (sinema) {
+      if (!sinema.paralaks) masalah.push('sinema: bidang z −900 dan z 0 tidak bergeser berbeda (> 1 px) saat CAM.fx += 300');
+      if (!sinema.rigBersih) masalah.push(`sinema: rig atau pembungkus [data-z] ber-filter/mix-blend-mode/opacity/clip-path/mask (computed) — paralaks rata: ${sinema.kotor}`);
+      if (!sinema.adaSemua) masalah.push(`sinema: modul tidak lengkap — perlu #wv-langit, ≥ 3 .wv-kabut, ≥ 1 .wv-partikel, 2 .wv-pendar, lapisan GRADE (dapat ${JSON.stringify(sinema.ada)})`);
+      if (!kanvasSinema.length) masalah.push('sinema: tidak ada kanvas di #stage');
+      for (const k of kanvasSinema) {
+        if (!k.sama) masalah.push(`sinema: kanvas ${k.nama}: t yang sama lewat jalur seek berbeda memberi piksel berbeda`);
+        if (k.kosong) masalah.push(`sinema: kanvas ${k.nama}: hasil render kosong saat dibaca setelah seek`);
+      }
+    }
+
+    // kait modul + kamera di bawah: halaman tanpa adegan (lihat `adegan` di atas)
+    if (adegan) {
+      await page.goto(pathToFileURL(file).href + '?kosong=1', { waitUntil: 'load', timeout: 60000 });
+      await page.waitForFunction('window.OPENER && window.OPENER.ready', { timeout: 60000 });
+    }
+
     // atmosfer (src/runtime/atmosfer.js): langit/partikel/kabut sama di dua jalur seek, kabut berparalaks, langit tanpa
     // WebGL2 jatuh ke gradien CSS, jenis partikel salah dan bidang non-HTML (<g> SVG) ditolak. Kait membangun fixture sendiri lalu membersihkannya.
-    // Field null = butuh CAM (panggung belum punya) → dilewati; di halaman bawaan, sebelum blok kamera memuat ulang.
+    // Field null = butuh CAM (panggung belum punya) → dilewati; di halaman bawaan (starter ber-adegan: ?kosong=1), sebelum blok kamera memuat ulang.
     // blok di ATAS kode adegan: const-nya (LANGIT, JENIS_PARTIKEL, …) masih TDZ bagi kode sebelum blok, dan kode adegan
     // yang memakai modul selalu sesudah `const tl=` (rantaiUpdate butuh tl) — blok sesudahnya = ReferenceError saat dimuat
     const html = readFileSync(file, 'utf8'), iAtm = html.indexOf('<wv:atmosfer>');
     if (iAtm >= 0 && !(iAtm < html.indexOf('const tl='))) masalah.push('atmosfer: blok <wv:atmosfer> harus di atas `const tl=` (kode adegan memanggil modul saat dimuat)');
     const atm = await page.evaluate(() => window.ATM_UJI ? window.ATM_UJI() : null);
-    if (['starter-explainer.html', 'starter-explainer-panggung.html'].includes(name) && !atm) masalah.push('atmosfer: ATM_UJI tidak ada');
+    if (MODUL.includes(name) && !atm) masalah.push('atmosfer: ATM_UJI tidak ada');
     if (atm) {
       const ada = k => atm[k] != null;
-      for (const k of ['seekSama', 'fallback', 'jenisDitolak', 'kabutDitolak', 'partikelDitolak', 'lapisUrut', ...(name === 'starter-explainer.html' ? ['kabutParalaks', 'kabutMenutup'] : [])])
+      for (const k of ['seekSama', 'fallback', 'jenisDitolak', 'kabutDitolak', 'partikelDitolak', 'lapisUrut', ...(BERKAMERA.includes(name) ? ['kabutParalaks', 'kabutMenutup'] : [])])
         if (!ada(k)) masalah.push(`atmosfer: field ${k} kosong`);
       if (ada('seekSama') && !atm.seekSama) masalah.push('atmosfer: .wv-partikel/#wv-langit/.wv-kabut berbeda antara seek(5) langsung dan seek(9)→seek(.1)→seek(5)');
       if (ada('kabutParalaks') && !atm.kabutParalaks) masalah.push('atmosfer: .wv-kabut di bidang z −600 dan z 0 tidak bergeser berbeda (> 1 px) saat CAM.fx += 300');
@@ -144,7 +184,7 @@ for (const file of files) {
     const iCahaya = html.indexOf('<wv:cahaya-2d>');
     if (iCahaya >= 0 && !(iCahaya < html.indexOf('const tl='))) masalah.push('cahaya-2d: blok <wv:cahaya-2d> harus di atas `const tl=` (kode adegan memanggil modul saat dimuat)');
     const cahaya = await page.evaluate(() => window.CAHAYA_UJI ? window.CAHAYA_UJI() : null);
-    if (['starter-explainer.html', 'starter-explainer-panggung.html'].includes(name) && !cahaya) masalah.push('cahaya-2d: CAHAYA_UJI tidak ada');
+    if (MODUL.includes(name) && !cahaya) masalah.push('cahaya-2d: CAHAYA_UJI tidak ada');
     if (cahaya) {
       const ada = k => cahaya[k] != null;
       for (const k of ['kedipSama', 'kedipHidup', 'rimArah', 'statis', 'namaDitolak', 'redupDitolak', 'reliefAlfa']) if (!ada(k)) masalah.push(`cahaya-2d: field ${k} kosong`);
@@ -167,7 +207,7 @@ for (const file of files) {
     const iPasca = html.indexOf('<wv:pasca>');
     if (iPasca >= 0 && !(iPasca < html.indexOf('const tl='))) masalah.push('pasca: blok <wv:pasca> harus di atas `const tl=` (kode adegan memanggil modul saat dimuat)');
     const pasca = await page.evaluate(() => window.PASCA_UJI ? window.PASCA_UJI() : null);
-    if (['starter-explainer.html', 'starter-explainer-panggung.html'].includes(name) && !pasca) masalah.push('pasca: PASCA_UJI tidak ada');
+    if (MODUL.includes(name) && !pasca) masalah.push('pasca: PASCA_UJI tidak ada');
     if (pasca) {
       const ada = k => pasca[k] != null;
       for (const k of ['awalBersih', 'lapisBenar', 'halationSkala', 'halationIkut', 'halationLeluhur', 'warnaTween', 'gradeKosong', 'presetDitolak', 'presetLengkap', 'filterView', 'filterPulih', 'netral', 'dibersihkan']) if (!ada(k)) masalah.push(`pasca: field ${k} kosong`);
@@ -186,41 +226,12 @@ for (const file of files) {
       if (ada('dibersihkan') && !pasca.dibersihkan) masalah.push('pasca: PASCA_UJI meninggalkan lapisan singleton, sumber sementara, atau nilai GRADE yang berubah — grade() sungguhan sesudahnya tidak mulai dari nol');
     }
 
-    // adegan bukti ?demo=sinematik (starter aksi kontinu): katalog ?demo=1 mati, paralaks hidup, rig/[data-z] tanpa efek
-    // perata, semua modul terpasang; lalu determinisme piksel SEMUA kanvas #stage (langit + partikel), bukan hanya yang
-    // pertama seperti pemeriksaan bawaan. Halaman dimuat ulang, jadi kait modul di atas tetap menguji halaman bawaan.
-    let sinema = null, kanvasSinema = [];
-    if (await page.evaluate(() => !!window.SINEMA_UJI)) {
-      await page.goto(pathToFileURL(file).href + '?demo=sinematik', { waitUntil: 'load', timeout: 60000 });
-      await page.waitForFunction('window.OPENER && window.OPENER.ready', { timeout: 60000 });
-      sinema = await page.evaluate(() => window.SINEMA_UJI());
-      kanvasSinema = await page.evaluate(() => {
-        const C = [...document.querySelectorAll('#stage canvas')], O = window.OPENER, t = Math.min(5, O.DURATION * .6), t2 = Math.min(O.DURATION - .1, t + 3),
-          foto = () => C.map(c => c.toDataURL());
-        O.tl.pause(); O.seek(t); const a = foto(); O.seek(t2); O.seek(.1); O.seek(t); const b = foto();
-        return C.map((c, i) => { const k = document.createElement('canvas'); k.width = c.width; k.height = c.height;
-          return { nama: `${c.id || c.className} ${c.width}×${c.height}`, sama: a[i] === b[i], kosong: a[i] === k.toDataURL() }; });
-      });
-    }
-    if (name === 'starter-explainer.html' && !sinema) masalah.push('sinema: SINEMA_UJI tidak ada');
-    if (sinema) {
-      if (!sinema.demoKameraMati) masalah.push('sinema: ?demo=sinematik ikut menjalankan katalog ?demo=1 (window.DEMO_AKHIR terdefinisi)');
-      if (!sinema.paralaks) masalah.push('sinema: bidang z −900 dan z 0 tidak bergeser berbeda (> 1 px) saat CAM.fx += 300');
-      if (!sinema.rigBersih) masalah.push(`sinema: rig atau pembungkus [data-z] ber-filter/mix-blend-mode/opacity/clip-path/mask (computed) — paralaks rata: ${sinema.kotor}`);
-      if (!sinema.adaSemua) masalah.push(`sinema: modul tidak lengkap — perlu #wv-langit, ≥ 3 .wv-kabut, ≥ 1 .wv-partikel, 2 .wv-pendar, lapisan GRADE (dapat ${JSON.stringify(sinema.ada)})`);
-      if (!kanvasSinema.length) masalah.push('sinema: tidak ada kanvas di #stage');
-      for (const k of kanvasSinema) {
-        if (!k.sama) masalah.push(`sinema: kanvas ${k.nama}: t yang sama lewat jalur seek berbeda memberi piksel berbeda`);
-        if (k.kosong) masalah.push(`sinema: kanvas ${k.nama}: hasil render kosong saat dibaca setelah seek`);
-      }
-    }
-
     // kamera 2.5D (src/runtime/kamera-dom.js): jalur 2D tidak menyentuh gaya lain; sudut → transform 3D;
     // bidang data-z berparalaks; cahaya; katalog ?demo=1 selesai sebelum DUR. Halaman dimuat ULANG dengan ?demo=1
-    // supaya pemeriksaan di atas tetap menguji jalur default deliverable.
+    // (starter ber-adegan: ?kosong=1, tanpa katalog) supaya pemeriksaan di atas tetap menguji jalur default deliverable.
     let cam = null;
     if (await page.evaluate(() => !!window.CAM_UJI)) {
-      await page.goto(pathToFileURL(file).href + '?demo=1', { waitUntil: 'load', timeout: 60000 });
+      await page.goto(pathToFileURL(file).href + (adegan ? '?kosong=1' : '?demo=1'), { waitUntil: 'load', timeout: 60000 });
       await page.waitForFunction('window.OPENER && window.OPENER.ready', { timeout: 60000 });
       cam = await page.evaluate(() => window.CAM_UJI());
     }
@@ -234,7 +245,7 @@ for (const file of files) {
       if (!cam.hudStage) masalah.push('kamera: rectIn(el, #stage) ikut menghitung posisi #stage di viewport');
       if (!cam.shakeHidup) masalah.push('kamera: shake ≠ 0 tanpa tween CAM membeku saat diputar');
       if (!cam.urutanDitolak) masalah.push("kamera: light() dengan 'at' mundur harus ditolak");
-      if (!(cam.demoAkhir > 0 && cam.demoAkhir < cam.DUR)) masalah.push(`kamera: ?demo=1 harus selesai sebelum DUR (${cam.demoAkhir} vs ${cam.DUR})`);
+      if (!adegan && !(cam.demoAkhir > 0 && cam.demoAkhir < cam.DUR)) masalah.push(`kamera: ?demo=1 harus selesai sebelum DUR (${cam.demoAkhir} vs ${cam.DUR})`);
     }
 
     // kamera 3D (src/runtime/kamera-three.js): pose, shot terpusat & ukuran bingkai, zona aman HUD, warna brand

@@ -245,8 +245,8 @@ Pipeline yang terbukti (identitas boleh dari foto user, boleh anonim):
 
 Tanpa akses generate: `character()` di starter punya kepala vektor sederhana
 (lingkaran kulit, siluet rambut, dua titik mata, garis mulut) — cukup untuk
-gaya ini. Di kulit B tokoh dibingkai sebagai siluet ber-rim, jadi kepala
-vektor sudah cukup.
+gaya ini. Kulit B (siluet ber-rim) atau tokoh Jawa kuno: `tokoh.*`
+(`references/tokoh.md`).
 
 ## Panggung yang terbukti untuk cerita "proses & dampak"
 

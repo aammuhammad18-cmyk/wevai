@@ -165,6 +165,121 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
     - Blok warna rata yang rentangnya lebar (panggung t 10) hanya tertangkap lewat deklarasi sumber.
     - `eval-run --snap` belum menjalankan `nilai-visual`.
 
+- **Pustaka aset Jawa kuno** (sub-proyek 4a; `src/runtime/pustaka.js`, blok `<wv:pustaka>`, 27,6 KB; satu global `pustaka`).
+  - **Generator**, menghasilkan markup SVG ber-seed yang dipanggang:
+    - `candi` (andesit Mataram Kuno / bata Majapahit), `gapura` (bentar / paduraksa);
+    - `rumahPanggung`, `beringin`, `lontar`, `gunungBerlapis`, `sawahTerasering`;
+    - `obor`, `asap`, `relief`, `kain({motif})` (kawung, parang, ceplok, truntum).
+  - **Deterministik**: seed, opsi, cahaya, dan `LANGIT` yang sama menghasilkan keluaran byte-identik.
+  - **Cahaya dan jarak**: menerima `cahaya` (nama `SUMBER`, `{x,y}`, `{arah}`, `kuat`) dan `jarak` (lewat `warnaJarak`).
+    Rim dibuat tanpa filter. Setiap aset menyediakan clipPath `#<id>-k` untuk `redup()`.
+  - **Kait kanvas**: `pustaka.api` dan `pustaka.asapHidup` digambar dari `tl.time()`.
+  - **Etalase**: `assets/katalog-pustaka.html`, tiga tableau dalam 26 dtk (senja Mataram, malam Majapahit, relief + kain).
+    `test-starters` menguji halaman ini sebagai halaman ber-adegan.
+  - **Dokumen dan uji**: `references/pustaka.md`; penunjuk di `techniques.md` §7d dan langkah 3 `SKILL.md`;
+    `scripts/test-pustaka.mjs` masuk `rilis.mjs` dan CI.
+  - **Bukti**: `evals/bukti/2026-11-03-pustaka-jawa/kontak.jpg`. Hasil `nilai-visual`: rentang 33,7–38,9; titik obor +68,5…+73,1.
+  - **Celah yang diketahui**:
+    - candi senja berkontras subjek 4,7–7,8, di bawah ambang 10, karena larut dalam kabut yang sama;
+    - biaya per frame belum diukur (tableau tersembunyi tetap menjalankan callback);
+    - akurasi budaya bersifat suasana, bukan rekonstruksi; parang dan truntum anakronistik untuk Majapahit
+      (lihat `pustaka.md`);
+    - sawah senja perlu dinilai pemilik (masih terbaca seperti pasir).
+  - **Status penerimaan**: menunggu vonis visual pemilik.
+- **Mata elang 3D** (sub-proyek 5, H di `docs/rencana-1.4.0.md`).
+  - **Berkas**: `src/runtime/terbang.js` (blok baru `<wv:terbang>`) dan `src/runtime/lanskap-3d.js`; `assets/starter-elang.html`,
+    `references/mata-elang.md`, dan `scripts/test-elang.mjs` (baru). `RAILS` pindah ke `kamera.js` inti; `kamera-three.js` dan
+    `kamera-dom.js` mendapat kait kecil; `sinematografi.md` §3/§6/§7 dan penunjuk di `techniques.md`.
+  - **`terbang(at, dur, titik, opsi)`**, fungsi murni dari `tl.time()`, untuk kamera 3D dan 2.5D:
+    - Catmull-Rom sentripetal berparameter panjang busur; look-ahead atau satu target per titik;
+    - roll dari tan φ = v²κ/g, dihaluskan (jendela Hann) lalu dijepit lunak (tanh); guncang trauma² × derau ber-seed;
+    - di 2.5D titiknya `[fx, fy, zoom]`, dan zoom diwujudkan sebagai dolly sungguhan menembus bidang `[data-z]`, jadi ada
+      paralaks kedalaman (`terbang25.jpg`).
+  - **Demo `assets/starter-elang.html`** (11,5 dtk): terbang rendah di atas sawah berundak, menembus celah gapura bentar berobor,
+    naik di atas lembah, mendarat di gunung berlapis saat senja, dengan legenda.
+    - `lanskap()` + `tumbuh()` ber-seed: terrain fBm, sawah bercermin air, sungai Catmull-Rom, hutan dan palem InstancedMesh, Sky
+      three r161 yang dipanggang sekali ke PMREM, kabut.
+    - Motion blur akumulasi 8 sub-frame hanya di segmen menembus gapura (4,53–5,43 dtk).
+    - Starter sendiri, bukan `?demo=elang`: demo di starter 3D akan menambah ±70 KB ke jalur Explainer 3D.
+  - **Tone mapping film**: ACESFilmic (exposure ,5) untuk sejarah dan sinematik; starter brand dan produk tetap `NoToneMapping`, dan
+    `test-starters` memeriksanya per starter. ACES, bukan AgX: api tetap jingga jenuh, sedangkan AgX memudarkannya ke salem
+    (`tonemap.jpg`). three tetap r161.
+  - **Uji**:
+    - `test-elang` (6 uji: kontinuitas, look-ahead, fisika roll, determinisme guncang, tween 3D dan 2.5D) masuk `rilis.mjs` dan CI.
+    - `test-starters`: `ELANG_UJI` (kamera sungguh terbang, jarak bebas di celah gapura 1,47 m, roll maks. 12,65° dari batas 23,1°);
+      `terbang()` 2.5D disuntikkan ke setiap starter 2.5D; halaman berat dilewati bila WebGL jatuh ke perangkat lunak (CI tanpa GPU:
+      satu frame 66,6 dtk). Run penuh kedua 10 dari 11 lolos; sesudah perbaikan, ketiga starter kamera-three lolos.
+  - **Anggaran konteks**: jalur baru **Mata elang 3D** (`sinematografi.md` + `mata-elang.md` + `starter-elang.html`) 149 KB, batas
+    pelacak 155 KB. Jalur lain naik 0,3–1,2 KB (kait kamera dan dokumen); batasnya tidak diubah.
+  - **Bukti**: `evals/bukti/2026-11-03-mata-elang/` (`kontak.jpg`, `elang.gif`, `tonemap.jpg`, `terbang25.jpg`). `nilai-visual`
+    dengan subjek dan sumber dideklarasikan: gapura + dua obor kontras 59,9, obor +71,6; gunung di 11 dtk kontras 27,2.
+  - **Celah yang diketahui**:
+    - ms/frame belum diukur (mesin sedang merender). Bila > 350 ms, kenop pertamanya MSAA → FXAA, peta bayangan 1024, jumlah pohon;
+    - sawah lembah dekat tampak kotak-kotak pada grid kasar (±14 m) di frame akhir;
+    - `terbang()` 2.5D belum dipasang di starter 2.5D mana pun; shot mata elang brief 10 menyusul bersama babak multi-adegan (E).
+  - **Status penerimaan**: menunggu bench di mesin senggang dan vonis visual pemilik.
+- **Relief candi hidup** (sub-proyek 7, gaya lanjutan pertama; J di `docs/rencana-1.4.0.md`).
+  - **Berkas**: `assets/starter-relief.html`, `src/runtime/relief-hidup.js` (blok baru `<wv:relief-hidup>`: `reliefHidup()`,
+    `SINAR`), `references/relief-candi.md`, dan `scripts/test-relief.mjs` (baru); `pustaka.dindingRelief` di `pustaka.js`.
+  - **Demo** (20 dtk): galeri tiga panel ala Borobudur dibaca searah pradaksina (prosesi → kapal bercadik → kalpataru). Obor
+    `SINAR` menyapu dinding, kamera berjalan lalu berhenti di tiap panel, legenda "Kapal Bercadik". 17 bagian pahatan bergerak
+    pelan (lengan, dayung, layar, ombak, untaian, payung).
+  - **Teknik cahaya**:
+    - sekali saat setup: peta tinggi pahatan (764 lapis Path2D, profil membulat dari jarak-ke-tepi, erosi, lubang, butir batu)
+      dipanggang jadi normal + AO, dan warna andesit (belang, nada per blok, lumut, jejak hujan) dipanggang di GPU;
+    - tiap frame, WebGL2 dua pass: bagian hidup sebagai sprite peta tinggi, lalu lampu titik `SINAR` (Lambert, redaman
+      1/(1+d²/J²), bayangan pahatan lunak 24 langkah, ambien langit × AO). `SINAR` di-tween seperti `CAM`.
+  - **Biaya terukur** (di bawah beban render pemilik): 29–32 ms/frame untuk dinding 4300×1000, bayangan ikut bergerak. Pembanding:
+    Canvas 2D per piksel 737 ms tanpa bayangan; filter SVG dinamis 358 ms tanpa bayangan jatuh. Setup 4,1–5,1 dtk per muat halaman.
+  - **Deterministik**: kanvas di t 9,2 byte-identik lewat tiga jalur seek (langsung, lompat, putar berurutan).
+  - **Uji**: `test-relief` (11 uji; lima mutasi sengaja semuanya tertangkap) masuk `rilis.mjs` dan CI; `RELIEF_UJI` dan
+    `SINEMA_UJI` di `test-starters`.
+  - **Anggaran konteks**: jalur baru **Relief candi hidup** (`explainer.md` + `techniques.md` + `relief-candi.md` +
+    `starter-relief.html`) 293 KB, batas pelacak 295 KB; ±4/5 starter adalah blok runtime.
+  - **Bukti**: `evals/bukti/2026-11-03-relief-candi/` (`kontak.jpg`, `nilai.txt`). `nilai-visual` 9 dari 9 ok: rentang 39–46,
+    kontras subjek 18–33, titik terang dekat lampu +31…+39, 3–4 warna.
+  - **Celah yang diketahui**:
+    - ms/frame ekspor penuh dan setup di mesin senggang belum diukur;
+    - kanvas relief 1:1 di bidang z = 0, jadi melunak di atas zoom ±1,25; close-up butuh dinding kedua yang lebih kecil;
+    - satu konteks WebGL2 per dinding, jadi 1–2 dinding per halaman;
+    - sosok dan panel adalah kosakata bergaya, bukan salinan panel nyata, sedangkan legendanya "BOROBUDUR · ABAD IX".
+  - **Status penerimaan**: menunggu bench di mesin senggang dan vonis visual pemilik.
+- **Rig tokoh v2** (sub-proyek 4b, G di `docs/rencana-1.4.0.md`).
+  - **Berkas**: `src/runtime/tokoh.js` (blok baru `<wv:tokoh>`, satu global `tokoh`), `assets/katalog-tokoh.html`,
+    `references/tokoh.md`, dan `scripts/test-tokoh.mjs` (baru); penunjuk di `kartun-panggung.md`.
+  - **Rig**: rangka 19 tulang dengan arah 3D yang diproyeksikan ke tiga pandang (depan, tiga perempat, samping), jadi satu pose
+    terbaca di ketiganya; slot dan lampiran ala Spine dengan urutan gambar per pandang; IK dua tulang analitik (dijepit; sisi siku
+    dan lutut menurut tanda).
+  - **Bentuk dan cahaya**: bagian tubuh bezier dari profil lebar, bukan kapsul. Warna rata bernada malam + satu gradien cahaya per
+    tokoh (gradien per segmen membuat tokoh tampak seperti manekin kayu). Rim = siluet dikurangi salinan yang digeser menjauhi cahaya;
+    arah cahaya dihitung ulang tiap frame dari obor terdekat.
+  - **Pose bernama**: berdiri (kontraposto), menunjuk, sembah, tombak, bawa, bersila, silasembah, meraih (IK), dan jalan prosedural
+    yang fasenya diambil dari jarak tempuh dengan telapak tumpu dikunci IK, jadi kaki tidak selip.
+  - **Kostum dan atribut Jawa kuno**: kain bermotif `pustaka.kain`, wiron, sabuk, sampur, keris, ikat/jamang/mahkota/jata, kelat bahu,
+    gelang, kalung, upawita, kemben; properti tombak, perisai, payung, tongkat, cangkul, sesaji. Enam arketipe (rakyat, raja,
+    prajurit, resi, petani, putri) dan `kerumunan({seed, n, area, ragam})` ber-seed.
+  - **Determinisme**: tokoh bergerak = satu kanvas per bidang yang dihapus penuh dan digambar ulang dari `tl.time()` tiap frame.
+    Transform `<g>` di svg bidang ber-`will-change` terukur tidak deterministik (tepi ±1–2, dengan rim ±12). Semua kanvas tokoh
+    identik lintas jalur seek; di dalam siluet tokoh paling banyak 8 piksel berbeda dari ≥ 105 ribu.
+  - **Etalase** `assets/katalog-tokoh.html` (28 dtk, 35 tokoh): enam arketipe saat senja di depan candi; dua prajurit ronda di
+    sepanjang tembok berobor; putri meraih altar lewat IK lalu menyembah; kerumunan 24 tokoh di depan gapura berobor.
+  - **Uji**: `test-tokoh` (10 uji: IK, determinisme dan campuran pose, telapak tanpa selip, kerumunan, SVG well-formed, log gambar
+    kanvas identik lintas jalur seek, galat berbahasa Indonesia) masuk `rilis.mjs` dan CI. `SINEMA_UJI` katalog tokoh di
+    `test-starters`: 4 kanvas tokoh, ≥ 30 tokoh, 6 arketipe.
+  - **Anggaran konteks**: tidak berubah (katalog dan `tokoh.md` di luar jalur); `tokoh.js` 41,5 KB.
+  - **Bukti**: `evals/bukti/2026-11-03-tokoh-v2/kontak.jpg`. `nilai-visual` 6 dari 6 ok: rentang 28–35, kontras subjek 18–31, titik
+    terang +58…+72 di sumber yang dideklarasikan, 2–3 warna.
+  - **Catatan budaya** (di `tokoh.md`): kemben pada putri adalah konvensi ilustrasi modern; keris di punggung bersarung ladrang cocok
+    untuk Majapahit ke atas, diragukan untuk Mataram Kuno; payung bertingkat berumbai adalah bentuk kemudian; mahkota, jamang, dan
+    jata adalah bentuk ikonik, bukan salinan arca tertentu.
+  - **Celah yang diketahui**:
+    - selisih latar (bukan tokoh) ±1 px, maks. 76–84, sesudah lompat mundur ke tableau yang tampil sejak halaman dimuat; terjadi juga
+      di `katalog-pustaka` tanpa tokoh. Ekspor maju tidak menampilkan ulang tableau, jadi kemungkinan tidak terdampak;
+    - cincin samar ±4 di pendar obor `cahaya-2d` antara jalur berurutan dan jalur lompat;
+    - ms/frame belum diukur (mesin sedang merender);
+    - pose mendayung dan menunggang belum ada; tokoh statis `buat()` hanya berwarna rata (cahaya lewat `rim()`/`bayangan()`);
+    - blok `<wv:tokoh>` baru ada di katalog; pemasangannya di starter sinematik menyusul bersama babak multi-adegan (E).
+  - **Status penerimaan**: menunggu bench di mesin senggang dan vonis visual pemilik.
 - **Ekspor panjang** (sub-proyek 6).
   - **Berkas baru**: `scripts/antre-render.mjs`, `scripts/ekspor-inti.mjs`, `scripts/test-ekspor.mjs`.
   - **`export-frames.mjs`**:

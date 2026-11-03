@@ -26,8 +26,17 @@ jobs:
       - name: Uji VO Gemini (node:test, tanpa jaringan dan tanpa kunci)
         run: node --test scripts/test-vo.mjs
 
+      - name: Uji mata elang (node:test, matematika terbang murni, tanpa browser)
+        run: node --test scripts/test-elang.mjs
+
       - name: Uji penilaian visual (node:test, PNG sintetis, tanpa browser)
         run: node --test scripts/test-nilai.mjs
+      - name: Uji pustaka aset Jawa kuno (node:test, tanpa browser)
+        run: node --test scripts/test-pustaka.mjs
+      - name: Uji relief hidup (node:test, tanpa browser)
+        run: node --test scripts/test-relief.mjs
+      - name: Uji rig tokoh v2 (node:test, tanpa browser)
+        run: node --test scripts/test-tokoh.mjs
       - name: Uji ekspor panjang (node:test, tanpa browser dan tanpa ffmpeg)
         run: node --test scripts/test-ekspor.mjs
 

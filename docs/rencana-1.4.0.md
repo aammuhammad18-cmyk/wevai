@@ -18,11 +18,11 @@ Sumber rincian:
 | C | Dukungan Antigravity: Chrome otomatis, `--help`, `SKILL.md` ≤ 24 KB, plugin | kode selesai; uji pemilik menunggu | f414a57, dfedd42, d80eb56 |
 | D | Alat VO Gemini (hingga 10 kunci, failover aman) | kode selesai; uji langsung pemilik menunggu | 73eb11f |
 | E | Sub-proyek 3, sisa: babak multi-adegan 60 dtk + `CAM` di kartun panggung | belum | |
-| F | Sub-proyek 4a: pustaka aset prosedural Jawa kuno | belum | |
-| G | Sub-proyek 4b: rig tokoh v2 | belum | |
-| H | Sub-proyek 5: mata elang 3D | belum | |
+| F | Sub-proyek 4a: pustaka aset prosedural Jawa kuno | kode selesai; vonis visual pemilik menunggu | 31172c7..0f1bef0 |
+| G | Sub-proyek 4b: rig tokoh v2 | kode selesai; bench + vonis visual pemilik menunggu | 5c9a3b1..ca20078 |
+| H | Sub-proyek 5: mata elang 3D | kode selesai; bench + vonis visual pemilik menunggu | 93e1629..087736e |
 | I | Sub-proyek 6: ekspor panjang | kode selesai; masuk `main` sesudah render pemilik selesai (2 worker bawaan) | 429c64f..7310d5a |
-| J | Sub-proyek 7: gaya lanjutan | belum | |
+| J | Sub-proyek 7: gaya lanjutan | relief candi: kode selesai, bench + vonis pemilik menunggu; peta relief 3D berjalan; wayang, painterly, diorama belum | relief: bfdac93..811ddca |
 | K | Sub-proyek 8: penilaian visual otomatis + galeri | K1 selesai; K2 galeri belum | K1: a3486a1..f114d7d |
 | L | Rilis 1.4.0 | belum | |
 
@@ -51,8 +51,17 @@ Rilis 1.4.0 (L) mencakup:
 - Biaya ≤ 350 ms/frame.
 - Kait uji modul tahan terhadap halaman yang sudah terisi, sehingga `?kosong=1` tidak lagi dibutuhkan.
 - Kartun panggung memakai `CAM` (kamera 2.5D).
+- Shot mata elang brief 10 memakai `terbang()` 2.5D: penanda `<wv:terbang>` dipasang sesudah `kamera-dom` di
+  `starter-sinematik.html`. Ini menaikkan jalur Siluet di atas pelacak 235 KB (perkiraan +1,3 KB); usulkan angka barunya ke pemilik
+  bersama target anggaran explainer/sinematik yang masih menunggu.
+- Tokoh babak memakai `tokoh.*` (rig v2): blok `<wv:tokoh>` (41,5 KB) dipasang di `starter-sinematik.html` sesudah `pustaka`.
+  Laporkan ukuran jalur Siluet; bila jauh di atas pelacak, usulkan pilihan berangka (blok tanpa komentar saat disuntik, atau starter
+  babak tersendiri) ke pemilik.
+- Selisih latar sesudah lompat mundur ke tableau yang tampil sejak halaman dimuat (`katalog-pustaka` maks. 76, `katalog-tokoh`
+  maks. 84; dugaan: viewport di-set sesudah halaman dimuat di snap/export/bench) ditelusuri, dan babak dibuktikan identik pada
+  `WORKERS=1` vs `WORKERS=2`.
 
-### F. Pustaka aset Jawa kuno (`src/pustaka/`)
+### F. Pustaka aset Jawa kuno (`src/runtime/pustaka.js`, blok `<wv:pustaka>`; `build-starters` hanya membaca `src/runtime`)
 
 - Isi: `candi`, `gapura` (bentar + paduraksa), `rumahPanggung`, `beringin`, `lontar`, `gunungBerlapis`,
   `sawahTerasering`, `obor`/`api`/`asap`, `relief`, `kain({motif})`.
@@ -82,6 +91,10 @@ Rilis 1.4.0 (L) mencakup:
 - Motion blur hanya lewat akumulasi sub-frame, dan hanya di segmen cepat.
 - Hasil: shot pembuka 8–12 dtk di atas sawah → menembus gapura → reveal gunung.
 - three tetap r161 kecuali ada alasan terukur untuk naik versi.
+- Tindak lanjut sesudah masuk `main`:
+  - bench di mesin senggang: `bench-frame.mjs assets/starter-elang.html "clean=1" 20`, ditambah satu run yang mulai di segmen motion blur;
+  - sawah lembah dekat kotak-kotak pada grid kasar;
+  - vonis visual pemilik.
 
 ### I. Ekspor panjang
 
@@ -105,6 +118,9 @@ Rilis 1.4.0 (L) mencakup:
 - **Painterly** (Kuwahara / cat air), tanpa sapuan yang "mendidih".
 - **Diorama cel-shaded**: toon + outline + tilt-shift, kartu 2D di ruang 3D.
 - Setiap gaya punya starter atau kulit, dokumen, dan lembar kontak.
+- Tindak lanjut relief candi sesudah masuk `main`:
+  - bench di mesin senggang: `bench-frame.mjs assets/starter-relief.html "clean=1" 20`, ≥ 3 run bergantian; ukur juga setup;
+  - vonis pemilik, termasuk legenda "BOROBUDUR · ABAD IX" di atas panel rekaan (perlu penanda ilustrasi atau tidak).
 
 ### K. Penilaian visual + galeri
 

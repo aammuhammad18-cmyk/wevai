@@ -299,9 +299,9 @@ melengkung; kamera WebGL ikut geser `camX` searah untuk paralaks latar.
 
 Dua jenis transisi yang terasa murahan: whip translasi yang menyingkap tepi
 dunia (gap hitam, terbaca "pindah halaman" — whip dengan overscan + blur berarah
-di §4c #6 sah), dan spin/yaw/roll kejut (zoom tiba-tiba +
-blur adalah bahasa preset editor video, bukan motion design). Penerbangan yang
-menukik dan berguling hanya sah sebagai shot mata elang (`sinematografi.md` §3). Urutan yang benar:
+di §4c #6 sah), dan spin/yaw/roll kejut (zoom tiba-tiba + blur = bahasa preset
+editor video). Penerbangan yang menukik dan berguling hanya sah sebagai shot mata
+elang (`sinematografi.md` §3; `terbang()`: `mata-elang.md`). Urutan yang benar:
 
 1. **Kamera bernapas** (fondasi, selalu aktif): rig dunia drift zoom pelan
    `sine.inOut` ±4-5% per adegan, arah bergantian, dirantai tanpa lompatan.
@@ -571,6 +571,7 @@ Aturan yang dibayar mahal (dilanggar = gagal diam-diam, atau piksel bergantung j
 - **`kontras`/`saturasi` grade** (hanya `malam-api` yang bernilai; preset lain netral = 1, tak menulis apa pun): `filter` pada view pemuat rig (`#collage`), bukan rig; panggung (view = rig) mengabaikannya. Grade non-netral MEMILIKI filter view: blur `whip()` ke/dari view itu tak tampak (ditimpa tiap frame); filter ditulis ulang tiap frame hanya selama kontras/saturasi di-tween (ke/dari `malam-api` atau nilai sendiri; biaya belum diukur).
 - `kabut` `lebar` bilangan bulat; `partikel` `area` lapang (kanvas = area persis, bara terpotong di tepinya); `grade()` tidak tumpang tindih dalam waktu; halation ikut opacity pendar DAN semua leluhurnya (pudarkan asetnya).
 - **Anggaran**: median ≤ 350 ms/frame @1080p, mesin acuan (`node scripts/bench-frame.mjs <starter> "…&clean=1" 20`, mesin senggang, ≥ 3 run; membandingkan = selang-seling, run berurutan memanas). Demo bukti 268 ms (batas atas: di bawah beban). Partikel: `n` dijepit 400 PER PANGGILAN; total per HALAMAN ≤ 400 dijaga sendiri — callback `partikel`/`kabut`/`sumber` menggambar tiap frame, tersembunyi atau di luar frame sekalipun: +400 ≈ +10 ms/frame (3–17; ukuran kanvas tak berpengaruh, kosong ≈ +1).
+- **Aset Jawa kuno** (candi, gapura, rumah panggung, beringin, lontar, gunung, sawah, obor/api/asap, relief, kain): `pustaka.*` (blok `<wv:pustaka>`; `references/pustaka.md`; katalog `assets/katalog-pustaka.html`) — markup ber-seed yang dipanggang, menerima `cahaya` (nama `SUMBER`) dan `jarak`. Jangan menggambar ulang per produksi.
 
 ## 7e. Menu gaya render objek — satu keluarga per video
 

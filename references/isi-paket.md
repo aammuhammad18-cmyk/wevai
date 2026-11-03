@@ -20,6 +20,14 @@ Daftar berkas skill ini; dibaca bila perlu. Dipindah utuh dari SKILL.md (3 Nov 2
 | `assets/starter-explainer-3d.html` | EXPLAINER dunia 3D: Three.js r161 + `CAM`, `mat()`, `fromSVG()`, cahaya key/fill/rim, HUD di luar `#world`, `?demo=1` |
 | `assets/starter-explainer.html` | EXPLAINER gaya aksi kontinu (vektor): mode aliran (strip + hero + objek dunia) + view peta + whip + contoh mode kolase |
 | `assets/starter-sinematik.html` | EXPLAINER siluet sinematik 100 % kode: obor, rim, kabut, grade (`techniques.md` §7d) |
+| `references/relief-candi.md` | RELIEF CANDI HIDUP: dinding galeri berpahat sebagai bingkai narasi — `reliefHidup`, `SINAR`, kosakata `pustaka.dindingRelief`, aturan, biaya, akurasi budaya |
+| `assets/starter-relief.html` | EXPLAINER relief candi hidup 100 % kode: cahaya obor menyapu pahatan andesit, tokoh relief hidup pelan, kamera menyusuri galeri |
+| `references/pustaka.md` | PUSTAKA ASET JAWA KUNO `pustaka.*`: candi, gapura, rumah panggung, beringin, lontar, gunung, sawah, obor/api/asap, relief, kain — kontrak, opsi, jebakan, catatan budaya |
+| `assets/katalog-pustaka.html` | KATALOG pustaka aset: tiga tableau sinematik 26 dtk (bukti jalan + bahan galeri) |
+| `references/tokoh.md` | RIG TOKOH V2 `tokoh.*`: rangka 2,5D + slot + IK dua tulang, pose bernama, tiga pandang, kostum Jawa kuno, arketipe, `kerumunan()` — kontrak, determinisme, catatan budaya |
+| `assets/katalog-tokoh.html` | KATALOG tokoh: empat tableau 28 dtk (arketipe, siklus jalan IK, sesaji di altar, kerumunan) |
+| `references/mata-elang.md` | SHOT MATA ELANG: `terbang()` 3D/2.5D, `lanskap()`, tone mapping film, motion blur akumulasi, resep + jebakan |
+| `assets/starter-elang.html` | MATA ELANG 3D: sawah berundak → gapura bentar → gunung saat senja, lanskap prosedural ber-seed, Three.js r161 |
 | `assets/starter-explainer-kartun.html` | EXPLAINER kartun kolase: kertas krem + grain + noda, cutout ilustrasi, Bricolage + Caveat, pill warna |
 | `assets/starter-explainer-jurnalisme.html` | EXPLAINER jurnalisme visual: hitam + grain, foto asli + tag sumber, Barlow Condensed + Plex Mono, highlighter kuning/merah, anotasi putus |
 | `assets/starter-explainer-katalog.html` | EXPLAINER katalog putih: grid samar, cutout foto, Archivo Black + Caveat + Inter, highlighter kuning |

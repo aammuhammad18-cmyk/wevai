@@ -340,7 +340,8 @@ bagian 1 dan 1b. Ringkasnya:
    untuk scrub. **Export MP4 hanya bila user memintanya**: `scripts/
    export-frames.mjs` merender tiap frame (60 fps) ke PNG lalu ffmpeg
    menggabungkannya — cara ini bebas frame drop, tapi mahal, bukan
-   alat pengecekan. Bila user ingin berkas yang aman disimpan
+   alat pengecekan. Video lebih dari ±10 menit: pecah per babak dan render lewat
+   `scripts/antre-render.mjs` (`references/alat-kerja.md` › Render panjang). Bila user ingin berkas yang aman disimpan
    bertahun-tahun (arsip/portofolio), tawarkan `scripts/vendor-libs.mjs` — GSAP dan font
    ditanam ke dalam berkas sehingga tidak bergantung pada CDN.
 

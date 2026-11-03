@@ -21,9 +21,9 @@ Sumber rincian:
 | F | Sub-proyek 4a: pustaka aset prosedural Jawa kuno | belum | |
 | G | Sub-proyek 4b: rig tokoh v2 | belum | |
 | H | Sub-proyek 5: mata elang 3D | belum | |
-| I | Sub-proyek 6: ekspor panjang | belum | |
+| I | Sub-proyek 6: ekspor panjang | kode selesai; masuk `main` sesudah render pemilik selesai (2 worker bawaan) | 429c64f..7310d5a |
 | J | Sub-proyek 7: gaya lanjutan | belum | |
-| K | Sub-proyek 8: penilaian visual otomatis + galeri | belum | |
+| K | Sub-proyek 8: penilaian visual otomatis + galeri | K1 selesai; K2 galeri belum | K1: a3486a1..f114d7d |
 | L | Rilis 1.4.0 | belum | |
 
 Rilis 1.4.0 (L) mencakup:

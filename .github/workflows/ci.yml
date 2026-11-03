@@ -26,6 +26,8 @@ jobs:
       - name: Uji VO Gemini (node:test, tanpa jaringan dan tanpa kunci)
         run: node --test scripts/test-vo.mjs
 
+      - name: Uji penilaian visual (node:test, PNG sintetis, tanpa browser)
+        run: node --test scripts/test-nilai.mjs
       - name: Uji ekspor panjang (node:test, tanpa browser dan tanpa ffmpeg)
         run: node --test scripts/test-ekspor.mjs
 

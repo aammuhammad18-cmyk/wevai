@@ -138,6 +138,63 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
   `generation_config.speech_config`, sedangkan referensi API menyebut `structured_speech_config`; bila Google menjawab 400
   `parameter_unknown`, ubah `bangunPermintaan()` (satu fungsi). Batas per menit tidak ditebak: alat mengikuti jawaban 429.
   **Status penerimaan**: menunggu uji langsung pemilik dengan kunci sendiri.
+- **Penilaian visual otomatis** (sub-proyek 8a, K1 di `docs/rencana-1.4.0.md`).
+  - **Berkas**: `scripts/nilai-visual.mjs` dan `scripts/test-nilai.mjs` (baru); `references/alat-kerja.md` › "Nilai visual (membaca
+    angkanya)"; eval brief `evals/briefs/10-sejarah-malam-obor.md`; bukti di `evals/bukti/2026-11-03-nilai-visual/`; satu baris di
+    `checklist.md`.
+  - **Tujuannya**: kriteria visual peta (§5 butir 7) dijadikan angka. Agen tidak bisa menonton video, dan bingkai "flat" lolos bila
+    hanya dinilai dengan mata.
+  - **Teknis**: Node ≥ 18, tanpa dependensi. PNG dibaca sendiri lewat `node:zlib` (8 bit RGB, RGBA, abu-abu, berpalet; filter 0–4),
+    lalu diperiksa silang dengan ffmpeg pada 30 PNG: 0 piksel berbeda.
+  - **Empat ukuran per bingkai**, pada skala L OKLab × 100:
+    1. rentang luminans p95 − p5 ≥ 28;
+    2. kontras subjek vs cincin (`--subjek`), atau tengah vs tepi bila tanpa kotak, ≥ 10. Nilainya diambil yang terbesar dari
+       selisih rata-rata dan sorot, karena siluet ber-rim nyaris sama terang dengan langitnya;
+    3. puncak L dekat tiap sumber yang dideklarasikan (`--sumber`) ≥ median + 30;
+    4. 2–6 warna dominan (≥ 5 % bingkai).
+  - **Keluaran**: kode keluar 0 berarti semua ok, 1 ada peringatan, 2 galat.
+  - **Kalibrasi**:
+    - `starter-sinematik.html` di t 0, 7, 11 dan target rupa `f_7` lolos semua ukuran: rentang 36,3–41,4; titik terang +65,7 sampai
+      +71,2.
+    - Jalur bawaan `starter-explainer.html` dan `starter-explainer-kartun.html` tertandai semua: rentang 4,2–18,8.
+    - Validasi luar, tidak dipakai untuk menetapkan ambang: 13 dari 13 bingkai produksi Babad Mataram tertandai.
+  - **Gerbang**: `test-nilai` (32 uji; ±30 mutasi sengaja semuanya tertangkap) masuk `rilis.mjs`, CI, dan `aturan-rilis.md`.
+  - **Celah yang diketahui**:
+    - Acuan sinematik baru satu adegan, jadi ambang perlu dikalibrasi ulang untuk setiap kulit sinematik baru.
+    - Batas atas 6 warna belum terkalibrasi.
+    - Blok warna rata yang rentangnya lebar (panggung t 10) hanya tertangkap lewat deklarasi sumber.
+    - `eval-run --snap` belum menjalankan `nilai-visual`.
+
+- **Ekspor panjang** (sub-proyek 6).
+  - **Berkas baru**: `scripts/antre-render.mjs`, `scripts/ekspor-inti.mjs`, `scripts/test-ekspor.mjs`.
+  - **`export-frames.mjs`**:
+    - `WORKERS` bawaan kini **2** bila `os.availableParallelism() >= 2`, selain itu 1; env tetap menimpa.
+    - Frame identik dengan `WORKERS=1`: 30 dari 30 hash PNG sama (`evals/bukti/2026-11-03-ekspor/bukti.txt`).
+    - Antrean render pemilik ikut memakai 2 worker begitu ini masuk `main`, sekitar 2× lebih cepat menurut peta §7.
+  - **`antre-render.mjs`** (generalisasi `alat/antre-render.sh`):
+    - Masukan `antrean.json` `[{html|url, mp4, siap?, audio?, env?}]`.
+    - Butir dilewati bila mp4-nya terbaca ffprobe dan lebih baru dari html dan audio.
+    - Hasil ditulis ke `.sementara.mp4` dulu lalu diganti nama, jadi mp4 setengah jadi tidak pernah dianggap selesai.
+    - Butir yang gagal dicatat dan antrean jalan terus; menjalankan ulang berarti melanjutkan.
+    - Log mencatat fps, sisa butir/antrean, dan jam selesai.
+    - `--gabung` menggabung semua babak lalu mencocokkan durasi gabungan dengan jumlah durasi butir.
+  - **Penahan sleep bawaan** hidup selama antrean berjalan dan mati di semua jalan keluar:
+    - Windows: `SetThreadExecutionState(0x80000001)` lewat PowerShell tersembunyi;
+    - macOS: `caffeinate`;
+    - Linux: `systemd-inhibit`;
+    - setelan daya tidak disentuh;
+    - terbukti di proses nyata: galat di tengah render mematikan 22/22 proses turunan.
+  - **`MODE=webcodecs`** (eksperimental), untuk halaman yang seluruh framenya satu kanvas (`window.OPENER.canvas`):
+    - `VideoEncoder` H.264 Annex B dialirkan ke ffmpeg (`-r <fps> -f h264 -c copy`);
+    - uji: 90 frame, 6,000000 dtk, urutan frame benar, selisih rata-rata 1,0–1,7 level dibanding jalur PNG;
+    - tanpa kait kanvas: pesan jelas, lalu jalur biasa.
+  - **Uji**: `test-ekspor` (40 uji tanpa Chrome dan ffmpeg; 10 dari 11 mutasi tertangkap) masuk `rilis.mjs`, CI, dan `aturan-rilis.md`.
+  - **Dokumen**: `alat-kerja.md` › "Render panjang" dan "Mode WebCodecs"; kait `canvas` di kontrak `OPENER` (`architecture.md`);
+    README; satu penunjuk di langkah 6 `SKILL.md`.
+  - **Belum diukur / celah**:
+    - kecepatan WebCodecs di 1080p, dan halaman WebGL nyata;
+    - jalur macOS/Linux dan Ctrl+C asli di Windows (baru lewat uji unit);
+    - ETA belum menghitung waktu peluncuran Chrome.
 
 ## 1.3.0 — 2026-11-02
 

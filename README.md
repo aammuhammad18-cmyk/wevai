@@ -217,6 +217,7 @@ git clone https://github.com/aammuhammad18-cmyk/wevai
 |---|---|
 | Claude Code | `~/.claude/skills/wevai` (Windows: `C:\Users\<you>\.claude\skills\wevai`) |
 | Codex CLI | your Codex skills folder, or add to `AGENTS.md`: *"For motion graphics / explainers, read and follow `wevai/SKILL.md`."* |
+| Google Antigravity | `~/.gemini/config/skills/wevai` (Windows: `%USERPROFILE%\.gemini\config\skills\wevai`) — see [Google Antigravity](#google-antigravity) |
 | Gemini CLI · Cursor · others | copy into the project and reference `SKILL.md` from `GEMINI.md`, `.cursor/rules`, or the system prompt |
 | Plain chat (no agent) | paste `SKILL.md` + the relevant file in `references/` as instructions; attach a starter from `assets/` |
 
@@ -224,12 +225,36 @@ git clone https://github.com/aammuhammad18-cmyk/wevai
 
 The skill triggers on requests like "make an opener…", "promo video…", "explainer…", or a complaint that a web animation "looks like PowerPoint".
 
+### Google Antigravity
+
+Antigravity reads the Agent Skills layout natively, so WeVai is one folder in its global skills directory. The same folder serves the Antigravity App, CLI, and IDE. The folder **must be named `wevai`** (a zip download unpacks as `wevai-main`; rename it).
+
+Windows (PowerShell), skills folder `%USERPROFILE%\.gemini\config\skills\wevai`:
+
+```powershell
+git clone https://github.com/aammuhammad18-cmyk/wevai "$env:USERPROFILE\.gemini\config\skills\wevai"
+npm install --prefix "$env:USERPROFILE\.gemini\config\skills\wevai\scripts"
+```
+
+macOS / Linux, skills folder `~/.gemini/config/skills/wevai`:
+
+```bash
+git clone https://github.com/aammuhammad18-cmyk/wevai ~/.gemini/config/skills/wevai
+npm install --prefix ~/.gemini/config/skills/wevai/scripts
+```
+
+`npm install` is optional: Node + puppeteer only power the frame checks and MP4 export (see [Requirements](#requirements)), and a Chrome or Edge you already have is found automatically, with no environment variable to set. Update later with `git -C <that folder> pull`.
+
+Call it with `/wevai` in the App (for example `/wevai make a 20-second opener for a coffee app`), or just ask for an opener, promo, or explainer and let the agent pick the skill.
+
+Image and video generation is optional: register the MCP server you use in `~/.gemini/config/mcp_config.json` (Windows: `%USERPROFILE%\.gemini\config\mcp_config.json`) under `mcpServers`. Higgsfield's endpoint is usually quoted as `https://mcp.higgsfield.ai/mcp`, but that URL is **unverified** (only third-party write-ups give it): confirm it in Higgsfield's own docs first.
+
 ## Requirements
 
 | To… | You need |
 |---|---|
 | **Watch** the result | a browser + internet (GSAP and fonts load from a CDN). Nothing else. |
-| Verify frames automatically | Node + puppeteer (`scripts/snap.mjs`) — optional; `?debug=1` works by hand. Run `npm install` once inside the skill's `scripts/` folder, then run the scripts from your project folder |
+| Verify frames automatically | Node + puppeteer (`scripts/snap.mjs`) — optional; `?debug=1` works by hand. Run `npm install --prefix "<skill folder>/scripts"` once (any shell, any folder), then run the scripts from your project folder. An installed Chrome or Edge is found automatically; `PUPPETEER_EXECUTABLE_PATH` is only for unusual install locations |
 | Export MP4 | Node + puppeteer + ffmpeg (`scripts/export-frames.mjs`, 16:9 or 9:16, voice-over muxed) — optional |
 | Sync to voice-over | ffmpeg, **or** nothing: `scripts/vo-pauses.html` detects pauses in the browser |
 | Keep an offline archive copy | `scripts/vendor-libs.mjs` — inlines GSAP and the fonts (WebGL openers still need the CDN) |
@@ -278,6 +303,8 @@ scripts/
   snap.mjs                       verify: capture key seconds
   export-frames.mjs              export: frame-by-frame → MP4, piped to ffmpeg, optional parallel workers (16:9 or 9:16, voice-over muxed)
   vo-pauses.html                 voice-over pause detection, no ffmpeg needed
+  chrome.mjs                     finds Chrome/Edge for the scripts that open a browser (no env var needed)
+  bantuan.mjs                    makes `--help` / `-h` print a script's usage instead of running it
   serve.py                       no-cache dev server (optional)
   vendor-libs.mjs                inline GSAP + fonts for an offline archive copy
   build-starters.mjs             inline src/runtime into the starters (repo maintenance)
@@ -338,7 +365,7 @@ Issues and pull requests are welcome. When you add a rule, describe which failur
 Before opening a PR (same checks CI runs):
 
 ```bash
-cd scripts && npm install && cd ..     # once
+npm install --prefix scripts            # once
 node --test scripts/test-kamera.mjs        # camera core (no browser)
 node scripts/build-starters.mjs --check   # starters match src/runtime
 node scripts/bump-version.mjs --check     # version is the same everywhere

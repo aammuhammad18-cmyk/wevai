@@ -48,6 +48,60 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
   `rilis X.Y.Z` → tag → push hanya dengan izin pemilik → GitHub Release. `scripts/rilis.mjs` menjalankan semua gerbang
   (`--tanpa-browser` saat mesin merender). Bila diberi versi, skrip menyiapkan CHANGELOG, `bump-version`, dan catatan rilis, tanpa
   commit, tag, atau push. Penyesuaian yang tertunda: tag `v1.2.0` (7fa0791) dan `v1.3.0` (0748e0b), yang belum di-push.
+- **Kompatibel Antigravity (pengguna mana pun, Windows/PowerShell, macOS, Linux)**. Dasar: `docs/riset-antigravity-2026-11-03.md`
+  (Antigravity membaca format Agent Skills apa adanya; yang patah adalah shell dan lingkungan, bukan tool khusus Claude). Semua
+  perubahan netral-agen: perilaku Claude Code tidak berubah, `SKILL.md` tidak punya cabang "jika Antigravity", dan repo tidak
+  menambah workflow, `AGENTS.md`/`GEMINI.md`, `mcp_config.json`, hook, atau skrip instal. Cakupannya MINOR menurut `docs/aturan-rilis.md` (dukungan agen baru).
+  - **Chrome ditemukan otomatis** (`scripts/chrome.mjs`, baru; dipakai `snap`, `export-frames`, `test-starters`, `bench-frame`, dan
+    `ae/bridge/svg2png.cjs`). Urutan: `PUPPETEER_EXECUTABLE_PATH` bila di-set (perilaku lama, tak diubah) → browser unduhan puppeteer →
+    Chrome sistem → Edge di lokasi pasang standar Windows/macOS/Linux (Chromium ikut sebagai Chrome) → galat berbahasa Indonesia yang
+    menyebut dua jalan keluarnya. Alasan: pengguna lain tidak punya env itu, dan di mesin acuan ia tidak di-set sementara unduhan
+    puppeteer tidak ada, jadi `snap` dan `export-frames` gagal. Env kini opsional. `node scripts/chrome.mjs` mencetak pilihan tanpa
+    membuka browser. puppeteer dimuat saat dibutuhkan, jadi `--help` jalan walau `npm install` belum dijalankan.
+  - **`--help` / `-h` tidak menjalankan apa pun** (`scripts/bantuan.mjs`, baru). Dokumen skill Antigravity menyuruh agen menjalankan
+    skrip dengan `--help` dulu. Sebelumnya `export-frames` memulai render penuh, `vendor-libs` mengunduh dari CDN lalu menulis
+    `index-arsip.html`, `test-starters` dan `bench-frame` membuka Chrome, `build-starters` menulis ulang starter, `eval-run -h` menulis
+    `evals/laporan-*.md`, dan `aset-svg.py` membuat folder bernama `--help`. Kini semuanya mencetak komentar kepalanya lalu keluar 0;
+    `snap` dan `svg2png` ikut (dulu keluar 1 / galat). Tidak diberi guard karena `--help` memang tanpa efek: `lint-motion`, `cdn-integrity`,
+    `bump-version`, `rilis`, `context-budget`, `test-kamera`, `serve.py`, `rig-tokoh.py`, `kepala-ekspresi.py`.
+  - **Dokumen**: `<folder skill>` (folder berisi `SKILL.md`, path absolut yang dipakai agen) didefinisikan sekali di `SKILL.md` dan
+    menggantikan `<skill>`/`<path>` di `references/alat-kerja.md` dan kepala skrip. `SKILL.md`: langkah 3 menyuruh menyalin starter dengan
+    `Copy-Item`/`cp` ke `index.html` di folder proyek (jangan diketik ulang); satu catatan shell (PowerShell: `$env:VAR='…'; node …` dan `;`,
+    bukan `VAR=… node` atau `&&`), diletakkan di "Prasyarat" supaya berada di 24 000 byte pertama. `references/alat-kerja.md`:
+    `npm install --prefix "<folder skill>/scripts"` (sama di bash, PowerShell, cmd), tabel bash ↔ PowerShell (MP4/URL/FPS/WORKERS,
+    PUPPETEER_*), paragraf "Render panjang" (> ±10 menit: proses terlepas + log + laptop tidak sleep, karena perintah latar agen bisa
+    mati saat aplikasi di-restart atau percakapan diarsipkan), dan kalimat tentang `--help`. `references/ae-bridge-higgsfield.md`:
+    "→ Read" → "buka gambarnya dengan alat baca-berkas agenmu". `README.md`: subbagian "Google Antigravity" untuk pengguna mana pun
+    (clone ke `~/.gemini/config/skills/wevai`, di Windows `%USERPROFILE%\.gemini\config\skills\wevai`; folder harus bernama `wevai`;
+    PowerShell dan bash; `/wevai` di App; MCP di `~/.gemini/config/mcp_config.json` dengan URL Higgsfield bertanda belum terverifikasi),
+    baris tabel manual, dan Contributing `npm install --prefix scripts`. Lencana "works with" belum ditambah: menunggu uji pemilik.
+  - **Anggaran konteks**: `SKILL.md` 37 601 → 37 559 karakter (−42): tambahan (definisi `<folder skill>`, aturan salin, catatan shell) ±380
+    diimbangi ±420 yang dirapikan tanpa menghilangkan aturan (kalimat langkah 5 yang berganda dan berantakan, "bukan alat pengecekan"
+    yang diulang di langkah 6, "Semua sudah autoplay + loop" yang sudah ada di "Player", contoh pill + bintang di Hukum #4 yang sudah
+    dikatakan tiga kali lagi, dan daftar nama konsep di baris `opener-konsep.md` pada "Isi paket"). Batas tidak diubah. Jalur Opener /
+    promo / bumper 219,99 → 219,94 KB (sisa 15 → 57 karakter), Siluet sinematik 234,52 → 234,48 KB (sisa 490 → 532), jalur lain turun
+    42 karakter; jalur "Build di After Effects" 76 847 → 76 846 (kalimat `ae-bridge-higgsfield.md` +41, `SKILL.md` −42).
+  - **Plugin Antigravity tidak ditambahkan.** `.antigravity-plugin/plugin.json` (`"skills": "./"`) diuji dengan
+    `agy plugin validate --strict --json` pada salinan sementara repo (profil `agy` terpisah; `~/.gemini` tidak berubah): `SKILL.md` di
+    akar terbaca sebagai 1 skill, tetapi mode ketat GAGAL (exit 1): `SKILL.md: the body is 37243 bytes; only the first 24000 are loaded`.
+    Salinan yang `SKILL.md`-nya dipotong di bawah 24 000 byte lolos ketat. Jadi syarat memasukkan manifest (lolos ketat) belum terpenuhi.
+  - **Celah yang diketahui**:
+    - **`SKILL.md` melewati 24 000 byte** (bodi 36,7 KB dengan LF, 37,3 KB dengan CRLF seperti checkout Windows). Bila batas itu juga berlaku
+      pada skill di folder global (belum terverifikasi; validator hanya menyebut skill plugin), agen Antigravity hanya memuat sampai sekitar
+      langkah 3 "Alur kerja" (di checkout CRLF batasnya jatuh di tengah kalimat langkah 3): langkah 4–7, seluruh "Checklist sebelum
+      menyerahkan", "Jebakan", "After Effects", dan "Isi paket" tidak termuat. Karena itu definisi `<folder skill>`, catatan shell, dan aturan
+      salin starter ditaruh di 24 000 byte pertama (byte ±2 200, ±2 700, dan ±23 200). Mengatasinya = menyusun ulang `SKILL.md` (MAYOR
+      menurut `docs/aturan-rilis.md`), jadi keputusan pemilik; uji empirisnya: minta agen Antigravity mengutip langkah 6 "Alur kerja".
+    - Belum dijalankan di Antigravity sungguhan (App/CLI/IDE) dan belum di macOS/Linux. Deteksi browser macOS/Linux hanya daftar lokasi
+      standar yang belum dicoba di OS itu; seluruh verifikasi dilakukan di Windows 11 (PowerShell 5.1, Git Bash).
+    - URL MCP Higgsfield di README belum terverifikasi (hanya sumber pihak ketiga).
+  - **Status penerimaan**: menunggu. Pemilik menguji checklist C5 di `docs/riset-antigravity-2026-11-03.md` (uji `/wevai`, opener 20 detik,
+    `--help`, MP4) di Antigravity sebelum lencana README diubah.
+  - **Bukti** (Windows 11, tanpa `PUPPETEER_EXECUTABLE_PATH`, prioritas Idle karena render pemilik berjalan): `test-starters` 9 dari 9 starter
+    lolos; satu `snap.mjs` menghasilkan potret dan lembar kontak; kontrol negatif: `puppeteer.launch` polos tanpa env dan tanpa `chrome.mjs`
+    gagal di mesin yang sama ("Could not find Chrome"); `--help`/`-h` pada 9 skrip ber-guard: exit 0, tanpa berkas baru, tanpa proses
+    Chrome baru; bentuk PowerShell 5.1 yang didokumentasikan (env, `;`, `npm ... --prefix`, `Copy-Item`, `git clone`, `Start-Process`
+    terlepas) jalan.
 
 ## 1.3.0 — 2026-11-02
 

@@ -1172,13 +1172,13 @@ diorama.matahari({pusat:[0,0,3],r:62});
 /* latar lukis di sisi kaja: langit + gunung berlapis (pustaka), dinding melengkung seperti diorama museum */
 const LUKIS=5250,SUDUT=200,PUNCAK=(.5-26/SUDUT)*LUKIS;   // gunung di az +26° (sedikit ke kangin), masuk bingkai akhir; kanvas terbalik: kangin = kiri tekstur
 const LATAR=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${LUKIS} 720"><defs><linearGradient id="l" x2="0" y2="1"><stop offset="0" stop-color="#6f8b9c"/><stop offset=".6" stop-color="#b9bcab"/><stop offset=".86" stop-color="#d9caa8"/></linearGradient><linearGradient id="k" x2="0" y2="1"><stop offset="0" stop-color="#5a6449"/><stop offset=".7" stop-color="#454a35"/><stop offset="1" stop-color="#2a261d"/></linearGradient></defs><rect width="${LUKIS}" height="720" fill="url(#l)"/>
-${[[900,190,620,30],[1900,120,700,34],[2900,210,560,26],[4200,140,640,32]].map(([x,y,a,b])=>`<ellipse cx="${x}" cy="${y}" rx="${a}" ry="${b}" fill="#ece3cf" opacity=".5"/>`).join('')}
-${pustaka.gunungBerlapis({x:PUNCAK,y:560,lebar:LUKIS*1.3,tinggi:285,lapis:3,puncak:2,seed:5,warna:'#4f6058',cahaya:{arah:215,warna:'#fff0cf',kuat:.5},detail:1,id:'gn'})}<rect y="540" width="${LUKIS}" height="180" fill="url(#k)"/></svg>`;
+${[[900,190,620,30],[1900,120,700,34],[2900,210,560,26],[4200,140,640,32]].map(([x,y,a,b])=>`<ellipse cx="${x}" cy="${y}" rx="${a}" ry="${b}" fill="#ece3cf" opacity=".32"/>`).join('')}
+${pustaka.gunungBerlapis({x:PUNCAK,y:625,lebar:LUKIS*1.3,tinggi:345,lapis:3,puncak:2,seed:5,warna:'#4f6058',cahaya:{arah:215,warna:'#fff0cf',kuat:.5},detail:1,id:'gn'})}<rect y="606" width="${LUKIS}" height="114" fill="url(#k)"/></svg>`;
 diorama.latar(LATAR,{r:92,sudut:SUDUT,tinggi:44,z:2});
 /* kartu: beringin di nista, lontar di luar tembok (penghias, bukan unsur denah); pemedek kecil di nista dan madya */
 const pohon=(gen,o,lebar=1200,tg=1000)=>`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${lebar} ${tg}">${pustaka[gen]({x:lebar/2,y:tg-8,tinggi:tg-40,detail:2,cahaya:{arah:235,warna:'#ffeec8',kuat:.85},...o})}</svg>`;
 diorama.kartu(pohon('beringin',{seed:3,warna:'#46592f'}),{x:7.5,z:24.5,tinggi:11,lebar:13.2,tepi:3,bayang:.6,nama:'beringin'});
-const bebas=(x,z)=>(Math.abs(x)<14.5&&z<33)||(x<0&&z>10);   // luar tembok, dan jauh dari jalur kamera (kartu dekat lensa memperlihatkan tipisnya)
+const bebas=(x,z)=>(Math.abs(x)<14.5&&z<33)||(x<0&&z>10)||(x>0&&z<-4);   // luar tembok, jauh dari jalur kamera (kartu dekat lensa memperlihatkan tipisnya), dan bersih di belakang bingkai akhir
 for(const k of diorama.tataKartu({seed:9,n:8,area:[-18,-29,18,35],jarak:7,hindari:bebas}))
   diorama.kartu(pohon('lontar',{seed:1+Math.round(k.u*9),warna:'#4c5f33'},700),{x:k.x,z:k.z,tinggi:9+3.5*k.u,lebar:(9+3.5*k.u)*.7,resolusi:512,tepi:2,bayang:.5});
 [[-1.9,27],[2.3,29],[-3.2,21],[3.6,19.8],[-3,11],[2.2,6],[-2.6,3.6],[4.2,12.5]].forEach(([x,z],i)=>{const y=z>17?0:.5;

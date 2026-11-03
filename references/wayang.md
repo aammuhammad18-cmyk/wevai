@@ -94,7 +94,7 @@ Sumber: **[S]** Subagya, "Nilai-nilai Estetis Bentuk Wayang Kulit", *Gelar* 11(2
 | Gelung | cupit urang (Arjuna, Gatotkaca); ukel keyongan (putri); gembel (ikal); garuda mungkur di belakang gelung raja/ksatria | `gelung` | W |
 | Warna muka | umumnya hitam (dewasa, tenang, sigap); merah muda → tua = makin temperamental (raksasa); prada = wayang brongsong. Makna putih/biru tidak seragam antarsumber: tanpa klaim | `MUKA` | S, W |
 | Lengan | satu batang kendali per lengan; raksasa: tangan belakang lazim digambar tetap, malang kerik | `gerak` | S, I |
-| Batang | gapit = kendali tubuh; tuding = kendali lengan; keduanya = cempurit; dari tanduk | digambar di bayangan | I, W |
+| Batang | gapit = kendali tubuh; tuding = kendali lengan; keduanya = cempurit; dari tanduk kerbau atau kulit penyu | digambar di bayangan | I, W, [Arty UNNES](https://journal.unnes.ac.id/sju/arty/article/download/312/361) (cuplikan pencarian) |
 | Posisi tangan | anjujur, angapurancang, mathentheng, malang kadhak/kerik | `POSE` | I |
 | Simpingan | berderet di debog, kanan = raja, satria, putran, putren; kiri = raksasa dll. Membelakangi tempat perkeliran, ditata menurut tinggi | `bakeSimpingan` | S, L |
 | Kelir, debog | kain putih di gawangan, lis hitam atau merah; batang pisang | `bakeKelir` | L, I |

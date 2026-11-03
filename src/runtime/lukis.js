@@ -59,7 +59,7 @@ vec2 q=obj(y);float k=1.-float(i)/A.x;sc+=k*vn(q/A.y,O.w+11.);wc+=k;if(float(i)<
 o=vec4(clamp(.5+(sc/wc-.5)*3.,0.,1.),clamp(.5+(sf/wf-.5)*3.5,0.,1.),0,1);}`,
 /* pigmen: kepekatan bervariasi sepanjang guratan (model warna Bousseau) + hangat/dingin; A.x variasi */
 PIG:`void main(){ivec2 p=P();vec4 c=tx(T0,p);if(c.a<.002){o=vec4(0);return;}vec2 q=obj(gl_FragCoord.xy);vec3 r=c.rgb/c.a;
-float d=1.+A.x*3.*((tx(T1,p).x-.5)*1.4+(fb(q/55.,O.w+17.)-.5)*1.6);r=r-(r-r*r)*(d-1.);
+float d=1.+A.x*2.4*((tx(T1,p).x-.5)*.9+(fb(q/55.,O.w+17.)-.5)*1.4+(fb(q/140.,O.w+21.)-.5)*1.2);r=r-(r-r*r)*(d-1.);
 float w=(fb(q/160.,O.w+19.)-.5)*A.x*8.;r*=1.+vec3(w,w*.2,-w)*.6;o=vec4(clamp(r,0.,1.)*c.a,c.a);}`,
 /* Kuwahara anisotropik, 8 sektor, bobot polinomial (Kyprianidis 2010): A.x jari-jari, A.y q (tajam), A.z alfa, A.w kekerasan */
 KUWA:`void acc(inout vec4 m,inout vec4 s,inout float W,float w,vec4 c){m+=w*c;s+=w*c*c;W+=w;}
@@ -82,7 +82,7 @@ vec4 c=texture(T0,fw),cb=texture(T1,fw);vec2 l=tx(T2,P()).xy;float wet=A.w*smoot
 c=mix(c,cb,wet*clamp(1.-abs(2.*cb.a-1.),0.,1.)*.85);float a=c.a;if(a<.003){o=vec4(0);return;}
 vec3 r=c.rgb/a,rb=cb.rgb/max(cb.a,.003);float lr=dot(r,vec3(.3,.59,.11)),lb=dot(rb,vec3(.3,.59,.11)),pk=kertas(q);
 float ev=vn(q/26.,O.w+43.),e=(a*(1.-cb.a)*2.6+abs(lr-lb)*4.)*(.1+1.4*ev*ev),z=(cb.a-.3)/.09,
-bl=fb(q/170.,O.w+47.)+.035*vn(q/5.,O.w+53.),zb=(bl-.6)/.014,d=1.+A.x*e+wet*exp(-z*z)*1.5+A.w*(exp(-zb*zb)*.9-.35*smoothstep(.6,.66,bl));
+bl=fb(q/170.,O.w+47.)+.015*vn(q/9.,O.w+53.),zb=(bl-.64)/.03,d=1.+A.x*e+wet*exp(-z*z)*.6+A.w*(exp(-zb*zb)*.22-.18*smoothstep(.64,.7,bl));
 d*=1.+A.y*((.5-pk)*.9+(vn(q/3.2,O.w+59.)-.5)*.6)*(1.-.6*lr);d*=1.+A.z*(fb(q/230.,O.w+41.)-.5)*1.6;d*=1.+B.z*(l.y-.5)*.8;
 r=clamp(r-(r-r*r)*(d-1.),0.,1.);r*=1.+B.y*((pk-.5)*.12+(pk-kertas(q+1.3))*.9)*(.4+.6*lr);lr=dot(r,vec3(.3,.59,.11));
 r=mix(r,lr<.5?mix(N0,N1,lr*2.):mix(N1,N2,lr*2.-1.),C.x);o=vec4(clamp(r,0.,1.)*a,a);}`,
@@ -125,10 +125,10 @@ async function lukisKanvas(cv,markup,kt,q,seed){
       if(!strip){gl.drawArrays(gl.TRIANGLES,0,3);gl.flush();return;}
       gl.enable(gl.SCISSOR_TEST);for(let y=0;y<h;y+=strip){gl.scissor(0,y,w,min(strip,h-y));gl.drawArrays(gl.TRIANGLES,0,3);gl.finish();}gl.disable(gl.SCISSOR_TEST);};
   try{
-    const R=tek(0,cv),A1=tek(1),A2=tek(1),AR=tek(0),LI=tek(0),KU=tek(1),sk=max(1.5,q.kuas*.6),iso=(1/max(.05,q.panjang)-1)/2;
+    const R=tek(0,cv),A1=tek(1),A2=tek(1),AR=tek(0),LI=tek(0),KU=tek(1),sk=max(2.,q.kuas*1.1),iso=(1/max(.05,q.panjang)-1)/2;
     jalan('TEN',A1,[R]);jalan('KABUR',A2,[A1],{A:[1,0,3*res,0]});jalan('KABUR',A1,[A2],{A:[0,1,3*res,0]});
     jalan('ARAH',AR,[A1],{A:[q.arah*PI/180,q.liuk,2e-3,iso]});
-    jalan('LIC',LI,[AR],{A:[max(2,ceil(max(1,rk)*(1+2*q.panjang))),sk,max(2,ceil(max(1,rk))),0]},STRIP);
+    jalan('LIC',LI,[AR],{A:[max(2,ceil(max(1,rk)*(1+3*q.panjang))),sk,max(2,ceil(max(1,rk))),0]},STRIP);
     jalan('PIG',A2,[R,LI],{A:[q.variasi,0,0,0]});
     if(rk>=1)jalan('KUWA',KU,[A2,AR],{A:[rk,q.tajam,1,1500]},STRIP);else jalan('SALIN',KU,[A2],{A:[0,0,0,0]});
     jalan('KABUR',A1,[KU],{A:[1,0,4*res,0]});jalan('KABUR',A2,[A1],{A:[0,1,4*res,0]});

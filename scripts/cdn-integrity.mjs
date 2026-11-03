@@ -9,8 +9,8 @@
    isinya tidak sama persis.
 
    Pakai (dari akar repo skill, atau dari folder proyek untuk deliverable):
-     node <skill>/scripts/cdn-integrity.mjs assets/*.html      # pasang/segarkan hash
-     node <skill>/scripts/cdn-integrity.mjs --check assets/*.html   # CI: hash masih cocok?
+     node <folder skill>/scripts/cdn-integrity.mjs assets/*.html      # pasang/segarkan hash
+     node <folder skill>/scripts/cdn-integrity.mjs --check assets/*.html   # CI: hash masih cocok?
 
    Batas: hanya untuk `<script src>` biasa. Import map (Three.js) tidak bisa diberi
    SRI — untuk arsip yang tidak boleh bergantung pada jaringan sama sekali, pakai

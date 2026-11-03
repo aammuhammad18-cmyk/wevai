@@ -22,7 +22,9 @@
      node <folder skill>/scripts/vendor-libs.mjs a.html out.html
    ========================================================= */
 import { readFile, writeFile } from 'node:fs/promises';
+import { bantuan } from './bantuan.mjs';
 
+bantuan(import.meta.url);   // tanpa ini --help dibuang dari argumen lalu mengunduh dari CDN dan menulis index-arsip.html
 const [masukan = 'index.html', keluaran = masukan.replace(/\.html$/, '') + '-arsip.html'] =
   process.argv.slice(2).filter(a => !a.startsWith('--'));
 

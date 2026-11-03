@@ -18,7 +18,9 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { readdirSync } from 'node:fs';
 import { join, dirname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { bantuan } from './bantuan.mjs';
 
+bantuan(import.meta.url);   // tanpa ini --help sama dengan build biasa: menulis ulang assets/*.html
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const check = process.argv.includes('--check');
 const SRC = join(ROOT, 'src', 'runtime');

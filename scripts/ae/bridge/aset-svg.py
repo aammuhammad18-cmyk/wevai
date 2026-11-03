@@ -10,6 +10,7 @@ Ganti/isi bagian "# ---- aset ----" dengan panggung proyekmu; palet dari style b
 """
 import json, os, math, sys
 
+if any(a in ('-h', '--help') for a in sys.argv[1:]): sys.stdout.reconfigure(encoding='utf-8'); print(__doc__); sys.exit(0)   # tanpa ini "--help" dibuat jadi folder keluaran; utf-8 supaya → tidak gagal saat stdout di-pipe (cp1252)
 HERE = os.getcwd()
 OUT = os.path.abspath(sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, 'aset')); os.makedirs(OUT, exist_ok=True)
 PX = 2  # kerapatan render: PNG 2×, dipasang di AE dengan scale 50 %

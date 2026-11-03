@@ -9,14 +9,15 @@
    bila user minta MP4).
 
    Prasyarat (opsional — tanpa Node, verifikasi manual lewat ?debug=1):
-     cd <folder skill>/scripts && npm install     (sekali; puppeteer dicari dari folder
-     skrip ini, BUKAN dari folder tempat perintah dijalankan)
-     Sudah punya Chrome/Edge? PUPPETEER_SKIP_DOWNLOAD=1 npm install, lalu set
-     PUPPETEER_EXECUTABLE_PATH ke chrome.exe/msedge.exe saat menjalankan.
+     npm install --prefix "<folder skill>/scripts"     (sekali, dari folder mana pun; puppeteer dicari dari
+     folder skrip ini, BUKAN dari folder tempat perintah dijalankan)
+     Chrome/Edge sistem dicari otomatis (scripts/chrome.mjs); PUPPETEER_EXECUTABLE_PATH hanya bila di lokasi tak
+     standar. Sudah punya Chrome/Edge? Lewati unduhan puppeteer dengan PUPPETEER_SKIP_DOWNLOAD.
+     Env (URL, PUPPETEER_*) di bash dan PowerShell: tabel di references/alat-kerja.md.
 
    Pakai (dari folder proyek, tanpa server; berkas dibuka lewat file://):
-     node <path>/snap.mjs shots 1 3.5 8 12 20
-     URL="file:///C:/proyek/index.html?clean=1" node <path>/snap.mjs shots 1 3.5 8
+     node <folder skill>/scripts/snap.mjs shots 1 3.5 8 12 20
+     env URL = halaman lain (default file://<cwd>/index.html?clean=1), mis. file:///C:/proyek/index.html?clean=1
    Hasil: shots/t1_00.png, shots/t3_50.png, ... — gabungkan jadi lembar
    kontak (PIL/ffmpeg tile) dan NILAI dengan mata: teks kepotong? tumpang
    tindih? teks muncul sebelum kamera selesai? masih terasa slide?
@@ -24,18 +25,20 @@
    Halaman harus mengekspos window.OPENER = { W, H, ready, seek(t) } — semua
    starter di skill ini sudah begitu. ?clean=1 menahan autoplay & panel.
    ========================================================= */
-import puppeteer from 'puppeteer';
+import { luncurkan } from './chrome.mjs';
+import { bantuan } from './bantuan.mjs';
 import { pathToFileURL } from 'node:url';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
+bantuan(import.meta.url);
 const argv = process.argv.slice(2);
 const tanpaSheet = argv.includes('--tanpa-sheet');
 const [outDir, ...times] = argv.filter(a => !a.startsWith('--'));
 if (!outDir || !times.length) { console.log('pakai: node snap.mjs <folder-output> <detik> [<detik> ...] [--tanpa-sheet]'); process.exit(1); }
 const URL = process.env.URL || pathToFileURL(process.cwd()).href + '/index.html?clean=1';
 await mkdir(outDir, { recursive: true });
-const browser = await puppeteer.launch({ headless: 'new', args: ['--use-gl=angle', '--enable-webgl', '--ignore-gpu-blocklist', '--autoplay-policy=no-user-gesture-required'] });
+const browser = await luncurkan({ headless: 'new', args: ['--use-gl=angle', '--enable-webgl', '--ignore-gpu-blocklist', '--autoplay-policy=no-user-gesture-required'] });
 const page = await browser.newPage();
 page.on('pageerror', e => console.log('PAGEERROR', e.message));
 await page.goto(URL, { waitUntil: 'networkidle0' });

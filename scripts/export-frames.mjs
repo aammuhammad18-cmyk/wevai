@@ -5,13 +5,13 @@
    browser selesai menggambar, baru menangkap. Jadi tidak ada frame
    yang drop walau satu frame butuh 300 ms untuk dirender.
 
-   Prasyarat (sekali): cd <folder skill>/scripts && npm install
-     (sudah punya Chrome/Edge? PUPPETEER_SKIP_DOWNLOAD=1 npm install, lalu
-      set PUPPETEER_EXECUTABLE_PATH ke chrome.exe/msedge.exe saat menjalankan)
+   Prasyarat (sekali): npm install --prefix "<folder skill>/scripts"
+     (Chrome/Edge sistem dicari otomatis lewat scripts/chrome.mjs; PUPPETEER_EXECUTABLE_PATH hanya bila di lokasi
+      tak standar. Menulis env di bash dan PowerShell: tabel di references/alat-kerja.md)
 
    Pakai (dari folder proyek, tanpa server; berkas dibuka lewat file://):
-     node <folder skill>/scripts/export-frames.mjs            -> frames/f00000.png ... + perintah ffmpeg
-     MP4=out.mp4 node <folder skill>/scripts/export-frames.mjs -> langsung out.mp4 (butuh ffmpeg di PATH)
+     node <folder skill>/scripts/export-frames.mjs     -> frames/f00000.png ... + perintah ffmpeg
+     sama, dengan env MP4=out.mp4                      -> langsung out.mp4 (butuh ffmpeg di PATH)
    Env opsional:
      URL (default file://<cwd>/index.html?clean=1), FPS (60), OUT (frames),
      SCALE (1 = ukuran panggung asli, 0.5 = setengah).
@@ -36,13 +36,15 @@
    suaranya ikut digabung (tanpa itu MP4 explainer ber-VO keluar bisu).
    ========================================================= */
 
-import puppeteer from 'puppeteer';
+import { luncurkan } from './chrome.mjs';
+import { bantuan } from './bantuan.mjs';
 import { pathToFileURL, fileURLToPath } from 'node:url';
 import { mkdir, writeFile, rm } from 'node:fs/promises';
 import { spawn, spawnSync } from 'node:child_process';
 import { once } from 'node:events';
 import { resolve } from 'node:path';
 
+bantuan(import.meta.url);   // --help/-h: cetak bantuan dan keluar SEBELUM merender apa pun
 const URL     = process.env.URL   || pathToFileURL(process.cwd()).href + '/index.html?clean=1';
 const FPS     = Number(process.env.FPS   || 60);
 const OUT     = process.env.OUT   || 'frames';
@@ -72,7 +74,7 @@ if (MP4 && spawnSync(FFMPEG, ['-version']).status !== 0) {
 
 // satu browser per worker: proses terpisah = raster & encode gambar benar-benar paralel
 async function openWorker(){
-  const browser = await puppeteer.launch({
+  const browser = await luncurkan({
     headless: 'new',
     args: ['--use-gl=angle', '--enable-webgl', '--ignore-gpu-blocklist', '--autoplay-policy=no-user-gesture-required'],
   });

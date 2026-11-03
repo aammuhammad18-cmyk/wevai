@@ -24,7 +24,9 @@ import { readFile, readdir, writeFile, mkdir, access } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { bantuan } from './bantuan.mjs';
 
+bantuan(import.meta.url);   // -h tanpa ini dibaca sebagai <folder-hasil> dan menulis evals/laporan-*.md
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
 const snap = args.includes('--snap');

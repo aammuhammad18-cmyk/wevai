@@ -9,9 +9,9 @@
    mulai detik 2 (30 fps). Frame pertama tidak masuk median (pemanasan filter/shader). Tiga frame
    pertama dipotret ulang sesudah seek maju-mundur dan hash-nya harus sama.
 
-   Prasyarat (sekali): cd <folder skill>/scripts && npm install
-     (sudah punya Chrome/Edge? PUPPETEER_SKIP_DOWNLOAD=1 npm install, lalu set
-      PUPPETEER_EXECUTABLE_PATH ke chrome.exe/msedge.exe saat menjalankan)
+   Prasyarat (sekali): npm install --prefix "<folder skill>/scripts"
+     (Chrome/Edge sistem dicari otomatis lewat scripts/chrome.mjs; PUPPETEER_EXECUTABLE_PATH hanya bila di lokasi
+      tak standar. Menulis env di bash dan PowerShell: tabel di references/alat-kerja.md)
 
    Pakai (dari akar repo skill; berkas dibuka lewat file://):
      node scripts/bench-frame.mjs <berkas.html> [query] [frames=20]
@@ -28,19 +28,20 @@
 
    Halaman harus mengekspos window.OPENER = { W, H, DURATION, ready, seek(t) } — semua starter sudah begitu.
    ========================================================= */
-import puppeteer from 'puppeteer';
+import { luncurkan } from './chrome.mjs';
+import { bantuan } from './bantuan.mjs';
 import { createHash } from 'node:crypto';
 import { basename } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
+bantuan(import.meta.url);
 const [berkas, query = '', frames = '20'] = process.argv.slice(2);
 const N = Number(frames), BATAS = Number(process.env.BATAS || 350);
 // petunjuk ke stderr: stdout hanya untuk baris JSON
 if (!berkas || !(N >= 3)) { console.error('pakai: node bench-frame.mjs <berkas.html> [query] [frames=20, minimal 3]'); process.exit(1); }
 
-const browser = await puppeteer.launch({
+const browser = await luncurkan({
   headless: 'new',
-  executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
   args: ['--use-gl=angle', '--ignore-gpu-blocklist'],
 });
 try {

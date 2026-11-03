@@ -12,15 +12,18 @@
         keadaan yang sama (dipakai snap.mjs & export-frames.mjs)
 
    Pakai (dari akar repo skill):
-     cd scripts && npm install && cd ..
+     npm install --prefix scripts                    (sekali)
      node scripts/test-starters.mjs [berkas.html ...]
-   Sudah punya Chrome/Edge: set PUPPETEER_EXECUTABLE_PATH.
+   Chrome/Edge sistem dicari otomatis lewat scripts/chrome.mjs; PUPPETEER_EXECUTABLE_PATH hanya bila di lokasi
+   tak standar (bash dan PowerShell: tabel di references/alat-kerja.md).
    ========================================================= */
-import puppeteer from 'puppeteer';
+import { luncurkan } from './chrome.mjs';
+import { bantuan } from './bantuan.mjs';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join, dirname, basename } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
+bantuan(import.meta.url);
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
 const files = args.length ? args
@@ -30,9 +33,8 @@ const files = args.length ? args
 // renderer perangkat lunak; di mesin ber-GPU flag ini tidak terpakai.
 // Halaman ditunggu sampai 'load' lalu OPENER.ready — BUKAN networkidle0: di render perangkat lunak loop
 // render menyita setiap frame dan Chrome tidak pernah melaporkan "jaringan diam", walau halaman sudah siap.
-const browser = await puppeteer.launch({
+const browser = await luncurkan({
   headless: 'new',
-  executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
   args: ['--autoplay-policy=no-user-gesture-required', '--enable-unsafe-swiftshader', '--use-gl=angle', '--ignore-gpu-blocklist'],
 });
 

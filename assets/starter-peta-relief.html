@@ -542,12 +542,15 @@ function medan(D=JAWA,{seed=3}={}){
        klip diabaikan): tepat ≤ 8 km lewat ember, lebih jauh dari kisi pembantu 6 km (bilinear), dilebur 6–8 km tanpa lompatan */
     bidang=data=>{const K=data.kotak,[x0,z0]=proyeksi(K[0],K[3]),[x1,z1]=proyeksi(K[2],K[1]),e=1e-6,
         R=dekode(data).map(r=>r.map(p=>proyeksi(p[0],p[1]))),semua=R.flatMap(r=>r.map((a,i)=>[a,r[(i+1)%r.length]])),
-        tepi=(a,b,k,v)=>Math.abs(a[k]-v)<e&&Math.abs(b[k]-v)<e,asli=semua.filter(([a,b])=>!(tepi(a,b,0,x0)||tepi(a,b,0,x1)||tepi(a,b,1,z0)||tepi(a,b,1,z1))),
-        dekat=ember(asli,8,x0,z0,x1,z1),G=6,gx=Math.ceil((x1-x0)/G)+1,gz=Math.ceil((z1-z0)/G)+1,kisi=new Float32Array(gx*gz);
-      for(let j=0;j<gz;j++)for(let i=0;i<gx;i++){const x=x0+i*G,z=z0+j*G;let q=Infinity;for(const[a,b]of asli){const v=d2(x,z,a,b);if(v<q)q=v;}kisi[j*gx+i]=Math.sqrt(q);}
+        tepi=(a,b,k,v)=>Math.abs(a[k]-v)<e&&Math.abs(b[k]-v)<e,bukan=([a,b])=>!(tepi(a,b,0,x0)||tepi(a,b,0,x1)||tepi(a,b,1,z0)||tepi(a,b,1,z1)),asli=semua.filter(bukan),
+        dekat=ember(asli,8,x0,z0,x1,z1),G=8,gx=Math.ceil((x1-x0)/G)+1,gz=Math.ceil((z1-z0)/G)+1,kisi=new Float32Array(gx*gz),
+        jarang=R.flatMap(r=>{const v=r.filter((_,i)=>i%3===0);return v.map((a,i)=>[a,v[(i+1)%v.length]]);}).filter(bukan),   // kisi pembantu hanya dipakai > 6 km: ruas dijarangkan 3× (galat ±1–2 km)
+        B=5,pita=Array.from({length:Math.ceil((z1-z0)/B)+1},()=>[]);   // tepi per pita z 5 km: uji dalam/luar tidak menyapu semua ruas
+      for(let j=0;j<gz;j++)for(let i=0;i<gx;i++){const x=x0+i*G,z=z0+j*G;let q=Infinity;for(const[a,b]of jarang){const v=d2(x,z,a,b);if(v<q)q=v;}kisi[j*gx+i]=Math.sqrt(q);}
+      for(const r of semua)for(let k=Math.floor((Math.min(r[0][1],r[1][1])-z0)/B);k<=Math.floor((Math.max(r[0][1],r[1][1])-z0)/B);k++)if(pita[k])pita[k].push(r);
       let zc=NaN,X=[];
       const jepit=(x,z)=>[Math.min(x1-e,Math.max(x0+e,x)),Math.min(z1-e,Math.max(z0+e,z))],
-        dalam=(x,z)=>{[x,z]=jepit(x,z);if(z!==zc){zc=z;X=[];for(const[a,b]of semua)if((a[1]>z)!==(b[1]>z))X.push(a[0]+(z-a[1])*(b[0]-a[0])/(b[1]-a[1]));X.sort((p,q)=>p-q);}
+        dalam=(x,z)=>{[x,z]=jepit(x,z);if(z!==zc){zc=z;X=[];for(const[a,b]of pita[Math.floor((z-z0)/B)])if((a[1]>z)!==(b[1]>z))X.push(a[0]+(z-a[1])*(b[0]-a[0])/(b[1]-a[1]));X.sort((p,q)=>p-q);}
           let lo=0,hi=X.length;while(lo<hi){const m=lo+hi>>1;X[m]<=x?lo=m+1:hi=m;}return(X.length-lo)%2===1;},
         jarak=(x,z)=>{const[cx,cz]=jepit(x,z),luar=Math.hypot(x-cx,z-cz),[d]=dekat(cx,cz);if(d<=6)return d+luar;
           const u=(cx-x0)/G,v=(cz-z0)/G,i=Math.min(gx-2,Math.floor(u)),j=Math.min(gz-2,Math.floor(v)),a=u-i,b=v-j,k=j*gx+i,
@@ -574,11 +577,13 @@ function medan(D=JAWA,{seed=3}={}){
     kasar=(x,z,dc,alur=1)=>{const w=wilayah(x,z);let h=Math.max(Math.min(.002*dc,.03),.0025*Math.min(dc,40)+(w+(.04+.15*w)*fbm(x/28,z/28))*ss(0,8,dc));
       for(const g of G){const c=kerucut(g,x,z,alur);if(c>0)h=smax(h,c*ss(0,3,dc),.06);}return h;},
     kedalaman=(x,z,dc)=>{const dd=laut.sdf(x,z);return dd>0?-.2-2.6*(1-Math.exp(-dd/45)):-.2*-dc/Math.max(1e-6,-dc-dd);},
-    /* sungai: Catmull-Rom (jalurElang) per 0,8 km, ekor di laut dipotong; muka air = minimum berjalan dari hulu (tak pernah naik) */
+    /* sungai: Catmull-Rom (jalurElang) per 0,8 km, ekor di laut dipotong; muka air = minimum berjalan dari hulu (tak pernah naik) atas
+       tanah TERENDAH di penampang (±0,3 km di hulu → ±2,4 km di hilir) — jalur skematis yang menyusur lereng tidak berjalan di atas tanggul */
     S=Object.entries(D.sungai).map(([nama,ll])=>{const T=[];for(let i=0;i<ll.length;i+=2)T.push(proyeksi(ll[i],ll[i+1]));
       const J=jalurElang(T),n=Math.ceil(J.L/.8);let p=Array.from({length:n+1},(_,i)=>J.pos(i/n));
       while(p.length>2&&!darat.dalam(...p.at(-1)))p.pop();
-      let m=Infinity;const air=p.map(([x,z])=>{const dc=darat.sdf(x,z);m=Math.min(m,dc>0?kasar(x,z,dc):0);return Math.max(0,m);});
+      let m=Infinity;const air=p.map(([x,z],i)=>{const a=p[Math.max(0,i-1)],b=p[Math.min(p.length-1,i+1)],l=Math.hypot(b[0]-a[0],b[1]-a[1])||1,ux=(a[1]-b[1])/l,uz=(b[0]-a[0])/l;
+        const w=.3+2.1*i/(p.length-1);for(const o of[0,-w/2,w/2,-w,w]){const X=x+ux*o,Z=z+uz*o,dc=darat.sdf(X,Z);m=Math.min(m,dc>0?kasar(X,Z,dc):0);}return Math.max(0,m);});   // penampang ±0,3 km (hulu) → ±2,4 km (hilir)
       return{nama,p,air};}),
     ruasS=S.flatMap((s,k)=>s.p.slice(1).map((b,i)=>[s.p[i],b,k,i])),dekatS=ember(ruasS,5,-1e3,-600,1e3,600),
     tinggi=(x,z,alur=1)=>{const dc=darat.sdf(x,z);if(dc<=0)return kedalaman(x,z,dc);let h=kasar(x,z,dc,alur);   // alur 0: kerucut halus (kisi kasar; jurang di shader)
@@ -763,7 +768,7 @@ tl.fromTo(RUTE.maju,{v:0},{v:1,duration:6.6,ease:'sine.inOut'},7);
 {const a=SUNGAI.Brantas.mat.color,b=warna('#4fb3d9').multiplyScalar(1.6);   // sungai yang diceritakan menyala (warna linear > 1: ACES)
   tl.fromTo(a,{r:a.r,g:a.g,b:a.b},{r:b.r,g:b.g,b:b.b,duration:1.2,ease:'sine.inOut'},12.6);}
 tl.fromTo(['#saku','#cap'],{opacity:0,y:14},{opacity:1,y:0,duration:.9,ease:'power2.out',stagger:.15},5.6);
-tl.to(['#cap','#saku'],{opacity:0,y:-8,duration:.5,ease:'power2.in',stagger:.08},11.8);
+tl.to(['#cap','#saku'],{opacity:0,y:-8,duration:.5,ease:'power2.in',stagger:.08},10.2);   // keluar sebelum Lawu masuk kiri bawah
 tl.to({},{duration:.01},DUR);
 
 /* ---------- render: satu frame = fungsi murni tl.time() ---------- */

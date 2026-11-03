@@ -23,14 +23,14 @@ baca lain tidak bertambah satu bita pun.
 
 | Lapisan | Sumber | Pengolahan | Lisensi |
 |---|---|---|---|
-| Garis pantai | Natural Earth 10m `ne_10m_land` | klip 104–116,8 BT × 9,5–5 LS; Douglas–Peucker **0,5 km**; pulau < 0,003 deg² dibuang; kuantum 0,002° (≈ 220 m). 18 cincin, 927 titik | domain publik |
+| Garis pantai | Natural Earth 10m `ne_10m_land` | klip 103–117 BT × 9,5–3 LS (semua daratan yang terlihat dari bingkai seluruh Jawa: Sumatra selatan, pantai selatan Kalimantan); Douglas–Peucker **0,5 km**; pulau < 0,003 deg² dibuang; kuantum 0,002° (≈ 220 m). 23 cincin, 1 262 titik, 4,5 KB | domain publik |
 | Garis 200 m (paparan) | Natural Earth 10m `ne_10m_bathymetry_K_200` | klip 103,6–117,4 × 12–4 LS (lebih lebar: tepi klip palsu jauh dari jaring); fitur yang berbagi tepi disatukan; DP **1,5 km**. 5 cincin, 226 titik | domain publik |
 | Gunung api | Global Volcanism Program, 2026. *Volcanoes of the World* (v. 5.4.0; 7 Aug 2026). Smithsonian Institution, compiled by Venzke, E. https://doi.org/10.5479/si.GVP.VOTW5-2026.5.4 | lapisan WFS `Smithsonian_VOTW_Holocene_Volcanoes` (34 gunung, tanpa Krakatau) dan `…_Pleistocene_Volcanoes` (34 dari 42: tanpa kubah lava kecil, medan maar, dan yang < 0,8 km), diambil 3 Nov 2026. Dipakai: lon, lat, elevasi puncak | kutip GVP |
 | Sungai | **SKEMATIS** — Natural Earth 10m tidak memuat satu pun sungai Jawa (0 fitur di kotak 104,5–116 BT; diperiksa) | titik kota/muara yang dilalui, hulu → muara, dihaluskan Catmull-Rom | karya sendiri |
 | Wilayah (dataran tinggi, pegunungan selatan, Kendeng, Rembang, Ijen) | bentuk tangan | gaussian `[lon, lat, jari x, jari z, tinggi]` | karya sendiri |
 
-Jari kaki kerucut (`R`), lengkung profil (`k`), ukuran kawah, dan kaldera Tengger adalah **perkiraan bentuk**, bukan data. Yang data
-hanya posisi dan elevasi puncak. Sungai bisa diganti data vektor sungguhan (mis. HydroRIVERS) bila lisensinya cocok dengan MIT; OSM
+Jari kaki kerucut (`R`), lengkung profil (`k`), ukuran kawah, jurang, dan kaldera Tengger adalah **perkiraan bentuk**, bukan data. Yang
+data hanya posisi dan elevasi puncak. Gunung Sumatra di luar 104,5 BT tidak dimuat (daratannya ada, gunungnya tidak). Sungai bisa diganti data vektor sungguhan (mis. HydroRIVERS) bila lisensinya cocok dengan MIT; OSM
 (ODbL) menuntut share-alike untuk basis data turunan, jadi tidak ditanam di repo ini.
 
 Format string pantai: cincin dipisah spasi; tiap titik = selisih lon, lat terhadap titik sebelumnya dalam kuantum `q` derajat, zigzag,
@@ -56,11 +56,14 @@ keluarannya ke objek data baru, isi `gunung` dari WFS GVP, lalu panggil `medan(D
 ## `medan(D = JAWA, {seed})`
 
 Mengembalikan `{tinggi(x,z), darat, laut, gunung, sungai, kerucut}`, murni dan deterministik (sidik geometri diuji di dua muat):
-- `tinggi(x,z)` km: darat = dataran pantai (2,5 m/km sampai 40 km) + `wilayah` + fBm, digabung smooth-max dengan kerucut gunung; lembah
-  sungai diukir (lebar 1,2 km di hulu → 4,5 km di hilir, jadi tak memangkas puncak); laut = parameter kedalaman negatif.
+- `tinggi(x,z,alur=1)` km: darat = dataran pantai (2,5 m/km sampai 40 km) + `wilayah` + fBm, digabung smooth-max dengan kerucut gunung;
+  lembah sungai diukir (lebar 1,2 km di hulu → 4,5 km di hilir, jadi tak memangkas puncak); laut = parameter kedalaman negatif.
+  `alur` 0 = kerucut tanpa jurang (kisi kasar; jurangnya digambar shader).
 - `darat.sdf`, `laut.sdf`: jarak bertanda ke pantai / garis 200 m. Tepat ≤ 8 km (ember 8 km), lebih jauh dari kisi pembantu 6 km.
-- `gunung[i]`: `{nama, x, z, E, R, k, kawah, cekung, alur, kaldera}`. Puncak = bibir kawah = data GVP. Pleistosen: tanpa kawah, puncak
-  membulat, alur lebih dalam (tererosi).
+- `gunung[i]`: `{nama, x, z, E, R, k, kawah, cekung, alur, jurang, fase, kaldera}`. Puncak = bibir kawah = data GVP. Kaki tak bulat
+  (R ± 18 % menurut arah). Jurang radial: 8–14 per gunung, berliuk ke kaki, dalamnya beda-beda (barranco di antara alur dangkal),
+  hingga `alur` (,22 Holosen; ,32 Pleistosen: tererosi, tanpa kawah, puncak membulat) di tengah lereng. Rumus jurang ditulis dua
+  kali, di `medan()` (JS) dan shader `petaRelief` (GLSL): ubah keduanya bersama.
 - `sungai[i]`: `{nama, p[[x,z]], air[]}` per 0,8 km; muka air = minimum berjalan dari hulu (tak pernah naik), berakhir di pantai.
 
 ## `petaRelief(M, opsi)` dan pendampingnya
@@ -74,7 +77,12 @@ Mengembalikan `{tinggi(x,z), darat, laut, gunung, sungai, kerucut}`, murni dan d
 | `warnaLaut` | — | `{pantai, dangkal, laut, dalam}` |
 
 Kembali `{grup, U, tegak, tinggiDunia(x,z)}`. `grup.scale.y` = relief naik (0,03 → 1 di starter; di bawah 0,02 matriks normal singular).
-`U.uWaktu` = `tl.time()` (bayang awan berarak), `U.uAwan`, `U.uDetail` (alur lereng shader), `U.uKontur` (0 = tanpa kontur).
+`U.uWaktu` = `tl.time()` (bayang awan berarak), `U.uNaik` = `grup.scale.y` (kedalaman jurang shader ikut naik), `U.uCetak`
+(1 = peta cetak datar tanpa cahaya, 0 = relief bercahaya), `U.uAwan`, `U.uKontur` (0 = tanpa kontur).
+
+Jurang di kisi kasar (1,8 km) tidak bisa jadi geometri tanpa aliasing, jadi tiap verteks membawa indeks gunung yang menguasainya
+(atribut `gunung`, `flat`), dan fragmen menghitung `jurang()` gunung itu lalu memiringkan normal. Tambalan `halus` memakai geometri
+jurang sungguhan (shader 0). Data gunung = 2 `vec4` uniform per gunung (68 gunung = 136 vektor; batas minimum WebGL2 224).
 
 - `sungaiPeta(peta, {lebar: px, warna, angkat})` → `{[nama]: {mesh, mat, s}, U}`. Lebar dalam **piksel** (vertex shader ∝ jarak kamera),
   menipis ke hulu. Tween `mat.color` untuk sungai yang sedang diceritakan.
@@ -87,14 +95,15 @@ Kembali `{grup, U, tegak, tinggiDunia(x,z)}`. `grup.scale.y` = relief naik (0,03
   `laut`, `tempat` (titik + cincin).
 - `ikutMatahariPeta(arah, {min, maks})`: kotak bayangan ±r km di titik tatap, r ∝ jarak kamera.
 
-Urutan per frame (starter `siapkan()`): `applyCam()` → near/far dan kabut dari jarak ke titik tatap → `ikutMatahariPeta` → `U.uWaktu`
-→ `uPx = 2·tan(½fov)/H` ke sungai dan rute → `grup.updateMatrixWorld()` → `rute.perbarui()` → `tempelLabel()` → `composer.render(0)`.
+Urutan per frame (starter `siapkan()`): `applyCam()` → near/far dan kabut dari jarak ke titik tatap → `ikutMatahariPeta` → `U.uWaktu`,
+`U.uNaik` → `uPx = 2·tan(½fov)/H` ke sungai dan rute → `grup.updateMatrixWorld()` → `rute.perbarui()` → `tempelLabel()` → `composer.render(0)`.
 
 ## Resep
 
-1. **Cahaya dulu.** Matahari 10–15° dari barat-barat laut (`kAz` 250 diukur dari +z = selatan ke +x = timur): bayangan gunung
-   memanjang ke timur dan sisi barat menyala. Fill hemisfer dingin (langit biru-abu, tanah coklat) = bayangan dingin, lereng hangat.
-   ACES, exposure ±,6 (`sinematografi.md` §6).
+1. **Cahaya dulu.** Matahari ±22° dari barat-barat laut (`kAz` 250 diukur dari +z = selatan ke +x = timur), warna hangat PUCAT
+   (`#ffe1c2`; jingga `golden` membuat laut coklat): bayangan gunung memanjang ke timur. Fill hemisfer ±1 (langit biru-abu, tanah
+   coklat) = bayangan dingin. Matahari 13° memang lebih dramatis, tetapi dataran jadi gelap (dataran = sebagian besar bingkai peta).
+   ACES, exposure ,72 (`sinematografi.md` §6).
 2. **Buka dari kulit lama.** `grup.scale.y` dari ,03: frame pertama adalah peta datar berkontur yang sudah dikenal penonton kanal,
    lalu relief naik 2–3 dtk. Satu kali per video.
 3. **Kamera**: `terbang()` per ruas, titik = `pose()` di sekitar fokus, `look` = fokus. 50 mm untuk seluruh pulau (perspektif datar),
@@ -114,15 +123,20 @@ Urutan per frame (starter `siapkan()`): `applyCam()` → near/far dan kabut dari
 - **Lembah sungai memangkas gunung.** Hulu Citarum 2,3 km dari puncak Wayang-Windu: lembah selebar hilir memangkas 0,5 km. Kini
   lebar lembah tumbuh dari 1,2 km (hulu) ke 4,5 km (hilir); `test-peta` memeriksa semua puncak.
 - **Kamera sebelum terbang pertama** ada di pose bawaan (10 km dari asal = Dieng). `cutTo(0, pose awal)` dulu.
+- **Data pantai harus menutup semua yang terlihat.** Kotak klip yang lebih sempit dari bingkai membuat daratan di luar kotak
+  memanjang lurus (uji dalam/luar menjepit titik ke tepi kotak): Sumatra pernah berpantai lurus di sudut kiri atas.
+- **Label vs busur yang melayang**: busur setinggi 9 km tampak di layar ±18 km lebih jauh dari jejak tanahnya (pitch −27°). Label
+  di bawah busur bertabrakan dengan kepala rute; pindahkan ke sisi lain atau ke detik sebelum/sesudah kepala lewat.
 - **Kabut berbasis jarak** menenggelamkan seluruh pulau saat kamera 1 500 km jauhnya. `fog.near/far` dan `camera.near/far` disetel tiap
   frame dari jarak ke titik tatap.
 - **Label tanpa oklusi**: label di balik punggung gunung tetap tampak. Pilih detik atau sudut yang tidak menyembunyikan titiknya.
 - **CI tanpa GPU**: halaman ini masuk `BERAT` di `test-starters` (dilewati di SwiftShader); matematika diuji `test-peta`.
-- **Biaya**: kisi ±170 rb + tambalan ±60 rb verteks, bayangan 2048 PCF, MSAA 4×. Belum di-bench (render pemilik berjalan); target
-  ≤ 350 ms/frame, riset memperkirakan 60–90 ms render. Kenop pertama bila lambat: `langkah` 2,2, tanpa `halus`, bayangan 1024.
+- **Biaya**: kisi 184 rb + tambalan 84 rb verteks (523 rb segitiga), bayangan 2048 PCF, MSAA 4×, 68 gunung per fragmen hanya untuk
+  indeksnya sendiri. Halaman siap ±6–13 dtk di HD 4000 (Idle, sambil render pemilik). Belum di-bench; target ≤ 350 ms/frame, riset
+  memperkirakan 60–90 ms render. Kenop pertama bila lambat: `langkah` 2,2, tanpa `halus`, bayangan 1024.
 
 ## Nama global
 
 Blok `peta-relief`: `JAWA PETA0 KM_LON KM_LAT proyeksi lonlat dekode medan jalurRute petaRelief sungaiPeta rutePeta LABEL labelPeta
 tempelLabel ikutMatahariPeta`. Starter (selain nama starter 3D dan `terbang`): `M PETA SUNGAI RUTE SORE langit MATAHARI lbl MATARAM
-BRANTAS P RUAS RUAS2 T terbangPeta JALAN1 JALAN2 denyut siapkan`.
+BRANTAS P RUAS RUAS2 f0 d0 y0 p0 T terbangPeta JALAN1 JALAN2 denyut siapkan`; kait uji `PETA_UJI PETA_SIDIK`.

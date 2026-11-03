@@ -116,6 +116,8 @@ Jangan menganggap perintah latar agen cukup untuk menahan sleep.
 | Uji VO Gemini | `node --test scripts/test-vo.mjs` | uji `vo-gemini.mjs` tanpa jaringan dan tanpa kunci (fetch, jam, dan tidur palsu); bagian dari `rilis.mjs` dan CI |
 | Uji pustaka aset | `node --test scripts/test-pustaka.mjs` | uji `src/runtime/pustaka.js` tanpa browser: determinisme, opsi salah ditolak, SVG well-formed; bagian dari `rilis.mjs` dan CI |
 | Uji mata elang | `node --test scripts/test-elang.mjs` | matematika `terbang()` (Catmull-Rom, look-ahead, roll, guncang trauma) tanpa browser; bagian dari `rilis.mjs` dan CI |
+| Uji peta relief | `node --test scripts/test-peta.mjs` | `medan()` dan rute peta relief tanpa browser: proyeksi, pantai Natural Earth, puncak = GVP, sungai turun ke laut, panjang busur; bagian dari `rilis.mjs` dan CI |
+| Data peta pulau lain | `node scripts/peta-data.mjs <folder-ne> --darat … --laut …` | string pantai + garis 200 m Natural Earth untuk `medan()` (`references/peta-relief.md`) |
 
 ## VO Gemini (banyak kunci)
 

@@ -406,6 +406,7 @@ node --test scripts/test-vo.mjs            # voice-over tool (no network, no key
 node --test scripts/test-nilai.mjs        # visual scoring tool (synthetic PNGs, no browser)
 node --test scripts/test-pustaka.mjs       # ancient-Java asset library (no browser)
 node --test scripts/test-elang.mjs        # eagle-eye flight maths (no browser)
+node --test scripts/test-peta.mjs         # relief-map terrain and route maths (no browser)
 node scripts/build-starters.mjs --check   # starters match src/runtime
 node scripts/bump-version.mjs --check     # version is the same everywhere
 node scripts/lint-motion.mjs assets/*.html

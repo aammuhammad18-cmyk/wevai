@@ -47,8 +47,8 @@ const ADEGAN = ['starter-sinematik.html', 'katalog-pustaka.html', 'starter-relie
 // starter painterly (src/runtime/lukis.js): adegan bawaan juga, tetapi kaitnya LUKIS_UJI + blok lukis di bawah, bukan SINEMA_UJI
 const LUKIS = ['starter-lukis.html'], KOSONG = [...ADEGAN, ...LUKIS];
 // 3D tanpa subjek/#hud (field CAM3_UJI null sah); tone mapping film hanya di starter sejarah/sinematik, sisanya NoToneMapping (0) = warna brand tepat
-const TANPA_SUBJEK = ['starter-opener.html', 'starter-elang.html'];
-const FILM = { 'starter-elang.html': 4 };   // THREE.ACESFilmicToneMapping (r161): api tetap jingga jenuh, AgX r161 memucatkannya (evals/bukti/2026-11-03-mata-elang)
+const TANPA_SUBJEK = ['starter-opener.html', 'starter-elang.html', 'starter-diorama.html'];
+const FILM = { 'starter-elang.html': 4, 'starter-diorama.html': 4 };   // THREE.ACESFilmicToneMapping (r161): api tetap jingga jenuh, AgX r161 memucatkannya (evals/bukti/2026-11-03-mata-elang)
 // blok terbang (src/runtime/terbang.js) disuntikkan ke starter 2.5D: jalur terbang() 2.5D diuji di kamera-dom sungguhan tanpa menambah berkas starter
 const TERBANG = readFileSync(join(ROOT, 'src', 'runtime', 'terbang.js'), 'utf8');
 // halaman BERAT dilewati bila WebGL jatuh ke render perangkat lunak (runner CI tanpa GPU). Terukur SwiftShader, laptop acuan:
@@ -397,6 +397,30 @@ for (const file of files) {
       if (!(j.roll <= j.rollMaks)) masalah.push(`elang: roll ${j.roll.toFixed(1)}° melewati batas ${j.rollMaks}°`);
       if (!(elang.celah.bebas >= .5 && elang.celah.lintas && elang.celah.lintas[1] > 1)) masalah.push(`elang: kamera tidak menembus celah gapura dengan jarak bebas ≥ 0,5 m (${JSON.stringify(elang.celah)})`);
       if (elang.subLuar !== 1 || !(elang.subDalam > 1)) masalah.push(`elang: motion blur harus hanya di segmen KABUR (luar ${elang.subLuar}, dalam ${elang.subDalam} sub-frame)`);
+    }
+    // diorama (src/runtime/diorama.js): piksel dibaca di task yang sama dengan render. Empat pemeriksaan, masing-masing dengan satu mutasi yang WAJIB tertangkap:
+    //   ulang — detik sama lewat dua jalur seek = byte sama (mutasi 'jam': tebal garis bergantung jumlah render);
+    //   garis — lambung menyumbang piksel gelap di pita fokus, dibanding lambung dimatikan (mutasi 'garis': lambung mati);
+    //   tilt  — tepi atas/bawah kehilangan ketajaman, pita fokus 0 piksel berubah (mutasi 'tilt': kuat 0);
+    //   tone  — renderer.toneMapping = FILM (mutasi 'tone': NoToneMapping). Di halaman bawaan, sebelum kait kamera 3D.
+    const dioUji = m => page.evaluate(m => { const O = window.OPENER; O.tl.pause(); return window.DIORAMA_UJI ? window.DIORAMA_UJI(m) : null; }, m);
+    const dio = await dioUji('');
+    if (name === 'starter-diorama.html' && !dio) masalah.push('diorama: DIORAMA_UJI tidak ada');
+    if (dio) {
+      const salahDio = r => ({ ulang: r.ulangBeda > 0, garis: !(r.garis.persen > .5 && r.garis.gelap < 60), tilt: !(r.tilt.atas < .7 && r.tilt.bawah < .7 && r.tilt.fokusBeda === 0), tone: r.toneMapping !== FILM[name] });
+      const s0 = salahDio(dio);
+      if (s0.ulang) masalah.push(`diorama: detik sama lewat dua jalur seek berbeda ${dio.ulangBeda} kanal`);
+      if (s0.garis) masalah.push(`diorama: garis lambung lemah: ${dio.garis.persen.toFixed(2)} % piksel pita fokus dari lambung (harus > .5), L rata-rata ${dio.garis.gelap.toFixed(0)} (harus < 60)`);
+      if (s0.tilt) masalah.push(`diorama: tilt-shift: rasio ketajaman atas ${dio.tilt.atas.toFixed(2)} bawah ${dio.tilt.bawah.toFixed(2)} (harus < .7), piksel pita fokus berubah ${dio.tilt.fokusBeda} (harus 0)`);
+      if (s0.tone) masalah.push(`diorama: renderer.toneMapping ${dio.toneMapping}, harus ${FILM[name]}`);
+      const hasil = {};
+      for (const [mut, k] of [['jam', 'ulang'], ['garis', 'garis'], ['tilt', 'tilt'], ['tone', 'tone']]) {
+        const r = await dioUji(mut); hasil[mut] = salahDio(r)[k];
+        if (!hasil[mut]) masalah.push(`diorama: uji ${k} tumpul: mutasi '${mut}' tidak tertangkap (${JSON.stringify(r)})`);
+      }
+      const akhir = await dioUji('');
+      if (JSON.stringify(salahDio(akhir)) !== JSON.stringify(s0)) masalah.push('diorama: mutasi tidak dipulihkan DIORAMA_UJI');
+      console.log(`       diorama: ulang ${dio.ulangBeda}; garis ${dio.garis.persen.toFixed(2)} % L ${dio.garis.gelap.toFixed(0)}; tilt atas ${dio.tilt.atas.toFixed(2)} bawah ${dio.tilt.bawah.toFixed(2)} fokus ${dio.tilt.fokusBeda}; tone ${dio.toneMapping}; mutasi tertangkap ${JSON.stringify(hasil)}`);
     }
     const sidik = await page.evaluate(() => window.ELANG_SIDIK ? window.ELANG_SIDIK() : null);
     if (sidik !== sidikSegar) masalah.push(`elang: geometri lanskap beda antara dua muat halaman (${sidik} vs ${sidikSegar}) — seed tidak deterministik`);

@@ -45,6 +45,7 @@ jalan('test-relief', '--test', 'scripts/test-relief.mjs');
 jalan('test-tokoh', '--test', 'scripts/test-tokoh.mjs');
 jalan('test-ekspor', '--test', 'scripts/test-ekspor.mjs');
 jalan('test-lukis', '--test', 'scripts/test-lukis.mjs');
+jalan('test-diorama', '--test', 'scripts/test-diorama.mjs');
 jalan('build-starters --check', 'scripts/build-starters.mjs', '--check');
 jalan('bump-version --check', 'scripts/bump-version.mjs', '--check');
 jalan('context-budget --check', 'scripts/context-budget.mjs', '--check');

@@ -1,0 +1,135 @@
+# Diorama cel-shaded — miniatur museum untuk menjelaskan struktur tempat
+
+Dibaca HANYA untuk gaya ini. Gunanya menjelaskan **struktur** sebuah tempat (kota, keraton, kompleks pura): apa di mana, urutan masuknya,
+arahnya. Bukan untuk adegan bertokoh. Contoh hidup: `assets/starter-diorama.html` (18 dtk, pura Bali generik, tri mandala). Dasar kamera:
+`sinematografi.md`. Bukti dan angka: `evals/bukti/2026-11-03-diorama/`.
+
+## Isi
+
+| Blok | Isi |
+|---|---|
+| `diorama` (`src/runtime/diorama.js`) | `rakit()` toon + lambung, `TILT`, `GARIS`, `alas()`, `meja()`, `latar()`, `kartu()`, `tataKartu()`, `label()`, `matahari()`, `perFrame()`, `siap()` |
+| `pura-bali` (`src/runtime/pura-bali.js`) | `TRI_MANDALA` (denah sebagai data), `pura.bangun()`, `pura.tanah()`, `pura.tingkatMeru()`, `pura.pemedek()` |
+| starter | jalur kamera, label, legenda, kartu, kait uji `DIORAMA_UJI` |
+
+Memasang di starter 3D lain: penanda `/* <wv:diorama> … */` + baris kosong + `/* </wv:diorama> */` SESUDAH `kamera-three`, lalu
+`node scripts/build-starters.mjs`. Butuh import `ShaderPass` dan `mergeGeometries`. Tempat lain (keraton, kota): buang blok `pura-bali`, rakit kepingan sendiri.
+
+## API
+
+```js
+const R=diorama.rakit({seed:11});                  // kepingan → 1 mesh toon + 1 mesh lambung = 2 draw call, berapa pun kepingannya
+R.kotak(x,yDasar,z,w,h,d,'#a4583a',{garis,kotor}); // garis:false = detail kecil tanpa lambung; kotor .8 = dasar lebih gelap (cuci maket)
+R.prisma(x,yDasar,z,wb,db,wa,da,h,warna,o);        // alas wb×db → atas wa×da: atap, limas, batur
+diorama.alas(R,{x0,x1,z0,z1,tebal,potong:true});   // lempeng kayu + potongan tanah berstrata + bibir rumput
+const M=R.selesai('maket');scene.add(M);           // M.userData.toon, M.userData.lambung
+diorama.meja();diorama.latar(svg,{r,sudut,tinggi});diorama.matahari({pusat,r});   // meja gelap, dinding lukis melengkung, bayangan dipanggang
+diorama.kartu(svg,{x,y,z,tinggi,lebar,hadap,resolusi,tepi,bayang});               // hadap null = billboard, derajat = tetap
+diorama.tataKartu({seed,n,area:[x0,z0,x1,z1],jarak,hindari});                     // → [{x,z,u}] ber-seed
+diorama.label(el,[x,y,z]);                         // label DOM menempel titik dunia, tajam di atas tilt-shift
+tl.to(TILT,{pusat:.56,lebar:.11,kuat:15,duration:4},t);                           // pita fokus dari timeline
+await diorama.siap();                              // kartu selesai dirasterisasi; baru OPENER.ready
+function render(t){applyCam();diorama.perFrame();composer.render(0);}             // urutan ini
+```
+
+## Kenop
+
+| Kenop | Bawaan | Arti |
+|---|---|---|
+| `TILT.pusat` | .5 | y pita tajam di layar: 0 atas, 1 bawah |
+| `TILT.lebar` | .18 | setengah tinggi pita tajam, pecahan tinggi frame |
+| `TILT.lunak` | .3 | rentang naik dari tajam ke `kuat` (smoothstep) |
+| `TILT.kuat` | 14 | jari-jari blur maksimum, px di 1080p. 0 = pass mati |
+| `GARIS.tebal` | 1,5 | px garis pada jarak ≤ `acuan` |
+| `GARIS.acuan` | 45 | lebih jauh dari ini garis menipis sampai 55 % |
+| `GARIS.warna` | `#1a120c` | tinta cokelat tua, bukan hitam murni |
+| `TANGGA` | .34 .56 .8 1 | tingkat toon, dari N·L (`diorama.TANGGA`) |
+
+Warna: `pura.PALET` (bata, paras, ijuk, alang, kayu) + warna verteks ±5 % per keping. Tone mapping: film (ACES, exposure .82), seperti konten sejarah
+lain (`sinematografi.md` §6); brand/produk dengan gaya ini memakai `NoToneMapping` dan menyesuaikan `FILM` di `test-starters`.
+
+## Resep
+
+1. **Kamera mendekat.** Maket utuh hanya untuk pembuka; sesudah itu turun sampai bangunan mengisi frame ("Miniatur adalah slide", `anti-ppt.md`). Starter:
+   EWS → sumbu → melewati dua gerbang → MS padmasana dan meru. Lensa 40 mm dengan kamera dekat, seperti lensa makro di atas maket.
+2. **Pita fokus mengikuti subjek.** Lebar saat EWS, sempit saat rendah. Tween lambat (≥ 3 dtk); pita yang melompat terbaca efek.
+3. **Satu arah cahaya, dipanggang.** `matahari()` mematikan `shadowMap.autoUpdate` dan menaruh key di sekitar pusat maket, sehingga bayangan tidak merayap ikut
+   kamera. `applyLux` menaruhnya di fokus kamera, dan `perFrame()` menimpanya. Warna dan kekuatan boleh di-tween; azimut/elevasi ikut menggambar ulang peta bayang (satu render geometri per frame).
+4. **Yang hidup = kamera + cahaya.** Maket memang benda diam. Kartu tidak dianimasikan: kartu yang meluncur langsung terbaca mainan.
+5. **Label di luar tilt-shift** (DOM): papan gelap per ketukan, satu per satu; waktunya dari `terbang().detik`. Titik label harus masih di dalam frame sampai papan keluar: potret detik keluarnya.
+
+## Biaya
+
+@@BIAYA@@
+
+## Garis: lambung vs tepi depth/normal
+
+@@GARIS@@
+
+## Akurasi: pura tri mandala
+
+Tempat suci. Pura di starter **generik**, bukan pura tertentu: tak ada denah pura nyata yang disalin. Tanpa klaim ritual: tidak ada arca, dewa, sesajen,
+upacara, atau keterangan pemakaian bangunan. Unsur dibuat sedikit; lebih baik sedikit dan benar. Sebelum dipakai untuk pura yang disebut namanya, ganti denahnya
+dari sumber pura itu.
+
+### Keputusan denah
+
+| Unsur | Keputusan di starter | Sumber |
+|---|---|---|
+| Tiga zona | nista (jaba sisi) → madya (jaba tengah) → utama (jeroan), urut kesucian | [S1], [S2] |
+| Sumbu | utama paling dekat gunung (kaja = −z), nista ke arah kelod. Sumbu kaja–kelod + kangin–kauh | [S1], [S2], [S4] |
+| Lantai bertingkat | nista 0, madya +0,5 m, utama +1 m (angka perkiraan) | nista terendah: [S5]; beda tinggi antarzona: [S8] |
+| Candi bentar | gerbang nista → madya; dua belahan serupa dan sebangun, tanpa atap di antaranya, ada anak tangga | [S2] |
+| Kori agung | gerbang madya → utama; lebih tinggi, megah, dan menyempit; kaki–badan–kepala (tri angga) | [S1], [S6] |
+| Penyengker | tembok batas keliling | [S1] |
+| Padmasana | di utama, sudut kaja-kangin, menghadap kauh; tepas–batur–sancak, puncak takhta kosong | letak: [S4]; utama: [S2], [S5]; bentuk: [S7] |
+| Meru | di utama, sisi kangin, menghadap kauh; tumpang **ganjil** (5 dan 3), atap ijuk hitam di atas batur batu | [S3], [S7b] |
+| Bale kulkul | menara tinggi di kelod-kauh madya (arah barat daya), dua kentongan | [S2]; lihat "Sumber berbeda" |
+| Wantilan | di nista | [S2], [S5] |
+| Bale gong | di madya | [S1], [S2] |
+| Bale pawedan | di utama; letak tepatnya perkiraan | [S1], [S2] |
+
+### Sumber berbeda
+
+- **Bale kulkul**: [S2] menempatkannya di barat daya madya; [S5] (mengutip Sudiana, Kemdikbud) dan contoh di [S1] menempatkannya di nista. Starter mengikuti [S2]; pura nyata beragam.
+- **Letak padmasana**: Lontar Catur Winasa Sari, lewat [S4], memberi sembilan letak dengan jenis berbeda. Starter memakai kaja-kangin menghadap kauh, kasus Pura Kentel Gumi yang
+  disebut pemangkunya memenuhi aturan lazim [S4]. Jadi ini satu pilihan sah, bukan satu-satunya.
+- **Hadap meru**: [S3] menyebut umumnya ke barat, dengan pengecualian menurut pura. Di Bali utara kaja mengarah ke selatan, sehingga kangin dan kauh tetap, tetapi kaja/kelod terbalik terhadap peta.
+- **Jumlah tumpang**: [S3] menyebut 1–11; [S7b] menyebut meru 3–11 dan menyebut bangunan satu atap bukan meru. `tingkatMeru()` menerima 3–11. Tumpang mencerminkan kedudukan [S3]: 5 dan 3 dipilih karena tidak mengklaim pura besar.
+
+### Penyederhanaan
+
+- Tanpa arca, dwarapala, karang bhoma, Bedawang Nala, naga, citra Acintya, dan seluruh ukiran: panel polos menggantikan ornamen. Ornamen tak boleh dikarang, dan arca bukan isi yang pantas untuk kepingan kotak.
+- Kori agung tertutup, tanpa pintu samping. Kedua gerbang ada di sumbu tengah: susunan linear, satu kemungkinan dari banyak.
+- Hanya tujuh bangunan. Tidak ada pewaregan, bale piasan, gedong simpen, sedahan, atau pelinggih lain yang biasanya ada; pura nyata jauh lebih penuh.
+- Ukuran dan proporsi perkiraan (lebar 26 m, panjang 56 m), bukan hitungan Asta Kosala Kosali. Asta Kosala Kosali disebut sebagai rujukan tata letak umum [S9], bukan diterapkan rinci.
+- Atap alang-alang pada bale dan warna bahan adalah pilihan rupa, bukan hasil sumber. Pohon adalah penghias dari `pustaka.*` (bentuknya dibuat untuk Jawa kuno).
+- Pemedek = kartu kecil berkain dan berbaju putih, tanpa wajah, tanpa sesajen. Bukan penggambaran busana upacara.
+- Teks legenda "makin dekat ke gunung, makin suci" meringkas hierarki zona [S1], [S2] + orientasi kaja [S4]. Bukan aturan bagi setiap bangunan Bali.
+- UNESCO [S10] dipakai hanya sebagai konteks filosofi Tri Hita Karana di lanskap budaya Bali; ia tidak membahas denah pura ini.
+
+### Sumber
+
+- [S1] Bhattacarya & Riyanto (2022), "Tri Mandala: Kearifan Lokal Bali dalam Pembagian Zonasi dan Ruang pada Bangunan Pura di Kabupaten Sidoarjo", *Sphatika: Jurnal Teologi* 13(1) (mengutip seminar Kesatuan Tafsir PHDI). https://ojs.uhnsugriwa.ac.id/index.php/Sphatika/article/download/1272/695/2412
+- [S2] Simbolon, Kusuma & Lioe (2024), "Kajian Pola Ruang Terhadap Pura Agung Raksa Bhuana", UNPRI Press. https://jurnal.unprimdn.ac.id/index.php/hasenf/article/download/6203/3653/25212
+- [S3] Wardana (2024), "Meru Architecture in Bali: History, Function and Challenges", *Bali Tourism Journal* 8(2): 38–41, doi:10.36675/btj.v8i2.110. https://balitourismjournal.org/ojs/index.php/btj/article/download/110/127
+- [S4] Seniwati, Ngurah & Ngurah (2022), "Bentuk dan Makna Padmasana Anglayang Pura Kentel Gumi", *Vidya Wertta* 5(2) (mengutip Lontar Catur Winasa Sari lewat Anom 1975; konsep hulu-teben). https://ejournal.unhi.ac.id/index.php/vidyawertta/article/download/3616/1880
+- [S5] detikBali, "Mengenal Utama Mandala, Zona Paling Suci dalam Struktur Pura" (mengutip Duwijo & Darta; Sudiana, Kemdikbud). https://www.detik.com/bali/budaya/d-6380172/mengenal-utama-mandala-zona-paling-suci-dalam-struktur-pura
+- [S6] Wirawibawa, Putra & Aritama (2022), "Exploring Socio-Cultural Identity: Characteristics of the Architectural Design of Kori Agung Bangli", *Journal of Social and Political Sciences* 5(1): 50–59, doi:10.31014/aior.1991.05.01.335. https://zenodo.org/records/6131564
+- [S7] Wikipedia, "Padmasana (shrine)" (bagian tepas–batur–sancak mengutip Arcana, Kompas 2022). https://en.wikipedia.org/wiki/Padmasana_(shrine) · [S7b] Wikipedia, "Meru tower" (ijuk mengutip Nas 2003). https://en.wikipedia.org/wiki/Meru_tower
+- [S8] *Jurnal Mahasiswa Arsitektur* Universitas Brawijaya, kajian Pura Penataran Agung Dalem Jawa Blambangan: zona dipisah tembok, candi bentar, kori agung, dengan beda ketinggian. Hanya ringkasan hasil pencarian yang terbaca (halaman menolak unduhan, HTTP 403). https://arsitektur.studentjournal.ub.ac.id/index.php/jma/article/view/757/621
+- [S9] Siswadi & Maharani (2023), "Dimensi Aksiologis pada Tata Letak Bangunan di Bali Berdasarkan Lontar Asta Kosala Kosali", *Sphatika* 14(2), doi:10.25078/sphatika.v14i2.3038; Sari & Kusuma (2020), "Nilai Filosofis Tata Ruang Bangunan Tradisional Bali dalam Teks Asta Kosala Kosali", *Sphatika* 11(1), doi:10.25078/sp.v11i1.1497. Abstrak saja. Untuk rincian ukuran, rujukan baku: Gelebet dkk., *Arsitektur Tradisional Daerah Bali*, Depdikbud 1982 (belum dibaca langsung).
+- [S10] UNESCO World Heritage Centre, "Cultural Landscape of Bali Province: the Subak System as a Manifestation of the Tri Hita Karana Philosophy". https://whc.unesco.org/en/list/1194/ (halaman menolak unduhan otomatis; dibaca dari ringkasan pencarian)
+
+## Batas
+
+- **Tokoh tetap titik lemah**: kartu dipakai sebagai skala, setinggi puluhan piksel. Jangan shot dekat ke pemedek; kartu memperlihatkan tipisnya pada sudut rendah walau berputar di sumbu y.
+- **Risiko mainan**: warna jenuh, kamera statis, tanpa pita fokus, atau lantai polos langsung terbaca game. Palet tanah, cuci kotor, flok lantai, grain, dan vinyet yang menjaganya.
+- **Tepi kartu = alpha to coverage**, butuh MSAA di target komposer. Tanpa MSAA tepi bergerigi.
+- **Pass tilt tidak tahu kedalaman**: blur menurut baris layar, jadi puncak menara di atas pita ikut kabur. Itu memang rupa tilt-shift; jangan menaruh label 3D di sana.
+- **Kamera tidak boleh menembus** tembok/atap: `terbang()` tidak memeriksa tabrakan; potret titik lintasnya.
+- **Lambung pada kepingan cekung** bisa menonjol; kepingan = kotak/prisma cembung saja.
+
+## Nama global
+
+`TILT GARIS diorama TRI_MANDALA pura`; starter juga: `LANGIT mulberry32 warnaRGB warnaJarak` (pengganti ringkas blok atmosfer untuk `pustaka`) `PAGI BATAS R MAKET LATAR pohon luarTembok TITIK LOOK JALAN D papan`.

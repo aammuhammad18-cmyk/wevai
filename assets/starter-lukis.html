@@ -994,7 +994,7 @@ function desaKakiGunung(){
         `<path d="M-38,${n1(-85+ay)} L-41,${n1(-64+ay)} M-38,${n1(-85+ay)} L-35,${n1(-64+ay)} M42,${n1(-83-ay)} L39,${n1(-62-ay)} M42,${n1(-83-ay)} L45,${n1(-62-ay)}" fill="none" stroke-width="1.2"/>`+
         `<path d="M-48,${n1(-64+ay)} L-28,${n1(-64+ay)} L-31,${n1(-50+ay)} L-45,${n1(-50+ay)}Z M32,${n1(-62-ay)} L52,${n1(-62-ay)} L49,${n1(-48-ay)} L35,${n1(-48-ay)}Z" stroke="none"/></g>`;},
     /* petani menanam: badan membungkuk, caping, tangan ke air */
-    petani=garis('M-6,0 L-5,-22 L-1,-42',6)+garis('M7,0 L7,-21 L3,-42',6)+'<path d="M-9,-47 L7,-43 L10,-25 L-9,-25Z" stroke="none"/>'+garis('M0,-44 L25,-63',13)+
+    petani=garis('M-9,0 L-6,-22 L-2,-44',6)+garis('M9,0 L6,-22 L2,-44',6)+'<path d="M-9,-48 L8,-44 L11,-27 L-10,-27Z" stroke="none"/>'+garis('M0,-44 L22,-64',13)+'<circle cx="29" cy="-67" r="6.5" stroke="none"/><path d="M18.5,-83.1 L39.4,-76.4 L43.9,-54.9Z" stroke="none"/>'+garis('M22,-64 L26,-46 L30,-30',4.5)+'<path d="M30,-30 L27,-19 M30,-30 L31,-18 M30,-30 L35,-20" fill="none" stroke-width="1.6"/>'+garis('M19,-61 L12,-50 L18,-45',4.5)+'<ellipse cx="19" cy="-45" rx="5" ry="3.5" stroke="none"/>';
       '<circle cx="33" cy="-66" r="6.5" stroke="none"/><path d="M25.9,-80.4 L43.8,-73.2 L43.5,-53.8Z" stroke="none"/>'+garis('M26,-63 L28,-40 L30,-15',4.5)+garis('M21,-60 L23,-38 L25,-17',4.5);
   const jalan=LK.sprite(B3,Array.from({length:8},(_,p)=>tubuh(pemikul(p),1100,962,1.08)),{kotak:[1030,830,140,150],kuas:2,panjang:.4,variasi:.1,tepi:.6,basah:.1,goyang:.6,seed:701});
   LK.siklus(jalan,6);tl.fromTo(jalan,{x:0},{x:600,duration:DUR,ease:'none'},0);
@@ -1007,9 +1007,9 @@ function desaKakiGunung(){
   const TP=[[-200,792],[160,784],[480,796],[760,804],[900,815],[1000,880],[1080,960],[1180,1012],[1500,1024],[2120,1026]],
     tepiY=x=>{for(let i=1;i<TP.length;i++)if(x<=TP[i][0]){const[a,b]=[TP[i-1],TP[i]],u=(x-a[0])/(b[0]-a[0]);return a[1]+(b[1]-a[1])*u*u*(3-2*u);}return TP[TP.length-1][1];};
   let rumput='',tebing='M-200,1300 L-200,792';for(let x=-180;x<=2120;x+=20)tebing+=` L${x},${n1(tepiY(x)+4*Math.sin(x/37))}`;
-  for(let x=-180;x<2100;x+=r(9,22)){const y=tepiY(x)+4;rumput+=`M${n1(x)},${n1(y)} L${n1(x+r(-7,7))},${n1(y-r(10,34))} `;}
+  for(let x=-180;x<2100;x+=r(14,44)){const y=tepiY(x)+4,n=3+Math.floor(r(0,3));for(let k=0;k<n;k++){const b=x+r(-5,5),c=r(-.6,.6);rumput+=`M${n1(b)},${n1(y)} Q${n1(b+c*6)},${n1(y-8)} ${n1(b+c*16+r(-3,3))},${n1(y-r(8,26))} `;}}
   LK.bidang(bidang(0),`<path d="${tebing} L2120,1300Z" fill="#241a22"/>`+
-      `<path d="${rumput}" fill="none" stroke="#241a22" stroke-width="3" stroke-linecap="round"/>`+PU.beringin({x:-40,y:1120,tinggi:980,seed:5,cahaya:MT,warna:'#262a26'}),
+      `<path d="${rumput}" fill="none" stroke="#241a22" stroke-width="2.6" stroke-linecap="round"/>`+PU.beringin({x:-40,y:1120,tinggi:980,seed:5,cahaya:MT,warna:'#262a26'}),
     {kuas:5,panjang:.55,liuk:.5,variasi:.2,sapuan:.4,tepi:.9,butir:.45,basah:.15});
 
   /* kamera: geser kanan menyingkap desa + dolly pelan (bidang: pad 160 px menutup gerak ini) */

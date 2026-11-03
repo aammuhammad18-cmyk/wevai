@@ -306,10 +306,10 @@ function bakeKelir(p){const c=kanvasBaru(W,H),x=c.getContext('2d'),B=BLENCONG,g=
 /* simpingan: wayang simpingan menancap di debog di kedua sisi; tinggi menurun dari ujung debog ke tengah; muka membelakangi tempat
    perkeliran (sumber: Subagya 2013). x = koordinat layar sisi BAYANG, jadi simpingan kanan dalang ada di kiri layar */
 function bakeSimpingan(p){const Lb=kanvasBaru(W,H),xB=Lb.getContext('2d'),warna=p.sisi==='dalang',Lw=warna?kanvasBaru(W,H):null,xW=warna?Lw.getContext('2d'):null,R=mulberry32(p.seed*31);
-  const baris=(sisi,ragam,x0,dx,hadap)=>{for(let i=0;i<9;i++){const jn=ragam[i%ragam.length],G=rancang(jn,floor(R()*1e4)),k=(1.12-.06*i)*JENIS[jn].tinggi*p.tinggi/1000;
+  const baris=(sisi,ragam,x0,dx,hadap)=>{for(let i=0;i<9;i++){const jn=ragam[i%ragam.length],G=rancang(jn,floor(R()*1e4)),k=(1.04-.055*i)*JENIS[jn].tinggi*p.tinggi/1000;
       G.muka=JENIS[jn].muka;gambarDiam(xB,G,x0+i*dx,p.dasar,k,hadap,p,0);if(warna)gambarDiam(xW,G,x0+i*dx,p.dasar,k,hadap,p,1);}};
-  baris('kanan',['gagahan','alusan','alusan','putri','gagahan','alusan','putri','alusan','putri'],36,44,-1);
-  baris('kiri',['raksasa','raksasa','gagahan','raksasa','gagahan','gagahan','raksasa','gagahan','gagahan'],W-36,-44,1);
+  baris('kanan',['gagahan','alusan','alusan','putri','gagahan','alusan','putri','alusan','putri'],30,50,-1);
+  baris('kiri',['raksasa','gagahan','raksasa','gagahan','gagahan','raksasa','gagahan','alusan','gagahan'],W-30,-50,1);
   /* siluet simpingan masuk kelir dipanggang (tajam: menempel kelir), warnanya lapisan terpisah di sisi dalang */
   PANGGUNG.kelir.getContext('2d').globalAlpha=.94;PANGGUNG.kelir.getContext('2d').drawImage(Lb,0,0);PANGGUNG.kelir.getContext('2d').globalAlpha=1;PANGGUNG.simpingWarna=Lw;}
 /* figur diam ke kanvas pemanggang: lengan menjuntai (simpingan) */

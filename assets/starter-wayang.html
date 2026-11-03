@@ -32,10 +32,9 @@ html,body{margin:0;height:100%;background:#050302;overflow:hidden}
 #stage svg{position:absolute;inset:0;width:1920px;height:1080px;overflow:visible}   /* kontrak adegan: <svg> bidang meluber keluar frame saat kamera bergeser — jangan dihapus */
 .view{position:absolute;inset:0}
 #ui{position:absolute;inset:0;pointer-events:none}
-#cap{position:absolute;left:128px;top:62px;opacity:0;font-family:'Cormorant Garamond',Georgia,'Times New Roman',serif;font-weight:600;color:#fff0d0;
-  text-shadow:0 2px 18px rgba(8,3,1,.95),0 0 3px rgba(8,3,1,.8)}
-#cap .kick{font-size:34px;letter-spacing:.3em;color:#ffd08a}
-#cap .ttl{font-size:92px;line-height:1;margin-top:8px;letter-spacing:.01em}
+#cap{position:absolute;left:0;right:0;top:58px;text-align:center;opacity:0;font-family:'Cormorant Garamond',Georgia,'Times New Roman',serif;font-weight:600;color:#1c0d06}   /* tinta bayangan di kolam terang blencong */
+#cap .kick{font-size:36px;letter-spacing:.2em;color:#3a1c0c}
+#cap .ttl{font-size:96px;line-height:1;margin-top:4px;letter-spacing:.01em}
 /* panel developer: hanya tampil dengan ?debug=1 */
 #dbg{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);display:none;gap:12px;align-items:center;padding:10px 16px;border-radius:14px;
   background:rgba(14,16,22,.9);color:#cfd5e3;font:13px system-ui;z-index:50}
@@ -749,10 +748,10 @@ function bakeKelir(p){const c=kanvasBaru(W,H),x=c.getContext('2d'),B=BLENCONG,g=
 /* simpingan: wayang simpingan menancap di debog di kedua sisi; tinggi menurun dari ujung debog ke tengah; muka membelakangi tempat
    perkeliran (sumber: Subagya 2013). x = koordinat layar sisi BAYANG, jadi simpingan kanan dalang ada di kiri layar */
 function bakeSimpingan(p){const Lb=kanvasBaru(W,H),xB=Lb.getContext('2d'),warna=p.sisi==='dalang',Lw=warna?kanvasBaru(W,H):null,xW=warna?Lw.getContext('2d'):null,R=mulberry32(p.seed*31);
-  const baris=(sisi,ragam,x0,dx,hadap)=>{for(let i=0;i<9;i++){const jn=ragam[i%ragam.length],G=rancang(jn,floor(R()*1e4)),k=(1.12-.06*i)*JENIS[jn].tinggi*p.tinggi/1000;
+  const baris=(sisi,ragam,x0,dx,hadap)=>{for(let i=0;i<9;i++){const jn=ragam[i%ragam.length],G=rancang(jn,floor(R()*1e4)),k=(1.04-.055*i)*JENIS[jn].tinggi*p.tinggi/1000;
       G.muka=JENIS[jn].muka;gambarDiam(xB,G,x0+i*dx,p.dasar,k,hadap,p,0);if(warna)gambarDiam(xW,G,x0+i*dx,p.dasar,k,hadap,p,1);}};
-  baris('kanan',['gagahan','alusan','alusan','putri','gagahan','alusan','putri','alusan','putri'],36,44,-1);
-  baris('kiri',['raksasa','raksasa','gagahan','raksasa','gagahan','gagahan','raksasa','gagahan','gagahan'],W-36,-44,1);
+  baris('kanan',['gagahan','alusan','alusan','putri','gagahan','alusan','putri','alusan','putri'],30,50,-1);
+  baris('kiri',['raksasa','gagahan','raksasa','gagahan','gagahan','raksasa','gagahan','alusan','gagahan'],W-30,-50,1);
   /* siluet simpingan masuk kelir dipanggang (tajam: menempel kelir), warnanya lapisan terpisah di sisi dalang */
   PANGGUNG.kelir.getContext('2d').globalAlpha=.94;PANGGUNG.kelir.getContext('2d').drawImage(Lb,0,0);PANGGUNG.kelir.getContext('2d').globalAlpha=1;PANGGUNG.simpingWarna=Lw;}
 /* figur diam ke kanvas pemanggang: lengan menjuntai (simpingan) */

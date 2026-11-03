@@ -101,6 +101,16 @@ for (const file of files) {
       O.seek(Math.min(O.DURATION - .1, 3)); O.seek(0); const b = ambil();
       return { rig: a.r === b.r, kanvas: a.c === b.c };
     });
+    // lompat seek = tiba berurutan: frame pertama worker ekspor kedua (dan sesudah Chrome dibuka ulang) adalah lompatan. onUpdate tween yang
+    // berjalan sebelum nilai tulis-tunda GSAP masuk meninggalkan pose lama (terukur di panggung: 3,2 % piksel, maks 191). Ambang 16 level: selisih raster ±3 boleh.
+    await segar.setViewport({ width: 1920, height: 1080, deviceScaleFactor: 1 });
+    const fotoSegar = async t => { await segar.evaluate(async t => { window.OPENER.seek(t); await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))); }, t);
+      return bacaPng(await segar.screenshot({ type: 'png', clip: { x: 0, y: 0, width: 1920, height: 1080 } })); };
+    const tLompat = await segar.evaluate(() => Math.round(window.OPENER.DURATION * 15) / 30);
+    const lompat = await fotoSegar(tLompat); await fotoSegar(tLompat - 1 / 30);
+    const tiba = await fotoSegar(tLompat);
+    let bedaLompat = 0; for (let k = 0; k < lompat.px.length; k += 4) if (Math.abs(lompat.px[k] - tiba.px[k]) > 16 || Math.abs(lompat.px[k + 1] - tiba.px[k + 1]) > 16 || Math.abs(lompat.px[k + 2] - tiba.px[k + 2]) > 16) bedaLompat++;
+    if (bedaLompat / (lompat.w * lompat.h) > .001) masalah.push(`seek: lompat ke ${tLompat} dtk ≠ tiba berurutan (${(bedaLompat / (lompat.w * lompat.h) * 100).toFixed(2)} % piksel beda > 16 level): frame pertama worker ekspor kedua akan salah`);
     await segar.close();
     if (!nol.rig) masalah.push('seek(0) pada halaman segar ≠ seek(0) sesudah seek lain (transform rig)');
     if (!nol.kanvas) masalah.push('seek(0) pada halaman segar ≠ seek(0) sesudah seek lain (piksel kanvas)');

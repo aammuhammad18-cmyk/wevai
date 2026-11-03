@@ -17,7 +17,7 @@ Sumber rincian:
 | B | Aturan rilis (`docs/aturan-rilis.md`, `scripts/rilis.mjs`) | selesai | 6ab34c8 |
 | C | Dukungan Antigravity: Chrome otomatis, `--help`, `SKILL.md` ≤ 24 KB, plugin | kode selesai; uji pemilik menunggu | f414a57, dfedd42, d80eb56 |
 | D | Alat VO Gemini (hingga 10 kunci, failover aman) | kode selesai; uji langsung pemilik menunggu | 73eb11f |
-| E | Sub-proyek 3, sisa: babak multi-adegan 60 dtk + `CAM` di kartun panggung | babak: kode selesai, vonis pemilik menunggu (`starter-babak.html`, keputusan pemilik 4 Nov); `CAM` panggung belum | babak: fa45908..cac5ded |
+| E | Sub-proyek 3, sisa: babak multi-adegan 60 dtk + `CAM` di kartun panggung | babak: kode selesai, vonis pemilik menunggu (`starter-babak.html`, keputusan pemilik 4 Nov); `CAM` panggung selesai | babak: fa45908..cac5ded; panggung: 50217ff..652c73a |
 | F | Sub-proyek 4a: pustaka aset prosedural Jawa kuno | kode selesai; vonis visual pemilik menunggu | 31172c7..0f1bef0 |
 | G | Sub-proyek 4b: rig tokoh v2 | kode selesai; bench katalog 437 ms MELEWATI 350 (6 tokoh detail 2): optimalkan atau batasi; vonis visual pemilik menunggu | 5c9a3b1..ca20078 |
 | H | Sub-proyek 5: mata elang 3D | kode selesai; bench 292 ms (segmen motion blur belum); vonis visual pemilik menunggu | 93e1629..087736e |

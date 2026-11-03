@@ -3,7 +3,7 @@
    (~/.wevai) adalah folder sementara. Kunci di sini palsu. Pakai: node --test scripts/test-vo.mjs */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, existsSync, rmSync, symlinkSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, existsSync, rmSync, symlinkSync, unlinkSync, rmdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -11,7 +11,9 @@ import { spawnSync } from 'node:child_process';
 import * as vo from './vo-gemini.mjs';
 
 const K = n => `AIzaSyFakeKey_abcdefghijklmnopqrstu${String(n).padStart(4, '0')}`;   // 39 karakter seperti kunci asli; 4 huruf terakhir beda → bentuk tersamar (AIza…0001) beda
-const folder = () => mkdtempSync(join(tmpdir(), 'wevai-vo-uji-'));
+const dibuat = [];
+const folder = () => { const d = mkdtempSync(join(tmpdir(), 'wevai-vo-uji-')); dibuat.push(d); return d; };
+process.on('exit', () => { for (const d of dibuat) try { rmSync(d, { recursive: true, force: true }); } catch {} });     // tak meninggalkan sampah di folder sementara
 
 /* ---------- kunci: urai, ganda, batas 10, samar ---------- */
 test('samarkan: 4 awal + … + 4 akhir; kunci pendek tak bocor', () => {
@@ -528,6 +530,7 @@ test('dijalankan lewat tautan simbolik/junction ke folder skrip (skill dipasang 
   try { symlinkSync(aslinya, tautan, 'junction'); } catch (e) { return assert.ok(true, `tautan tak bisa dibuat di mesin ini (${e.code}); dilewati`); }
   const env = { ...process.env, GEMINI_API_KEY: '', GEMINI_API_KEYS: '', HOME: rumah, USERPROFILE: rumah };
   const r = spawnSync(process.execPath, [join(tautan, 'vo-gemini.mjs'), '--help'], { env, encoding: 'utf8' });
+  try { unlinkSync(tautan); } catch { rmdirSync(tautan); }          // lepas tautan DULU: pembersihan rekursif tak boleh menyentuh folder asli
   assert.equal(r.status, 0); assert.match(r.stdout, /VO-GEMINI/, 'tidak mencetak apa pun: pemeriksaan "dijalankan langsung" gagal mengenali tautan');
 });
 

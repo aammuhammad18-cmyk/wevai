@@ -1,5 +1,49 @@
 # Changelog
 
+## Belum dirilis
+
+Gaya "Siluet sinematik" (sub-proyek 3 dari `docs/peta-peningkatan-gaya-2026-11-01.md`), langkah pertama: starter sendiri.
+Versi belum dinaikkan; rilisnya langkah terpisah.
+
+- **`assets/starter-sinematik.html`** (baru, ±98 KB): titik mulai gaya siluet sinematik 100 % kode — bidang `[data-z]` + kamera 2.5D +
+  modul `atmosfer`/`cahaya-2d`/`pasca`. Isi bawaan: gapura malam "Penjaga Gerbang", 12 dtk (obor bersumber, siluet ber-rim, kabut
+  berlapis, bara, satu grade) + satu legenda dokumenter di `#ui`, di luar rig (kicker "JAWA · ABAD XIV", judul Cormorant Garamond
+  600; masuk 0,8 → 1,4 dtk, keluar 4,2 → 4,8 dtk, jadi frame t = 0 dan t ≥ 5 bebas teks). Rangka tanpa bagian explainer (view
+  samping/peta, profil kecepatan, strip, hero, whip, kolase, rundown contoh) dan tanpa blok `footage`: `snap.mjs` dan
+  `export-frames.mjs` hanya memakai `OPENER.seekFrame`/`clipsReady` bila ada. `?clean=1`, `?debug=1`, autoplay + loop, VO, grain, dan
+  gerbang `fonts.ready` sama dengan starter lain; `?kosong=1` = rig + modul tanpa adegan (kerangka uji). Satu adegan saja: babak
+  berurutan = langkah berikut sub-proyek 3.
+- **Adegan dipindah, bukan disalin**: `demoSinematik()` + `SINEMA_UJI` dihapus dari `starter-explainer.html` (kini `gapuraMalam()` +
+  `SINEMA_UJI` di starter baru, tanpa `view.side`/`.paper`); jalur bawaan explainer kembali ke `DUR = 22` dan
+  `if(q.has('demo'))demoKamera();`, blok modulnya tetap ada (tersedia untuk MODE KOLASE). `starter-explainer.html?demo=sinematik`
+  dialihkan ke `starter-sinematik.html` dengan query yang sama (skrip berhenti dengan galat sesudah `location.replace`, supaya `OPENER`
+  tak pernah terpasang di dokumen yang akan diganti): tautan lama di CHANGELOG 1.3.0, `evals/bukti`, dan `docs` tetap jalan.
+- **Uji** (`scripts/test-starters.mjs`): kait `ATM_UJI`/`CAHAYA_UJI`/`PASCA_UJI` wajib ada juga di `starter-sinematik.html`;
+  `kabutParalaks`/`kabutMenutup` diwajibkan di starter ber-`CAM` (explainer + sinematik, bukan panggung). `SINEMA_UJI` wajib di starter
+  baru dan dibaca dari halaman bawaannya (tanpa muat ulang) SEBELUM kait modul: `ATM_UJI` mengganti langit adegan dan `PASCA_UJI`
+  membuang lapisan serta tween `GRADE`-nya. Kait modul dan `CAM_UJI` mengandaikan halaman yang belum memakai modul (`awalBersih`, jalur
+  2D tanpa bidang, grade netral), jadi untuk starter ber-adegan dijalankan di `?kosong=1`; katalog `?demo=1` tidak didukung di
+  starter baru, jadi `demoAkhir` dilewati dan `demoKameraMati` dihapus. 9 dari 9 starter lolos. Dua mutasi sementara membuktikan uji
+  baru menangkap kesalahan: adegan tanpa `grade()` → `SINEMA_UJI` gagal (lapisan GRADE 0); `?kosong=1` yang tetap memuat adegan →
+  `PASCA_UJI` (`awalBersih`, `netral`) dan `CAM_UJI` (`gayaLain`) gagal, jadi kait itu memang butuh halaman tanpa adegan.
+- **Anggaran konteks**: jalur baru **Siluet sinematik** (`explainer.md` + `techniques.md` + `starter-sinematik.html`) 234,52 KB, batas
+  pelacak **235 KB** = ukuran sekarang, bukan target (target = keputusan pemilik). Jalur **Explainer aliran** menyusut 244,94 → 219,94
+  KB karena adegan pindah (batas 245 tetap). Batas lain tidak diubah; jalur **Opener / promo / bumper** kini 219,99 KB dari 220 (sebelum
+  219,93): rute baru di `SKILL.md` + `techniques.md` hanya +55 karakter, sisa 15 karakter — tambahan berikutnya di `SKILL.md`,
+  `techniques.md`, atau `starter-opener.html` harus menggantikan, bukan menumpuk.
+- **Dokumen**: rute ke starter baru di `SKILL.md` (langkah 3 dan tabel "Isi paket"), `references/explainer.md` (baris rekomendasi gaya,
+  tabel gaya, "Mulai dari starter yang benar"), `references/techniques.md` §7d (bukti jalan = adegan bawaan starter baru, helper lokal
+  `gapuraMalam()`); `README.md` (catatan galeri, keterangan tile, tata letak repo; still `13-cinematic-silhouette.jpg` tetap, adegannya
+  sama); contoh di kepala `scripts/bench-frame.mjs`.
+- **Bukti** (`evals/bukti/2026-11-03-starter-sinematik/kontak.jpg`: t = 0, 4, 7, 11 dtk): hash PNG `snap.mjs` (`?clean=1`) di t = 0, 7,
+  11 identik dengan `starter-explainer.html?demo=sinematik&clean=1` di commit 538a7e6 — adegan pindah tanpa selisih piksel
+  (a22c8266…, d1718925…, 1f3cf209…). Jalur bawaan `starter-explainer.html?clean=1` identik dengan 538a7e6 di t = 1, 5, 12
+  (6676321b…, 24a766d6…, ee5fac59…).
+- **Belum diukur / celah yang diketahui**: ms/frame starter baru (`bench-frame.mjs`; mesin sedang dipakai render pemilik) —
+  tindak lanjut di mesin senggang, batas 350 ms. Kait modul (`ATM_UJI`, `CAHAYA_UJI`, `PASCA_UJI`, `CAM_UJI`) belum bisa dijalankan di
+  halaman yang sudah memakai modul (mis. `PASCA_UJI` menuntut tanpa lapisan grade; `ATM_UJI` mengganti langit halaman) — sampai kait itu
+  tahan terhadap halaman terisi, starter ber-adegan harus punya mode tanpa adegan seperti `?kosong=1`.
+
 ## 1.3.0 — 2026-11-02
 
 Atmosfer, cahaya 2D, dan grade (sub-proyek 2 dari `docs/peta-peningkatan-gaya-2026-11-01.md`): tiga modul runtime

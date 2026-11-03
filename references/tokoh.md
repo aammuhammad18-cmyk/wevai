@@ -23,17 +23,17 @@ dirancang (bukan kapsul), tiga arah pandang, kostum Jawa kuno, kerumunan ber-see
 | Panggilan | Hasil |
 |---|---|
 | `buat(o)` | string `<g id class="wv-tokoh" data-tokoh>`; slot `#id-<slot>` ber-`transform="matrix(…)"` |
-| `gerak(bidang, [{…o, kunci}], {cahaya, lantai, rim:4, gelap:.55, panjang:.6, resolusi:1})` | `<canvas class="wv-tokoh">` di bidang (`<div data-z>`). `cahaya`: nama/larik nama `SUMBER` atau `{x,y,warna,kuat}` — arah rim dihitung tiap frame dari posisi tokoh (berjalan melewati obor = rim berpindah sisi); `lantai` (y px) = bayangan jatuh; `resolusi` 1,5 untuk close-up |
-| `kerumunan({seed, n, area:[x,y,w,h], ragam:[arketipe…], arah, hadap, tinggi, detail:0, cahaya, jarak, id})` | larik opsi tokoh (untuk `gerak` atau `buat`): tinggi, badan, arketipe, pandang, pose, fase napas berbeda; urut kedalaman |
-| `pose(id, kunci, t)` | `{akar, m, q, W, F, tangan, duduk}` — matriks slot (string + angka); untuk uji dan menaruh benda di titik genggam |
+| `gerak(bidang, [{…o, kunci}], {cahaya, lantai, rim:4, gelap:.55, panjang:.6, resolusi:1})` | `<canvas class="wv-tokoh">` di `<div data-z>`. `cahaya` = nama/larik nama `SUMBER` atau `{x,y}`: arah rim dihitung tiap frame dari posisi tokoh; `lantai` (y) = bayangan jatuh; `resolusi` 1,5 untuk close-up |
+| `kerumunan({seed, n, area:[x,y,w,h], ragam, arah, hadap, tinggi, detail:0, cahaya, jarak, id})` | larik opsi tokoh (untuk `gerak`/`buat`): tinggi, badan, arketipe, pandang, pose, fase napas beragam; urut kedalaman |
+| `pose(id, kunci, t)` | `{akar, m, q, W, F, tangan, duduk}`: matriks slot (string + angka) |
 | `ik(L1, L2, tx, ty, sisi)` | `[a1, a2, sendi x, y, ujung x, y]`; sudut dari arah bawah ke +x; di luar jangkauan dijepit lurus |
 | `POSE`, `ARKETIPE`, `RIG` | data; `RIG[id].slot` = urutan gambar |
 
 **Opsi `buat`/anggota daftar**: `x y tinggi` · `arketipe` `rakyat raja prajurit resi petani putri` · `arah` `tigaperempat depan samping`
 · `hadap` `kanan kiri` · `pose` · `seed` · `detail` 2 (penuh: kain bermotif `pustaka.kain`, perhiasan, garis anatomi) / 1 (tanpa
 motif) / 0 (siluet + rim salinan bergeser, untuk kerumunan) · `cahaya` · `jarak` (z bidang → `warnaJarak`) · `id` · `badan` (lebar)
-· `kulit` · `kostum` (menimpa kunci `ARKETIPE`, mis. `{bawa:['payung',null]}`) · `fase` (0..1, napas). Opsi asing, enum salah,
-tinggi ≤ 0 → `Error('tokoh.buat: …')` yang menyebut pilihan sah.
+· `kulit` · `kostum` (menimpa kunci `ARKETIPE`, mis. `{bawa:['payung',null]}`) · `fase` (napas). Opsi salah → `Error('tokoh.buat: …')`
+yang menyebut pilihan sah.
 
 ## Pose dan kunci gerak
 
@@ -60,21 +60,23 @@ tokoh.gerak(B,[
 svgDi(B2,tokoh.buat({arketipe:'resi',arah:'depan',x:300,y:990,tinggi:560,cahaya:'obor1',id:'resiDiam'}));   // tokoh diam
 ```
 
-Benda yang diletakkan (sesaji di altar): `pose(id, kunci, tLepas)` → titik genggam = `W · q[slot 'bawaD']`; gambar salinan statis di
-sana dan tampilkan dengan `tl.set` di `tLepas` bersamaan dengan kunci `{benda:0}` (katalog tableau C).
+Benda yang diletakkan (sesaji): titik genggam = `W · q[slot 'bawaD']` dari `pose(id, kunci, tLepas)`; salinan statis di sana, tampil
+lewat `tl.set` di `tLepas` + kunci `{benda:0}` (katalog tableau C).
 
 **Rupa** (kanvas, detail ≥ 1): bagian berwarna rata bernada malam — gradien per segmen membuat manekin kayu bersendi bola (terukur di
 katalog) — lalu SATU gradien layar per tokoh searah cahaya (hangat → gelap) + oklusi tanah, `source-atop`; pendar rim buram di bawah,
 pita rim tajam di atas, bayangan jatuh di lantai. SVG `buat()` = warna rata saja: pasang `rim()`/`bayangan()` cahaya-2d sendiri.
 
-## Determinisme (diukur 3 Nov 2026: tiga jalur seek ke detik yang sama, hash PNG)
+## Determinisme (diukur 3 Nov 2026: jalur seek berbeda ke detik yang sama, hash PNG)
 
 - Transform `<g>` tiap frame di `<svg>` ber-`will-change` (rencana awal): tepi ±1–2 (raster dirty-rect); tokoh ber-`rim()`/
   `bayangan()` ±12 di jalur berurutan (= ekspor); di svg ber-`relief()` derau ±2; svg tanpa `will-change`, kamera bergerak: ±22;
-  rect pembatal penuh: ±58. Kanvas yang dihapus penuh: identik (`test-starters` membandingkan tiap kanvas `#stage`).
-- **Skala raster `will-change`** ditetapkan saat lapisan dibuat; tableau yang tampil lagi (`display:none` → '') dibuat ulang. Zoom
-  yang berubah di DALAM tableau (dolly, handheld beroll) → seek mundur melintasi cut berbeda di seluruh frame (katalog pustaka:
-  maks 76). Halaman bertableau: zoom tetap per tableau, gerak kamera = truck/pedestal.
+  rect pembatal penuh: ±58. **Kanvas yang dihapus penuh: identik** (`test-starters` membandingkan tiap kanvas `#stage`; di bingkai
+  katalog, piksel di dalam siluet tokoh ≤ 8 beda dari ≥ 105 rb px pada t 5/12/19/25 lewat tiga jalur).
+- Sisa beda di bingkai = latar, bukan tokoh: (1) seek mundur ke tableau yang tampil sejak muat membuat ulang lapisan `will-change`-nya
+  → tepi latar bergeser ±1 px (maks 84; katalog pustaka 76). Jalur 25→5 = 25→19→12→0,1→5 (hash sama): penentunya "lapisan muat
+  pertama" vs "dibuat ulang". Dugaan: `snap`/`export`/`bench` memasang viewport SESUDAH `goto`. Ekspor maju (juga 2 worker) tidak
+  menampilkan ulang tableau. (2) pendar `sumber()` yang di-`scale` kedip tiap frame: cincin ±4, berurutan vs lompat.
 
 ## Jebakan
 

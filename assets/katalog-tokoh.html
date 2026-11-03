@@ -16,8 +16,8 @@
     C 14–21 dtk  Sesaji: putri meraih altar dengan IK dua tulang, melepas sesaji, lalu menyembah; pelita = sumber dekat, dupa
     D 21–28 dtk  Rakyat di gerbang: kerumunan ber-seed (24) + dua penjaga di depan gapura paduraksa berobor, siluet ber-rim
   Rig = starter-sinematik.html: bidang [data-z] di rig #world, kamera CAM 2.5D, modul atmosfer/cahaya-2d/pasca (techniques.md §7d).
-  Tokoh bergerak = SATU <canvas class="wv-tokoh"> per bidang (tokoh.gerak), dihapus penuh tiap frame; zoom kamera tetap di tiap
-  tableau (skala raster will-change, references/tokoh.md › Determinisme). Tiap tableau = bidang sendiri (data-tableau), ditukar di
+  Tokoh bergerak = SATU <canvas class="wv-tokoh"> per bidang (tokoh.gerak), dihapus penuh tiap frame (references/tokoh.md ›
+  Determinisme); kamera tiap tableau = truck/pedestal. Tiap tableau = bidang sendiri (data-tableau), ditukar di
   cut di balik celup hitam #tirai. Autoplay + loop, TANPA player; ?debug=1 panel scrub; ?clean=1 untuk export; ?kosong=1 = rig +
   modul tanpa adegan (uji). Buka dengan klik dua kali. Hanya butuh browser + internet (GSAP & font dari CDN).
 -->
@@ -1411,9 +1411,7 @@ return{buat,gerak,kerumunan,pose,ik,POSE,ARKETIPE,RIG};})();
    Urutan per tableau = patokan starter-sinematik: LANGIT → bidang → sumber → aset pustaka → relief/redup (dipanggang) → api/asap/
    partikel/kabut → tokoh.gerak (kanvas) → grade → kamera. Tokoh yang bergerak = SATU kanvas per bidang, dihapus dan digambar ulang
    dari tl.time() (bukan transform <g> di svg ber-will-change: piksel bergantung jalur seek, references/tokoh.md). Kamera tiap
-   tableau: zoom TETAP, hanya truck/pedestal, tanpa handheld — skala raster lapisan will-change ditetapkan saat lapisan dibuat
-   (tableau ditampilkan lagi = dibuat ulang), jadi zoom yang berubah di dalam tableau membuat seek mundur melintasi cut berbeda
-   piksel. Partikel total 360 (≤ 400). Dipanggil saat setup, sesudah tl ada. */
+   tableau: truck/pedestal tanpa handheld. Partikel total 360 (≤ 400). Dipanggil saat setup, sesudah tl ada. */
 function katalogTokoh(){
   const bidang=(z,k)=>{const d=document.createElement('div');d.dataset.z=z;d.dataset.tableau=k;d.style.cssText=`position:absolute;left:0;top:0;width:${W}px;height:${H}px`;
       rig.appendChild(d);BIDANG.push({el:d,z});return d;},
@@ -1531,7 +1529,7 @@ function katalogTokoh(){
   kabut(D1,{y:826,tebal:160,warna:pudar('#a890b0',-700),rapat:.35,hanyut:8,seed:15});
   kabut(D2,{y:950,tebal:170,warna:pudar('#b8a4c0',-300),rapat:.45,hanyut:14,seed:17});
 
-  /* tukar tableau, LANGIT, grade, kamera (zoom tetap per tableau; dipanggil urut waktu: PLAN menyelesaikan nilai saat setup) */
+  /* tukar tableau, LANGIT, grade, kamera (dipanggil urut waktu: PLAN menyelesaikan nilai saat setup) */
   Object.assign(LANGIT,LA);
   const T=k=>[...rig.querySelectorAll(`[data-tableau="${k}"]`)],O={pitch:0,yaw:0,roll:0,shake:0};
   for(const k of[1,2,3])for(const e of T(k))e.style.display='none';

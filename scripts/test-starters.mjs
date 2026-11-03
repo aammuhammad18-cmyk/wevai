@@ -55,7 +55,8 @@ const TERBANG = readFileSync(join(ROOT, 'src', 'runtime', 'terbang.js'), 'utf8')
 // starter-elang siap 80 dtk, satu frame 66,6 dtk, frame motion blur mematikan proses GPU. Uji penuhnya di mesin ber-GPU.
 // starter-lukis: melukis SATU bidang 2240×1400 = 81,7 dtk di SwiftShader (HD 4000: ±0,3 dtk + kompilasi shader), halaman 5 bidang + 22 kanvas sprite
 // melewati batas siap 60 dtk; bagian murninya diuji test-lukis.mjs di CI.
-const BERAT = ['starter-elang.html', 'starter-lukis.html'];
+// starter-diorama: SwiftShader siap 32 dtk, frame pertama 33,7 dtk (bayangan 4096 + MSAA + tilt); DIORAMA_UJI butuh ±60 frame. Bagian murni: test-diorama.mjs di CI.
+const BERAT = ['starter-elang.html', 'starter-lukis.html', 'starter-diorama.html'];
 const glLunak = await (async () => { const p = await browser.newPage();
   const r = await p.evaluate(() => { const g = document.createElement('canvas').getContext('webgl2'), e = g && g.getExtension('WEBGL_debug_renderer_info');
     return e ? g.getParameter(e.UNMASKED_RENDERER_WEBGL) : ''; });

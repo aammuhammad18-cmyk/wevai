@@ -60,11 +60,31 @@ lain (`sinematografi.md` §6); brand/produk dengan gaya ini memakai `NoToneMappi
 
 ## Biaya
 
-@@BIAYA@@
+Diukur di halaman (`performance.now()`, sinkron lewat `readPixels` 1 px), mesin acuan i3-3217U / HD 4000, 1080p, median 21 detik, Chrome Idle, tanpa render pemilik (3–4 Nov).
+`bench-frame.mjs` (termasuk screenshot) dijalankan controller sesudah merge; target ≤ 350 ms/frame.
+
+| Ukuran | Nilai |
+|---|---|
+| Satu frame penuh | ±72 ms |
+| + garis lambung | +1–4 ms (10 rb verteks tambahan, 1 draw call) |
+| + tilt-shift | +28 ms (2 pass, 13 sampel per pass; baris tajam dilewati) |
+| Geometri | 27 rb verteks toon, 2 draw call maket + kartu + lantai |
+| Muat → `OPENER.ready` | 4–5,5 dtk; ±8 dtk sesaat setelah peluncuran Chrome: raster kartu + latar 5,3 rb px, lantai flok, kompilasi |
+| Bayangan | 4096², dipanggang sekali saat muat; 0 ms per frame |
+| SwiftShader (CI tanpa GPU) | siap 32 dtk, frame pertama 33,7 dtk → masuk `BERAT` di `test-starters`; bagian murni diuji `test-diorama` |
 
 ## Garis: lambung vs tepi depth/normal
 
-@@GARIS@@
+Keduanya dibangun di halaman uji dan diukur pada adegan yang sama (bukti: `evals/bukti/2026-11-03-diorama/garis.jpg`, kiri lambung, kanan tepi; 2 run per mode):
+
+| | Tanpa garis | Lambung terbalik | Tepi depth/normal (pass penuh) |
+|---|---|---|---|
+| Frame (median, ms) | 73,3 / 68,3 | 72,4 / 71,8 | 99,1 / 96,9 |
+| Tepi | – | halus (ikut MSAA) | bergerigi (sesudah MSAA) |
+| Yang tergaris | – | siluet tiap keping | siluet + lipatan + nat bata (terlalu ramai) |
+
+Dipilih **lambung**: nyaris gratis, tepi halus, dan garis tipisnya lebih dekat ke maket yang difoto. Kekurangannya: lipatan di dalam siluet (tepi atas–muka depan satu kotak) tidak bergaris. Tangga
+toon yang menegaskannya. Lebih dari 25 ms tambahan untuk tepi depth/normal juga butuh satu render geometri lagi.
 
 ## Akurasi: pura tri mandala
 

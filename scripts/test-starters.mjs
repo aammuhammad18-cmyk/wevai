@@ -65,7 +65,7 @@ let gagal = 0, lewat = 0;
 for (const file of files) {
   const name = basename(file);
   if (glLunak && BERAT.includes(name)) { lewat++; console.log(`lewat  ${name} — WebGL perangkat lunak (${glLunak}): terlalu berat, uji di mesin ber-GPU`); continue; }
-  // halaman bawaan ADEGAN sudah berisi adegan (langit, grade, bidang [data-z]); kait modul dan kamera mengandaikan halaman yang
+  // halaman bawaan KOSONG (ADEGAN + LUKIS) sudah berisi adegan (langit/lukisan, grade, bidang [data-z]); kait modul dan kamera mengandaikan halaman yang
   // belum memakai modul (awalBersih, jalur 2D tanpa bidang, grade netral), jadi dijalankan di ?kosong=1 (rig + modul tanpa adegan).
   // Kait adegan (SINEMA_UJI) dibaca dari halaman bawaan. Katalog kamera ?demo=1 tidak ada di halaman ini.
   const adegan = KOSONG.includes(name);

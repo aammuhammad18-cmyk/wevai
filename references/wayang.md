@@ -34,7 +34,7 @@ Semua sesudah `const tl=`. Bidang `[data-z]` di rig `#world` hanya untuk benda d
 | `wayang.panggung({sisi,tinggi,dasar,simping,seed,res})` | satu per halaman. `sisi` `bayang` `dalang`; `tinggi` = px satria alusan; `dasar` = y atas debog; `simping` simpingan kiri-kanan; `res` resolusi sprite (1,25; naikkan bila zoom > 1,5) |
 | `wayang.figur({jenis,x,y,z,hadap,seed,muka,tinggi,miring,putar,getar,tampak,tanganD,tanganB,kunci})` | figur + sprite dipanggang. `jenis` `alusan` `gagahan` `raksasa` `putri` `gunungan`. x, y = px layar sisi bayang (y relatif debog, negatif = terangkat). Tinggi otomatis menurut pakem |
 | `kunci` | `[[t,{x,y,z,miring,putar,tampak,getar,tanganD,tanganB},{durasi,keras,langkah,tinggi,ayun}],…]` urut waktu, fungsi murni t. `langkah` = hentakan gapit berjalan; `keras` = ease gagah/raksasa |
-| `tanganD` `tanganB` | nama pose (`anjujur` `angapurancang` `mathentheng` `nuding` `ngancam` `sembah`) atau `[x,y]` target telapak (px figur dari titik tanah). Depan/belakang. Raksasa: `tanganB` diabaikan |
+| `tanganD` `tanganB` | nama pose (`anjujur` `angapurancang` `mathentheng` `nuding` `ngancam` `sembah` `belakang`) atau `[x,y,sisi?]` target telapak (satuan figur dari titik tanah; sisi 1 = siku ke depan, −1 = ke belakang). Depan/belakang. Raksasa: `tanganB` diabaikan |
 | `BLENCONG` | `{x,y,jarak,nyala,kuat,kedip,seed}`: kaki lampu di kelir (px), jarak lampu-kelir, lebar api (penumbra), terang, kedip 0..1. Lampu x, y dibaca saat kelir dipanggang dan tiap frame: pasang sebelum `panggung()` bila digeser |
 | `wayang.proyeksi(z)` | `{skala,blur,getar}`: `skala = d/(d−z)`, `blur = nyala·z/(d−z)` |
 | `wayang.kedipan(t)` `ik` `keadaan` `rancang` `rancangKayon` `tatah` | fungsi murni (diuji Node) |

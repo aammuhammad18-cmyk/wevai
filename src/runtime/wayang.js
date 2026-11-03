@@ -26,7 +26,7 @@ const JENIS={
   /* simpingan menurut sisi DALANG; penonton di sisi bayang melihatnya tercermin */
   PIHAK={kanan:{layar:'kiri',hadap:'kanan'},kiri:{layar:'kanan',hadap:'kiri'}},
   /* posisi tangan bernama (ITB J. Vis. Art 2007): target telapak px figur dari titik tanah, x ke arah hadap */
-  POSE={belakang:[-126,-158,-1],anjujur:[84,-152,-1],angapurancang:[100,-246,1],mathentheng:[72,-510,1],nuding:[400,-610,-1],ngancam:[300,-930,-1],sembah:[120,-660,-1]};
+  POSE={belakang:[-126,-158,-1],anjujur:[84,-152,-1],angapurancang:[108,-196,1],mathentheng:[72,-510,1],nuding:[400,-610,-1],ngancam:[300,-930,-1],sembah:[120,-660,-1]};
 
 /* ---------- geometri murni ---------- */
 const tk=p=>f(p[0])+','+f(p[1]),
@@ -193,13 +193,13 @@ function rancang(jn,seed=1){const J=JENIS[jn],R=mulberry32(seed*7919+jn.length),
   /* mata + mulut sebagai tatah: bentuk menentukan golongan */
   if(J.mata==='gabahan'){const[a,b,c]=jn==='putri'?[14,-68,.92]:[15,-72,1];LB.push(jalur(T([[a,b,1],[a+13*c,b-5.5*c],[a+29*c,b+1.5,1],[a+13*c,b+3.5*c]])));ubin('tratasan',T([[10,-90],[-6,-100]]),1.4);}
   if(J.mata==='kedhelen'){LB.push(jalur(T([[16,-78],[32,-88],[47,-78],[36,-66],[20,-68]])));ATAS.push({n:'mata',d:lingkar(...T1(33,-77),5),w:'hitamMata'});ubin('tratasan',T([[14,-96],[-6,-104]]),1.5);}
-  if(J.mata==='plelengan'){const[x,y]=T1(40,-96);LB.push(lingkar(x,y,11*k));ATAS.push({n:'mata',d:lingkar(x,y,5*k),w:'hitamMata'});ubin('tratasan',T([[-2,-120],[-44,-104]]),2);ubin('tratasan',T([[26,-74],[10,-60]]),1.7);}
+  if(J.mata==='plelengan'){const[x,y]=T1(40,-96),[px,py]=T1(43,-95);LB.push(lingkar(x,y,11*k));ATAS.push({n:'mata',d:lingkar(px,py,4.4*k),w:'hitamMata'});ATAS.push({n:'mata',d:jalur(T([[56,-92,1],[46,-112],[26,-108],[24,-102],[40,-101]])),w:'muka'});ubin('tratasan',T([[-2,-120],[-44,-104]]),2);ubin('tratasan',T([[26,-74],[10,-60]]),1.7);}
   if(J.mulut==='rapat')ubin('tratasan',T([[22,-25],[40,-25]]),1.4);
   if(J.mulut==='gusen'){/* gusen: mulut lebar sampai bawah mata, gusi + gigi + taring tetap kulit */
-    LB.push(jalur(T([[72,-27,1],[40,-35],[12,-37],[-6,-27],[8,-11],[36,-5],[66,-12,1]])));
-    ATAS.push({n:'gusi',d:jalur(T([[72,-27,1],[40,-35],[12,-37],[-6,-27],[20,-27],[60,-22]])),w:'merahGusi'});
-    for(const x of[58,48,38,28,18])ATAS.push({n:'gigi',d:jalur(T([[x,-26,1],[x+7,-25,1],[x+3,-14,1]])),w:'gading'});
-    ATAS.push({n:'gigi',d:jalur(T([[0,-28,1],[9,-29,1],[7,-4,1]])),w:'gading'});ATAS.push({n:'gigi',d:jalur(T([[54,-12,1],[42,-8,1],[58,-40,1]])),w:'gading'});   // taring atas + bawah
+    LB.push(jalur(T([[72,-27,1],[44,-33],[16,-28],[-8,-12],[6,-2],[36,0],[66,-10,1]])));
+    ATAS.push({n:'gusi',d:jalur(T([[72,-27,1],[44,-33],[16,-28],[-8,-12],[18,-20],[60,-21]])),w:'merahGusi'});
+    for(const x of[58,48,38,28])ATAS.push({n:'gigi',d:jalur(T([[x,-25+(58-x)*.02,1],[x+7,-24+(58-x)*.02,1],[x+3,-12+(58-x)*.02,1]])),w:'gading'});
+    ATAS.push({n:'gigi',d:jalur(T([[6,-20,1],[16,-23,1],[12,4,1]])),w:'gading'});ATAS.push({n:'gigi',d:jalur(T([[56,-8,1],[44,-3,1],[60,-40,1]])),w:'gading'});   // taring atas + bawah
     isi('perhiasan',T([[32,-126],[70,-122],[84,-104],[66,-102],[38,-108]]),'rambut');const Jm=T([[44,-134],[50,-120],[-4,-138],[-58,-122],[-64,-136],[-6,-154]]);isi('perhiasan',Jm,prada);ubin('bubukan',T([[30,-132],[-6,-146],[-52,-132]]),1.9);ubin('seritan',T([[-30,10],[12,22],[50,14]]),2.2);}
   /* lengan */
   const[L1,L2,w]=LENGAN[jn],Pot=potongLengan(L1,L2,w,jn==='raksasa');Object.assign(G,{L:[L1,L2],bahuD,bahuB,Pot});

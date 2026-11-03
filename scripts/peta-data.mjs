@@ -57,6 +57,7 @@ function sederhana(r, eps) {
 function satukan(R) {
   const kunci = p => p.map(v => v.toFixed(5)).join(','), ruas = new Map();
   for (const r of R) for (let i = 0; i < r.length; i++) { const a = r[i], b = r[(i + 1) % r.length], k = kunci(a) + '>' + kunci(b), kb = kunci(b) + '>' + kunci(a);
+    if (kunci(a) === kunci(b)) continue;   // klip Sutherland–Hodgman bisa menggandakan titik pojok: ruas nol membuat dua ruas berawal sama → rangkaian putus → tali busur palsu
     if (ruas.has(kb)) ruas.delete(kb); else ruas.set(k, [a, b]); }
   const dari = new Map(); for (const [a, b] of ruas.values()) dari.set(kunci(a), [a, b]);
   const hasil = [];

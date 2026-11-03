@@ -66,6 +66,10 @@ test('pantai & laut: kota di darat (> 0), laut < 0, garis 200 m tepat di tepi po
     assert.ok(di(lon, lat) > 0, `${n} harus darat (${di(lon, lat)})`);
   for (const [n, lon, lat] of [['Laut Jawa', 110, -6], ['Samudra Hindia', 110, -8.8], ['Selat Madura', 113, -7.3]]) assert.ok(di(lon, lat) < 0, `${n} harus laut`);
   assert.ok(di(110, -6) > -.2 && di(110, -8.8) < -.2, 'Laut Jawa = paparan (< 200 m), Samudra Hindia = laut dalam');
+  for (let lon = 105; lon <= 115; lon += .5) {   // tanpa garis 200 m palsu (tali busur kotak klip) di laut lepas
+    for (const lat of [-10, -10.75, -11.5]) assert.ok(di(lon, lat) < -1, `Samudra Hindia ${lon},${lat}: ${di(lon, lat).toFixed(2)} km, harus laut dalam`);
+    if (lon >= 107 && lon <= 114) assert.ok(di(lon, -5.4) > -.2 && di(lon, -5.4) < 0, `Laut Jawa ${lon},-5.4: harus paparan`);
+  }
   for (const lon of [107, 109, 111, 113]) {   // dari pantai selatan ke laut lepas: tempat −0,2 km = tepi poligon K_200
     let a = -7.0, b = -9.6;
     for (let k = 0; k < 40; k++) { const m = (a + b) / 2; di(lon, m) > -.2 ? a = m : b = m; }

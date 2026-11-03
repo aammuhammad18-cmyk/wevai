@@ -24,7 +24,7 @@ baca lain tidak bertambah satu bita pun.
 | Lapisan | Sumber | Pengolahan | Lisensi |
 |---|---|---|---|
 | Garis pantai | Natural Earth 10m `ne_10m_land` | klip 103–117 BT × 9,5–3 LS (semua daratan yang terlihat dari bingkai seluruh Jawa: Sumatra selatan, pantai selatan Kalimantan); Douglas–Peucker **0,5 km**; pulau < 0,003 deg² dibuang; kuantum 0,002° (≈ 220 m). 23 cincin, 1 262 titik, 4,5 KB | domain publik |
-| Garis 200 m (paparan) | Natural Earth 10m `ne_10m_bathymetry_K_200` | klip 103,6–117,4 × 12–4 LS (lebih lebar: tepi klip palsu jauh dari jaring); fitur yang berbagi tepi disatukan; DP **1,5 km**. 5 cincin, 226 titik | domain publik |
+| Garis 200 m (paparan) | Natural Earth 10m `ne_10m_bathymetry_K_200` | klip 103,6–117,4 × 12–4 LS (lebih lebar: tepi klip palsu jauh dari jaring); fitur yang berbagi tepi disatukan; DP **1,5 km**. 5 cincin, 227 titik | domain publik |
 | Gunung api | Global Volcanism Program, 2026. *Volcanoes of the World* (v. 5.4.0; 7 Aug 2026). Smithsonian Institution, compiled by Venzke, E. https://doi.org/10.5479/si.GVP.VOTW5-2026.5.4 | lapisan WFS `Smithsonian_VOTW_Holocene_Volcanoes` (34 gunung, tanpa Krakatau) dan `…_Pleistocene_Volcanoes` (34 dari 42: tanpa kubah lava kecil, medan maar, dan yang < 0,8 km), diambil 3 Nov 2026. Dipakai: lon, lat, elevasi puncak | kutip GVP |
 | Sungai | **SKEMATIS** — Natural Earth 10m tidak memuat satu pun sungai Jawa (0 fitur di kotak 104,5–116 BT; diperiksa) | titik kota/muara yang dilalui, hulu → muara, dihaluskan Catmull-Rom | karya sendiri |
 | Wilayah (dataran tinggi, pegunungan selatan, Kendeng, Rembang, Ijen) | bentuk tangan | gaussian `[lon, lat, jari x, jari z, tinggi]` | karya sendiri |
@@ -57,14 +57,16 @@ keluarannya ke objek data baru, isi `gunung` dari WFS GVP, lalu panggil `medan(D
 
 Mengembalikan `{tinggi(x,z), darat, laut, gunung, sungai, kerucut}`, murni dan deterministik (sidik geometri diuji di dua muat):
 - `tinggi(x,z,alur=1)` km: darat = dataran pantai (2,5 m/km sampai 40 km) + `wilayah` + fBm, digabung smooth-max dengan kerucut gunung;
-  lembah sungai diukir (lebar 1,2 km di hulu → 4,5 km di hilir, jadi tak memangkas puncak); laut = parameter kedalaman negatif.
+  lembah sungai diukir (lebar 1,2 km di hulu → 4,5 km di hilir, jadi tak memangkas puncak; paling dalam 80 m di bawah tanah asli,
+  jadi lembah, bukan ngarai); laut = parameter kedalaman negatif.
   `alur` 0 = kerucut tanpa jurang (kisi kasar; jurangnya digambar shader).
 - `darat.sdf`, `laut.sdf`: jarak bertanda ke pantai / garis 200 m. Tepat ≤ 8 km (ember 8 km), lebih jauh dari kisi pembantu 6 km.
 - `gunung[i]`: `{nama, x, z, E, R, k, kawah, cekung, alur, jurang, fase, kaldera}`. Puncak = bibir kawah = data GVP. Kaki tak bulat
   (R ± 18 % menurut arah). Jurang radial: 8–14 per gunung, berliuk ke kaki, dalamnya beda-beda (barranco di antara alur dangkal),
   hingga `alur` (,22 Holosen; ,32 Pleistosen: tererosi, tanpa kawah, puncak membulat) di tengah lereng. Rumus jurang ditulis dua
   kali, di `medan()` (JS) dan shader `petaRelief` (GLSL): ubah keduanya bersama.
-- `sungai[i]`: `{nama, p[[x,z]], air[]}` per 0,8 km; muka air = minimum berjalan dari hulu (tak pernah naik), berakhir di pantai.
+- `sungai[i]`: `{nama, p[[x,z]], air[]}` per 0,8 km; `air` = batas bawah ukiran: minimum berjalan dari hulu (tak pernah naik) atas tanah
+  terendah di penampang (±0,3 km di hulu → ±2,4 km di hilir), berakhir di pantai. Pita sungai digambar di tanah terukir.
 
 ## `petaRelief(M, opsi)` dan pendampingnya
 
@@ -119,9 +121,14 @@ Urutan per frame (starter `siapkan()`): `applyCam()` → near/far dan kabut dari
 
 - **NE 10m tanpa sungai Jawa.** Jangan menunggu data; titik skematis + catatan akurasi.
 - **Bidang 200 m terbelah.** NE memotong samudra jadi beberapa fitur yang berbagi tepi; tanpa penyatuan, tepi potong jadi garis
-  200 m palsu di tengah laut dalam (selatan Jawa Timur). `peta-data.mjs` membuang ruas kembar.
+  200 m palsu di tengah laut dalam (selatan Jawa Timur). `peta-data.mjs` membuang ruas kembar, dan ruas nol: klip Sutherland–Hodgman
+  bisa menggandakan titik pojok kotak, rangkaian ulang lalu putus dan cincin menutup dengan tali busur melintang samudra (pernah
+  terjadi: garis 200 m palsu dari 117,4 BT 4 LS ke 112,7 BT 12 LS). `test-peta` memeriksa laut lepas tetap dalam.
 - **Lembah sungai memangkas gunung.** Hulu Citarum 2,3 km dari puncak Wayang-Windu: lembah selebar hilir memangkas 0,5 km. Kini
   lebar lembah tumbuh dari 1,2 km (hulu) ke 4,5 km (hilir); `test-peta` memeriksa semua puncak.
+- **Ngarai dan tanggul.** Muka air = minimum berjalan, jadi SATU cekungan di hulu menahan muka air rendah sepanjang puluhan km: Brantas
+  pernah mengukir ngarai 0,2 km (×4 = 0,8 km visual) melewati Malang, yang di bingkai tampak sebagai tanggul berbayang. Kini ukiran
+  dibatasi 80 m di bawah tanah asli, dan dataran tinggi Batu–Malang diberi `wilayah`. `test-peta`: alur tak pernah di atas kedua tebing.
 - **Kamera sebelum terbang pertama** ada di pose bawaan (10 km dari asal = Dieng). `cutTo(0, pose awal)` dulu.
 - **Data pantai harus menutup semua yang terlihat.** Kotak klip yang lebih sempit dari bingkai membuat daratan di luar kotak
   memanjang lurus (uji dalam/luar menjepit titik ke tepi kotak): Sumatra pernah berpantai lurus di sudut kiri atas.

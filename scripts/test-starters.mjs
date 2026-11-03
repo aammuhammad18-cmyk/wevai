@@ -39,10 +39,10 @@ const browser = await luncurkan({
 });
 
 // starter yang wajib punya kait atmosfer/cahaya-2d/pasca; BERKAMERA = yang juga punya CAM (kabut berparalaks hanya terukur di sana: panggung belum punya CAM)
-const MODUL = ['starter-explainer.html', 'starter-explainer-panggung.html', 'starter-sinematik.html', 'katalog-pustaka.html'];
-const BERKAMERA = ['starter-explainer.html', 'starter-sinematik.html', 'katalog-pustaka.html'];
-// halaman ber-adegan bawaan (SINEMA_UJI wajib; kait modul + kamera di ?kosong=1): starter sinematik dan katalog pustaka aset
-const ADEGAN = ['starter-sinematik.html', 'katalog-pustaka.html'];
+const MODUL = ['starter-explainer.html', 'starter-explainer-panggung.html', 'starter-sinematik.html', 'katalog-pustaka.html', 'starter-relief.html'];
+const BERKAMERA = ['starter-explainer.html', 'starter-sinematik.html', 'katalog-pustaka.html', 'starter-relief.html'];
+// halaman ber-adegan bawaan (SINEMA_UJI wajib; kait modul + kamera di ?kosong=1): starter sinematik, katalog pustaka aset, starter relief
+const ADEGAN = ['starter-sinematik.html', 'katalog-pustaka.html', 'starter-relief.html'];
 
 let gagal = 0;
 for (const file of files) {
@@ -145,7 +145,7 @@ for (const file of files) {
     if (sinema) {
       if (!sinema.paralaks) masalah.push('sinema: bidang terjauh dan terdekat (yang tampil) tidak bergeser berbeda (> 1 px) saat CAM.fx += 300');
       if (!sinema.rigBersih) masalah.push(`sinema: rig atau pembungkus [data-z] ber-filter/mix-blend-mode/opacity/clip-path/mask (computed) — paralaks rata: ${sinema.kotor}`);
-      if (!sinema.adaSemua) masalah.push(`sinema: modul tidak lengkap — perlu #wv-langit, ≥ 3 .wv-kabut, ≥ 1 .wv-partikel, .wv-pendar, lapisan GRADE (katalog: + api, asap, 4 kain, ≥ 10 jenis aset pustaka) (dapat ${JSON.stringify(sinema.ada)})`);
+      if (!sinema.adaSemua) masalah.push(`sinema: modul tidak lengkap — perlu #wv-langit, ≥ 3 .wv-kabut, ≥ 1 .wv-partikel, .wv-pendar, lapisan GRADE (katalog: + api, asap, 4 kain, ≥ 10 jenis aset pustaka; relief: ≥ 2 kabut + satu .wv-relief, tanpa pendar) (dapat ${JSON.stringify(sinema.ada)})`);
       if (!kanvasSinema.length) masalah.push('sinema: tidak ada kanvas di #stage');
       for (const k of kanvasSinema) {
         if (!k.sama) masalah.push(`sinema: kanvas ${k.nama}: t yang sama lewat jalur seek berbeda memberi piksel berbeda`);
@@ -228,6 +228,24 @@ for (const file of files) {
       if (ada('presetDitolak') && !pasca.presetDitolak) masalah.push("pasca: grade(0,1,'neon') harus melempar error yang menyebut semua preset yang tersedia");
       if (ada('presetLengkap') && !pasca.presetLengkap) masalah.push('pasca: setiap PRESET_GRADE harus memuat tepat semua kunci GRADE (kalau tidak, pindah preset menyisakan nilai preset lama)');
       if (ada('dibersihkan') && !pasca.dibersihkan) masalah.push('pasca: PASCA_UJI meninggalkan lapisan singleton, sumber sementara, atau nilai GRADE yang berubah — grade() sungguhan sesudahnya tidak mulai dari nol');
+    }
+
+    // relief-hidup (src/runtime/relief-hidup.js): sisi kubah yang menghadap SINAR lebih terang dan berbalik saat lampu pindah,
+    // bayangan pahatan jatuh di seberang lampu, piksel sama di dua jalur seek, bagian hidup menggerakkan piksel, input salah
+    // ditolak, tanpa WebGL2 jatuh ke gambar diam. Fixture sendiri (dinding 320×200), SINAR dipulihkan. Blok di atas `const tl=`.
+    const iRelief = html.indexOf('<wv:relief-hidup>');
+    if (iRelief >= 0 && !(iRelief < html.indexOf('const tl='))) masalah.push('relief-hidup: blok <wv:relief-hidup> harus di atas `const tl=` (kode adegan memanggil modul saat dimuat)');
+    const rel = await page.evaluate(() => window.RELIEF_UJI ? window.RELIEF_UJI() : null);
+    if (iRelief >= 0 && !rel) masalah.push('relief-hidup: RELIEF_UJI tidak ada');
+    if (rel) {
+      const ada = k => rel[k] != null;
+      for (const k of ['sisiBenar', 'bayangJatuh', 'seekSama', 'gerakHidup', 'ditolak', 'fallback']) if (!ada(k)) masalah.push(`relief-hidup: field ${k} kosong`);
+      if (ada('sisiBenar') && !rel.sisiBenar) masalah.push(`relief-hidup: sisi kubah yang menghadap SINAR harus lebih terang (> 12) dan berbalik saat lampu pindah (luminans kiri/kanan kubah: lampu kiri ${rel.sisi[0]}, lampu kanan ${rel.sisi[1]})`);
+      if (ada('bayangJatuh') && !rel.bayangJatuh) masalah.push(`relief-hidup: bayangan kubah tidak jatuh di bidang di seberang lampu (di bayangan ${rel.bayang[0]}, di sampingnya ${rel.bayang[1]}; selisih harus > 8)`);
+      if (ada('seekSama') && !rel.seekSama) masalah.push('relief-hidup: piksel kanvas relief berbeda antara seek(3) langsung dan seek(7)→seek(.1)→seek(3)');
+      if (ada('gerakHidup') && !rel.gerakHidup) masalah.push('relief-hidup: bagian hidup (batang berayun ±30°) tidak mengubah piksel antara t ,5 dan 1');
+      if (ada('ditolak') && !rel.ditolak) masalah.push('relief-hidup: bidang <g> SVG, dinding tanpa lapis, opsi asing, dan jenis lapis asing harus ditolak dengan pesan yang menyebut pilihan sah');
+      if (ada('fallback') && !rel.fallback) masalah.push('relief-hidup: tanpa WebGL2 reliefHidup() harus console.warn dan menggambar relief diam (kanvas 2D opak), bukan error');
     }
 
     // kamera 2.5D (src/runtime/kamera-dom.js): jalur 2D tidak menyentuh gaya lain; sudut → transform 3D;

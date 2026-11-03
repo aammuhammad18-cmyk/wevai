@@ -225,10 +225,10 @@ function rutePeta(peta,J,{lebar=7,warna:w='#ffb35c',cahaya=40}={}){const U={uMaj
           .replace('#include <project_vertex>','#include <project_vertex>\nvV=-mvPosition.xyz;vN=normalMatrix*normal;');
         s.fragmentShader=s.fragmentShader.replace('#include <common>','#include <common>\nuniform float uMaju;varying float vU;varying vec3 vN,vV;')
           .replace('#include <color_fragment>','#include <color_fragment>\nif(vU>uMaju)discard;'+(pendar?'diffuseColor.a*=pow(abs(dot(normalize(vN),normalize(vV))),2.2);':''));};return m;},
-    inti=new THREE.Mesh(geo,bahan(false,lebar,3.2)),pendar=new THREE.Mesh(geo,bahan(true,lebar*4.5,1.4)),
+    inti=new THREE.Mesh(geo,bahan(false,lebar,5)),pendar=new THREE.Mesh(geo,bahan(true,lebar*4.5,1.4)),   // inti ×5: ACES → putih-kuning panas, tepi jingga
     kanvas=Object.assign(document.createElement('canvas'),{width:128,height:128}),g2=kanvas.getContext('2d'),gr=g2.createRadialGradient(64,64,0,64,64,64);
   [[0,'rgba(255,255,255,1)'],[.18,'rgba(255,214,150,.9)'],[.45,'rgba(255,150,60,.3)'],[1,'rgba(255,120,40,0)']].forEach(([o,c])=>gr.addColorStop(o,c));g2.fillStyle=gr;g2.fillRect(0,0,128,128);
-  const kepala=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(kanvas),blending:THREE.AdditiveBlending,depthWrite:false,color:warna(w).multiplyScalar(2.2)})),
+  const kepala=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(kanvas),blending:THREE.AdditiveBlending,depthWrite:false,color:warna(w).multiplyScalar(3.5)})),
     L=new THREE.PointLight(warna(w),cahaya,0,2),maju={v:0};
   inti.name='rute';pendar.renderOrder=2;kepala.renderOrder=3;peta.grup.add(inti,pendar,kepala,L);
   return{J,U,maju,inti,pendar,kepala,cahaya:L,

@@ -51,7 +51,7 @@ html,body{margin:0;height:100%;background:#000;overflow:hidden}
 #cap{position:absolute;left:120px;bottom:104px;opacity:0;color:var(--tinta)}
 #cap .kick{font:500 34px/1 'DM Mono',monospace;letter-spacing:.3em;color:var(--soga)}
 #cap .ttl{font:400 88px/1.02 'Young Serif',serif;margin-top:18px;letter-spacing:-.01em}
-.vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(90% 85% at 50% 46%,transparent 52%,rgba(42,34,22,.46) 100%)}
+.vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(90% 85% at 50% 46%,transparent 48%,rgba(42,34,22,.56) 100%)}
 #dbg{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);display:none;gap:12px;align-items:center;padding:10px 16px;border-radius:14px;background:rgba(14,16,22,.9);color:#cfd5e3;font:13px system-ui;z-index:50}
 #dbg input{width:360px}#dbg span{font-variant-numeric:tabular-nums;min-width:6ch}
 </style>
@@ -694,10 +694,10 @@ function rutePeta(peta,J,{lebar=7,warna:w='#ffb35c',cahaya=40}={}){const U={uMaj
           .replace('#include <project_vertex>','#include <project_vertex>\nvV=-mvPosition.xyz;vN=normalMatrix*normal;');
         s.fragmentShader=s.fragmentShader.replace('#include <common>','#include <common>\nuniform float uMaju;varying float vU;varying vec3 vN,vV;')
           .replace('#include <color_fragment>','#include <color_fragment>\nif(vU>uMaju)discard;'+(pendar?'diffuseColor.a*=pow(abs(dot(normalize(vN),normalize(vV))),2.2);':''));};return m;},
-    inti=new THREE.Mesh(geo,bahan(false,lebar,3.2)),pendar=new THREE.Mesh(geo,bahan(true,lebar*4.5,1.4)),
+    inti=new THREE.Mesh(geo,bahan(false,lebar,5)),pendar=new THREE.Mesh(geo,bahan(true,lebar*4.5,1.4)),   // inti ×5: ACES → putih-kuning panas, tepi jingga
     kanvas=Object.assign(document.createElement('canvas'),{width:128,height:128}),g2=kanvas.getContext('2d'),gr=g2.createRadialGradient(64,64,0,64,64,64);
   [[0,'rgba(255,255,255,1)'],[.18,'rgba(255,214,150,.9)'],[.45,'rgba(255,150,60,.3)'],[1,'rgba(255,120,40,0)']].forEach(([o,c])=>gr.addColorStop(o,c));g2.fillStyle=gr;g2.fillRect(0,0,128,128);
-  const kepala=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(kanvas),blending:THREE.AdditiveBlending,depthWrite:false,color:warna(w).multiplyScalar(2.2)})),
+  const kepala=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(kanvas),blending:THREE.AdditiveBlending,depthWrite:false,color:warna(w).multiplyScalar(3.5)})),
     L=new THREE.PointLight(warna(w),cahaya,0,2),maju={v:0};
   inti.name='rute';pendar.renderOrder=2;kepala.renderOrder=3;peta.grup.add(inti,pendar,kepala,L);
   return{J,U,maju,inti,pendar,kepala,cahaya:L,

@@ -139,7 +139,10 @@ detik menembus celah ±0,45 dtk.
   rabung cakrawala 340 m di 4,7 km ≈ 4,1°. Matahari harus di atasnya: starter menurunkan cakrawala ke 180 m (≈2,2°) dan
   memakai matahari 3,2°. Matahari 5,5° menerangi semuanya, tetapi rupanya jadi sore datar, bukan senja.
 - **2.5D: bidang harus menutup seluruh jalur.** Terbang lebih lebar dari geser kamera adegan menyingkap tepi bidang.
-- **`CAM.rail` aktif sejak t = 0**: kait atau kode yang menyetel pose bola (`CAM3_UJI`) harus menyetel `rail:-1` dulu.
+- **`CAM.rail` aktif sejak t = 0**: kait atau kode yang menyetel pose bola (`CAM3_UJI`) harus menyetel `rail:-1` dulu, lalu
+  MEMULIHKANNYA. GSAP mencatat nilai awal sebuah tween saat render pertamanya. Jadi `rail` asing yang tertinggal saat
+  `cutTo` akhir terbang pertama kali dirender menjadi nilai "kembali" tween itu, dan setiap seek balik ke dalam terbang
+  membuat kamera diam. Terjadi sungguhan di uji; kini `ELANG_UJI` mengukur jarak tempuh.
 - **Bayangan matahari**: `key` kamera-three diposisikan ulang tiap frame oleh `ikutMatahari()`. Tanpa itu, kotak bayang
   ±20 m tertinggal di fokus lama saat kamera terbang.
 - **CI tanpa GPU**: di SwiftShader halaman ini siap 80 dtk, satu frame 66,6 dtk, dan frame motion blur mematikan proses GPU

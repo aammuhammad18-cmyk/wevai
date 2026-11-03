@@ -589,6 +589,7 @@ berputar dan ternyata benda 3D). Mencampur tanpa alasan terasa seperti kumpulan 
 | Logam/marmer realistis | PBR, kedalaman bidang, gelap sinematik | Three.js PBR + HDRI + DOF, atau render/generator diimpor sebagai lapisan | penghargaan, mewah, event |
 | Garis neon di gelap | outline tipis bercahaya, lengkung/bingkai berlapis | SVG stroke + glow tipis, atau garis Three.js | tech, musik, portal |
 | Ilustrasi karakter flat | tokoh vektor, warna hangat, tekstur tipis | SVG/PNG berlapis | komunitas, layanan, explainer |
+| Lukisan cat air (painterly) | sapuan kuas mengikuti bentuk, tepi cat air, kertas; tidak mendidih | bidang dilukis sekali: `lukis.*` (`references/lukis.md`, `assets/starter-lukis.html`) | legenda, kilas balik, brand artisan |
 
 - Objek realistis (logam, marmer, perangkat) paling efisien dibuat sebagai gambar/video dari
   generator atau render 3D, lalu dianimasikan sebagai lapisan (parallax, masuk/keluar, DOF

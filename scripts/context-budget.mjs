@@ -32,9 +32,11 @@ const JALUR = [
   ['Explainer aliran (aksi kontinu)', ['references/explainer.md', 'references/techniques.md', 'assets/starter-explainer.html'], 245],   // pelacak tren: ukuran sekarang; target ditetapkan pemilik (celah ditemukan di review akhir 1.3.0)
   ['Siluet sinematik', ['references/explainer.md', 'references/techniques.md', 'assets/starter-sinematik.html'], 340],   // pelacak tren: ukuran sekarang; target ditetapkan pemilik (338,3 KB sejak babak 60 dtk + blok terbang/pustaka/tokoh/babak; sebelumnya 235)
   ['Relief candi hidup', ['references/explainer.md', 'references/techniques.md', 'references/relief-candi.md', 'assets/starter-relief.html'], 295],   // pelacak tren: ukuran sekarang (293 KB); target ditetapkan pemilik. 4/5 starter = blok runtime (perkakas: kamera, atmosfer, cahaya-2d, pasca, pustaka, relief-hidup)
+  ['Painterly (legenda)', ['references/explainer.md', 'references/techniques.md', 'references/lukis.md', 'assets/starter-lukis.html'], 266],   // pelacak tren: ukuran saat masuk (264 KB) + ruang; target ditetapkan pemilik
   ['Explainer 3D', ['references/sinematografi.md', 'references/techniques.md', 'assets/starter-explainer-3d.html'], 170],
   ['Opener 3D', ['references/opener-konsep.md', 'references/techniques.md', 'assets/starter-opener.html', 'references/sinematografi.md'], 245],   // 190 aturan opener + 30 blok kamera (perkakas) + ±21 sinematografi.md (bacaan wajib 3D) + 5: resep modul atmosfer/cahaya-2d/pasca di techniques.md §7d, +3,2 KB (238,6 → 241,8 KB)
   ['Mata elang 3D', ['references/sinematografi.md', 'references/mata-elang.md', 'assets/starter-elang.html'], 155],   // pelacak: ukuran saat masuk (149 KB) + ruang
+  ['Peta relief 3D', ['references/sinematografi.md', 'references/peta-relief.md', 'assets/starter-peta-relief.html'], 175],   // pelacak: ukuran saat masuk (171 KB) + ruang
   ['Explainer kartun panggung', ['references/explainer.md', 'references/kartun-panggung.md', 'assets/starter-explainer-panggung.html'], 170],   // +40: perkakas, bukan aturan: blok atmosfer/cahaya-2d/pasca + demo sinematik (122,1 → 167,8 KB: +44,8 blok di starter, +0,9 contoh kulit B; demo kini di starter-sinematik.html, diukur jalur "Siluet sinematik")
   ['Build di After Effects', ['references/kartun-panggung.md', 'references/ae-bridge-higgsfield.md'], 95],
   ['Scaffold multi-file', ['references/architecture.md'], 70],

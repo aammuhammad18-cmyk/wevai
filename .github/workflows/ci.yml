@@ -29,6 +29,9 @@ jobs:
       - name: Uji mata elang (node:test, matematika terbang murni, tanpa browser)
         run: node --test scripts/test-elang.mjs
 
+      - name: Uji peta relief (node:test, medan dan rute murni, tanpa browser)
+        run: node --test scripts/test-peta.mjs
+
       - name: Uji penilaian visual (node:test, PNG sintetis, tanpa browser)
         run: node --test scripts/test-nilai.mjs
       - name: Uji pustaka aset Jawa kuno (node:test, tanpa browser)
@@ -37,6 +40,10 @@ jobs:
         run: node --test scripts/test-relief.mjs
       - name: Uji rig tokoh v2 (node:test, tanpa browser)
         run: node --test scripts/test-tokoh.mjs
+      - name: Uji ekspor panjang (node:test, tanpa browser dan tanpa ffmpeg)
+        run: node --test scripts/test-ekspor.mjs
+      - name: Uji lukis painterly (node:test, kenop + antrean + siklus pose, tanpa browser)
+        run: node --test scripts/test-lukis.mjs
 
       - name: Starter sinkron dengan src/runtime
         run: node scripts/build-starters.mjs --check

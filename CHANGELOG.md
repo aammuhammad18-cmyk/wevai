@@ -280,6 +280,104 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
     - pose mendayung dan menunggang belum ada; tokoh statis `buat()` hanya berwarna rata (cahaya lewat `rim()`/`bayangan()`);
     - blok `<wv:tokoh>` baru ada di katalog; pemasangannya di starter sinematik menyusul bersama babak multi-adegan (E).
   - **Status penerimaan**: menunggu bench di mesin senggang dan vonis visual pemilik.
+- **Ekspor panjang** (sub-proyek 6).
+  - **Berkas baru**: `scripts/antre-render.mjs`, `scripts/ekspor-inti.mjs`, `scripts/test-ekspor.mjs`.
+  - **`export-frames.mjs`**:
+    - `WORKERS` bawaan kini **2** bila `os.availableParallelism() >= 2`, selain itu 1; env tetap menimpa.
+    - Frame sama dengan `WORKERS=1`: di halaman mini 30 dari 30 hash PNG sama; di halaman nyata 1080p (`starter-sinematik`,
+      `katalog-tokoh`) 344/360 dan 834/840 hash sama, sisanya selisih maks. 1 level (PSNR 110–116 dB, tak terlihat)
+      (`evals/bukti/2026-11-03-ekspor/bukti.txt` §5).
+    - Kecepatan terukur di laptop 2 core: 1,20× (`starter-sinematik`) dan 1,47× (`katalog-tokoh`), bukan ±2× seperti perkiraan peta §7
+      (mesin sambil dipakai tiga agen ber-Chrome Idle).
+    - Di antrean nyata pemilik (Babad Bali babak 07–09, `SYNC=1`, MP4 JPEG): 5,9–6,4 frame/dtk dengan 2 worker, dibanding 3,1–4,2
+      dengan 1 worker di babak 00–06, jadi ±1,5–2×.
+    - Antrean render pemilik (Bali, lalu Nabi) ikut memakai 2 worker begitu ini masuk `main` (3 Nov, dengan izin pemilik);
+      `WORKERS=1` di env mengembalikan perilaku lama.
+  - **`antre-render.mjs`** (generalisasi `alat/antre-render.sh`):
+    - Masukan `antrean.json` `[{html|url, mp4, siap?, audio?, env?}]`.
+    - Butir dilewati bila mp4-nya terbaca ffprobe dan lebih baru dari html dan audio.
+    - Hasil ditulis ke `.sementara.mp4` dulu lalu diganti nama, jadi mp4 setengah jadi tidak pernah dianggap selesai.
+    - Butir yang gagal dicatat dan antrean jalan terus; menjalankan ulang berarti melanjutkan.
+    - Log mencatat fps, sisa butir/antrean, dan jam selesai.
+    - `--gabung` menggabung semua babak lalu mencocokkan durasi gabungan dengan jumlah durasi butir.
+  - **Penahan sleep bawaan** hidup selama antrean berjalan dan mati di semua jalan keluar:
+    - Windows: `SetThreadExecutionState(0x80000001)` lewat PowerShell tersembunyi;
+    - macOS: `caffeinate`;
+    - Linux: `systemd-inhibit`;
+    - setelan daya tidak disentuh;
+    - terbukti di proses nyata: galat di tengah render mematikan 22/22 proses turunan.
+  - **`MODE=webcodecs`** (eksperimental), untuk halaman yang seluruh framenya satu kanvas (`window.OPENER.canvas`):
+    - `VideoEncoder` H.264 Annex B dialirkan ke ffmpeg (`-r <fps> -f h264 -c copy`);
+    - uji: 90 frame, 6,000000 dtk, urutan frame benar, selisih rata-rata 1,0–1,7 level dibanding jalur PNG;
+    - tanpa kait kanvas: pesan jelas, lalu jalur biasa.
+  - **Uji**: `test-ekspor` (40 uji tanpa Chrome dan ffmpeg; 10 dari 11 mutasi tertangkap) masuk `rilis.mjs`, CI, dan `aturan-rilis.md`.
+  - **Dokumen**: `alat-kerja.md` › "Render panjang" dan "Mode WebCodecs"; kait `canvas` di kontrak `OPENER` (`architecture.md`);
+    README; satu penunjuk di langkah 6 `SKILL.md`.
+  - **Belum diukur / celah**:
+    - kecepatan WebCodecs di 1080p, dan halaman WebGL nyata;
+    - jalur macOS/Linux dan Ctrl+C asli di Windows (baru lewat uji unit);
+    - ETA belum menghitung waktu peluncuran Chrome.
+- **Painterly `lukis`** (sub-proyek 7, gaya lanjutan kedua; J di `docs/rencana-1.4.0.md`).
+  - **Berkas**: `src/runtime/lukis.js` (blok baru `<wv:lukis>`, butuh `atmosfer`), `assets/starter-lukis.html`, `references/lukis.md`,
+    dan `scripts/test-lukis.mjs` (baru); penunjuk di `explainer.md`, `techniques.md`, `isi-paket.md`, dan README.
+  - **Teknik**: Kuwahara anisotropik + cat air (gelap tepi, granulasi pigmen, mekar basah) di WebGL2, di atas kertas yang
+    dibangkitkan. Tiap bidang `[data-z]` dilukis SEKALI saat setup ke kanvasnya sendiri, lalu kamera 2.5D hanya menggesernya.
+    Sapuan menempel pada lukisan seperti latar film animasi lukis tangan di kamera multiplane, jadi tidak "mendidih"; derau diikat
+    ke ruang objek, bukan layar. Teks tetap DOM tajam di atas lukisan.
+  - **Demo** (16 dtk): legenda senja "Desa di kaki gunung": gunung api berasap, rumah panggung berjendela menyala, petani di sawah
+    berundak, pemikul di pematang, burung pulang, dan legenda "Kisah dari masa lampau" di kantong gelap tebing. `?kenang=1` =
+    kilas balik sepia.
+  - **Bukti tidak mendidih** (`potong.jpg`: potongan 1:1, 4 bingkai berurutan): kamera ditahan → 0 % piksel berubah; putar biasa
+    (kamera bergeser sub-piksel) → 0,5 % piksel berubah > 8 level; pembanding filter layar naif ber-seed per frame → 30 % > 8 level.
+    Bingkai dari dua peluncuran Chrome terpisah identik byte demi byte.
+  - **Biaya** (diukur saat render pemilik berjalan, jadi batas atas): 197 ms/frame (sinematik di sesi yang sama 257 ms), karena
+    bidang lukisan adalah bitmap diam; siap 15,5 dtk per muat halaman (melukis 5 bidang + 22 kanvas sprite), sekali per worker.
+  - **Uji**: `test-lukis` (kenop, antrean lukis, siklus pose) masuk `rilis.mjs` dan CI. `test-starters`: kait `LUKIS_UJI` (lukis
+    ulang = byte sama, seed lain = sapuan lain, derau ikut objek, tanpa WebGL2 = raster mentah, kenop salah ditolak) dan blok lukis
+    berbasis screenshot (sidik dua muat, seek dua jalur, diam, tepi, geser) dengan dua mutasi wajib tertangkap: filter layar ber-seed
+    per frame dan tekstur layar diam. Halaman dilewati di WebGL perangkat lunak (satu bidang 81,7 dtk di SwiftShader).
+  - **Anggaran konteks**: jalur baru **Painterly (legenda)** (`explainer.md` + `techniques.md` + `lukis.md` + `starter-lukis.html`)
+    264 KB, batas pelacak 266 KB.
+  - **Bukti**: `evals/bukti/2026-11-03-lukis/` (`kontak.jpg`, `potong.jpg`, `kenang.jpg`, `nilai.json`). `nilai-visual` 6 dari 6 ok:
+    rentang 47,7–48,5, kontras subjek 14,8–15,9, matahari +51,6…+54,6, 4 warna.
+  - **Celah yang diketahui**:
+    - butuh WebGL2 + `EXT_color_buffer_float`; tanpa itu raster mentah tanpa sapuan;
+    - dolly > 1,1 melunakkan kertas dan sapuan (kanvas = bitmap); garis yang lebih tipis dari `kuas` hilang;
+    - memori GPU sementara ±112 MB per bidang 2240×1400 saat dilukis;
+    - ms/frame ekspor penuh belum diukur di mesin senggang;
+    - agen pembuatnya macet sesudah bukti di-commit, jadi laporan akhirnya tidak ada; gerbang dan uji penggabungan dijalankan controller.
+  - **Status penerimaan**: menunggu bench di mesin senggang dan vonis visual pemilik.
+- **Peta relief 3D topografi** (sub-proyek 7, gaya lanjutan ketiga; J di `docs/rencana-1.4.0.md`; lanjutan kulit topografi Jagad Budaya).
+  - **Berkas**: `src/runtime/peta-relief.js` (blok baru `<wv:peta-relief>`, 37 KB termasuk data Jawa), `assets/starter-peta-relief.html`,
+    `references/peta-relief.md`, `scripts/test-peta.mjs`, dan `scripts/peta-data.mjs` (membangun ulang data pantai, mis. untuk Bali);
+    penunjuk di `sinematografi.md` §1, `explainer.md`, `isi-paket.md`, `alat-kerja.md`, dan README.
+  - **Data**:
+    - pantai Natural Earth 10m (domain publik), Douglas–Peucker 0,5 km, 1 262 titik; garis 200 m dari NE bathymetry K_200;
+    - 68 gunung api dari GVP VOTW 5.4.0 (doi:10.5479/si.GVP.VOTW5-2026.5.4): puncak = elevasi GVP, diuji ±20 m;
+    - Natural Earth tidak memuat sungai Jawa, jadi 8 sungai dibuat skematis (titik lewat kota yang dilaluinya, dihaluskan) dan
+      ditandai begitu di dokumen; skala tegak 4×.
+  - **Medan**: kerucut gunung berkaki tak bulat dengan 8–14 jurang radial (rumus sama di JS dan GLSL), kaldera Tengger, lembah
+    sungai landai (ukiran ≤ 80 m), dataran tinggi Batu–Malang. Shader berpalet Jagad: isoline 100/500 m yang memudar bila rapat,
+    laut paparan terang, garis 200 m dan pantai bertinta, bayangan awan. `uCetak` membuka dengan peta cetak berkontur yang naik
+    menjadi relief bercahaya.
+  - **Demo** (18 dtk, ACES, dua kaki `terbang()`): seluruh Jawa sebagai peta cetak → relief naik di bawah matahari rendah →
+    turun ke jantung Mataram Kuno, legenda "ABAD X / Pusat kerajaan pindah ke timur" → busur menyala ke timur (skematis, bukan
+    jalan atau rute pasukan) → mendarat di Lembah Brantas berlabel Kelud dan Arjuno-Welirang. Label DOM diproyeksikan ulang tiap
+    render.
+  - **Uji**: `test-peta` (7 uji: proyeksi vs haversine, dekode NE, determinisme, 68 puncak, pantai dan garis 200 m, sungai tanpa
+    tanggul, panjang busur) masuk `rilis.mjs` dan CI. `test-starters`: `PETA_UJI` (label dalam bingkai di 6 detik, rute 0 →
+    sebagian → 1), sidik geometri lintas muat, ACES; halaman dilewati di WebGL perangkat lunak.
+  - **Anggaran konteks**: jalur baru **Peta relief 3D** (`sinematografi.md` + `peta-relief.md` + `starter-peta-relief.html`) 171 KB,
+    batas pelacak 175 KB; jalur lain naik ≤ 0,2 KB.
+  - **Bukti**: `evals/bukti/2026-11-03-peta-relief/` (`kontak.jpg`, `nilai.json`). `nilai-visual`: rentang 28,8–37,4 di 7 bingkai,
+    kontras subjek yang dideklarasikan 11,0–20,5, kepala rute +31,9…+34,4. Bingkai peta lebar tanpa subjek memberi peringatan kontras
+    tengah-tepi (2,4–7,8), dijelaskan di README bukti.
+  - **Celah yang diketahui**:
+    - ms/frame belum diukur (siap 6–13 dtk di HD 4000 saat render pemilik berjalan);
+    - sungai skematis (galat beberapa km); vektor sungai asli butuh cek lisensi (OSM = ODbL, tidak cocok);
+    - label tanpa uji oklusi; gunung Sumatra barat 104,5° BT tidak dimodelkan (tertutup kabut di gambar besar);
+    - kerucut gunung masih seragam dan dataran lembah polos (pengamatan controller pada lembar kontak).
+  - **Status penerimaan**: menunggu bench di mesin senggang dan vonis visual pemilik.
 
 ## 1.3.0 — 2026-11-02
 

@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><title>halaman-mini</title>
+<style>
+html,body{margin:0;background:#000;overflow:hidden}
+#s{position:relative;width:320px;height:180px;overflow:hidden}
+#k{position:absolute;left:0;top:70px;width:40px;height:40px;background:#fc3;border-radius:8px}
+#n{position:absolute;left:8px;top:6px;font:700 20px/1 monospace;color:#fff}
+#b{position:absolute;left:0;bottom:0;height:12px;background:#fff}
+</style></head><body>
+<div id="s"><div id="k"></div><div id="n"></div><div id="b"></div></div>
+<script>
+/* Halaman uji ekspor (DOM murni, 320x180, 2 dtk): kontrak OPENER minimal tanpa GSAP. seek(t) menulis gaya sinkron,
+   tetapi syncSeek sengaja TIDAK dinyatakan: jalur standar export-frames (tunggu 2x rAF) ikut teruji.
+   Dipakai untuk bukti WORKERS=1 vs 2 (hash frame) dan sebagai halaman uji antre-render. */
+const W=320,H=180,DUR=2,$=id=>document.getElementById(id);
+function seek(t){
+  $('s').style.background=`linear-gradient(${Math.round(t*90)}deg,hsl(${Math.round(t*180)},70%,35%),hsl(${Math.round(t*180+120)},70%,15%))`;
+  $('k').style.transform=`translateX(${Math.round(t/DUR*(W-40)*10)/10}px) rotate(${Math.round(t*360)}deg)`;
+  $('n').textContent='t='+t.toFixed(3);
+  $('b').style.width=Math.round(t/DUR*W)+'px';
+}
+window.OPENER={W,H,DURATION:DUR,ready:true,tl:{pause(){},time(t){seek(t)}},seek};
+seek(0);
+</script></body></html>

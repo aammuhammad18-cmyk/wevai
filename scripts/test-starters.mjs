@@ -282,6 +282,23 @@ for (const file of files) {
       if (!t25.sambung || !t25.lepas) masalah.push(`terbang 2.5D: lompatan saat terbang selesai (${t25.b} → ${t25.c}) atau CAM.rail tidak kembali -1`);
     }
 
+    // mata elang (starter-elang.html): jalur kontinu 120 Hz, roll dalam batas, kamera lolos celah gapura dengan jarak bebas,
+    // motion blur hanya di segmen KABUR, geometri lanskap sama di dua muat halaman. Di halaman bawaan, SEBELUM kait kamera 3D
+    // (CAM3_UJI menyetel CAM langsung; tween yang pertama dirender sesudahnya mencatat nilai itu)
+    const elang = await page.evaluate(() => window.ELANG_UJI ? (window.OPENER.seek(0), window.ELANG_UJI()) : null);
+    if (name === 'starter-elang.html' && !elang) masalah.push('elang: ELANG_UJI tidak ada');
+    if (elang) {
+      const j = elang.jalur;
+      if (!(j.jarak > .9 * j.panjang)) masalah.push(`elang: kamera menempuh ${j.jarak.toFixed(1)} m, jalur ${j.panjang.toFixed(1)} m — terbang tidak menggerakkan kamera`);
+      if (!(j.langkah < .45)) masalah.push(`elang: kamera melompat ${j.langkah.toFixed(3)} m dalam 1/120 dtk (jalur harus kontinu, termasuk awal/akhir terbang)`);
+      if (!(j.putar < 3)) masalah.push(`elang: orientasi kamera berputar ${j.putar.toFixed(2)}° dalam 1/120 dtk`);
+      if (!(j.roll <= j.rollMaks)) masalah.push(`elang: roll ${j.roll.toFixed(1)}° melewati batas ${j.rollMaks}°`);
+      if (!(elang.celah.bebas >= .5 && elang.celah.lintas && elang.celah.lintas[1] > 1)) masalah.push(`elang: kamera tidak menembus celah gapura dengan jarak bebas ≥ 0,5 m (${JSON.stringify(elang.celah)})`);
+      if (elang.subLuar !== 1 || !(elang.subDalam > 1)) masalah.push(`elang: motion blur harus hanya di segmen KABUR (luar ${elang.subLuar}, dalam ${elang.subDalam} sub-frame)`);
+    }
+    const sidik = await page.evaluate(() => window.ELANG_SIDIK ? window.ELANG_SIDIK() : null);
+    if (sidik !== sidikSegar) masalah.push(`elang: geometri lanskap beda antara dua muat halaman (${sidik} vs ${sidikSegar}) — seed tidak deterministik`);
+
     // kamera 3D (src/runtime/kamera-three.js): pose, shot terpusat & ukuran bingkai, zona aman HUD, warna brand
     // tepat, penolakan input salah. Field null = tidak berlaku di halaman itu (opener) → dilewati.
     let cam3 = null;
@@ -324,20 +341,6 @@ for (const file of files) {
       if (ada('railLookDitolak') && !cam3.railLookDitolak) masalah.push('kamera3: rail() dengan titik terakhir = look harus ditolak saat setup');
     }
 
-    // mata elang (starter-elang.html): jalur kontinu 120 Hz, roll dalam batas, kamera lolos celah gapura dengan jarak bebas,
-    // motion blur hanya di segmen KABUR, geometri lanskap sama di dua muat halaman
-    const elang = await page.evaluate(() => window.ELANG_UJI ? (window.OPENER.seek(0), window.ELANG_UJI()) : null);
-    if (name === 'starter-elang.html' && !elang) masalah.push('elang: ELANG_UJI tidak ada');
-    if (elang) {
-      const j = elang.jalur;
-      if (!(j.langkah < .45)) masalah.push(`elang: kamera melompat ${j.langkah.toFixed(3)} m dalam 1/120 dtk (jalur harus kontinu, termasuk awal/akhir terbang)`);
-      if (!(j.putar < 3)) masalah.push(`elang: orientasi kamera berputar ${j.putar.toFixed(2)}° dalam 1/120 dtk`);
-      if (!(j.roll <= j.rollMaks)) masalah.push(`elang: roll ${j.roll.toFixed(1)}° melewati batas ${j.rollMaks}°`);
-      if (!(elang.celah.bebas >= .5 && elang.celah.lintas && elang.celah.lintas[1] > 1)) masalah.push(`elang: kamera tidak menembus celah gapura dengan jarak bebas ≥ 0,5 m (${JSON.stringify(elang.celah)})`);
-      if (elang.subLuar !== 1 || !(elang.subDalam > 1)) masalah.push(`elang: motion blur harus hanya di segmen KABUR (luar ${elang.subLuar}, dalam ${elang.subDalam} sub-frame)`);
-    }
-    const sidik = await page.evaluate(() => window.ELANG_SIDIK ? window.ELANG_SIDIK() : null);
-    if (sidik !== sidikSegar) masalah.push(`elang: geometri lanskap beda antara dua muat halaman (${sidik} vs ${sidikSegar}) — seed tidak deterministik`);
 
     if (errs.length) masalah.push('error JS: ' + errs[0]);
   } catch (e) {

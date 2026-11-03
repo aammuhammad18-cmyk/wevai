@@ -360,7 +360,8 @@ window.CAM3_UJI=()=>{const r={},c0={...CAM},V=()=>new THREE.Vector3();tl.pause(0
   tw.kill();tl.remove(tw);tl.time(0);Object.assign(LUX,L0);lampAt=la0;applyLux();
   CAM.aperture=0;applyCam();r.bokehSaatNol=bokeh.enabled;CAM.aperture=6;applyCam();r.bokehSaatEnam=bokeh.enabled;
   const jp=pose(PLAN),jc=kotak3(objek3('subjek')).getCenter(V());r.jarakHarapan=Math.hypot(jc.x-jp.x,jc.y-jp.y,jc.z-jp.z);r.jarakFokus=jarakFokus('subjek');
-  Object.assign(LUX,nilaiLux('day'));CAM.rail=-1;applyLux();const kx=key.target.position.x;CAM.fx+=10;applyCam();r.keyIkutKamera=Math.abs(key.target.position.x-kx-10)<1e-6;Object.assign(LUX,L0);
+  {const rl=CAM.rail;Object.assign(LUX,nilaiLux('day'));CAM.rail=-1;applyLux();const kx=key.target.position.x;CAM.fx+=10;applyCam();r.keyIkutKamera=Math.abs(key.target.position.x-kx-10)<1e-6;
+   CAM.fx-=10;CAM.rail=rl;Object.assign(LUX,L0);}   // pulihkan: tween yang pertama dirender sesudah ini mencatat nilai awal dari CAM
   const P1={...PLAN},pa1=planAt,nR=RAILS.length,tA=Math.max(planAt,0)+1,pts=[[0,2,12],[6,3,8],[10,4,0]];
   try{rail(tA,2,pts.slice(0,2));r.railDuaDitolak=false;}catch(e){r.railDuaDitolak=/≥ 3/.test(e.message);}
   const tws=rail(tA,2,pts,{look:[0,1,0],ease:'none'}),cv=RAILS[nR].curve;
@@ -706,11 +707,11 @@ if(q.has('debug')){const dbg=$('#dbg');dbg.style.display='flex';const sc=$('#dSc
 window.ELANG_SIDIK=()=>{let h=2166136261;scene.traverse(o=>{const a=o.isInstancedMesh?o.instanceMatrix.array:o.geometry&&o.geometry.attributes.position&&o.geometry.attributes.position.array;
   if(a)for(let i=0;i<a.length;i+=7)h=Math.imul(h^Math.round(a[i]*1e3),16777619);});return h>>>0;};   // sidik geometri: sama di tiap muat (worker ekspor)
 window.ELANG_UJI=()=>{const r={toneMapping:renderer.toneMapping},t0=tl.time(),lokal=new THREE.Vector3(),d=JALAN.detik[5];
-  let p0=null,q0=null,langkah=0,putar=0,roll=0,vMaks=0;   // kontinuitas 120 Hz di seluruh shot, termasuk awal/akhir terbang
+  let p0=null,q0=null,langkah=0,putar=0,roll=0,jarak=0;   // kontinuitas 120 Hz di seluruh shot, termasuk awal/akhir terbang
   for(let i=0;i<=DUR*120;i++){const t=i/120;tl.time(t);applyCam();const p=camera.position.clone(),qq=camera.quaternion.clone();
-    if(p0){langkah=Math.max(langkah,p.distanceTo(p0));putar=Math.max(putar,qq.angleTo(q0)*180/Math.PI);}p0=p;q0=qq;
+    if(p0){const s=p.distanceTo(p0);jarak+=s;langkah=Math.max(langkah,s);putar=Math.max(putar,qq.angleTo(q0)*180/Math.PI);}p0=p;q0=qq;
     if(CAM.rail>=0)roll=Math.max(roll,Math.abs(RAILS[CAM.rail](t).roll));}
-  r.jalur={langkah,putar,roll,rollMaks:22+1.1};   // + batas guncangan
+  r.jalur={langkah,putar,roll,rollMaks:22+1.1,jarak,panjang:jalurElang(TITIK).L};   // + batas guncangan; jarak ≈ panjang = kamera sungguh terbang
   let bebas=Infinity,lintas=null,zp=null;   // celah: selama kamera di dalam tebal gapura, jarak ke sisi dalam − ½ lebar frustum near
   const nearW=camera.near*Math.hypot(18,18*H/W)/CAM.mm;   // ½ diagonal near plane (roll apa pun)
   for(let t=d-.4;t<=d+.4;t+=1/2400){tl.time(t);applyCam();gapura.worldToLocal(lokal.copy(camera.position));

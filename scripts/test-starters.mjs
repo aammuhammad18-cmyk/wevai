@@ -404,7 +404,7 @@ for (const file of files) {
     //   garis — lambung menyumbang piksel gelap di pita fokus, dibanding lambung dimatikan (mutasi 'garis': lambung mati);
     //   tilt  — tepi atas/bawah kehilangan ketajaman, pita fokus 0 piksel berubah (mutasi 'tilt': kuat 0);
     //   tone  — renderer.toneMapping = FILM (mutasi 'tone': NoToneMapping). Di halaman bawaan, sebelum kait kamera 3D.
-    const dioUji = m => page.evaluate(m => { const O = window.OPENER; O.tl.pause(); return window.DIORAMA_UJI ? window.DIORAMA_UJI(m) : null; }, m);
+    const dioUji = m => page.evaluate(m => window.DIORAMA_UJI ? (window.OPENER.tl.pause(), window.DIORAMA_UJI(m)) : null, m);
     const dio = await dioUji('');
     if (name === 'starter-diorama.html' && !dio) masalah.push('diorama: DIORAMA_UJI tidak ada');
     if (dio) {

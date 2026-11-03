@@ -142,8 +142,9 @@ const mb = b => b >= 1073741824 ? `${(b / 1073741824).toFixed(2)} GB` : `${(b / 
 
 /* ---------- penahan sleep: proses anak yang hidup selama antrean berjalan ---------- */
 // 2147483649 = ES_CONTINUOUS (0x80000000) | ES_SYSTEM_REQUIRED (0x1). Keadaan itu milik thread PowerShell dan lenyap bersama
-// prosesnya; loop berhenti sendiri bila antrean mati tanpa sempat membersihkan (mis. dibunuh paksa).
-const PS = pid => `Add-Type -Namespace W -Name P -MemberDefinition '[DllImport("kernel32.dll")] public static extern uint SetThreadExecutionState(uint f);'; ` +
+// prosesnya; loop berhenti sendiri bila antrean mati tanpa sempat membersihkan (mis. dibunuh paksa). 'Stop': bila Add-Type
+// ditolak (mis. PowerShell mode terbatas) prosesnya keluar kode 1 dan antrean mencetak peringatan, bukan diam-diam tak menahan.
+const PS = pid => `$ErrorActionPreference = 'Stop'; Add-Type -Namespace W -Name P -MemberDefinition '[DllImport("kernel32.dll")] public static extern uint SetThreadExecutionState(uint f);'; ` +
   `while (Get-Process -Id ${pid} -ErrorAction SilentlyContinue) { [W.P]::SetThreadExecutionState(2147483649) | Out-Null; Start-Sleep 15 }`;
 export function perintahTahan(platform, pid) {
   if (platform === 'win32') return { cmd: 'powershell.exe', args: ['-NoProfile', '-NonInteractive', '-WindowStyle', 'Hidden', '-ExecutionPolicy', 'Bypass', '-Command', PS(pid)] };

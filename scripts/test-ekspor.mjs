@@ -188,6 +188,7 @@ test('perintahTahan: perintah per platform', () => {
   assert.match(skrip, /SetThreadExecutionState\(uint f\)/);
   assert.match(skrip, /SetThreadExecutionState\(2147483649\)/, 'ES_CONTINUOUS | ES_SYSTEM_REQUIRED');
   assert.match(skrip, /while \(Get-Process -Id 4242 /, 'berhenti sendiri bila antrean mati');
+  assert.match(skrip, /^\$ErrorActionPreference = 'Stop';/, 'Add-Type yang ditolak = keluar kode 1, bukan diam-diam tak menahan');
   assert.equal(2147483649, 0x80000000 + 0x1);
   assert.doesNotMatch(w.args.join(' '), /powercfg/i, 'setelan daya pengguna tidak disentuh');
   assert.deepEqual(ar.perintahTahan('darwin', 4242), { cmd: 'caffeinate', args: ['-i', '-w', '4242'] });

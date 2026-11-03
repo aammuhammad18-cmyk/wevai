@@ -263,9 +263,9 @@ function pangkatFigur(G,res,warna){const u=res*G.U,x0=-420,y0=-1120,lebar=860,ti
   for(const b of G.atas){x.fillStyle=warna?warnaDari(G,b.w):WARNA_BAYANG;x.fill(new Path2D(b.d));}
   return{c,u,x0,y0};}
 function pangkatLengan(G,res,warna){const[L1,L2]=G.L,P=G.Pot,u=res*G.U,w=120,c1=kanvasBaru(ceil(w*u),ceil((L1+50)*u)),c2=kanvasBaru(ceil(w*u),ceil((L2+50)*u)),
-    gambar=(c,parts,lb,warnaI)=>{const x=c.getContext('2d');x.setTransform(u,0,0,u,w/2*u,30*u);for(const p of parts){const q=new Path2D(jalur(p));x.fillStyle=warna?pradaGrad(x,-30,c.height/u):WARNA_BAYANG;x.fill(q);if(warna){x.strokeStyle='rgba(30,14,6,.8)';x.lineWidth=1.4;x.stroke(q);}}
+    gambar=(c,parts,lb)=>{const x=c.getContext('2d');x.setTransform(u,0,0,u,w/2*u,30*u);for(const p of parts){const q=new Path2D(jalur(p));x.fillStyle=warna?pradaGrad(x,-30,c.height/u):WARNA_BAYANG;x.fill(q);if(warna){x.strokeStyle='rgba(30,14,6,.8)';x.lineWidth=1.4;x.stroke(q);}}
       const Lb=new Path2D(lb);x.globalCompositeOperation='destination-out';x.fill(Lb);x.globalCompositeOperation='source-over';if(warna){x.strokeStyle='#e9c871';x.lineWidth=1;x.stroke(Lb);}};
-  gambar(c1,[P.atas],G.lubangAtas,pr);gambar(c2,[P.hasta,P.jempol,P.jari],G.lubangHasta,pr);return{c1,c2,u,w};}
+  gambar(c1,[P.atas],G.lubangAtas);gambar(c2,[P.hasta,P.jempol,P.jari],G.lubangHasta);return{c1,c2,u,w};}
 function pangkatKayon(D,res,warna,balik){const u=res,lb=660,tg=1040,c=kanvasBaru(ceil(lb*u),ceil(tg*u)),x=c.getContext('2d'),O=new Path2D(jalur(D.garis));
   x.setTransform(u,0,0,u,lb/2*u,1020*u);x.lineCap='round';x.lineJoin='round';
   if(balik){/* sisi balik: hanya api merah (Wikipedia, Gunungan) — lidah api dirancang dari kode */

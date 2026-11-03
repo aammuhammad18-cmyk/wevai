@@ -43,7 +43,7 @@ const JAWA={
   /* bentuk tangan (bukan data): [lon, lat, jari x km, jari z km, tinggi km] — dataran tinggi, pegunungan selatan, perbukitan */
   wilayah:[[105.05,-5.45,50,40,.3],[106.2,-6.55,40,30,.25],[106.6,-6.75,35,25,.45],[107.75,-7.1,80,35,.65],[107.2,-7.25,70,18,.45],[107.9,-7.45,45,15,.4],
     [109.6,-7.18,50,15,.45],[109.6,-7.5,40,12,.35],[109.95,-7.3,25,15,.6],[111.6,-7.3,90,12,.25],[111.8,-6.9,80,12,.2],[110.75,-8.0,45,14,.4],
-    [111.3,-8.1,40,14,.55],[111.75,-8.15,35,12,.55],[112.2,-8.25,40,10,.4],[112.75,-8.3,40,10,.35],[114.15,-8.0,22,16,1.2],[113.3,-7.05,70,10,.12],[115.2,-8.3,30,12,.45],[112.65,-8.0,22,18,.3]]};
+    [111.3,-8.1,40,14,.55],[111.75,-8.15,35,12,.55],[112.2,-8.25,40,10,.4],[112.75,-8.3,40,10,.35],[114.15,-8.0,22,16,1.2],[113.3,-7.05,70,10,.12],[115.2,-8.3,30,12,.45],[112.65,-8.0,22,18,.35],[112.55,-7.9,14,12,.4]]};   // terakhir: dataran tinggi Batu–Malang
 
 /* proyeksi equirektangular di lintang tengah peta (galat skala ≤ 0,4 % di tepi utara/selatan Jawa) */
 const PETA0={lon:110,lat:-7.3},KM_LON=111.32*Math.cos(PETA0.lat*Math.PI/180),KM_LAT=110.58;
@@ -109,7 +109,7 @@ function medan(D=JAWA,{seed=3}={}){
     kasar=(x,z,dc,alur=1)=>{const w=wilayah(x,z);let h=Math.max(Math.min(.002*dc,.03),.0025*Math.min(dc,40)+(w+(.04+.15*w)*fbm(x/28,z/28))*ss(0,8,dc));
       for(const g of G){const c=kerucut(g,x,z,alur);if(c>0)h=smax(h,c*ss(0,3,dc),.06);}return h;},
     kedalaman=(x,z,dc)=>{const dd=laut.sdf(x,z);return dd>0?-.2-2.6*(1-Math.exp(-dd/45)):-.2*-dc/Math.max(1e-6,-dc-dd);},
-    /* sungai: Catmull-Rom (jalurElang) per 0,8 km, ekor di laut dipotong; muka air = minimum berjalan dari hulu (tak pernah naik) atas
+    /* sungai: Catmull-Rom (jalurElang) per 0,8 km, ekor di laut dipotong; muka air (batas bawah ukiran) = minimum berjalan dari hulu (tak pernah naik) atas
        tanah TERENDAH di penampang (±0,3 km di hulu → ±2,4 km di hilir) — jalur skematis yang menyusur lereng tidak berjalan di atas tanggul */
     S=Object.entries(D.sungai).map(([nama,ll])=>{const T=[];for(let i=0;i<ll.length;i+=2)T.push(proyeksi(ll[i],ll[i+1]));
       const J=jalurElang(T),n=Math.ceil(J.L/.8);let p=Array.from({length:n+1},(_,i)=>J.pos(i/n));
@@ -120,7 +120,7 @@ function medan(D=JAWA,{seed=3}={}){
     ruasS=S.flatMap((s,k)=>s.p.slice(1).map((b,i)=>[s.p[i],b,k,i])),dekatS=ember(ruasS,5,-1e3,-600,1e3,600),
     tinggi=(x,z,alur=1)=>{const dc=darat.sdf(x,z);if(dc<=0)return kedalaman(x,z,dc);let h=kasar(x,z,dc,alur);   // alur 0: kerucut halus (kisi kasar; jurang di shader)
       const[d,m,t]=dekatS(x,z);if(m>=0&&d<4.5){const[,,k,i]=ruasS[m],a=S[k].air,hr=a[i]+(a[i+1]-a[i])*t,u=(i+t)/(a.length-1);   // lembah melebar ke hilir: hulu sempit (tak memangkas puncak gunung)
-        if(h>hr)h=hr+(h-hr)*ss(.25+.45*u,1.2+3.3*u,d);}
+        if(h>hr){const dasar=Math.max(hr,h-.08);h=dasar+(h-dasar)*ss(.25+.45*u,1.2+3.3*u,d);}}   // ukiran ≤ 80 m di bawah tanah asli: lembah, bukan ngarai
       return h;};
   return{tinggi,darat,laut,gunung:G,sungai:S,kerucut};}
 /* RUTE: lengkung skematis di atas peta, berparameter panjang busur 3D (jalurElang): jejak tanah Catmull-Rom lewat titik [lon,lat],
@@ -203,7 +203,7 @@ outgoingLight=mix(outgoingLight,diffuseColor.rgb*uTerang,uCetak);   // uCetak 1 
    Satu mesh per sungai: sungaiPeta(...)[nama].mat.color bisa di-tween (sungai yang sedang diceritakan menyala). uPx = 2·tan(½fov)/H. */
 function sungaiPeta(peta,{lebar=3.2,warna:w='#2e6e8e',angkat=.03}={}){const{M,tegak,grup}=peta,U={uPx:{value:.001}},hasil={U};
   for(const s of M.sungai){const n=s.p.length,pos=[],arah=[],sisi=[],lb=[],idx=[];
-    s.p.forEach(([x,z],i)=>{const a=s.p[Math.max(0,i-1)],b=s.p[Math.min(n-1,i+1)],dx=b[0]-a[0],dz=b[1]-a[1],l=Math.hypot(dx,dz)||1,y=(s.air[i]+angkat)*tegak;
+    s.p.forEach(([x,z],i)=>{const a=s.p[Math.max(0,i-1)],b=s.p[Math.min(n-1,i+1)],dx=b[0]-a[0],dz=b[1]-a[1],l=Math.hypot(dx,dz)||1,y=(Math.max(0,M.tinggi(x,z))+angkat)*tegak;   // di tanah terukir (muka air hanya batas bawah ukiran)
       for(const sd of[-1,1]){pos.push(x,y,z);arah.push(-dz/l,dx/l);sisi.push(sd);lb.push(.4+.6*i/(n-1));}if(i)idx.push(2*i-2,2*i-1,2*i,2*i-1,2*i+1,2*i);});
     const g=new THREE.BufferGeometry();g.setIndex(idx);g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('arah',new THREE.Float32BufferAttribute(arah,2));
     g.setAttribute('sisi',new THREE.Float32BufferAttribute(sisi,1));g.setAttribute('lebar',new THREE.Float32BufferAttribute(lb,1));

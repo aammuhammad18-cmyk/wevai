@@ -74,12 +74,13 @@ test('pantai & laut: kota di darat (> 0), laut < 0, garis 200 m tepat di tepi po
   }
 });
 
-test('sungai: muka air tak pernah naik ke hilir, berakhir di pantai, lembah terukir (tanah di alur ≈ muka air)', () => {
+test('sungai: muka air tak pernah naik ke hilir, berakhir di pantai, mengalir di lembah (tak pernah di atas kedua tebing = tanggul)', () => {
   for (const s of M.sungai) {
     assert.ok(s.air.every((h, i) => !i || h <= s.air[i - 1] + 1e-12), `${s.nama}: muka air naik`);
     assert.ok(s.air.at(-1) < .05 && s.air[0] > s.air.at(-1), `${s.nama}: air ${s.air[0]} → ${s.air.at(-1)}`);
     const [x, z] = s.p.at(-1); assert.ok(M.darat.jarak(x, z) < 3, `${s.nama}: muara ${M.darat.jarak(x, z).toFixed(1)} km dari pantai`);
-    for (let i = 0; i < s.p.length; i += 7) assert.ok(M.tinggi(...s.p[i]) <= s.air[i] + 1e-9, `${s.nama} sampel ${i}: tanah di atas muka air`);
+    for (let i = 3; i < s.p.length - 3; i += 5) { const [x, z] = s.p[i], a = s.p[i - 1], b = s.p[i + 1], l = Math.hypot(b[0] - a[0], b[1] - a[1]), ux = (a[1] - b[1]) / l, uz = (b[0] - a[0]) / l, h = M.tinggi(x, z);
+      assert.ok(h >= s.air[i] - 1e-9 && h <= Math.max(M.tinggi(x + ux * 3, z + uz * 3), M.tinggi(x - ux * 3, z - uz * 3)) + .005, `${s.nama} sampel ${i}: alur ${h.toFixed(3)} di atas kedua tebing 3 km (tanggul) atau di bawah muka air ${s.air[i].toFixed(3)}`); }
   }
   assert.deepEqual(M.sungai.map(s => s.nama).slice(0, 2), ['Bengawan Solo', 'Brantas']);
 });

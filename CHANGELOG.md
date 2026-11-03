@@ -289,6 +289,8 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
       (`evals/bukti/2026-11-03-ekspor/bukti.txt` §5).
     - Kecepatan terukur di laptop 2 core: 1,20× (`starter-sinematik`) dan 1,47× (`katalog-tokoh`), bukan ±2× seperti perkiraan peta §7
       (mesin sambil dipakai tiga agen ber-Chrome Idle).
+    - Di antrean nyata pemilik (Babad Bali babak 07–09, `SYNC=1`, MP4 JPEG): 5,9–6,4 frame/dtk dengan 2 worker, dibanding 3,1–4,2
+      dengan 1 worker di babak 00–06, jadi ±1,5–2×.
     - Antrean render pemilik (Bali, lalu Nabi) ikut memakai 2 worker begitu ini masuk `main` (3 Nov, dengan izin pemilik);
       `WORKERS=1` di env mengembalikan perilaku lama.
   - **`antre-render.mjs`** (generalisasi `alat/antre-render.sh`):
@@ -344,6 +346,37 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
     - memori GPU sementara ±112 MB per bidang 2240×1400 saat dilukis;
     - ms/frame ekspor penuh belum diukur di mesin senggang;
     - agen pembuatnya macet sesudah bukti di-commit, jadi laporan akhirnya tidak ada; gerbang dan uji penggabungan dijalankan controller.
+  - **Status penerimaan**: menunggu bench di mesin senggang dan vonis visual pemilik.
+- **Peta relief 3D topografi** (sub-proyek 7, gaya lanjutan ketiga; J di `docs/rencana-1.4.0.md`; lanjutan kulit topografi Jagad Budaya).
+  - **Berkas**: `src/runtime/peta-relief.js` (blok baru `<wv:peta-relief>`, 37 KB termasuk data Jawa), `assets/starter-peta-relief.html`,
+    `references/peta-relief.md`, `scripts/test-peta.mjs`, dan `scripts/peta-data.mjs` (membangun ulang data pantai, mis. untuk Bali);
+    penunjuk di `sinematografi.md` §1, `explainer.md`, `isi-paket.md`, `alat-kerja.md`, dan README.
+  - **Data**:
+    - pantai Natural Earth 10m (domain publik), Douglas–Peucker 0,5 km, 1 262 titik; garis 200 m dari NE bathymetry K_200;
+    - 68 gunung api dari GVP VOTW 5.4.0 (doi:10.5479/si.GVP.VOTW5-2026.5.4): puncak = elevasi GVP, diuji ±20 m;
+    - Natural Earth tidak memuat sungai Jawa, jadi 8 sungai dibuat skematis (titik lewat kota yang dilaluinya, dihaluskan) dan
+      ditandai begitu di dokumen; skala tegak 4×.
+  - **Medan**: kerucut gunung berkaki tak bulat dengan 8–14 jurang radial (rumus sama di JS dan GLSL), kaldera Tengger, lembah
+    sungai landai (ukiran ≤ 80 m), dataran tinggi Batu–Malang. Shader berpalet Jagad: isoline 100/500 m yang memudar bila rapat,
+    laut paparan terang, garis 200 m dan pantai bertinta, bayangan awan. `uCetak` membuka dengan peta cetak berkontur yang naik
+    menjadi relief bercahaya.
+  - **Demo** (18 dtk, ACES, dua kaki `terbang()`): seluruh Jawa sebagai peta cetak → relief naik di bawah matahari rendah →
+    turun ke jantung Mataram Kuno, legenda "ABAD X / Pusat kerajaan pindah ke timur" → busur menyala ke timur (skematis, bukan
+    jalan atau rute pasukan) → mendarat di Lembah Brantas berlabel Kelud dan Arjuno-Welirang. Label DOM diproyeksikan ulang tiap
+    render.
+  - **Uji**: `test-peta` (7 uji: proyeksi vs haversine, dekode NE, determinisme, 68 puncak, pantai dan garis 200 m, sungai tanpa
+    tanggul, panjang busur) masuk `rilis.mjs` dan CI. `test-starters`: `PETA_UJI` (label dalam bingkai di 6 detik, rute 0 →
+    sebagian → 1), sidik geometri lintas muat, ACES; halaman dilewati di WebGL perangkat lunak.
+  - **Anggaran konteks**: jalur baru **Peta relief 3D** (`sinematografi.md` + `peta-relief.md` + `starter-peta-relief.html`) 171 KB,
+    batas pelacak 175 KB; jalur lain naik ≤ 0,2 KB.
+  - **Bukti**: `evals/bukti/2026-11-03-peta-relief/` (`kontak.jpg`, `nilai.json`). `nilai-visual`: rentang 28,8–37,4 di 7 bingkai,
+    kontras subjek yang dideklarasikan 11,0–20,5, kepala rute +31,9…+34,4. Bingkai peta lebar tanpa subjek memberi peringatan kontras
+    tengah-tepi (2,4–7,8), dijelaskan di README bukti.
+  - **Celah yang diketahui**:
+    - ms/frame belum diukur (siap 6–13 dtk di HD 4000 saat render pemilik berjalan);
+    - sungai skematis (galat beberapa km); vektor sungai asli butuh cek lisensi (OSM = ODbL, tidak cocok);
+    - label tanpa uji oklusi; gunung Sumatra barat 104,5° BT tidak dimodelkan (tertutup kabut di gambar besar);
+    - kerucut gunung masih seragam dan dataran lembah polos (pengamatan controller pada lembar kontak).
   - **Status penerimaan**: menunggu bench di mesin senggang dan vonis visual pemilik.
 
 ## 1.3.0 — 2026-11-02

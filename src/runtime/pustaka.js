@@ -278,6 +278,7 @@ const kt=Rs=>{let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const p of Rs)for(const[x,y]of p
     h=(Array.isArray(w)?w[i]:w)/2;A.push([q[0]-dy/m*h,q[1]+dx/m*h]);B.push([q[0]+dy/m*h,q[1]-dx/m*h]);});return A.concat(B.reverse());},
   tgk=(a,b,wa,wb)=>[gp([a,b],[wa,wb]),elp(a[0],a[1],wa/2),elp(b[0],b[1],wb/2)],   // ruas tubuh berujung bulat
   kot=(x,y,w,h)=>[[x,y],[x+w,y],[x+w,y+h],[x,y+h]],
+  LK=(jenis,x,y,w,h,z,r=0)=>({...LP(jenis,[kot(x,y,w,h)],z,r),persegi:1}),   // satu persegi: kotak = bentuknya (dirasterisasi analitik)
   simP=(p,x,y)=>p.map(([u,v])=>[x+u,y+v]).concat(p.map(([u,v])=>[x-u,y+v]).reverse()),   // setengah profil dicerminkan
   spP=(x,y,r,n,sg,k=1)=>{const p=Array.from({length:round(n*8)+1},(_,i)=>{const a=sg*i/8*P/2,k=r*(1-i/(n*9));return[x+cos(a)*k,y+sin(a)*k];});
     return gp(p,p.map((_,i)=>k*r*(.34-.26*i/(p.length-1))));},
@@ -286,7 +287,7 @@ const kt=Rs=>{let a=1e9,b=1e9,c=-1e9,d=-1e9;for(const p of Rs)for(const[x,y]of p
      kaki dekat/jauh, ld/lj = [lengan atas, bawah] dekat/jauh. sembah: siku terangkat, lengan bawah menekuk balik ke wajah */
   POSE={jalan:{pg:.47,cd:0,kd:[16,4],kj:[-14,-22],ld:[-12,12],lj:[20,42]},junjung:{pg:.47,cd:-2,kd:[12,2],kj:[-12,-20],ld:[166,212],lj:[16,34]},
     baki:{pg:.47,cd:0,kd:[12,2],kj:[-12,-20],ld:[34,96],lj:[18,38]},payung:{pg:.47,cd:-2,kd:[10,0],kj:[-10,-16],ld:[130,174],lj:[14,30]},
-    pikul:{pg:.47,cd:3,kd:[14,2],kj:[-12,-20],ld:[160,40],lj:[22,44]},tunjuk:{pg:.47,cd:-1,kd:[10,0],kj:[-10,-16],ld:[96,100],lj:[14,30]},
+    pikul:{pg:.47,cd:3,kd:[14,2],kj:[-12,-20],ld:[40,170],lj:[24,46]},tunjuk:{pg:.47,cd:-1,kd:[10,0],kj:[-10,-16],ld:[96,100],lj:[14,30]},
     sembah:{pg:.13,cd:6,kd:[72,270],kj:[68,268],ld:[60,200],lj:[56,196]},duduk:{pg:.16,cd:0,kd:[84,264],kj:[80,276],ld:[26,82],lj:[34,150]},
     dayung:{pg:.15,cd:20,kd:[82,8],kj:[78,4],ld:[66,30],lj:[58,24]}};
 /* sosok: (x, y) = telapak di tanah; t = tinggi berdiri px; s = 1 menghadap kanan, −1 kiri; z = tinggi pahatan badan. Tubuh berisi
@@ -329,7 +330,7 @@ const awanR=(L,x,y,k)=>L.push(LP('timbul',[elp(x,y,34*k,20*k),elp(x-38*k,y+8*k,2
 /* A · prosesi berangkat: pembawa kendi, pembawa baki, bangsawan bermahkota di bawah payung kebesaran (bergoyang), dua pemikul peti
    (peti berayun); pohon latar di kedua ujung. u = jarak dari tepi depan arak-arakan (arah cerita s). */
 function prosesiR(L,G,[x0,y0,w,h],s,r){const X=v=>s<0?x0+v:x0+w-v,yt=y0+h-24;
-  L.push(LP('timbul',[kot(x0,yt,w,24)],.3,4));pohonR(L,X(70),yt,300,.28,r);pohonR(L,X(w-60),yt,270,.27,r);
+  L.push(LK('timbul',x0,yt,w,24,.3,4));pohonR(L,X(70),yt,300,.28,r);pohonR(L,X(w-60),yt,270,.27,r);
   const a=sosok(X(150),yt,300,s,.6,'junjung'),kd=[a.kepala[0]-s*.6*a.u,a.kepala[1]-15.5*a.u];L.push(...a.lapis,...a.lengan,
     LP('timbul',[elp(kd[0],kd[1],9*a.u,7.6*a.u),kot(kd[0]-3.4*a.u,kd[1]-11*a.u,6.8*a.u,5*a.u),elp(kd[0],kd[1]-11*a.u,5*a.u,1.8*a.u)],.63,3*a.u),
     LP('gurat',[gp([[kd[0]-8*a.u,kd[1]-a.u],[kd[0]+8*a.u,kd[1]-a.u]],a.u)],.02,.5*a.u));
@@ -341,17 +342,20 @@ function prosesiR(L,G,[x0,y0,w,h],s,r){const X=v=>s<0?x0+v:x0+w-v,yt=y0+h-24;
   G.push({lapis:[LP('timbul',[gp([ub,pc],6.5)],.55,3),LP('timbul',[[...qb([pc[0]-72,pc[1]+2],[pc[0],pc[1]-64],[pc[0]+72,pc[1]+2],14)],elp(pc[0],pc[1]-38,6.5)],.58,10),
     LP('timbul',rb,.6,3),LP('gurat',[gp(qb([pc[0]-54,pc[1]-8],[pc[0],pc[1]-44],[pc[0]+54,pc[1]-8],8),2.2),gp(qb([pc[0]-32,pc[1]-14],[pc[0],pc[1]-34],[pc[0]+32,pc[1]-14],6),2)],.03,1)],
     poros:hp,ayun:[2.2,4.4,r(0,6)]});
-  const k1=sosok(X(775),yt,290,s,.58,'pikul'),k2=sosok(X(930),yt,290,s,.56,'pikul'),t1=k1.tangan,t2=k2.tangan,mp=[(t1[0]+t2[0])/2,(t1[1]+t2[1])/2-4];
-  L.push(...k1.lapis,...k1.lengan,...k2.lapis,...k2.lengan,LP('timbul',[gp([[t1[0]+s*40,t1[1]-6],[t2[0]-s*30,t2[1]-6]],7)],.66,3));
+  const k1=sosok(X(775),yt,290,s,.58,'pikul'),k2=sosok(X(930),yt,290,s,.56,'pikul'),b1=k1.bahu,b2=k2.bahu,yp=(b1[1]+b2[1])/2-2*k1.u,mp=[(b1[0]+b2[0])/2,yp];
+  L.push(...k1.lapis,...k1.lengan,...k2.lapis,...k2.lengan,LP('timbul',[gp([[b1[0]+s*46,yp],[b2[0]-s*34,yp]],7)],.66,3));   // pikulan di bahu
   G.push({lapis:[LP('timbul',[gp([[mp[0]-16,mp[1]],[mp[0]-20,mp[1]+52]],3.2),gp([[mp[0]+16,mp[1]],[mp[0]+20,mp[1]+52]],3.2)],.6,1.4),
     LP('timbul',[kot(mp[0]-34,mp[1]+50,68,44),[...qb([mp[0]-36,mp[1]+52],[mp[0],mp[1]+30],[mp[0]+36,mp[1]+52],8)]],.63,5),
     LP('gurat',[gp([[mp[0]-30,mp[1]+68],[mp[0]+30,mp[1]+68]],2.4),gp([[mp[0],mp[1]+54],[mp[0],mp[1]+90]],2.4)],.03,1.2)],poros:mp,ayun:[3,2.8,r(0,6)]});}
-/* ombak: dua baris gelombang (gembung + ikal), belakang rendah, depan tinggi (menutup lambung dan cadik); pola persis berperiode λ
-   supaya alir menyambung, gembung tidak saling menyentuh (bukan pita) */
-function ombakR(x0,x1,yw,l){const B=[];
-  for(const j of[0,1]){const y=yw+j*40,q=j?24:20,R=[];
-    for(let x=x0-l+(j?l/2:0);x<x1+l;x+=l)R.push(elp(x-q*.3,y+q*.55,l*.42,q*.62),spP(x+q*.15,y-q*.1,q*.8,1.25,1,1.6));
-    B.push(LP('timbul',R,j?.7:.4,j?7:6));}
+/* ombak: dua baris puncak gelombang yang menggulung (bibir condong ke arah aliran dir) dengan ikal di lekuknya; belakang rendah, depan
+   tinggi (menutup lambung dan cadik); pola persis berperiode λ supaya alir menyambung */
+function ombakR(x0,x1,yw,l,dir){const B=[];
+  for(const j of[0,1]){const y=yw+j*40,A=l*(j?.42:.36),R=[],I=[];
+    for(let x=x0-l+(j?l/2:0);x<x1+l;x+=l){const X=v=>x+dir*v;
+      R.push([...qb([X(-A*1.3),y+A*.6],[X(-A*.25),y-A*1.25],[X(A*.8),y-A*.2],10),...qb([X(A*.8),y-A*.2],[X(A*.15),y-A*.45],[X(A*.05),y+A*.15],6).slice(1),
+        ...qb([X(A*.05),y+A*.15],[X(A*.4),y+A*.55],[X(A*1.1),y+A*.6],5).slice(1)]);
+      I.push(spP(X(A*.5),y-A*.12,A*.26,1.35,dir,1.6));}
+    B.push(LP('timbul',R,j?.7:.42,5),LP('timbul',I,j?.72:.44,2));}
   return B;}
 /* B · perahu bercadik berlayar ke arah s: lambung berhaluan tinggi, cadik + batang penyangga, rumah geladak, dua tiang kaki-dua dengan
    layar tanja menggembung (berkembang + berayun), tali-temali tipis, pengintai di haluan, dua pendayung (lengan + dayung bergerak),
@@ -378,27 +382,29 @@ function perahuR(L,G,[x0,y0,w,h],s,r){const X=v=>s<0?x0+v:x0+w-v,yw=y0+h*.64,yg=
   G.push({lapis:[...jm.lengan,LP('timbul',[gp([[hm[0]-vm[0]*20,hm[1]-vm[1]*20],[hm[0]+vm[0]*150,hm[1]+vm[1]*150]],7),elp(hm[0]+vm[0]*156,hm[1]+vm[1]*156,9,24,atan2(vm[1],vm[0])+P/2)],.66,3)],
     poros:jm.bahu,ayun:[2.5,6,r(0,6)]});
   L.push(LP('timbul',[gp([[X(240),yw+10],[X(760),yw+10]],15),...[300,480,660].map(v=>gp([[X(v),yg+2],[X(v+6),yw+8]],8))],.68,6));
-  G.push({lapis:ombakR(x0,x0+w,yw,72),poros:[x0+w/2,yw],alir:[-s*7,72],geser:[0,2,4.6,0],klip:[x0,y0,x0+w,y0+h]});
+  G.push({lapis:ombakR(x0,x0+w,yw,72,-s),poros:[x0+w/2,yw],alir:[-s*7,72],geser:[0,2,4.6,0],klip:[x0,y0,x0+w,y0+h]});
   for(const[ui,fs]of[[250,-s],[700,s]]){const c=[X(ui),yw+100];G.push({lapis:[LP('timbul',[elp(c[0],c[1],22,8),[[c[0]-fs*18,c[1]],[c[0]-fs*34,c[1]-11],[c[0]-fs*34,c[1]+11]],
     [[c[0]-fs*2,c[1]-6],[c[0]+fs*6,c[1]-6],[c[0]-fs*6,c[1]-15]]],.5,4),LP('gurat',[elp(c[0]+fs*13,c[1]-1.5,2.2)],.03,1)],poros:c,ayun:[5,1.6,r(0,6)],geser:[fs*36,3,17,r(0,6)]});}}
-/* C · tiba di bawah kalpataru: pohon kalpataru (jambangan, tajuk tiga tingkat dari ikal daun, payung, untaian permata yang berayun, dua
-   burung, satu mengepak), resi duduk berlingkar cahaya di atas lapik menghadap tamu, dua pelancong menyembah (tangan bergerak), pengiring. */
-function kalpataruR(L,G,[x0,y0,w,h],s,r){const X=v=>s<0?x0+v:x0+w-v,yt=y0+h-24,cx=X(150),yd=yt-250;
-  L.push(LP('timbul',[kot(x0,yt,w,24)],.3,4));awanR(L,X(640),y0+82,.95);
+/* C · tiba di bawah kalpataru: pohon kalpataru (jambangan, tajuk kubah dari ikal daun bertumpuk, payung, untaian permata yang berayun,
+   dua burung bertengger, satu mengepak), resi duduk berlingkar cahaya di atas lapik menghadap tamu, dua pelancong menyembah (tangan
+   bergerak), pengiring berbaki. */
+function kalpataruR(L,G,[x0,y0,w,h],s,r){const X=v=>s<0?x0+v:x0+w-v,yt=y0+h-24,cx=X(150),cy=yt-310,tj=[],dn=[];
+  L.push(LK('timbul',x0,yt,w,24,.3,4));awanR(L,X(640),y0+82,.95);
   L.push(LP('timbul',[elp(cx,yt-36,36,32),kot(cx-14,yt-84,28,18),elp(cx,yt-86,22,6),kot(cx-26,yt-8,52,8)],.55,8),
     LP('gurat',[gp([[cx-33,yt-44],[cx+33,yt-44]],2.2),gp([[cx-35,yt-28],[cx+35,yt-28]],2.2)],.03,1),
-    LP('timbul',[gp([[cx,yt-82],[cx+4,yt-160],[cx-3,yd+10]],[20,15,12])],.5,6));
-  const tj=[],dn=[];for(let j=0;j<3;j++){const cy=yd-j*52,hw=150-j*36,m=6-j;tj.push(elp(cx,cy-4,hw*.86,24));
-    for(let i=0;i<m;i++){const k=i/(m-1)-.5,lx=cx+k*2*hw,ly=cy+k*k*36,sg=k<0?-1:1;tj.push(spP(lx,ly,22-2*j,1.3,sg,1.7),elp(lx+sg*14,ly+10,16,7,sg*.5));
-      dn.push(gp(qb([lx-10,ly-12],[lx,ly-20],[lx+10,ly-12],4),1.8));}}
-  L.push(LP('timbul',tj,.52,7),LP('gurat',dn,.03,1),LP('timbul',[gp([[cx,yd-120],[cx,yd-160]],6),[...qb([cx-34,yd-152],[cx,yd-192],[cx+34,yd-152],8)],elp(cx,yd-176,6)],.5,5));
-  [-112,-58,58,112].forEach((dx,i)=>{const a=[cx+dx,yd+16+abs(dx)*.14],B=[],e=a[1]+90;for(let k=0;k<6;k++)B.push(elp(a[0],a[1]+k*15,5.4-k*.25));
-    B.push([[a[0],e-4],[a[0]+8,e+9],[a[0],e+24],[a[0]-8,e+9]]);G.push({lapis:[LP('timbul',B,.56,3)],poros:a,ayun:[2.6,3.4+i*.37,i*1.3]});});
-  for(const sg of[-1,1]){const b=[cx+sg*72,yd-126],m2=-sg,sy=[b[0]+m2*6,b[1]-6],
-      sw=LP('timbul',[[sy,[sy[0]-m2*8,sy[1]-14],[sy[0]-m2*34,sy[1]-10],[sy[0]-m2*30,sy[1]+2],[sy[0]-m2*4,sy[1]+6]]],.575,3);   // sayap
-    L.push(LP('timbul',[elp(b[0],b[1],24,13,-.25*m2),elp(b[0]+m2*20,b[1]-15,9),[[b[0]+m2*27,b[1]-18],[b[0]+m2*40,b[1]-14],[b[0]+m2*27,b[1]-11]],
-      gp([[b[0]-m2*16,b[1]+4],[b[0]-m2*44,b[1]+2]],6),gp([[b[0]-m2*16,b[1]+6],[b[0]-m2*42,b[1]+14]],6),gp([[b[0]-m2*16,b[1]+8],[b[0]-m2*36,b[1]+24]],6),
-      gp([[b[0]-4,b[1]+10],[b[0]-4,b[1]+22]],3),gp([[b[0]+6,b[1]+10],[b[0]+6,b[1]+22]],3)],.54,4),LP('gurat',[elp(b[0]+m2*22,b[1]-17,2)],.03,1));
+    LP('timbul',[gp([[cx,yt-82],[cx+4,yt-160],[cx-3,yt-230]],[20,15,12])],.5,6),
+    LP('timbul',[elp(cx,cy+6,134,78),...Array.from({length:15},(_,i)=>{const a=P*(1.08-1.16*i/14);return elp(cx+cos(a)*140,cy+6-sin(a)*84,24+6*(i%2),22+5*(i%2));})],.42,8));   // tajuk: gumpal bergerigi di tepi (relief rendah)
+  for(let j=0;j<4;j++){const yy=cy+56-j*42,hw=146-j*34,m=6-j;
+    for(let i=0;i<m;i++){const k=m>1?i/(m-1)-.5:0,lx=cx+k*2*hw,ly=yy+k*k*30,sg=k<0?-1:1;
+      tj.push(spP(lx,ly,21-j*1.5,1.4,sg,2),elp(lx-sg*13,ly+12,16,7,-sg*.6));dn.push(gp(qb([lx-sg*20,ly+8],[lx-sg*12,ly+4],[lx-sg*4,ly+14],4),1.8));}}
+  L.push(LP('timbul',tj,.56,4),LP('gurat',dn,.03,1),LP('timbul',[gp([[cx,cy-88],[cx,cy-126]],6),[...qb([cx-34,cy-118],[cx,cy-156],[cx+34,cy-118],8)],elp(cx,cy-142,6)],.5,5));
+  [-125,-70,70,125].forEach((dx,i)=>{const a=[cx+dx,cy+92*sqrt(1-(dx/158)**2)-8],B=[gp([a,[a[0],a[1]+100]],1.6)],e=a[1]+102;
+    for(let k=0;k<6;k++)B.push(elp(a[0],a[1]+6+k*16,4.3-k*.15));B.push([[a[0],e-6],[a[0]+6,e+4],[a[0],e+16],[a[0]-6,e+4]]);
+    G.push({lapis:[LP('timbul',B,.56,2.5)],poros:a,ayun:[2.6,3.4+i*.37,i*1.3]});});
+  for(const sg of[-1,1]){const b=[cx+sg*74,cy-100],m2=-sg,sy=[b[0]+m2*4,b[1]-4],   // bertengger di puncak kubah, menghadap batang
+      sw=LP('timbul',[[sy,[sy[0]-m2*10,sy[1]-12],[sy[0]-m2*32,sy[1]-6],[sy[0]-m2*26,sy[1]+5],[sy[0]-m2*4,sy[1]+6]]],.575,3);
+    L.push(LP('timbul',[elp(b[0],b[1],22,12,-.2*m2),elp(b[0]+m2*19,b[1]-13,8.5),[[b[0]+m2*25,b[1]-16],[b[0]+m2*37,b[1]-12],[b[0]+m2*25,b[1]-9]],
+      [[b[0]-m2*14,b[1]-4],[b[0]-m2*44,b[1]+4],[b[0]-m2*42,b[1]+12],[b[0]-m2*14,b[1]+8]]],.54,4),LP('gurat',[elp(b[0]+m2*21,b[1]-15,1.8)],.03,1));
     if(sg>0)G.push({lapis:[sw],poros:sy,ayun:[8,2.3,0]});else L.push(sw);}
   const ds=X(345);L.push(LP('timbul',[kot(ds-82,yt-50,164,50),elp(ds,yt-52,78,9)],.42,6));
   const rs=sosok(ds,yt-50,300,-s,.62,'duduk',{mahkota:1});L.push(LP('timbul',[elp(rs.kepala[0],rs.kepala[1]-4*rs.u,15*rs.u,15*rs.u)],.32,6),...rs.lapis,...rs.lengan);
@@ -412,17 +418,17 @@ function dindingRelief(o={}){
   if(!Array.isArray(isi)||!isi.length||isi.some(v=>!ISI_R.includes(v)))salah('dindingRelief',`isi harus larik nama panel (${ISI_R.join(' ')}) (dapat ${isi})`);
   o=opsi('dindingRelief',{lebar:4300,tinggi:1000,lebarPanel:1000,arah:[-1,1],seed:1,isi:null},{...o,isi:undefined});
   const{lebar:Wd,tinggi:Td,arah:s,lebarPanel:pw}=o,R=mulberry32(o.seed*7919+11),r=(a,b)=>a+(b-a)*R(),k=Td/1000,Y=v=>v*k,n=isi.length,gap=150,
-    mx=(Wd-n*pw-(n-1)*gap)/2,py=Y(236),ph=Y(520),L=[],G=[],BL=[],pita=(y0,y1,z,q)=>L.push(LP('timbul',[kot(-20,Y(y0),Wd+40,Y(y1-y0))],z,q));
+    mx=(Wd-n*pw-(n-1)*gap)/2,py=Y(236),ph=Y(520),L=[],G=[],BL=[],pita=(y0,y1,z,q)=>L.push(LK('timbul',-20,Y(y0),Wd+40,Y(y1-y0),z,q));
   if(pw<700)salah('dindingRelief',`lebarPanel harus ≥ 700 px (dapat ${pw}): tokoh dirancang untuk panel setinggi 520 px desain`);
   if(mx<80)salah('dindingRelief',`lebar ${Wd} terlalu kecil untuk ${n} panel × ${pw} px (+ celah ${gap}, tepi ≥ 80): perlu ≥ ${ceil(n*pw+(n-1)*gap+160)}`);
-  L.push(LP('rata',[kot(0,Y(110),Wd,Td-Y(110))],.8));
+  L.push(LK('rata',0,Y(110),Wd,Td-Y(110),.8));
   for(let x=56;x<Wd;x+=112)L.push(LP('timbul',[simP([[0,-Y(90)],[7,-Y(80)],[13,-Y(66)],[22,-Y(52)],[25,-Y(38)],[19,-Y(26)],[24,-Y(14)],[27,0]],x,Y(112)),kot(x-31,Y(104),62,Y(10))],.95,7),
     LP('gurat',[spP(x-7,Y(54),8,1.2,1,1.3),spP(x+7,Y(54),8,1.2,-1,1.3),elp(x,Y(30),4.5)],.04,1.5));
   pita(110,124,1,4);pita(124,152,.95,Y(10));pita(152,160,.9,2);pita(192,202,.9,3);
-  for(let x=8;x<Wd;x+=34)L.push(LP('timbul',[kot(x,Y(163),22,Y(26))],.92,4));
+  for(let x=8;x<Wd;x+=34)L.push(LK('timbul',x,Y(163),22,Y(26),.92,4));
   const PN=isi.map((_,i)=>[mx+i*(pw+gap),py,pw,ph]);
-  for(const[x0,y0,w,h]of PN)L.push(LP('timbul',[kot(x0-14,y0-14,w+28,h+28)],.86,3),LP('rata',[kot(x0,y0,w,h)],.07,6));
-  for(let i=0;i<=n;i++){const xc=mx+i*(pw+gap)-gap/2,ro=[],kl=[];L.push(LP('timbul',[kot(xc-34,Y(214),68,Y(556))],.9,5));
+  for(const[x0,y0,w,h]of PN)L.push(LK('timbul',x0-14,y0-14,w+28,h+28,.86,3),LK('rata',x0,y0,w,h,.07,6));
+  for(let i=0;i<=n;i++){const xc=mx+i*(pw+gap)-gap/2,ro=[],kl=[];L.push(LK('timbul',xc-34,Y(214),68,Y(556),.9,5));
     for(let y=Y(262);y<Y(740);y+=Y(76)){ro.push(elp(xc,y,15));for(let j=0;j<6;j++)kl.push(elp(xc+cos(j*P/3)*9,y+sin(j*P/3)*9,5,2.4,j*P/3));}
     L.push(LP('timbul',ro,.96,6),LP('gurat',kl,.03,1.5));}
   pita(772,784,.9,3);pita(800,812,.96,3);pita(872,882,.97,3);pita(882,912,.9,Y(10));

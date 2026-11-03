@@ -126,3 +126,14 @@ test('dindingRelief: opsi salah ditolak dengan pesan Indonesia', () => {
   tolak({ lebar: 2000 }, /lebar 2000 terlalu kecil untuk 3 panel/);
   tolak({ lebarPanel: 500 }, /lebarPanel harus ≥ 700/);
 });
+
+test('lapis persegi analitik (tanpa kanvas): cakupan = luas irisan piksel, tepi membulat dari tepi persegi', () => {
+  const w = 20, h = 12, it = (r, jenis = 'timbul') => ({ jenis, kotak: [2.5, 2, 17.5, 10], z: .8, r, persegi: 1 });
+  let t = new Float32Array(w * h), cv = new Float32Array(w * h);
+  M.lapis(t, cv, w, h, it(0), D, null);
+  dekat(t[5 * w + 10], .8, 1e-6, 'dalam'); dekat(t[5 * w + 2], .4, 1e-6, 'piksel tepi separuh tertutup'); assert.equal(t[5 * w + 1], 0, 'luar');
+  dekat(cv[5 * w + 2], .5, 1e-6, 'cakupan tepi'); assert.equal(t[1 * w + 10], 0, 'di atas persegi');
+  t = new Float32Array(w * h); M.lapis(t, null, w, h, it(3), D, null);
+  assert.ok(t[5 * w + 3] < t[5 * w + 4] && t[5 * w + 4] < t[5 * w + 6], 'naik membulat dari tepi kiri'); dekat(t[6 * w + 10], .8, 1e-6, 'puncak');
+  t = new Float32Array(w * h).fill(.9); M.lapis(t, null, w, h, it(0, 'rata'), D, null); dekat(t[5 * w + 10], .8, 1e-6, 'rata menyetel');
+});

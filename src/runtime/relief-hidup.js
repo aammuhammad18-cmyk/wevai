@@ -6,7 +6,7 @@
    (sprite peta tinggi dengan transform fungsi murni tl.time(): lengan pendayung, layar, ombak, ikan, untaian, payung);
    (2) cahaya = lampu titik SINAR (Lambert, redaman, bayangan pahatan 24 langkah di peta tinggi) + ambien langit × AO.
    Keadaan = tl.time() + SINAR (di-tween GSAP seperti CAM/LANGIT) → putar = scrub = ekspor; kanvas digambar ulang penuh.
-   Terukur (HD 4000, saat render pemilik berjalan, prioritas Idle): 2 pass + 24 langkah ±16 ms/frame untuk 3400×900 px;
+   Terukur (HD 4000, saat render pemilik berjalan, prioritas Idle): 2 pass + 24 langkah ±16 ms/frame (3400×900), 29,8 (4300×1000);
    Canvas 2D per piksel di CPU 737 ms/frame (tanpa bayangan); filter SVG dinamis 358 ms/frame (riset, tanpa bayangan jatuh).
    Butuh dari atmosfer: rantaiUpdate, vnoise, mulberry32, acak, warnaRGB (hook uji: rigDunia). */
 
@@ -14,48 +14,66 @@
    x, y = px bidang dinding; z = jarak lampu dari muka dinding ke arah kamera (px): kecil = menyerempet, bayangan panjang.
    kuat (boleh > 1), jangkau = jarak (px) tempat kuat tinggal separuh, kedip 0..1 (noise ber-seed dari tl.time()),
    ambien = warna langit di sisi teduh (× ambienKuat, × AO). Nilai MUTLAK di tween (relatif '+=' bergantung jalur seek). */
-const SINAR={x:960,y:540,z:260,warna:'#ffb46a',kuat:1.7,jangkau:1000,kedip:.12,seed:3,ambien:'#7484ac',ambienKuat:.36};
+const SINAR={x:960,y:540,z:230,warna:'#ffb067',kuat:2.6,jangkau:650,kedip:.1,seed:3,ambien:'#8296c8',ambienKuat:.5};
 const reliefHidup=(()=>{
 const{min,max,sqrt,sin,cos,PI,floor,ceil,round}=Math,sat=v=>v<0?0:v>1?1:v;
 /* seperempat lingkaran: 0 di tepi (u = 0) → 1 di u ≥ 1; tegak di tepi, datar di puncak */
 const profil=u=>{const v=1-sat(u);return sqrt(1-v*v);};
-/* kabur kotak terpisah (jumlah berjalan, tepi diulang); r = jari-jari px */
-function kabur(a,w,h,r){const n=2*r+1,b=new Float32Array(w*h),c=new Float32Array(w*h);
-  for(let y=0;y<h;y++){const o=y*w;let s=a[o]*(r+1);for(let x=1;x<=r;x++)s+=a[o+min(x,w-1)];
-    for(let x=0;x<w;x++){b[o+x]=s/n;s+=a[o+min(x+r+1,w-1)]-a[o+max(x-r,0)];}}
-  for(let x=0;x<w;x++){let s=b[x]*(r+1);for(let y=1;y<=r;y++)s+=b[min(y,h-1)*w+x];
-    for(let y=0;y<h;y++){c[y*w+x]=s/n;s+=b[min(y+r+1,h-1)*w+x]-b[max(y-r,0)*w+x];}}
+/* kabur kotak terpisah (jumlah berjalan, tepi diulang); r = jari-jari px. Lintasan kolom berjalan per BARIS dengan jumlah tiap kolom
+   (Float64) supaya akses memori berurutan: dinding 4300 px, akses berlangkah lebar = cache meleset tiap piksel. */
+function kabur(a,w,h,r){const n=1/(2*r+1),b=new Float32Array(w*h),c=new Float32Array(w*h),S=new Float64Array(w),W1=w-1,H1=h-1;
+  for(let y=0;y<h;y++){const o=y*w;let s=a[o]*(r+1);for(let x=1;x<=r;x++)s+=a[o+(x<W1?x:W1)];
+    for(let x=0;x<w;x++){b[o+x]=s*n;const xb=x+r+1,xa=x-r;s+=a[o+(xb<W1?xb:W1)]-a[o+(xa>0?xa:0)];}}
+  for(let x=0;x<w;x++){let s=b[x]*(r+1);for(let y=1;y<=r;y++)s+=b[(y<H1?y:H1)*w+x];S[x]=s;}
+  for(let y=0;y<h;y++){const o=y*w,yb=(y+r+1<H1?y+r+1:H1)*w,ya=(y-r>0?y-r:0)*w;for(let x=0;x<w;x++){c[o+x]=S[x]*n;S[x]+=b[yb+x]-b[ya+x];}}
   return c;}
 /* jarak (px) tiap piksel dalam (cakupan ≥ ,5) ke piksel luar terdekat: chamfer 1/√2 dua lintasan; luar = 0, tanpa luar = 1e6 */
-function jarak(c,w,h){const d=new Float32Array(w*h),S=Math.SQRT2;for(let i=0;i<w*h;i++)d[i]=c[i]<.5?0:1e6;
+function jarak(c,w,h,d=new Float32Array(w*h)){const S=Math.SQRT2;for(let i=0;i<w*h;i++)d[i]=c[i]<.5?0:1e6;
   for(let y=0;y<h;y++)for(let x=0;x<w;x++){const i=y*w+x;if(!d[i])continue;let v=d[i];
     if(x)v=min(v,d[i-1]+1);if(y){v=min(v,d[i-w]+1);if(x)v=min(v,d[i-w-1]+S);if(x<w-1)v=min(v,d[i-w+1]+S);}d[i]=v;}
   for(let y=h-1;y>=0;y--)for(let x=w-1;x>=0;x--){const i=y*w+x;if(!d[i])continue;let v=d[i];
     if(x<w-1)v=min(v,d[i+1]+1);if(y<h-1){v=min(v,d[i+w]+1);if(x<w-1)v=min(v,d[i+w+1]+S);if(x)v=min(v,d[i+w-1]+S);}d[i]=v;}
   return d;}
-/* terapkan satu lapis ke peta tinggi t (w×h, ruang dinding digeser −ox, −oy) dari cakupan c + jarak d di kotaknya (x0, y0, bw, bh):
+/* terapkan satu lapis ke peta tinggi t (lebar w) dari cakupan c + jarak-ke-tepi de (px, sub-piksel) di kotak (x0, y0, bw, bh):
    timbul: maks(t, z − (r/D)(1 − profil(de/r)))   rata: t → z, tepi cembung selebar r   gurat: t − z·profil(de/r).
-   de = jarak − 1 + cakupan (sub-piksel di tepi); tepi antialias dicampur dengan cakupan. cv = cakupan batu (timbul/rata). */
-function terap(t,cv,w,it,D,c,d,x0,y0,bw,bh){const r=+it.r||0,j=it.jenis,z=+it.z,tr=r/D;
+   Tepi antialias dicampur dengan cakupan. cv = cakupan batu (timbul/rata menambah). */
+function terap(t,cv,w,it,D,c,de,x0,y0,bw,bh){const r=+it.r||0,j=it.jenis,z=+it.z,tr=r/D;
   for(let y=0;y<bh;y++)for(let x=0;x<bw;x++){const i=y*bw+x,q=c[i];if(!q)continue;
-    const k=(y0+y)*w+x0+x,u=r?max(0,d[i]-1+q)/r:1,h0=t[k];let v;
+    const k=(y0+y)*w+x0+x,u=r?de[i]/r:1,h0=t[k];let v;
     if(j==='timbul'){v=z-tr*(1-profil(u));if(v>h0)t[k]=h0+(v-h0)*q;}
     else if(j==='rata')t[k]=h0+(z-h0)*(1-profil(1-u))*q;
     else t[k]=h0-z*profil(u)*q;
     if(cv&&j!=='gurat'&&q>cv[k])cv[k]=q;}}
-/* rasterisasi lapis it (Path2D di kanvas lunak kx) lalu terap */
+/* penyangga kerja dipakai ulang antarlapis (setup ±800 lapis: alokasi per lapis = beban GC) */
+let BC=new Float32Array(1<<16),BD=new Float32Array(1<<16);
+const siapBuf=n=>{if(BC.length<n){let m=BC.length;while(m<n)m*=2;BC=new Float32Array(m);BD=new Float32Array(m);}return[BC.subarray(0,n),BD.subarray(0,n)];};
+/* rasterisasi lapis it lalu terap. persegi (kotak = bentuknya): analitik — cakupan = luas irisan piksel, jarak = ke tepi terdekat; selain
+   itu Path2D di kanvas lunak kx + jarak chamfer (de = jarak − 1 + cakupan). ox, oy = asal penyangga di ruang dinding */
 function lapis(t,cv,w,h,it,D,kx,ox=0,oy=0){const r=+it.r||0,m=ceil(r)+2,k=it.kotak,x0=max(0,floor(k[0]-ox)-m),y0=max(0,floor(k[1]-oy)-m),
     x1=min(w,ceil(k[2]-ox)+m),y1=min(h,ceil(k[3]-oy)+m),bw=x1-x0,bh=y1-y0;if(bw<1||bh<1)return;
-  kx.setTransform(1,0,0,1,0,0);kx.clearRect(0,0,bw,bh);kx.setTransform(1,0,0,1,-x0-ox,-y0-oy);kx.fill(new Path2D(it.d));
-  const a=kx.getImageData(0,0,bw,bh).data,c=new Float32Array(bw*bh);for(let i=0;i<bw*bh;i++)c[i]=a[i*4+3]/255;
-  terap(t,cv,w,it,D,c,r?jarak(c,bw,bh):null,x0,y0,bw,bh);}
+  if(it.persegi){const X0=k[0]-ox,Y0=k[1]-oy,X1=k[2]-ox,Y1=k[3]-oy,e=ceil(r)+1,ix0=max(x0,ceil(X0)+e),ix1=min(x1,floor(X1)-e),iy0=max(y0,ceil(Y0)+e),iy1=min(y1,floor(Y1)-e),
+      pita=(xa,ya,xb,yb)=>{const sw=xb-xa,sh=yb-ya;if(sw<1||sh<1)return;const[c,de]=siapBuf(sw*sh);   // pita tepi: cakupan + jarak analitik, lalu terap
+        for(let y=0;y<sh;y++){const Y=ya+y,cy=max(0,min(Y+1,Y1)-max(Y,Y0)),dy=min(Y+.5-Y0,Y1-Y-.5);
+          for(let x=0;x<sw;x++){const X=xa+x,i=y*sw+x;c[i]=cy*max(0,min(X+1,X1)-max(X,X0));de[i]=max(0,min(dy,X+.5-X0,X1-X-.5));}}
+        terap(t,cv,w,it,D,c,de,xa,ya,sw,sh);};
+    if(ix1>ix0&&iy1>iy0){const j=it.jenis,z=+it.z;   // bagian dalam (> r + 1 px dari tepi): cakupan 1, profil 1 → isi/maks/kurang per baris
+      for(let y=iy0;y<iy1;y++){const o=y*w;if(j==='rata')t.fill(z,o+ix0,o+ix1);else if(j==='timbul'){for(let x=o+ix0;x<o+ix1;x++)if(t[x]<z)t[x]=z;}else for(let x=o+ix0;x<o+ix1;x++)t[x]-=z;
+        if(cv&&j!=='gurat')cv.fill(1,o+ix0,o+ix1);}
+      pita(x0,y0,x1,iy0);pita(x0,iy1,x1,y1);pita(x0,iy0,ix0,iy1);pita(ix1,iy0,x1,iy1);}
+    else pita(x0,y0,x1,y1);
+    return;}
+  const[c,de]=siapBuf(bw*bh);
+  {kx.setTransform(1,0,0,1,0,0);kx.clearRect(0,0,bw,bh);kx.setTransform(1,0,0,1,-x0-ox,-y0-oy);kx.fill(new Path2D(it.d));
+    const a=kx.getImageData(0,0,bw,bh).data;for(let i=0;i<bw*bh;i++)c[i]=a[i*4+3]/255;
+    if(r){jarak(c,bw,bh,de);for(let i=0;i<bw*bh;i++)de[i]=max(0,de[i]-1+c[i]);}}
+  terap(t,cv,w,it,D,c,de,x0,y0,bw,bh);}
 /* panggang(t, w, h, D) → RGBA8: r,g = normal x,y ((n+1)·127,5; z = √(1−x²−y²)), b = AO (255 terbuka), a = tinggi 0..1. D = kedalaman
    relief px (tinggi 1 = D px): turunan pusat × D. AO = berapa px titik di bawah rata-rata sekitarnya (r 3: celah, r 14: cekungan). */
-function panggang(t,w,h,D){const o=new Uint8Array(w*h*4),k1=kabur(t,w,h,3),k2=kabur(t,w,h,14);
-  for(let y=0;y<h;y++){const ya=(y?y-1:y)*w,yb=(y<h-1?y+1:y)*w,yo=y*w,fy=D/((yb-ya)/w||1);
-    for(let x=0;x<w;x++){const i=yo+x,xa=x?x-1:x,xb=x<w-1?x+1:x,dx=(t[yo+xb]-t[yo+xa])*D/((xb-xa)||1),dy=(t[yb+x]-t[ya+x])*fy,
-      m=1/sqrt(dx*dx+dy*dy+1),j=i*4;
-      o[j]=round((1-dx*m)*127.5);o[j+1]=round((1-dy*m)*127.5);o[j+2]=round(255*(1-.45*sat((k1[i]-t[i])*D/4)-.4*sat((k2[i]-t[i])*D/14)));o[j+3]=round(sat(t[i])*255);}}
+function panggang(t,w,h,D){const o=new Uint8Array(w*h*4),k1=kabur(t,w,h,3),k2=kabur(t,w,h,14),f1=D/4,f2=D/14;
+  for(let y=0;y<h;y++){const ya=(y?y-1:y)*w,yb=(y<h-1?y+1:y)*w,yo=y*w,fy=yb-ya?D*w/(yb-ya):0;
+    for(let x=0;x<w;x++){const i=yo+x,xa=x?i-1:i,xb=x<w-1?i+1:i,dx=(t[xb]-t[xa])*(xb-xa>1?D*.5:D),dy=(t[yb+x]-t[ya+x])*fy,m=1/sqrt(dx*dx+dy*dy+1),j=i<<2,ti=t[i];
+      let a=(k1[i]-ti)*f1,b=(k2[i]-ti)*f2;a=a<0?0:a>1?1:a;b=b<0?0:b>1?1:b;
+      o[j]=(1-dx*m)*127.5+.5;o[j+1]=(1-dy*m)*127.5+.5;o[j+2]=255.5-255*(.45*a+.4*b);o[j+3]=ti<=0?0:ti>=1?255:ti*255+.5;}}
   return o;}
 /* redaman lampu: 1 di d = 0, ½ di d = jangkau (sama dengan shader) */
 const redam=(d,j)=>1/(1+d*d/(j*j));
@@ -77,7 +95,9 @@ function petaTinggi(L,w,h,D,kx,seed,cv,ox=0,oy=0){let t=new Float32Array(w*h);
   t=kabur(t,w,h,1);const R=mulberry32(seed*31+7),A=butir(128,8,seed),B=butir(90,3,seed+5);
   for(let i=0,n=floor(w*h/1400);i<n;i++){const px=R()*w,py=R()*h,q=.8+R()*1.6,dz=(.3+R()*.9)/D;
     for(let y=max(0,floor(py-q));y<min(h,ceil(py+q+1));y++)for(let x=max(0,floor(px-q));x<min(w,ceil(px+q+1));x++){const e=((x-px)**2+(y-py)**2)/(q*q);if(e<1)t[y*w+x]-=dz*(1-e);}}
-  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const i=y*w+x,X=x+ox,Y=y+oy;if(t[i]>.01)t[i]+=(A[(Y&127)*128+(X&127)]*.8+B[(((Y%90)+90)%90)*90+((X%90)+90)%90]*.3)/D;}
+  const cA=new Int32Array(w),cB=new Int32Array(w);for(let x=0;x<w;x++){cA[x]=(x+ox)&127;cB[x]=(((x+ox)%90)+90)%90;}
+  for(let y=0;y<h;y++){const Y=y+oy,rA=(Y&127)*128,rB=(((Y%90)+90)%90)*90,o=y*w;
+    for(let x=0;x<w;x++)if(t[o+x]>.01)t[o+x]+=(A[rA+cA[x]]*.8+B[rB+cB[x]]*.3)/D;}
   return t;}
 
 const VS='#version 300 es\nin vec2 a;void main(){gl_Position=vec4(a,0.,1.);}',
@@ -98,7 +118,7 @@ precision highp float;uniform sampler2D S,V;uniform vec2 R;uniform vec3 B0,B1,Lm
 ${HASH}float n2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h1(i),h1(i+vec2(1,0)),f.x),mix(h1(i+vec2(0,1)),h1(i+1.),f.x),f.y);}
 float fbm(vec2 p){float s=0.,a=.5;for(int i=0;i<4;i++){s+=a*n2(p);p=p*2.03+vec2(17.1,9.2);a*=.5;}return s/.9375;}
 void main(){vec2 p=gl_FragCoord.xy,u=p/R,cb=texture(V,u).rg;float ao=texture(S,u).b,m=fbm(p/190.+Sd),f=fbm(p/23.+Sd*3.1),li=fbm(p/64.+Sd*7.7);
- vec3 c=mix(B0,B1,smoothstep(.32,.72,m))*(.84+.32*f)*(.86+.28*cb.g);c=mix(c,Lm,smoothstep(.58,.82,li)*(.25+.75*(1.-ao)));
+ vec3 c=mix(B0,B1,smoothstep(.32,.72,m))*(.84+.32*f)*(.92+.16*cb.g);c=mix(c,Lm,smoothstep(.58,.82,li)*(.25+.75*(1.-ao)));
  c*=1.+.2*step(.976,h1(floor(p/1.5)+Sd))-.32*step(.983,h1(floor(p/1.3)+Sd+9.));c*=1.-.2*smoothstep(.56,.86,fbm(vec2(p.x/9.+Sd,p.y/240.)));
  o=vec4(c*mix(.6,1.04,ao),cb.r);}`,
   /* pass 2: cahaya. Bayangan = 24 langkah ke arah lampu di peta tinggi komposit (bergetar per piksel, penumbra lunak), redaman
@@ -176,7 +196,7 @@ function pasang(bidang,o={}){
     g.uniform3f(p.u('Lc'),lc[0]*kk,lc[1]*kk,lc[2]*kk);g.uniform3f(p.u('Ac'),ac[0]*SINAR.ambienKuat,ac[1]*SINAR.ambienKuat,ac[2]*SINAR.ambienKuat);
     g.drawArrays(g.TRIANGLES,0,3);};
   gambar();rantaiUpdate(gambar);return cv;}
-pasang.mat={profil,kabur,jarak,terap,panggang,redam,pose,butir};   // inti murni (diuji tanpa browser: scripts/test-relief.mjs)
+pasang.mat={profil,kabur,jarak,terap,lapis,panggang,redam,pose,butir};   // inti murni (diuji tanpa browser: scripts/test-relief.mjs)
 return pasang;})();
 
 /* kait untuk scripts/test-starters.mjs — tidak dipanggil deliverable. Fixture sendiri (dinding 320×200: panel dipahat, satu kubah

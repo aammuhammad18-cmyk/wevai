@@ -31,6 +31,7 @@ const SPOTS = [
   ['README.md', /(badge\/version-)(\d+\.\d+\.\d+)(-)/],
   ['.claude-plugin/plugin.json', /("version":\s*")(\d+\.\d+\.\d+)(")/],
   ['.claude-plugin/marketplace.json', /("version":\s*")(\d+\.\d+\.\d+)(")/],
+  ['.antigravity-plugin/plugin.json', /("version":\s*")(\d+\.\d+\.\d+)(")/],   // agy plugin install <repo GitHub>
   ...starters.map(f => [f, /(Made with the WeVai skill v)(\d+\.\d+\.\d+)( by)/]),
 ];
 

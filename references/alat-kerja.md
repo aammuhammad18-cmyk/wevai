@@ -94,7 +94,8 @@ melakukan apa pun. Aman dijalankan lebih dulu untuk melihat pemakaian dan env-ny
 ## Render panjang (lebih dari ±10 menit)
 
 Render 60 menit di laptop 2 core memakan ±7,5–10 jam dengan 1 worker (antrean Bali pemilik: 3–4 frame/dtk pada 30 fps,
-`SYNC=1`); `WORKERS=2` (standar) terukur 1,2–1,5× lebih cepat di halaman nyata 1080p. Pecah video 45–90 menit menjadi babak (satu HTML
+`SYNC=1`); `WORKERS=2` (standar) terukur 1,2–1,5× lebih cepat di halaman WeVai 1080p dan ±1,5–2× di antrean Bali pemilik (5,9–6,4 frame/dtk
+vs 3,1–4,2). Pecah video 45–90 menit menjadi babak (satu HTML
 dan satu VO per babak) lalu render lewat `scripts/antre-render.mjs`: babak yang gagal tidak mengulang semuanya, babak yang
 sudah jadi tidak dirender lagi, dan laptop ditahan agar tidak sleep. Ia menjalankan `export-frames.mjs` untuk tiap babak
 dan, bila diminta, menyambung hasilnya. Butuh Node ≥ 18, ffmpeg, dan ffprobe. Satu babak saja pun lebih baik lewat antrean
@@ -212,9 +213,12 @@ Riset awal: 81 ms/frame di HD 4000 pada satu worker (60 mnt ±2,4 jam). Kualitas
 | Uji pustaka aset | `node --test scripts/test-pustaka.mjs` | uji `src/runtime/pustaka.js` tanpa browser: determinisme, opsi salah ditolak, SVG well-formed; bagian dari `rilis.mjs` dan CI |
 | Uji mata elang | `node --test scripts/test-elang.mjs` | matematika `terbang()` (Catmull-Rom, look-ahead, roll, guncang trauma) tanpa browser; bagian dari `rilis.mjs` dan CI |
 | Uji rig tokoh | `node --test scripts/test-tokoh.mjs` | uji `src/runtime/tokoh.js` tanpa browser: IK, determinisme dan campuran pose, telapak tanpa selip, kerumunan ber-seed, SVG well-formed; bagian dari `rilis.mjs` dan CI |
+| Uji lukis | `node --test scripts/test-lukis.mjs` | uji `src/runtime/lukis.js` tanpa browser: kenop, antrean lukis, siklus pose; bagian dari `rilis.mjs` dan CI |
 | Uji wayang | `node --test scripts/test-wayang.mjs` | uji `src/runtime/wayang.js` tanpa browser: IK lengan, kedip, blur + skala menurut jarak, kunci gerak, tabel pakem, gunungan; bagian dari `rilis.mjs` dan CI |
 | Uji relief hidup | `node --test scripts/test-relief.mjs` | uji `src/runtime/relief-hidup.js` tanpa browser: peta normal + AO dari larik tinggi, lapis, redaman lampu, pose bagian hidup; `pustaka.dindingRelief` deterministik dan menolak opsi salah; bagian dari `rilis.mjs` dan CI |
 | Uji ekspor panjang | `node --test scripts/test-ekspor.mjs` | uji `antre-render.mjs` dan `ekspor-inti.mjs` (WORKERS standar, level WebCodecs) tanpa Chrome dan tanpa ffmpeg: urai antrean, aturan lewati, ETA, perintah penahan sleep per platform (spawn palsu), jalannya antrean; bagian dari `rilis.mjs` dan CI |
+| Uji peta relief | `node --test scripts/test-peta.mjs` | `medan()` dan rute peta relief tanpa browser: proyeksi, pantai Natural Earth, puncak = GVP, sungai turun ke laut, panjang busur; bagian dari `rilis.mjs` dan CI |
+| Data peta pulau lain | `node scripts/peta-data.mjs <folder-ne> --darat … --laut …` | string pantai + garis 200 m Natural Earth untuk `medan()` (`references/peta-relief.md`) |
 
 ## VO Gemini (banyak kunci)
 

@@ -17,12 +17,12 @@ Sumber rincian:
 | B | Aturan rilis (`docs/aturan-rilis.md`, `scripts/rilis.mjs`) | selesai | 6ab34c8 |
 | C | Dukungan Antigravity: Chrome otomatis, `--help`, `SKILL.md` ≤ 24 KB, plugin | kode selesai; uji pemilik menunggu | f414a57, dfedd42, d80eb56 |
 | D | Alat VO Gemini (hingga 10 kunci, failover aman) | kode selesai; uji langsung pemilik menunggu | 73eb11f |
-| E | Sub-proyek 3, sisa: babak multi-adegan 60 dtk + `CAM` di kartun panggung | belum | |
+| E | Sub-proyek 3, sisa: babak multi-adegan 60 dtk + `CAM` di kartun panggung | babak: kode selesai, vonis pemilik menunggu (`starter-babak.html`, keputusan pemilik 4 Nov); `CAM` panggung belum | babak: fa45908..cac5ded |
 | F | Sub-proyek 4a: pustaka aset prosedural Jawa kuno | kode selesai; vonis visual pemilik menunggu | 31172c7..0f1bef0 |
-| G | Sub-proyek 4b: rig tokoh v2 | kode selesai; bench + vonis visual pemilik menunggu | 5c9a3b1..ca20078 |
-| H | Sub-proyek 5: mata elang 3D | kode selesai; bench + vonis visual pemilik menunggu | 93e1629..087736e |
+| G | Sub-proyek 4b: rig tokoh v2 | kode selesai; bench katalog 437 ms MELEWATI 350 (6 tokoh detail 2): optimalkan atau batasi; vonis visual pemilik menunggu | 5c9a3b1..ca20078 |
+| H | Sub-proyek 5: mata elang 3D | kode selesai; bench 292 ms (segmen motion blur belum); vonis visual pemilik menunggu | 93e1629..087736e |
 | I | Sub-proyek 6: ekspor panjang | selesai (masuk `main` 3 Nov dengan izin pemilik); 2 worker 1,2–1,5× di halaman nyata 1080p, frame identik 98–99 %, sisanya ±1 level | 429c64f..7310d5a |
-| J | Sub-proyek 7: gaya lanjutan | relief candi: kode selesai, bench + vonis pemilik menunggu; peta relief 3D berjalan; wayang, painterly, diorama belum | relief: bfdac93..811ddca |
+| J | Sub-proyek 7: gaya lanjutan | relief candi (233 ms), painterly (219 ms), peta relief 3D (288 ms): kode selesai, vonis pemilik menunggu; wayang berjalan; diorama belum | relief: bfdac93..811ddca; painterly: 1f6d91f..d71c88c; peta: 40fa38f..f13d624 |
 | K | Sub-proyek 8: penilaian visual otomatis + galeri | K1 selesai; K2 galeri belum | K1: a3486a1..f114d7d |
 | L | Rilis 1.4.0 | belum | |
 
@@ -45,21 +45,18 @@ Rilis 1.4.0 (L) mencakup:
 
 ### E. Babak multi-adegan + `CAM` panggung
 
-- Satu babak 60 dtk bergaya patokan di `starter-sinematik.html`, berisi beberapa adegan dan transisi.
+- Satu babak 60 dtk bergaya patokan di `starter-babak.html` (keputusan pemilik 4 Nov: `starter-sinematik.html` tetap satu adegan), berisi beberapa adegan dan transisi.
 - `langit()` dipanggil sekali; tiap adegan memakai tween `LANGIT` dan `grade()` sendiri.
 - Adegan yang tersembunyi tidak menggambar apa pun.
 - Biaya ≤ 350 ms/frame.
 - Kait uji modul tahan terhadap halaman yang sudah terisi, sehingga `?kosong=1` tidak lagi dibutuhkan.
 - Kartun panggung memakai `CAM` (kamera 2.5D).
-- Shot mata elang brief 10 memakai `terbang()` 2.5D: penanda `<wv:terbang>` dipasang sesudah `kamera-dom` di
-  `starter-sinematik.html`. Ini menaikkan jalur Siluet di atas pelacak 235 KB (perkiraan +1,3 KB); usulkan angka barunya ke pemilik
-  bersama target anggaran explainer/sinematik yang masih menunggu.
-- Tokoh babak memakai `tokoh.*` (rig v2): blok `<wv:tokoh>` (41,5 KB) dipasang di `starter-sinematik.html` sesudah `pustaka`.
-  Laporkan ukuran jalur Siluet; bila jauh di atas pelacak, usulkan pilihan berangka (blok tanpa komentar saat disuntik, atau starter
-  babak tersendiri) ke pemilik.
+- Shot mata elang brief 10 memakai `terbang()` 2.5D: penanda `<wv:terbang>` dipasang sesudah `kamera-dom` di `starter-babak.html`.
+- Tokoh babak memakai `tokoh.*` (rig v2): blok `<wv:tokoh>` dipasang di `starter-babak.html` sesudah `pustaka`.
 - Selisih latar sesudah lompat mundur ke tableau yang tampil sejak halaman dimuat (`katalog-pustaka` maks. 76, `katalog-tokoh`
-  maks. 84; dugaan: viewport di-set sesudah halaman dimuat di snap/export/bench) ditelusuri, dan babak dibuktikan identik pada
-  `WORKERS=1` vs `WORKERS=2`.
+  maks. 84) ditelusuri: selesai, akarnya raster lapisan `will-change` saat dibuat. Babak `WORKERS=1` vs `2`: 1678/1800 frame identik, sisanya
+  PSNR ≥ 64,9 dB (bukan identik penuh; tak terlihat).
+- Tindak lanjut: selisih ±3 di t 27,5 (penyebab belum terbukti); `tokoh.*` melewati batas pada 6 tokoh detail 2; vonis pemilik atas penjaga rig v2 yang tanpa zirah.
 
 ### F. Pustaka aset Jawa kuno (`src/runtime/pustaka.js`, blok `<wv:pustaka>`; `build-starters` hanya membaca `src/runtime`)
 
@@ -121,6 +118,10 @@ Rilis 1.4.0 (L) mencakup:
 - Tindak lanjut relief candi sesudah masuk `main`:
   - bench di mesin senggang: `bench-frame.mjs assets/starter-relief.html "clean=1" 20`, ≥ 3 run bergantian; ukur juga setup;
   - vonis pemilik, termasuk legenda "BOROBUDUR · ABAD IX" di atas panel rekaan (perlu penanda ilustrasi atau tidak).
+- Tindak lanjut painterly sesudah masuk `main`: bench di mesin senggang (`bench-frame.mjs assets/starter-lukis.html "clean=1" 20`);
+  vonis pemilik. Agen pembuatnya macet sesudah bukti di-commit, jadi gerbang dan uji penggabungan dijalankan controller.
+- Tindak lanjut peta relief 3D sesudah masuk `main`: bench (`bench-frame.mjs assets/starter-peta-relief.html "clean=1" 20`); sungai
+  skematis (vektor asli butuh cek lisensi); label tanpa oklusi; kerucut gunung seragam dan lembah polos; vonis pemilik.
 
 ### K. Penilaian visual + galeri
 

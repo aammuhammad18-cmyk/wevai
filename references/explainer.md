@@ -33,7 +33,7 @@ Lewati bagian yang sudah disebut user; bila ada video referensi, gaya
 diambil dari sana (ritmenya — lihat SKILL.md Hukum #3).
 
 **Gaya** (sertakan satu baris rekomendasi: sejarah → 6 kulit ilustrasi sinematik
-atau `starter-sinematik.html` (siluet 100 % kode: `techniques.md` §7d) atau `starter-relief.html` (relief candi hidup, kisah dibaca dari dinding candi: `relief-candi.md`) atau `starter-wayang.html` (legenda sebagai bayangan: `wayang.md`), dan 4/1 hanya bila gambar generate diizinkan; berita → 2; produk → 3;
+atau `starter-sinematik.html` (siluet 100 % kode: `techniques.md` §7d) atau `starter-relief.html` (relief candi hidup, kisah dibaca dari dinding candi: `relief-candi.md`), legenda/kilas balik → `starter-lukis.html` (`lukis.md`) atau `starter-wayang.html` (bayangan: `wayang.md`), dan 4/1 hanya bila gambar generate diizinkan; berita → 2; produk → 3;
 gerak/rute → 5; sains/edukasi berkarakter → 6; topik ringan → 1). Gaya 1–4 butuh
 gambar generate atau foto; untuk proyek 100 % kode pilih 5 atau 6:
 
@@ -91,7 +91,7 @@ Naskah yang sama disimpan sebagai `vo-script.md`. Jangan hanya menulis
 Explainer SELALU dimulai dari starter gayanya (folder `assets/`):
 `starter-explainer-kartun.html`, `starter-explainer-jurnalisme.html`,
 `starter-explainer-katalog.html`, `starter-explainer-sketsa.html`, atau
-`starter-explainer.html` untuk aksi kontinu — atau `starter-sinematik.html` untuk siluet sinematik 100 % kode (`techniques.md` §7d) — atau `starter-relief.html` untuk relief candi hidup (`relief-candi.md`) — atau `starter-explainer-panggung.html`
+`starter-explainer.html` untuk aksi kontinu — atau `starter-sinematik.html` untuk siluet sinematik 100 % kode (`techniques.md` §7d; banyak adegan: `starter-babak.html`) — atau `starter-relief.html` untuk relief candi hidup (`relief-candi.md`) — atau `starter-lukis.html` untuk legenda painterly (`lukis.md`) — atau `starter-explainer-panggung.html`
 untuk kartun panggung (rig berbeda, lihat `kartun-panggung.md`) — atau
 `starter-explainer-3d.html` bila dunianya butuh volume, sudut sungguhan, dan cahaya
 (`sinematografi.md` §1). Lima starter
@@ -228,7 +228,8 @@ sebagai titik nyasar. Garis putus-putus tidak bisa pakai dashoffset (akan
 
 **Peta**: citra satelit domain publik (NASA MODIS/Worldview) sebagai dasar +
 label `.tag` mono dengan garis kiri kuning + lingkaran merah + garis putus
-jalur. Lebih jujur dan lebih cepat daripada menggambar peta sendiri.
+jalur. Lebih jujur dan lebih cepat daripada menggambar peta sendiri. Tanpa raster: relief 3D 100 % kode
+(pantai Natural Earth, gunung GVP, rute menyala) di `references/peta-relief.md`.
 
 **Grafik garis**: hitung titik dari data di JS, `path` digambar dengan
 dashoffset, area gradasi fade-in setelahnya, titik data pop stagger, label

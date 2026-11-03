@@ -1,0 +1,740 @@
+[
+ {
+  "bingkai": "t2_00.png",
+  "t": 2,
+  "jenis": "statis",
+  "perintah": "node scripts/nilai-visual.mjs shots/t2_00.png --json --sumber '[{\"x\":509,\"y\":597},{\"x\":777,\"y\":598}]' --subjek 1252,116,330,911",
+  "keluar": 0,
+  "laporan": {
+   "berkas": "shots/t2_00.png",
+   "lebar": 1920,
+   "tinggi": 1080,
+   "luminans": {
+    "p5": 15.4,
+    "p50": 25.7,
+    "p95": 52.9,
+    "rentang": 37.5,
+    "status": "ok"
+   },
+   "kontras": {
+    "mode": "subjek",
+    "a": 29.9,
+    "b": 27.4,
+    "dL": 2.5,
+    "sorot": 25.7,
+    "nilai": 25.7,
+    "status": "ok"
+   },
+   "sumber": [
+    {
+     "x": 509,
+     "y": 597,
+     "r": 76,
+     "puncak": 96.4,
+     "median": 25.7,
+     "selisih": 70.7,
+     "status": "ok"
+    },
+    {
+     "x": 777,
+     "y": 598,
+     "r": 76,
+     "puncak": 96.7,
+     "median": 25.7,
+     "selisih": 70.9,
+     "status": "ok"
+    }
+   ],
+   "warna": {
+    "jumlah": 3,
+    "dominan": [
+     {
+      "hex": "#1d1225",
+      "persen": 59
+     },
+     {
+      "hex": "#3f2d46",
+      "persen": 23.8
+     },
+     {
+      "hex": "#77494c",
+      "persen": 13.4
+     }
+    ],
+    "status": "ok"
+   },
+   "status": "ok"
+  }
+ },
+ {
+  "bingkai": "t7_00.png",
+  "t": 7,
+  "jenis": "statis",
+  "perintah": "node scripts/nilai-visual.mjs shots/t7_00.png --json --sumber '[{\"x\":527,\"y\":601},{\"x\":805,\"y\":601}]' --subjek 1300,101,346,944",
+  "keluar": 0,
+  "laporan": {
+   "berkas": "shots/t7_00.png",
+   "lebar": 1920,
+   "tinggi": 1080,
+   "luminans": {
+    "p5": 15.4,
+    "p50": 25.7,
+    "p95": 52.2,
+    "rentang": 36.8,
+    "status": "ok"
+   },
+   "kontras": {
+    "mode": "subjek",
+    "a": 29.1,
+    "b": 27.1,
+    "dL": 2.1,
+    "sorot": 26.3,
+    "nilai": 26.3,
+    "status": "ok"
+   },
+   "sumber": [
+    {
+     "x": 527,
+     "y": 601,
+     "r": 76,
+     "puncak": 96.4,
+     "median": 25.7,
+     "selisih": 70.7,
+     "status": "ok"
+    },
+    {
+     "x": 805,
+     "y": 601,
+     "r": 76,
+     "puncak": 96.3,
+     "median": 25.7,
+     "selisih": 70.6,
+     "status": "ok"
+    }
+   ],
+   "warna": {
+    "jumlah": 3,
+    "dominan": [
+     {
+      "hex": "#1d1225",
+      "persen": 59.1
+     },
+     {
+      "hex": "#402d46",
+      "persen": 23.7
+     },
+     {
+      "hex": "#77494c",
+      "persen": 13.9
+     }
+    ],
+    "status": "ok"
+   },
+   "status": "ok"
+  }
+ },
+ {
+  "bingkai": "t16_00.png",
+  "t": 16,
+  "jenis": "statis",
+  "perintah": "node scripts/nilai-visual.mjs shots/t16_00.png --json --sumber '[{\"x\":859,\"y\":776},{\"x\":1147,\"y\":776}]' --subjek 949,613,112,305",
+  "keluar": 0,
+  "laporan": {
+   "berkas": "shots/t16_00.png",
+   "lebar": 1920,
+   "tinggi": 1080,
+   "luminans": {
+    "p5": 12.3,
+    "p50": 23.2,
+    "p95": 42.5,
+    "rentang": 30.2,
+    "status": "ok"
+   },
+   "kontras": {
+    "mode": "subjek",
+    "a": 42.9,
+    "b": 31.6,
+    "dL": 11.3,
+    "sorot": 22.8,
+    "nilai": 22.8,
+    "status": "ok"
+   },
+   "sumber": [
+    {
+     "x": 859,
+     "y": 776,
+     "r": 76,
+     "puncak": 97.3,
+     "median": 23.2,
+     "selisih": 74.1,
+     "status": "ok"
+    },
+    {
+     "x": 1147,
+     "y": 776,
+     "r": 76,
+     "puncak": 97.3,
+     "median": 23.2,
+     "selisih": 74.1,
+     "status": "ok"
+    }
+   ],
+   "warna": {
+    "jumlah": 3,
+    "dominan": [
+     {
+      "hex": "#130e19",
+      "persen": 56.8
+     },
+     {
+      "hex": "#302541",
+      "persen": 30.8
+     },
+     {
+      "hex": "#553d4d",
+      "persen": 8.8
+     }
+    ],
+    "status": "ok"
+   },
+   "status": "ok"
+  }
+ },
+ {
+  "bingkai": "t23_50.png",
+  "t": 23.5,
+  "jenis": "statis",
+  "perintah": "node scripts/nilai-visual.mjs shots/t23_50.png --json --sumber '[{\"x\":875,\"y\":643},{\"x\":759,\"y\":752},{\"x\":1060,\"y\":752}]' --subjek 886,593,119,323",
+  "keluar": 0,
+  "laporan": {
+   "berkas": "shots/t23_50.png",
+   "lebar": 1920,
+   "tinggi": 1080,
+   "luminans": {
+    "p5": 13.6,
+    "p50": 22.3,
+    "p95": 45.3,
+    "rentang": 31.7,
+    "status": "ok"
+   },
+   "kontras": {
+    "mode": "subjek",
+    "a": 48.5,
+    "b": 33.1,
+    "dL": 15.4,
+    "sorot": 34.1,
+    "nilai": 34.1,
+    "status": "ok"
+   },
+   "sumber": [
+    {
+     "x": 875,
+     "y": 643,
+     "r": 76,
+     "puncak": 94.2,
+     "median": 22.3,
+     "selisih": 71.9,
+     "status": "ok"
+    },
+    {
+     "x": 759,
+     "y": 752,
+     "r": 76,
+     "puncak": 96,
+     "median": 22.3,
+     "selisih": 73.7,
+     "status": "ok"
+    },
+    {
+     "x": 1060,
+     "y": 752,
+     "r": 76,
+     "puncak": 95.9,
+     "median": 22.3,
+     "selisih": 73.7,
+     "status": "ok"
+    }
+   ],
+   "warna": {
+    "jumlah": 2,
+    "dominan": [
+     {
+      "hex": "#180f22",
+      "persen": 70
+     },
+     {
+      "hex": "#3d2b43",
+      "persen": 22.6
+     }
+    ],
+    "status": "ok"
+   },
+   "status": "ok"
+  }
+ },
+ {
+  "bingkai": "t27_30.png",
+  "t": 27.3,
+  "jenis": "mata elang (tanpa --sumber)",
+  "perintah": "node scripts/nilai-visual.mjs shots/t27_30.png --json",
+  "keluar": 0,
+  "laporan": {
+   "berkas": "shots/t27_30.png",
+   "lebar": 1920,
+   "tinggi": 1080,
+   "luminans": {
+    "p5": 16.3,
+    "p50": 26.3,
+    "p95": 60.2,
+    "rentang": 43.9,
+    "status": "ok"
+   },
+   "kontras": {
+    "mode": "tengah",
+    "a": 37.9,
+    "b": 22.9,
+    "dL": 15,
+    "nilai": 15,
+    "status": "ok"
+   },
+   "sumber": [],
+   "warna": {
+    "jumlah": 3,
+    "dominan": [
+     {
+      "hex": "#231220",
+      "persen": 57.1
+     },
+     {
+      "hex": "#4e2a30",
+      "persen": 22.7
+     },
+     {
+      "hex": "#9b5740",
+      "persen": 13.7
+     }
+    ],
+    "status": "ok"
+   },
+   "status": "ok"
+  }
+ },
+ {
+  "bingkai": "t28_50.png",
+  "t": 28.5,
+  "jenis": "mata elang (tanpa --sumber)",
+  "perintah": "node scripts/nilai-visual.mjs shots/t28_50.png --json",
+  "keluar": 0,
+  "laporan": {
+   "berkas": "shots/t28_50.png",
+   "lebar": 1920,
+   "tinggi": 1080,
+   "luminans": {
+    "p5": 26.7,
+    "p50": 43.1,
+    "p95": 68.7,
+    "rentang": 42,
+    "status": "ok"
+   },
+   "kontras": {
+    "mode": "tengah",
+    "a": 53.4,
+    "b": 36,
+    "dL": 17.4,
+    "nilai": 17.4,
+    "status": "ok"
+   },
+   "sumber": [],
+   "warna": {
+    "jumlah": 3,
+    "dominan": [
+     {
+      "hex": "#5c2c26",
+      "persen": 50.2
+     },
+     {
+      "hex": "#8e4c39",
+      "persen": 28.7
+     },
+     {
+      "hex": "#c06842",
+      "persen": 13.1
+     }
+    ],
+    "status": "ok"
+   },
+   "status": "ok"
+  }
+ },
+ {
+  "bingkai": "t33_60.png",
+  "t": 33.6,
+  "jenis": "statis",
+  "perintah": "node scripts/nilai-visual.mjs shots/t33_60.png --json --sumber '[{\"x\":666,\"y\":112}]' --subjek 700,0,392,1012",
+  "keluar": 0,
+  "laporan": {
+   "berkas": "shots/t33_60.png",
+   "lebar": 1920,
+   "tinggi": 1080,
+   "luminans": {
+    "p5": 20.1,
+    "p50": 29,
+    "p95": 55.8,
+    "rentang": 35.7,
+    "status": "ok"
+   },
+   "kontras": {
+    "mode": "subjek",
+    "a": 38.5,
+    "b": 34.7,
+    "dL": 3.7,
+    "sorot": 26.4,
+    "nilai": 26.4,
+    "status": "ok"
+   },
+   "sumber": [
+    {
+     "x": 666,
+     "y": 112,
+     "r": 76,
+     "puncak": 90.5,
+     "median": 29,
+     "selisih": 61.5,
+     "status": "ok"
+    }
+   ],
+   "warna": {
+    "jumlah": 3,
+    "dominan": [
+     {
+      "hex": "#301a27",
+      "persen": 66.3
+     },
+     {
+      "hex": "#5b3334",
+      "persen": 19.2
+     },
+     {
+      "hex": "#9d5d51",
+      "persen": 10.4
+     }
+    ],
+    "status": "ok"
+   },
+   "status": "ok"
+  }
+ },
+ {
+  "bingkai": "t38_00.png",
+  "t": 38,
+  "jenis": "statis",
+  "perintah": "node scripts/nilai-visual.mjs shots/t38_00.png --json --sumber '[{\"x\":222,\"y\":408}]' --subjek 884,0,623,1079",
+  "keluar": 0,
+  "laporan": {
+   "berkas": "shots/t38_00.png",
+   "lebar": 1920,
+   "tinggi": 1080,
+   "luminans": {
+    "p5": 19.3,
+    "p50": 31.6,
+    "p95": 52.2,
+    "rentang": 32.9,
+    "status": "ok"
+   },
+   "kontras": {
+    "mode": "subjek",
+    "a": 30.2,
+    "b": 31,
+    "dL": 0.7,
+    "sorot": 12.9,
+    "nilai": 12.9,
+    "status": "ok"
+   },
+   "sumber": [
+    {
+     "x": 222,
+     "y": 408,
+     "r": 76,
+     "puncak": 92.6,
+     "median": 31.6,
+     "selisih": 60.9,
+     "status": "ok"
+    }
+   ],
+   "warna": {
+    "jumlah": 2,
+    "dominan": [
+     {
+      "hex": "#332235",
+      "persen": 70.5
+     },
+     {
+      "hex": "#724648",
+      "persen": 25.4
+     }
+    ],
+    "status": "ok"
+   },
+   "status": "ok"
+  }
+ },
+ {
+  "bingkai": "t43_00.png",
+  "t": 43,
+  "jenis": "statis",
+  "perintah": "node scripts/nilai-visual.mjs shots/t43_00.png --json --sumber '[{\"x\":163,\"y\":402}]' --subjek 827,162,672,917",
+  "keluar": 0,
+  "laporan": {
+   "berkas": "shots/t43_00.png",
+   "lebar": 1920,
+   "tinggi": 1080,
+   "luminans": {
+    "p5": 19.4,
+    "p50": 32.2,
+    "p95": 57.7,
+    "rentang": 38.3,
+    "status": "ok"
+   },
+   "kontras": {
+    "mode": "subjek",
+    "a": 31,
+    "b": 31.6,
+    "dL": 0.6,
+    "sorot": 13,
+    "nilai": 13,
+    "status": "ok"
+   },
+   "sumber": [
+    {
+     "x": 163,
+     "y": 402,
+     "r": 76,
+     "puncak": 92.4,
+     "median": 32.2,
+     "selisih": 60.1,
+     "status": "ok"
+    }
+   ],
+   "warna": {
+    "jumlah": 3,
+    "dominan": [
+     {
+      "hex": "#312134",
+      "persen": 63.9
+     },
+     {
+      "hex": "#704547",
+      "persen": 28
+     },
+     {
+      "hex": "#a46e52",
+      "persen": 6.9
+     }
+    ],
+    "status": "ok"
+   },
+   "status": "ok"
+  }
+ },
+ {
+  "bingkai": "t47_50.png",
+  "t": 47.5,
+  "jenis": "statis",
+  "perintah": "node scripts/nilai-visual.mjs shots/t47_50.png --json --sumber '[{\"x\":572,\"y\":640},{\"x\":873,\"y\":640}]' --subjek 1418,101,377,978",
+  "keluar": 0,
+  "laporan": {
+   "berkas": "shots/t47_50.png",
+   "lebar": 1920,
+   "tinggi": 1080,
+   "luminans": {
+    "p5": 15.5,
+    "p50": 25.9,
+    "p95": 54.5,
+    "rentang": 39,
+    "status": "ok"
+   },
+   "kontras": {
+    "mode": "subjek",
+    "a": 27.2,
+    "b": 25.7,
+    "dL": 1.5,
+    "sorot": 30.7,
+    "nilai": 30.7,
+    "status": "ok"
+   },
+   "sumber": [
+    {
+     "x": 572,
+     "y": 640,
+     "r": 76,
+     "puncak": 96.5,
+     "median": 25.9,
+     "selisih": 70.6,
+     "status": "ok"
+    },
+    {
+     "x": 873,
+     "y": 640,
+     "r": 76,
+     "puncak": 96.7,
+     "median": 25.9,
+     "selisih": 70.8,
+     "status": "ok"
+    }
+   ],
+   "warna": {
+    "jumlah": 3,
+    "dominan": [
+     {
+      "hex": "#1d1226",
+      "persen": 57.2
+     },
+     {
+      "hex": "#422d41",
+      "persen": 24.9
+     },
+     {
+      "hex": "#7c4c4e",
+      "persen": 13.6
+     }
+    ],
+    "status": "ok"
+   },
+   "status": "ok"
+  }
+ },
+ {
+  "bingkai": "t52_50.png",
+  "t": 52.5,
+  "jenis": "statis",
+  "perintah": "node scripts/nilai-visual.mjs shots/t52_50.png --json --sumber '[{\"x\":559,\"y\":678},{\"x\":834,\"y\":678}]' --subjek 1329,191,341,888",
+  "keluar": 0,
+  "laporan": {
+   "berkas": "shots/t52_50.png",
+   "lebar": 1920,
+   "tinggi": 1080,
+   "luminans": {
+    "p5": 15.6,
+    "p50": 26.5,
+    "p95": 54.2,
+    "rentang": 38.5,
+    "status": "ok"
+   },
+   "kontras": {
+    "mode": "subjek",
+    "a": 28.5,
+    "b": 26.5,
+    "dL": 2,
+    "sorot": 30.3,
+    "nilai": 30.3,
+    "status": "ok"
+   },
+   "sumber": [
+    {
+     "x": 559,
+     "y": 678,
+     "r": 76,
+     "puncak": 96.7,
+     "median": 26.5,
+     "selisih": 70.2,
+     "status": "ok"
+    },
+    {
+     "x": 834,
+     "y": 678,
+     "r": 76,
+     "puncak": 96.5,
+     "median": 26.5,
+     "selisih": 70,
+     "status": "ok"
+    }
+   ],
+   "warna": {
+    "jumlah": 3,
+    "dominan": [
+     {
+      "hex": "#1d1227",
+      "persen": 55.8
+     },
+     {
+      "hex": "#412c43",
+      "persen": 26.7
+     },
+     {
+      "hex": "#7b4b50",
+      "persen": 13.5
+     }
+    ],
+    "status": "ok"
+   },
+   "status": "ok"
+  }
+ },
+ {
+  "bingkai": "t57_80.png",
+  "t": 57.8,
+  "jenis": "statis",
+  "perintah": "node scripts/nilai-visual.mjs shots/t57_80.png --json --sumber '[{\"x\":555,\"y\":709},{\"x\":802,\"y\":709}]' --subjek 1242,276,306,803",
+  "keluar": 0,
+  "laporan": {
+   "berkas": "shots/t57_80.png",
+   "lebar": 1920,
+   "tinggi": 1080,
+   "luminans": {
+    "p5": 16,
+    "p50": 26.4,
+    "p95": 52.1,
+    "rentang": 36.1,
+    "status": "ok"
+   },
+   "kontras": {
+    "mode": "subjek",
+    "a": 29.6,
+    "b": 27.8,
+    "dL": 1.8,
+    "sorot": 29.1,
+    "nilai": 29.1,
+    "status": "ok"
+   },
+   "sumber": [
+    {
+     "x": 555,
+     "y": 709,
+     "r": 76,
+     "puncak": 96.4,
+     "median": 26.4,
+     "selisih": 69.9,
+     "status": "ok"
+    },
+    {
+     "x": 802,
+     "y": 709,
+     "r": 76,
+     "puncak": 96.3,
+     "median": 26.4,
+     "selisih": 69.9,
+     "status": "ok"
+    }
+   ],
+   "warna": {
+    "jumlah": 3,
+    "dominan": [
+     {
+      "hex": "#1d1228",
+      "persen": 56.5
+     },
+     {
+      "hex": "#3f2c45",
+      "persen": 26.7
+     },
+     {
+      "hex": "#784850",
+      "persen": 13.5
+     }
+    ],
+    "status": "ok"
+   },
+   "status": "ok"
+  }
+ }
+]

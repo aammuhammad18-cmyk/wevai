@@ -317,15 +317,19 @@ references/
   architecture.md                stage, camera rig, determinism, export
   ae-bridge-higgsfield.md        building inside After Effects via the MCP bridge
   roadmap.md                     where the skill is heading
+  peta-relief.md                 3D relief map: Natural Earth coast, GVP volcanoes, glowing route, accuracy limits
 assets/
   starter-opener.html            opener / promo architecture (GSAP + Three.js)
   starter-explainer*.html        one starter per explainer style
   starter-explainer-3d.html      3D world explainer (Three.js + shared cinematic camera)
-  starter-sinematik.html         cinematic silhouette scene, 100% code (torchlight, fog, embers, one grade)
+  starter-sinematik.html         cinematic silhouette, one scene, 100% code: torches, rim light, layered fog, one grade
+  starter-babak.html             60 s cinematic history act, 100% code: five scenes, three worlds, one 2.5D eagle-eye shot
   katalog-pustaka.html           showcase of the procedural ancient-Java asset library (src/runtime/pustaka.js)
   katalog-tokoh.html             showcase of the character rig v2: archetypes, IK walk, crowd (src/runtime/tokoh.js)
   starter-elang.html             3D eagle-eye establishing shot: procedural landscape, flight path, film tone mapping
   starter-relief.html            living temple relief, 100% code (carved andesite, moving torchlight, figures that move)
+  starter-lukis.html             painterly legend scene (Kuwahara + watercolour), each plane painted once, so strokes never boil
+  starter-peta-relief.html       3D relief map of Java: printed contour map rises into a lit relief, route lights up
   starter-wayang.html            wayang kulit shadow theatre, 100% code (kelir, flickering blencong, gunungan, shadow blur by distance)
 scripts/
   lint-motion.mjs                check the mechanical rules on a deliverable
@@ -344,6 +348,9 @@ scripts/
   test-tokoh.mjs                 tests for the character rig v2 (no browser)
   test-wayang.mjs                tests for wayang kulit (no browser)
   test-ekspor.mjs                tests for antre-render.mjs and the export defaults (no browser, no ffmpeg)
+  test-lukis.mjs                 tests for the painterly runtime: knobs, paint queue, pose cycle (no browser)
+  test-peta.mjs                  tests for the relief-map terrain and route maths (no browser)
+  peta-data.mjs                  rebuild the encoded coastline / 200 m isobath from Natural Earth (maintenance)
   serve.py                       no-cache dev server (optional)
   vendor-libs.mjs                inline GSAP + fonts for an offline archive copy
   build-starters.mjs             inline src/runtime into the starters (repo maintenance)
@@ -414,6 +421,8 @@ node --test scripts/test-relief.mjs        # living temple relief engine (no bro
 node --test scripts/test-tokoh.mjs         # character rig v2 (no browser)
 node --test scripts/test-wayang.mjs        # wayang kulit (no browser)
 node --test scripts/test-ekspor.mjs        # render queue + export defaults (no browser, no ffmpeg)
+node --test scripts/test-lukis.mjs        # painterly runtime (no browser)
+node --test scripts/test-peta.mjs         # relief-map terrain and route maths (no browser)
 node scripts/build-starters.mjs --check   # starters match src/runtime
 node scripts/bump-version.mjs --check     # version is the same everywhere
 node scripts/lint-motion.mjs assets/*.html

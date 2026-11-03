@@ -31,9 +31,9 @@ menurunkan kepatuhan pada aturan yang penting.
 | Opener · promo · bumper · intro · kinetic typography | + `references/opener-konsep.md`, `references/techniques.md`, `assets/starter-opener.html` | menu konsep & sidik jari struktur, resep efek, starter |
 | Explainer (5 gaya kolase/aliran) | + `references/explainer.md`, `references/techniques.md`, starter gaya itu | langkah nol, gaya, kamera kolase, VO, checklist explainer |
 | Explainer 3D & kamera sinematik | + `references/sinematografi.md`, `assets/starter-explainer-3d.html` (opener 3D: jalur opener + `sinematografi.md`) | kosakata shot/sudut/gerak/lensa/cahaya, resep 2.5D & 3D, jebakan |
-| Shot mata elang (terbang 3D/2.5D) | + `references/sinematografi.md`, `references/mata-elang.md`, `assets/starter-elang.html` | terbang(), lanskap prosedural, tone mapping film |
+| 3D sejarah: mata elang · peta relief | + `references/sinematografi.md`, lalu `references/mata-elang.md` + `assets/starter-elang.html` atau `references/peta-relief.md` + `assets/starter-peta-relief.html` | terbang(), lanskap, peta Jawa, tone mapping film |
 | Explainer kartun panggung | + `references/kartun-panggung.md`, `assets/starter-explainer-panggung.html` | satu panggung per adegan, rig sendi, kulit flat cerah atau ilustrasi sinematik |
-| Relief candi hidup (sejarah Hindu–Buddha) | + jalur Explainer, `references/relief-candi.md`, `assets/starter-relief.html` | dinding berpahat, SINAR bergerak, tokoh hidup |
+| Gaya lanjutan sejarah | + jalur Explainer, lalu satu gaya: relief candi (`references/relief-candi.md`, `assets/starter-relief.html`) · painterly, legenda/kilas balik (`references/lukis.md`, `assets/starter-lukis.html`) | dokumen gaya + starter contoh |
 | Build di After Effects | + `references/ae-bridge-higgsfield.md` | batas bridge, arsitektur CAM, rig native, penyerahan |
 | Scaffold multi-file / alasan struktur | + `references/architecture.md` | panggung, rig kamera, determinisme, export |
 | Memasang alat (snap, lint, export, tanpa ffmpeg) | + `references/alat-kerja.md` | perintah dan jalan pintasnya |
@@ -313,9 +313,9 @@ bagian 1 dan 1b. Ringkasnya:
    kolase: kamera into/settle/look/home di atas cutout/foto, say/unsay per
    kata, draw anotasi, push-through antar adegan) atau
    `starter-explainer.html` (aksi kontinu: dunia mengalir, hero, objek
-   dunia, view peta, whip) atau `starter-sinematik.html` (siluet sinematik, `techniques.md` §7d; aset Jawa kuno:
-   `pustaka.*`, `references/pustaka.md`, katalog `assets/katalog-pustaka.html`; tokoh Jawa kuno: `tokoh.*`,
-   `references/tokoh.md`, katalog `assets/katalog-tokoh.html`). Struktur multi-file dan
+   dunia, view peta, whip) atau `starter-sinematik.html` (siluet sinematik satu adegan, `techniques.md` §7d) atau
+   `starter-babak.html` (babak multi-adegan, `sinematografi.md` §5; sudah memuat aset Jawa kuno `pustaka.*` dan tokoh
+   `tokoh.*`: `references/pustaka.md`, `references/tokoh.md`). Struktur multi-file dan
    penjelasan tiap keputusan ada di `references/architecture.md`.
 4. **Bangun adegan satu per satu** dengan resep di
    `references/techniques.md` (split per huruf + motion blur berarah,

@@ -19,7 +19,8 @@ Daftar berkas skill ini; dibaca bila perlu. Dipindah utuh dari SKILL.md (3 Nov 2
 | `references/sinematografi.md` | KAMERA SINEMATIK 2.5D/3D: memilih dunia, kosakata → panggilan, aturan 180°/30°/cahaya, jebakan 3D |
 | `assets/starter-explainer-3d.html` | EXPLAINER dunia 3D: Three.js r161 + `CAM`, `mat()`, `fromSVG()`, cahaya key/fill/rim, HUD di luar `#world`, `?demo=1` |
 | `assets/starter-explainer.html` | EXPLAINER gaya aksi kontinu (vektor): mode aliran (strip + hero + objek dunia) + view peta + whip + contoh mode kolase |
-| `assets/starter-sinematik.html` | EXPLAINER siluet sinematik 100 % kode: obor, rim, kabut, grade (`techniques.md` §7d) |
+| `assets/starter-sinematik.html` | EXPLAINER siluet sinematik 100 % kode, satu adegan: obor, rim, kabut, grade (`techniques.md` §7d) |
+| `assets/starter-babak.html` | BABAK SEJARAH 60 dtk: lima adegan, tiga dunia, satu shot mata elang 2.5D, `pustaka.*` + `tokoh.*` (`sinematografi.md` §5) |
 | `references/relief-candi.md` | RELIEF CANDI HIDUP: dinding galeri berpahat sebagai bingkai narasi — `reliefHidup`, `SINAR`, kosakata `pustaka.dindingRelief`, aturan, biaya, akurasi budaya |
 | `assets/starter-relief.html` | EXPLAINER relief candi hidup 100 % kode: cahaya obor menyapu pahatan andesit, tokoh relief hidup pelan, kamera menyusuri galeri |
 | `references/wayang.md` | WAYANG KULIT: `wayang.panggung`/`figur`/`BLENCONG`, pakem + sumber, kenop, batas, akurasi |
@@ -30,6 +31,10 @@ Daftar berkas skill ini; dibaca bila perlu. Dipindah utuh dari SKILL.md (3 Nov 2
 | `assets/katalog-tokoh.html` | KATALOG tokoh: empat tableau 28 dtk (arketipe, siklus jalan IK, sesaji di altar, kerumunan) |
 | `references/mata-elang.md` | SHOT MATA ELANG: `terbang()` 3D/2.5D, `lanskap()`, tone mapping film, motion blur akumulasi, resep + jebakan |
 | `assets/starter-elang.html` | MATA ELANG 3D: sawah berundak → gapura bentar → gunung saat senja, lanskap prosedural ber-seed, Three.js r161 |
+| `references/lukis.md` | GAYA PAINTERLY (Kuwahara / cat air) untuk legenda & kilas balik: bidang dilukis sekali, sprite berpose, kenop, cara tidak mendidih, biaya, batas |
+| `assets/starter-lukis.html` | PAINTERLY 100 % kode: legenda senja "Desa di kaki gunung" 16 dtk, `lukis.*` + `pustaka.*`, sapuan tidak mendidih |
+| `references/peta-relief.md` | PETA RELIEF 3D: data (pantai Natural Earth, gunung GVP, sungai skematis), tegak, akurasi, `medan()`/`petaRelief()`, rute menyala, label, resep + jebakan |
+| `assets/starter-peta-relief.html` | PETA RELIEF 3D: Jawa dari peta cetak berkontur → relief bercahaya, rute pusat kerajaan ke timur (abad X), Three.js r161 |
 | `assets/starter-explainer-kartun.html` | EXPLAINER kartun kolase: kertas krem + grain + noda, cutout ilustrasi, Bricolage + Caveat, pill warna |
 | `assets/starter-explainer-jurnalisme.html` | EXPLAINER jurnalisme visual: hitam + grain, foto asli + tag sumber, Barlow Condensed + Plex Mono, highlighter kuning/merah, anotasi putus |
 | `assets/starter-explainer-katalog.html` | EXPLAINER katalog putih: grid samar, cutout foto, Archivo Black + Caveat + Inter, highlighter kuning |

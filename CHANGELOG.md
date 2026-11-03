@@ -289,6 +289,8 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
       (`evals/bukti/2026-11-03-ekspor/bukti.txt` §5).
     - Kecepatan terukur di laptop 2 core: 1,20× (`starter-sinematik`) dan 1,47× (`katalog-tokoh`), bukan ±2× seperti perkiraan peta §7
       (mesin sambil dipakai tiga agen ber-Chrome Idle).
+    - Di antrean nyata pemilik (Babad Bali babak 07–09, `SYNC=1`, MP4 JPEG): 5,9–6,4 frame/dtk dengan 2 worker, dibanding 3,1–4,2
+      dengan 1 worker di babak 00–06, jadi ±1,5–2×.
     - Antrean render pemilik (Bali, lalu Nabi) ikut memakai 2 worker begitu ini masuk `main` (3 Nov, dengan izin pemilik);
       `WORKERS=1` di env mengembalikan perilaku lama.
   - **`antre-render.mjs`** (generalisasi `alat/antre-render.sh`):
@@ -315,6 +317,99 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
     - kecepatan WebCodecs di 1080p, dan halaman WebGL nyata;
     - jalur macOS/Linux dan Ctrl+C asli di Windows (baru lewat uji unit);
     - ETA belum menghitung waktu peluncuran Chrome.
+- **Painterly `lukis`** (sub-proyek 7, gaya lanjutan kedua; J di `docs/rencana-1.4.0.md`).
+  - **Berkas**: `src/runtime/lukis.js` (blok baru `<wv:lukis>`, butuh `atmosfer`), `assets/starter-lukis.html`, `references/lukis.md`,
+    dan `scripts/test-lukis.mjs` (baru); penunjuk di `explainer.md`, `techniques.md`, `isi-paket.md`, dan README.
+  - **Teknik**: Kuwahara anisotropik + cat air (gelap tepi, granulasi pigmen, mekar basah) di WebGL2, di atas kertas yang
+    dibangkitkan. Tiap bidang `[data-z]` dilukis SEKALI saat setup ke kanvasnya sendiri, lalu kamera 2.5D hanya menggesernya.
+    Sapuan menempel pada lukisan seperti latar film animasi lukis tangan di kamera multiplane, jadi tidak "mendidih"; derau diikat
+    ke ruang objek, bukan layar. Teks tetap DOM tajam di atas lukisan.
+  - **Demo** (16 dtk): legenda senja "Desa di kaki gunung": gunung api berasap, rumah panggung berjendela menyala, petani di sawah
+    berundak, pemikul di pematang, burung pulang, dan legenda "Kisah dari masa lampau" di kantong gelap tebing. `?kenang=1` =
+    kilas balik sepia.
+  - **Bukti tidak mendidih** (`potong.jpg`: potongan 1:1, 4 bingkai berurutan): kamera ditahan → 0 % piksel berubah; putar biasa
+    (kamera bergeser sub-piksel) → 0,5 % piksel berubah > 8 level; pembanding filter layar naif ber-seed per frame → 30 % > 8 level.
+    Bingkai dari dua peluncuran Chrome terpisah identik byte demi byte.
+  - **Biaya** (diukur saat render pemilik berjalan, jadi batas atas): 197 ms/frame (sinematik di sesi yang sama 257 ms), karena
+    bidang lukisan adalah bitmap diam; siap 15,5 dtk per muat halaman (melukis 5 bidang + 22 kanvas sprite), sekali per worker.
+  - **Uji**: `test-lukis` (kenop, antrean lukis, siklus pose) masuk `rilis.mjs` dan CI. `test-starters`: kait `LUKIS_UJI` (lukis
+    ulang = byte sama, seed lain = sapuan lain, derau ikut objek, tanpa WebGL2 = raster mentah, kenop salah ditolak) dan blok lukis
+    berbasis screenshot (sidik dua muat, seek dua jalur, diam, tepi, geser) dengan dua mutasi wajib tertangkap: filter layar ber-seed
+    per frame dan tekstur layar diam. Halaman dilewati di WebGL perangkat lunak (satu bidang 81,7 dtk di SwiftShader).
+  - **Anggaran konteks**: jalur baru **Painterly (legenda)** (`explainer.md` + `techniques.md` + `lukis.md` + `starter-lukis.html`)
+    264 KB, batas pelacak 266 KB.
+  - **Bukti**: `evals/bukti/2026-11-03-lukis/` (`kontak.jpg`, `potong.jpg`, `kenang.jpg`, `nilai.json`). `nilai-visual` 6 dari 6 ok:
+    rentang 47,7–48,5, kontras subjek 14,8–15,9, matahari +51,6…+54,6, 4 warna.
+  - **Celah yang diketahui**:
+    - butuh WebGL2 + `EXT_color_buffer_float`; tanpa itu raster mentah tanpa sapuan;
+    - dolly > 1,1 melunakkan kertas dan sapuan (kanvas = bitmap); garis yang lebih tipis dari `kuas` hilang;
+    - memori GPU sementara ±112 MB per bidang 2240×1400 saat dilukis;
+    - ms/frame ekspor penuh belum diukur di mesin senggang;
+    - agen pembuatnya macet sesudah bukti di-commit, jadi laporan akhirnya tidak ada; gerbang dan uji penggabungan dijalankan controller.
+  - **Status penerimaan**: menunggu bench di mesin senggang dan vonis visual pemilik.
+- **Peta relief 3D topografi** (sub-proyek 7, gaya lanjutan ketiga; J di `docs/rencana-1.4.0.md`; lanjutan kulit topografi Jagad Budaya).
+  - **Berkas**: `src/runtime/peta-relief.js` (blok baru `<wv:peta-relief>`, 37 KB termasuk data Jawa), `assets/starter-peta-relief.html`,
+    `references/peta-relief.md`, `scripts/test-peta.mjs`, dan `scripts/peta-data.mjs` (membangun ulang data pantai, mis. untuk Bali);
+    penunjuk di `sinematografi.md` §1, `explainer.md`, `isi-paket.md`, `alat-kerja.md`, dan README.
+  - **Data**:
+    - pantai Natural Earth 10m (domain publik), Douglas–Peucker 0,5 km, 1 262 titik; garis 200 m dari NE bathymetry K_200;
+    - 68 gunung api dari GVP VOTW 5.4.0 (doi:10.5479/si.GVP.VOTW5-2026.5.4): puncak = elevasi GVP, diuji ±20 m;
+    - Natural Earth tidak memuat sungai Jawa, jadi 8 sungai dibuat skematis (titik lewat kota yang dilaluinya, dihaluskan) dan
+      ditandai begitu di dokumen; skala tegak 4×.
+  - **Medan**: kerucut gunung berkaki tak bulat dengan 8–14 jurang radial (rumus sama di JS dan GLSL), kaldera Tengger, lembah
+    sungai landai (ukiran ≤ 80 m), dataran tinggi Batu–Malang. Shader berpalet Jagad: isoline 100/500 m yang memudar bila rapat,
+    laut paparan terang, garis 200 m dan pantai bertinta, bayangan awan. `uCetak` membuka dengan peta cetak berkontur yang naik
+    menjadi relief bercahaya.
+  - **Demo** (18 dtk, ACES, dua kaki `terbang()`): seluruh Jawa sebagai peta cetak → relief naik di bawah matahari rendah →
+    turun ke jantung Mataram Kuno, legenda "ABAD X / Pusat kerajaan pindah ke timur" → busur menyala ke timur (skematis, bukan
+    jalan atau rute pasukan) → mendarat di Lembah Brantas berlabel Kelud dan Arjuno-Welirang. Label DOM diproyeksikan ulang tiap
+    render.
+  - **Uji**: `test-peta` (7 uji: proyeksi vs haversine, dekode NE, determinisme, 68 puncak, pantai dan garis 200 m, sungai tanpa
+    tanggul, panjang busur) masuk `rilis.mjs` dan CI. `test-starters`: `PETA_UJI` (label dalam bingkai di 6 detik, rute 0 →
+    sebagian → 1), sidik geometri lintas muat, ACES; halaman dilewati di WebGL perangkat lunak.
+  - **Anggaran konteks**: jalur baru **Peta relief 3D** (`sinematografi.md` + `peta-relief.md` + `starter-peta-relief.html`) 171 KB,
+    batas pelacak 175 KB; jalur lain naik ≤ 0,2 KB.
+  - **Bukti**: `evals/bukti/2026-11-03-peta-relief/` (`kontak.jpg`, `nilai.json`). `nilai-visual`: rentang 28,8–37,4 di 7 bingkai,
+    kontras subjek yang dideklarasikan 11,0–20,5, kepala rute +31,9…+34,4. Bingkai peta lebar tanpa subjek memberi peringatan kontras
+    tengah-tepi (2,4–7,8), dijelaskan di README bukti.
+  - **Celah yang diketahui**:
+    - ms/frame belum diukur (siap 6–13 dtk di HD 4000 saat render pemilik berjalan);
+    - sungai skematis (galat beberapa km); vektor sungai asli butuh cek lisensi (OSM = ODbL, tidak cocok);
+    - label tanpa uji oklusi; gunung Sumatra barat 104,5° BT tidak dimodelkan (tertutup kabut di gambar besar);
+    - kerucut gunung masih seragam dan dataran lembah polos (pengamatan controller pada lembar kontak).
+  - **Status penerimaan**: menunggu bench di mesin senggang dan vonis visual pemilik.
+- **Babak sinematik 60 dtk** (sub-proyek 3, E di `docs/rencana-1.4.0.md`): `assets/starter-babak.html` (baru), babak "Penjaga Gerbang" untuk eval 10.
+  - **Isi**: lima adegan di tiga dunia: gerbang dari dalam, lembah + keraton, satu shot mata elang `terbang()` 2.5D 24–31 dtk yang menembus
+    celah gapura dan mendarat di penjaga, penjaga dekat, penutup. Transisi berpemicu: match cut di langit, push-through gapura, cut on
+    action, larut lewat asap obor. Penjaga = rig `tokoh.*` v2, tampak samping, rim di sisi obor.
+  - **Keputusan pemilik** (4 Nov): babak jadi starter sendiri. `starter-sinematik.html` tetap satu adegan dengan penjaga berzirah (rupa
+    f_7), jalur Siluet 233 KB (pelacak 235); jalur baru **Babak sinematik** (`explainer.md` + `techniques.md` + `sinematografi.md` +
+    starter) 364 KB, pelacak 366 KB. `SKILL.md` kini merujuk `pustaka.*` dan `tokoh.*` lewat starter babak; eval 10 memakai starter ini.
+  - **Blok baru `src/runtime/babak.js`**: `adegan(rentang, bangun)` (dunia hidup hanya di rentangnya; tersembunyi = tanpa callback, tanpa
+    gambar: 0 panggilan kanvas tersembunyi vs 49 471 yang tampil, 240 seek) dan `panggang(svg)` (svg bidang → kanvas GPU). Resep:
+    `sinematografi.md` §5 "Babak multi-adegan".
+  - **Akar beda latar sesudah lompat mundur** (katalog maks. 76/84): lapisan `will-change` (svg bidang, kabut, pendar) dirasterisasi saat
+    DIBUAT lalu hanya ditransform, jadi seek langsung, lompat, tiba berurutan, dan worker ekspor kedua memberi piksel berbeda. Dugaan
+    viewport terbukti salah (viewport sebelum `goto` memberi selisih sama). Obat di halaman/runtime: svg bidang dipanggang (babak + kedua
+    katalog), `kabut` dan pendar `sumber()` = kanvas tetap. `starter-sinematik.html` tidak memanggang bidangnya (blok `babak` tidak masuk
+    anggaran jalurnya), jadi selisih kecil itu masih ada di sana.
+  - **Uji**: `ATM_UJI`/`CAHAYA_UJI`/`PASCA_UJI`/`CAM_UJI` tahan halaman berisi; muat ulang `?kosong=1` tersisa untuk `RELIEF_UJI` dan
+    `starter-lukis`. `BABAK_UJI` dan `SINEMA_UJI.tersembunyiDiam` baru; satu mutasi per kait tertangkap. `test-starters` 16 dari 16 lolos
+    di pohon gabungan.
+  - **WORKERS 1 vs 2 pada babak** (1800 frame): 1,24× lebih cepat; 1678/1800 frame identik; sisanya di sekitar titik belah (t 29,3–34),
+    PSNR ≥ 64,9 dB, tak terlihat (`evals/bukti/2026-11-03-ekspor/bukti.txt` §7).
+  - **Bukti**: `evals/bukti/2026-11-03-babak-sinematik/`. `nilai-visual` 12 dari 12 lolos; kontras subjek paling tipis 12,9 (batas 10).
+  - **Bench semua gaya** (4 Nov, HD 4000, 3 putaran, median ms/frame, 20 frame mulai t = 2, semua deterministik, dua agen aktif):
+    sinematik 221, babak 251, elang 292, relief 233, lukis 219, peta 288, pustaka 237; **katalog tokoh 437, melewati batas 350** (tableau
+    6 tokoh detail 2). Belum tercakup: segmen motion blur elang, tableau selain pembuka, adegan babak sesudah t ±2,7 (rata-rata seluruh
+    babak: 336 ms/frame pada ekspor JPEG q95).
+  - **Celah yang diketahui**:
+    - t 27,5 lewat jalur berurutan vs seek langsung: ±3 level di 0,49 % piksel; penyebab belum terbukti;
+    - penjaga rig v2 lebih ramping dan tanpa zirah dibanding versi lama (`sebelum-sesudah.jpg`); di t 33,6 ada bidang pink rata dan ujung
+      api terpotong;
+    - kanvas panggang tidak dipanggang ulang bila konteks GPU hilang; halaman ±52 MP kanvas (87 MP pernah menghilangkan konteks);
+    - setup 2–5 dtk di mesin senggang, sampai 147 dtk saat render pemilik berjalan.
+  - **Status penerimaan**: menunggu vonis visual pemilik.
 
 ## 1.3.0 — 2026-11-02
 

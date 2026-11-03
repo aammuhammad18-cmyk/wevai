@@ -1194,7 +1194,8 @@ const D=JALAN.detik;
 /* pita fokus mengikuti subjek: lebar saat EWS (seluruh maket), sempit saat kamera rendah; pindah pelan, tak pernah melompat */
 Object.assign(TILT,{pusat:.54,lebar:.2,lunak:.26,kuat:9});
 tl.to(TILT,{pusat:.56,lebar:.11,lunak:.3,kuat:15,duration:4,ease:'sine.inOut'},D[1]);
-tl.to(TILT,{pusat:.46,lebar:.24,lunak:.3,kuat:12,duration:3,ease:'sine.inOut'},D[5]);
+tl.to(TILT,{pusat:.54,lebar:.28,lunak:.28,kuat:11,duration:3,ease:'sine.inOut'},D[5]);
+camTo(15,3.7,{mm:30},'sine.inOut');   // lensa melebar saat mendarat: padmasana utuh + gunung di atasnya
 tl.to(LUX,{kI:3.5,kG:.86,kB:.68,fI:.9,duration:3,ease:'sine.inOut'},D[6]-.6);
 /* label masuk saat kamera melintas; keluar cepat. Satu label per ketukan. */
 const papan=(s,xyz,a,b)=>{diorama.label($(s),xyz);tl.fromTo(s,{opacity:0},{opacity:1,duration:.5,ease:'power2.out',immediateRender:false},a);tl.to(s,{opacity:0,duration:.3,ease:'power2.in'},b);};

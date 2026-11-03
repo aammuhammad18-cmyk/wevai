@@ -40,7 +40,7 @@ function render(t){applyCam();diorama.perFrame();composer.render(0);}           
 | `TILT.lebar` | .18 | setengah tinggi pita tajam, pecahan tinggi frame |
 | `TILT.lunak` | .3 | rentang naik dari tajam ke `kuat` (smoothstep) |
 | `TILT.kuat` | 14 | jari-jari blur maksimum, px di 1080p. 0 = pass mati |
-| `GARIS.tebal` | 1,5 | px garis pada jarak ≤ `acuan` |
+| `GARIS.tebal` | 2,2 | px garis pada jarak ≤ `acuan` |
 | `GARIS.acuan` | 45 | lebih jauh dari ini garis menipis sampai 55 % |
 | `GARIS.warna` | `#1a120c` | tinta cokelat tua, bukan hitam murni |
 | `TANGGA` | .34 .56 .8 1 | tingkat toon, dari N·L (`diorama.TANGGA`) |
@@ -132,4 +132,4 @@ dari sumber pura itu.
 
 ## Nama global
 
-`TILT GARIS diorama TRI_MANDALA pura`; starter juga: `LANGIT mulberry32 warnaRGB warnaJarak` (pengganti ringkas blok atmosfer untuk `pustaka`) `PAGI BATAS R MAKET LATAR pohon luarTembok TITIK LOOK JALAN D papan`.
+`TILT GARIS diorama TRI_MANDALA pura`; starter juga: `LANGIT mulberry32 warnaRGB warnaJarak` (pengganti ringkas blok atmosfer untuk `pustaka`) `PAGI BATAS R MAKET LUKIS SUDUT PUNCAK LATAR pohon bebas TITIK LOOK JALAN D papan`.

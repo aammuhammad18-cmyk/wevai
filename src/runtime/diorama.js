@@ -3,7 +3,7 @@
    geometri statis dirakit sekali, bayangan dipanggang sekali, kartu dirasterisasi sekali. Butuh: THREE, mergeGeometries, ShaderPass, scene, camera,
    renderer, composer, W, H, hash (kamera.js), key + LUX (kamera-three.js). Satuan meter, y ke atas. Bagian murni diuji scripts/test-diorama.mjs. */
 const TILT={pusat:.5,lebar:.18,lunak:.3,kuat:14};   // y layar: 0 atas, 1 bawah; pusat ± lebar = tajam; lunak = rentang naik ke kuat (px jari-jari di 1080p); kuat 0 = pass mati
-const GARIS={tebal:1.5,acuan:45,warna:'#1a120c'};   // tebal px di jarak ≤ acuan m; lebih jauh menipis sampai 55 %
+const GARIS={tebal:2.2,acuan:45,warna:'#1a120c'};   // tebal px di jarak ≤ acuan m; lebih jauh menipis sampai 55 %
 const diorama=(()=>{
   const ss=(a,b,x)=>{const t=Math.min(1,Math.max(0,(x-a)/(b-a)));return t*t*(3-2*t);};
   /* ---------- murni ---------- */
@@ -64,12 +64,12 @@ gl_FragColor=vec4(s/b,1.);}`;
   function alas(R,{x0,x1,z0,z1,y=0,tebal=2.6,kayu=3,seed=3,warna=['#3b2c20','#5c4630','#7a5f40'],bibir='#5d6a39',kaki='#2a1c13',potong=true}){
     const w=x1-x0,d=z1-z0,cx=(x0+x1)/2,cz=(z0+z1)/2,h=tebal/warna.length;
     warna.forEach((c,i)=>R.kotak(cx,y-tebal+i*h,cz,w,h,d,c,{kotor:.92,garis:i===0}));
-    R.kotak(cx,y-tebal-.5,cz,w+2.2,.5,d+2.2,kaki);R.prisma(cx,y-tebal-.5-kayu,cz,w+5,d+5,w+2.2,d+2.2,kayu,kaki,{kotor:.7});R.kotak(cx,y-tebal-.5-kayu-1,cz,w+5,1,d+5,kaki,{kotor:.7});
+    R.kotak(cx,y-tebal-.5,cz,w+2.2,.5,d+2.2,kaki);R.prisma(cx,y-tebal-.5-kayu,cz,w+5,d+5,w+2.2,d+2.2,kayu,kaki,{kotor:.7});
     if(potong){const m=.9,sisi=[[x0,z0,x1,z0],[x0,z1,x1,z1],[x0,z0,x0,z1],[x1,z0,x1,z1]];let k=0;
       for(const[a,b,c,e]of sisi){const n=Math.ceil(Math.hypot(c-a,e-b)/m);for(let i=0;i<n;i++){k++;const u=(i+.5)/n,hh=.18+.5*hash(k,seed),t=.07,x=a+(c-a)*u,z=b+(e-b)*u;
         R.kotak(x+(a===c?(a===x0?-1:1)*t/2:0),y-hh,z+(b===e?(b===z0?-1:1)*t/2:0),a===c?t:m,hh,b===e?t:m,bibir,{garis:false,kotor:.75});}}}}
   /* meja & ruang: lantai gelap dengan kolam cahaya (kanvas, tanpa aset) */
-  function meja({y=-6.1,r=420,warna='#3a2a1d',gelap='#100b08',jari=.28}={}){const c=document.createElement('canvas');c.width=c.height=512;const g=c.getContext('2d'),a=g.createRadialGradient(256,256,0,256,256,256);
+  function meja({y=-6.1,r=420,warna='#2b241d',gelap='#0c0907',jari=.28}={}){const c=document.createElement('canvas');c.width=c.height=512;const g=c.getContext('2d'),a=g.createRadialGradient(256,256,0,256,256,256);
     a.addColorStop(0,warna);a.addColorStop(jari,warna);a.addColorStop(1,gelap);g.fillStyle=a;g.fillRect(0,0,512,512);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;
     const m=new THREE.Mesh(new THREE.PlaneGeometry(2*r,2*r).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({map:t}));m.position.y=y;m.name='meja';scene.add(m);return m;}
 
@@ -107,7 +107,7 @@ gl_FragColor=vec4(s/b,1.);}`;
   /* ---------- per frame, sesudah applyCam(), sebelum render ---------- */
   let arahBayang='',pusatBayang=[0,0,0],rBayang=60;
   function matahari({pusat=[0,0,0],r=60}={}){pusatBayang=pusat;rBayang=r;renderer.shadowMap.autoUpdate=false;renderer.shadowMap.needsUpdate=true;arahBayang='';
-    Object.assign(key.shadow.camera,{left:-r,right:r,top:r,bottom:-r,near:1,far:4*r});key.shadow.camera.updateProjectionMatrix();}
+    key.shadow.mapSize.set(4096,4096);Object.assign(key.shadow.camera,{left:-r,right:r,top:r,bottom:-r,near:1,far:4*r});key.shadow.camera.updateProjectionMatrix();}
   function perFrame(){camera.updateMatrixWorld();
     /* key arah tetap dari LUX, di sekitar pusat maket: applyLux menaruhnya di fokus kamera, peta bayang lalu bergeser tiap frame */
     const a=LUX.kAz*Math.PI/180,e=LUX.kEl*Math.PI/180,R=2*rBayang,[px,py,pz]=pusatBayang;

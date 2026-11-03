@@ -14,7 +14,7 @@ const TRI_MANDALA={lebar:26,
     {jenis:'meru',zona:'utama',x:9.2,z:-5.4,tumpang:3,hadap:'kauh'},
     {jenis:'balePawedan',zona:'utama',x:-6,z:-14}]};
 const pura=(()=>{
-  const P={bata:'#a4583a',bataMuda:'#b76d49',nat:'#74402c',paras:'#b3a892',parasTua:'#8a8171',batu:'#5a5852',ijuk:'#2f2b27',ijukTepi:'#47423a',alang:'#9a845a',alangTua:'#7b6846',kayu:'#6f4a2c',kayuMerah:'#86402b',emas:'#b8924a'},
+  const P={bata:'#8c5540',bataMuda:'#9a6450',nat:'#5c3729',paras:'#a59a85',parasTua:'#7f7768',batu:'#55534d',ijuk:'#2f2b27',ijukTepi:'#47423a',alang:'#8f7c58',alangTua:'#726248',kayu:'#624429',kayuMerah:'#6e3a2a',emas:'#97793f'},
     zona=(T,id)=>{const z=T.zona.find(q=>q.id===id);if(!z)throw new Error('pura: zona tak dikenal: '+id);return z;};
   /* atap meru: selalu ganjil (3–11). Tiap tingkat = rok landai + badan curam; kembali [{y,wb,wm,wa,hr,hb}] dari dasar atap */
   function tingkatMeru(n,{b0=2.8,b1=.95,tinggi=.92,sela=.4}={}){
@@ -28,35 +28,36 @@ const pura=(()=>{
     for(let v=.75;v<h-.5;v+=.32)R.kotak(cx,y+v,cz,w+.025,.035,d+.025,P.nat,{garis:false,kotor:1});
     if(tiang){const n=Math.max(1,Math.round(pjg/5));for(let i=0;i<=n;i++){const u=i/n,x=x0+(x1-x0)*u,z=z0+(z1-z0)*u;
       R.kotak(x,y,z,.85,h+.2,.85,P.bataMuda);R.kotak(x,y+h+.2,z,1,.13,1,P.paras);R.prisma(x,y+h+.33,z,.72,.72,.12,.12,.46,P.bataMuda);}}}
+  /* badan bata: kotak + garis nat (detail tanpa lambung) */
+  const bata=(R,x,y,z,w,h,d,warna=P.bata)=>{R.kotak(x,y,z,w,h,d,warna);for(let v=.28;v<h-.1;v+=.28)R.kotak(x,y+v,z,w+.02,.03,d+.02,P.nat,{garis:false,kotor:1});};
   /* candi bentar: dua belahan serupa dan sebangun, sisi dalam rata, tanpa atap di antaranya, anak tangga di celah */
   function candiBentar(R,z,y0,y1,celah=2.8){const susun=[[.9,4.7,4.7,P.paras],[2.3,4,4,P.bata],[.2,4.4,4.4,P.paras]];
     for(let k=0;k<6;k++){const w=3.6-k*.46;susun.push([.58,w,w,P.bata],[.12,w+.2,w+.2,P.paras]);}susun.push([.42,.72,.72,P.paras]);
-    for(const s of[-1,1]){let y=y0;for(const[h,w,d,c]of susun){R.kotak(s*(celah/2+w/2),y,z,w,h,d,c);y+=h;}}
+    for(const s of[-1,1]){let y=y0;for(const[h,w,d,c]of susun){(c===P.bata?bata:R.kotak)(...(c===P.bata?[R]:[]),s*(celah/2+w/2),y,z,w,h,d,c);y+=h;}}
     tangga(R,0,z+1.5,celah,y0,y1,1);R.kotak(0,y0,z-.3,celah,y1-y0,3,P.paras);}
   /* kori agung (paduraksa): gerbang beratap masif, kaki–badan–kepala (tri angga), pintu sempit tertutup, sayap di kiri-kanan */
   function koriAgung(R,z,y0,y1){const L=1.5,lb=2.1,d=3.4;R.kotak(0,y0,z,L+2*lb+.9,1,d+1.1,P.paras);const y=y0+1;
-    for(const s of[-1,1]){R.kotak(s*(L/2+lb/2),y,z,lb,3.3,d,P.bata);R.kotak(s*(L/2+lb+1.2),y0,z,2.5,1,2.3,P.paras);let q=y0+1;[[1.9,2.1,1.5],[1.3,1.7,1.1],[1,1.2,.8]].forEach(([h,w,dd])=>{R.kotak(s*(L/2+lb+1.2),q,z,w,h,dd,P.bata);q+=h;R.kotak(s*(L/2+lb+1.2),q,z,w+.25,.14,dd+.25,P.paras);q+=.14;});}
+    for(const s of[-1,1]){bata(R,s*(L/2+lb/2),y,z,lb,3.3,d);R.kotak(s*(L/2+lb+1.2),y0,z,2.5,1,2.3,P.paras);let q=y0+1;[[1.9,2.1,1.5],[1.3,1.7,1.1],[1,1.2,.8]].forEach(([h,w,dd])=>{bata(R,s*(L/2+lb+1.2),q,z,w,h,dd);q+=h;R.kotak(s*(L/2+lb+1.2),q,z,w+.25,.14,dd+.25,P.paras);q+=.14;});}
     R.kotak(0,y,z,L,.08,d,P.parasTua);R.kotak(0,y,z,L,2.5,.28,P.kayuMerah);R.kotak(0,y+1.05,z+.16,.1,1,.04,P.emas,{garis:false});
-    R.kotak(0,y+2.5,z,L,.8,d,P.bata);R.kotak(0,y+2.56,z+d/2+.05,L+.5,.62,.14,P.paras);R.kotak(0,y+3.3,z,L+2*lb+.45,.22,d+.45,P.paras);
-    let q=y+3.52;for(let k=0;k<7;k++){const u=k/6,w=(L+2*lb)-u*3.9,dd=d-u*2.5;R.kotak(0,q,z,w,.52,dd,P.bata);q+=.52;R.kotak(0,q,z,w+.22,.12,dd+.22,P.paras);q+=.12;}R.prisma(0,q,z,.6,.6,.08,.08,.7,P.paras);
+    bata(R,0,y+2.5,z,L,.8,d);R.kotak(0,y+2.56,z+d/2+.05,L+.5,.62,.14,P.paras);R.kotak(0,y+3.3,z,L+2*lb+.45,.22,d+.45,P.paras);
+    let q=y+3.52;for(let k=0;k<7;k++){const u=k/6,w=(L+2*lb)-u*3.9,dd=d-u*2.5;bata(R,0,q,z,w,.52,dd);q+=.52;R.kotak(0,q,z,w+.22,.12,dd+.22,P.paras);q+=.12;}R.prisma(0,q,z,.6,.6,.08,.08,.7,P.paras);
     tangga(R,0,z+d/2+.55,L+.6,y0+.0,y0+1,1,'z',3);R.kotak(0,y0,z-d/2-.4,L+.6,y1-y0,.5,P.paras);}
   function meru(R,x,z,y,n,hadap){const dx=hadap==='kauh'?-1:1,T=tingkatMeru(n);
-    R.kotak(x,y,z,5.4,.95,5.4,P.paras);R.kotak(x,y+.95,z,4.2,.42,4.2,P.bata);tangga(R,x+dx*2.7,z,1.4,y,y+.95,dx,'x',3);
-    const b=y+1.37;R.kotak(x,b,z,3,1.45,3,P.kayuMerah);R.kotak(x+dx*1.52,b+.12,z,.04,1.05,.95,P.emas,{garis:false});for(const s of[-1,1])for(const t of[-1,1])R.kotak(x+s*1.5,b,z+t*1.5,.22,1.45,.22,P.kayu,{garis:false});
+    R.kotak(x,y,z,5.4,.95,5.4,P.paras);bata(R,x,y+.95,z,4.2,.42,4.2);tangga(R,x+dx*2.7,z,1.4,y,y+.95,dx,'x',3);
+    const b=y+1.37;R.kotak(x,b,z,3,1.45,3,P.kayuMerah);R.kotak(x+dx*1.52,b+.1,z,.05,1.1,.8,P.kayu,{garis:false});R.kotak(x+dx*1.54,b+1.2,z,.03,.08,1,P.emas,{garis:false});for(const s of[-1,1])for(const t of[-1,1])R.kotak(x+s*1.5,b,z+t*1.5,.22,1.45,.22,P.kayu,{garis:false});
     const y0=b+1.45;for(const q of T){const yy=y0+q.y;R.kotak(x,yy-.4,z,q.wa*.8,.42,q.wa*.8,P.kayu,{garis:false});R.prisma(x,yy,z,q.wb,q.wb,q.wm,q.wm,q.hr,P.ijukTepi,{kotor:.9});R.prisma(x,yy+q.hr,z,q.wm,q.wm,q.wa,q.wa,q.hb,P.ijuk,{kotor:.82});}
     const top=y0+T.at(-1).y+T.at(-1).hr+T.at(-1).hb;R.prisma(x,top,z,.8,.8,.34,.34,.38,P.ijukTepi);R.prisma(x,top+.38,z,.34,.34,.05,.05,.62,P.emas);}
   /* padmasana: batu bertingkat tepas–batur–sancak, puncak takhta kosong bersandaran. Tanpa Bedawang Nala, naga, dan citra Acintya (penyederhanaan) */
   function padmasana(R,x,z,y,hadap){const dx=hadap==='kauh'?-1:1;let q=y;
-    for(const[w,h,c]of[[6,.7,P.batu],[5.2,.5,P.paras],[4.5,.8,P.parasTua],[3.8,.55,P.paras],[3.2,1,P.parasTua],[2.7,.32,P.paras],[2.1,.55,P.batu],[2.9,.32,P.paras],[2.5,1.2,P.parasTua],[3,.28,P.paras],[2.2,.32,P.emas]]){R.kotak(x,q,z,w,h,w,c);q+=h;}
-    const lima=q;R.kotak(x-dx*.85,lima,z,.42,1.6,2.1,P.paras);R.prisma(x-dx*.85,lima+1.6,z,.42,2.1,.2,1,.42,P.paras);R.kotak(x-dx*.86,lima+.3,z,.48,.9,1.2,P.emas,{garis:false});for(const s of[-1,1])R.kotak(x,lima,z+s*.95,1.3,.62,.26,P.paras);
-    R.prisma(x+dx*2.9,y,z,3,1.6,.3,1.3,3,P.parasTua);}   // tangga batu depan (bidang miring)
+    for(const[w,h,c]of[[6,.7,P.batu],[5.2,.5,P.paras],[4.5,.8,P.parasTua],[3.8,.55,P.paras],[3.2,1,P.parasTua],[2.7,.32,P.paras],[2.1,.55,P.batu],[2.9,.32,P.paras],[2.5,1.2,P.parasTua],[3,.28,P.paras],[2.2,.26,P.emas]]){R.kotak(x,q,z,w,h,w,c);q+=h;}
+    const lima=q;R.kotak(x-dx*.85,lima,z,.42,1.6,2.1,P.paras);R.prisma(x-dx*.85,lima+1.6,z,.42,2.1,.2,1,.42,P.paras);R.kotak(x-dx*.86,lima+.3,z,.48,.9,1.2,P.emas,{garis:false});for(const s of[-1,1])R.kotak(x,lima,z+s*.95,1.3,.62,.26,P.paras);}
   function bale(R,x,z,y,{w,d,tiang=3,h=2.1,batur=.7,atap=P.alang,tepi=P.alangTua,dua=false}){R.kotak(x,y,z,w,batur,d,P.paras);R.kotak(x,y+batur,z,w-.3,.06,d-.3,P.parasTua,{garis:false});const yt=y+batur;
     for(let i=0;i<tiang;i++)for(const t of[-1,1]){const u=tiang>1?i/(tiang-1):.5,px=x+(w-.7)*(u-.5);R.kotak(px,yt,z+t*(d-.7)/2,.22,h,.22,P.kayu,{garis:false});}
     for(const s of[-1,1])R.kotak(x+s*(w-.7)/2,yt,z,.22,h,.22,P.kayu,{garis:false});
     const ya=yt+h;R.prisma(x,ya,z,w+1.6,d+1.6,w*.64,d*.64,.5,tepi,{kotor:.92});R.prisma(x,ya+.5,z,w*.64,d*.64,.36*w,.1*d+.2,1.1,atap,{kotor:.85});
     if(dua){const y2=ya+1.6;R.kotak(x,y2-.1,z,w*.34,.5,d*.34,P.kayu,{garis:false});R.prisma(x,y2+.35,z,w*.72,d*.72,w*.4,d*.4,.34,tepi);R.prisma(x,y2+.69,z,w*.4,d*.4,.16,.16,1.1,atap);}}
   /* bale kulkul: menara bata tinggi, ruang kayu berisi dua kentongan, atap limas */
-  function baleKulkul(R,x,z,y){R.kotak(x,y,z,2.9,.6,2.9,P.paras);R.kotak(x,y+.6,z,2.3,2.9,2.3,P.bata);R.kotak(x,y+3.5,z,2.7,.2,2.7,P.paras);const t=y+3.7;
+  function baleKulkul(R,x,z,y){R.kotak(x,y,z,2.9,.6,2.9,P.paras);bata(R,x,y+.6,z,2.3,2.9,2.3);R.kotak(x,y+3.5,z,2.7,.2,2.7,P.paras);const t=y+3.7;
     for(const s of[-1,1])for(const u of[-1,1])R.kotak(x+s*.95,t,z+u*.95,.18,1.5,.18,P.kayu,{garis:false});for(const s of[-1,1])R.kotak(x+s*.34,t+.24,z,.26,1.06,.26,P.kayuMerah,{garis:false});
     R.prisma(x,t+1.5,z,3.1,3.1,1.7,1.7,.34,P.alangTua);R.prisma(x,t+1.84,z,1.7,1.7,.14,.14,1.15,P.alang);}
   function bangun(R,T=TRI_MANDALA){const L=T.lebar/2,N=zona(T,'nista'),M=zona(T,'madya'),U=zona(T,'utama'),hT=2.5;

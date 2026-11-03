@@ -40,12 +40,17 @@ menurunkan kepatuhan pada aturan yang penting.
 `references/techniques.md` adalah buku resep: buka bagian yang dipakai (§ di daftar
 isinya), bukan seluruhnya.
 
+`<folder skill>` = folder berisi SKILL.md ini (path absolut yang kamu pakai
+membukanya); `references/`, `assets/`, `scripts/` ada di dalamnya.
+
 ## Prasyarat — hanya browser
 
 Deliverable (`index.html`) hanya butuh browser modern + internet untuk CDN
 (GSAP, font). Python, Node, dan ffmpeg **opsional** dan hanya untuk alat kerja —
 jangan pernah membuat deliverable yang butuh `npm install` untuk DITONTON.
 Cara pasang, jalan pintas tanpa ffmpeg, dan daftar alat: `references/alat-kerja.md`.
+Shell: PowerShell memakai `$env:VAR='…'; node …` dan `;` untuk menyambung perintah,
+bukan `VAR=… node` atau `&&` (tabel bash ↔ PowerShell ada di berkas itu).
 
 ## Player — tidak ada, autoplay, loop
 
@@ -316,9 +321,7 @@ Dua opener dengan rig yang sama bisa berakhir sangat baik atau sangat buruk
 hanya karena tipografi dan kontrasnya. Yang buruk: setiap judul KAPITAL
 SEMUA bobot 800 di tengah, masuk dengan cara yang sama, di atas ladang cahaya
 putih yang lebih terang daripada hurufnya. Yang baik: sentence case bobot
-500, penekanan pada kata kunci (mis. pill + bintang — itu tanda tangan
-satu proyek, bukan aturan; sorotan kata sendiri opsional), tanda baca
-hanya bila perlu, ukuran/arah/
+500, penekanan pada kata kunci, tanda baca hanya bila perlu, ukuran/arah/
 posisi bergantian, latar tenang di bawah teks, latar berganti mengikuti
 segmen. Resep lengkap dengan kode: `techniques.md`
 bagian 1 dan 1b. Ringkasnya:
@@ -367,35 +370,35 @@ bagian 1 dan 1b. Ringkasnya:
    (`references/opener-konsep.md`), bukan pola hook → fitur → fitur → janji →
    logo → CTA. Total 25–40 detik. Minta persetujuan user atas rundown ini
    sebelum menulis kode; merombak rundown murah, merombak kode mahal.
-3. **Scaffold arsitektur.** Opener/promo/bumper/typography: salin
-   `assets/starter-opener.html` (stage 1920×1080, rig kamera `#world`, scene
-   Three.js ber-state, helper timeline) lalu SEGERA ganti token warna, font,
-   dan bahasa latarnya sesuai style brief — starter sengaja abu-abu. Explainer: salin starter sesuai gaya —
+3. **Scaffold arsitektur.** Salin starter dengan perintah salin berkas
+   (`Copy-Item`/`cp`) ke `index.html` di folder proyek — jangan diketik ulang.
+   Opener/promo/bumper/typography: `assets/starter-opener.html` (stage 1920×1080,
+   rig kamera `#world`, scene Three.js ber-state, helper timeline), lalu SEGERA
+   ganti token warna, font, dan bahasa latarnya sesuai style brief — starter
+   sengaja abu-abu. Explainer: starter sesuai gaya —
    `starter-explainer-kartun/-jurnalisme/-katalog/-sketsa.html` (mode
    kolase: kamera into/settle/look/home di atas cutout/foto, say/unsay per
    kata, draw anotasi, push-through antar adegan) atau
    `starter-explainer.html` (aksi kontinu: dunia mengalir, hero, objek
-   dunia, view peta, whip) atau `starter-sinematik.html` (siluet sinematik, `techniques.md` §7d). Semua sudah autoplay + loop tanpa player. Struktur multi-file dan
+   dunia, view peta, whip) atau `starter-sinematik.html` (siluet sinematik, `techniques.md` §7d). Struktur multi-file dan
    penjelasan tiap keputusan ada di `references/architecture.md`.
 4. **Bangun adegan satu per satu** dengan resep di
    `references/techniques.md` (split per huruf + motion blur berarah,
    pan 3D per kata, menu transisi, mockup UI). Resep adalah perkakas, bukan
    daftar belanja: pakai hanya yang dituntut konsep.
 5. **Periksa mekanis lalu VISUAL.** Jalankan dulu
-   `node <folder skill>/scripts/lint-motion.mjs` di folder proyek (section yang
+   `node "<folder skill>/scripts/lint-motion.mjs"` di folder proyek (section yang
    di-fade, `Math.random`, loop, `<video autoplay>`, teks < 30 px, module lokal);
-   perbaiki semua FAIL. Lint tidak menilai rasa — sesudahnya tetap verifikasi visual.
-   **Verifikasi VISUAL, bukan cuma "kode jalan".** Kamu tidak bisa menonton
-   video; kamu hanya bisa melihat FRAME. Potret 6–20 detik kunci (awal
-   tiap adegan, saat teks muncul, transisi) dengan `scripts/snap.mjs`
-   (puppeteer, buka `file://`, tanpa server), susun jadi lembar kontak, dan
-   Skrip itu juga menyusun `shots/kontak.png` — satu lembar kontak berlabel detik; BUKA
-   gambar itu dan
+   perbaiki semua FAIL. Lint tidak menilai rasa: **verifikasi VISUAL, bukan cuma
+   "kode jalan"** — kamu tidak bisa menonton video, hanya melihat FRAME. Potret
+   6–20 detik kunci (awal tiap adegan, saat teks muncul, transisi) dengan
+   `scripts/snap.mjs` (puppeteer, buka `file://`, tanpa server); ia juga menyusun
+   `shots/kontak.png`, satu lembar kontak berlabel detik. BUKA gambar itu dan
    nilai seperti sutradara: teks kepotong? tumpang tindih? teks muncul
    sebelum kamera selesai? masih terasa slide? Perbaiki, potret lagi.
-   JANGAN merender semua frame untuk mengecek — itu ribuan gambar dan bukan
-   verifikasi; render penuh hanya untuk export MP4 (langkah 6) bila user
-   memintanya. Tanpa Node: buka `?debug=1`, scrub manual, screenshot.
+   JANGAN merender semua frame untuk mengecek (ribuan gambar, bukan
+   verifikasi); render penuh hanya untuk export MP4 (langkah 6).
+   Tanpa Node: buka `?debug=1`, scrub manual, screenshot.
 6. **Serahkan sebagai SATU `index.html` yang bisa diklik dua kali.** Output
    akhir tidak boleh butuh server/Node: CSS dan JS ditulis INLINE di dalam
    berkas (module lokal `<script type="module" src="…">` diblokir CORS saat
@@ -405,8 +408,8 @@ bagian 1 dan 1b. Ringkasnya:
    menonton. Tanpa player di layar (lihat "Player"); sebutkan `?debug=1`
    untuk scrub. **Export MP4 hanya bila user memintanya**: `scripts/
    export-frames.mjs` merender tiap frame (60 fps) ke PNG lalu ffmpeg
-   menggabungkannya — cara ini bebas frame drop, tapi mahal, jadi bukan
-   langkah rutin dan bukan alat pengecekan. Bila user ingin berkas yang aman disimpan
+   menggabungkannya — cara ini bebas frame drop, tapi mahal, bukan
+   alat pengecekan. Bila user ingin berkas yang aman disimpan
    bertahun-tahun (arsip/portofolio), tawarkan `scripts/vendor-libs.mjs` — GSAP dan font
    ditanam ke dalam berkas sehingga tidak bergantung pada CDN.
 
@@ -524,7 +527,7 @@ dan buat layer dari belakang ke depan. Build 10 panggung ≈ 1 jam, 0 kredit.
 | `assets/starter-explainer-panggung.html` | EXPLAINER kartun panggung: sistem panggung + kamera per panggung, `J()` sendi, `character()` (kepala vektor atau raster), whoosh 96 px, contoh dua panggung |
 | `references/ae-bridge-higgsfield.md` | BRIDGE: membangun kartun panggung langsung di AE lewat MCP Higgsfield — batas bridge, jebakan (null 960,540; parent ke CAM berkeyframe; reorder rusak), arsitektur CAM per panggung, rig native, relay contact sheet, penyerahan |
 | `references/anti-ppt.md` | sebelum mendesain adegan |
-| `references/opener-konsep.md` | OPENER/PROMO sebelum rundown: tiga kandidat konsep, menu 19 konsep (termasuk estafet benda, pamer sistem brand, klaim → cara → hasil, ekosistem UI hidup, pop flat berfoto, menembus bentuk bergradien, dan tur produk berselang klaim, semuanya diturunkan dari layanan/aset/produk brand), panduan layout-warna-ritme, panduan animasi UI untuk app/SaaS, panduan foto dalam opener (input user / generate via MCP), menu fitur, pembuka, penutup, transisi tanpa cut yang dibawa objek, sidik jari struktur — mencegah kerangka template |
+| `references/opener-konsep.md` | OPENER/PROMO sebelum rundown: tiga kandidat konsep, menu 19 konsep (diturunkan dari layanan/aset/produk brand), panduan layout-warna-ritme, panduan animasi UI untuk app/SaaS, panduan foto dalam opener (input user / generate via MCP), menu fitur, pembuka, penutup, transisi tanpa cut yang dibawa objek, sidik jari struktur — mencegah kerangka template |
 | `references/explainer.md` | bila yang diminta explainer/video penjelasan (kartun+VO, jurnalisme visual foto, katalog putih, sketsa vintage, atau aksi kontinu; default 16:9, 9:16 hanya bila diminta) |
 | `references/architecture.md` | saat scaffold / butuh alasan di balik struktur |
 | `references/techniques.md` | saat membangun adegan & efek (termasuk ukuran shot §3b, grainy gradient §7d, menu gaya render objek §7e, dan video sebagai layer footage §9b) |

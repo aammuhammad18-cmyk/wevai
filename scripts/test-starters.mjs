@@ -39,10 +39,10 @@ const browser = await luncurkan({
 });
 
 // starter yang wajib punya kait atmosfer/cahaya-2d/pasca; BERKAMERA = yang juga punya CAM (kabut berparalaks hanya terukur di sana: panggung belum punya CAM)
-const MODUL = ['starter-explainer.html', 'starter-explainer-panggung.html', 'starter-sinematik.html', 'katalog-pustaka.html'];
-const BERKAMERA = ['starter-explainer.html', 'starter-sinematik.html', 'katalog-pustaka.html'];
-// halaman ber-adegan bawaan (SINEMA_UJI wajib; kait modul + kamera di ?kosong=1): starter sinematik dan katalog pustaka aset
-const ADEGAN = ['starter-sinematik.html', 'katalog-pustaka.html'];
+const MODUL = ['starter-explainer.html', 'starter-explainer-panggung.html', 'starter-sinematik.html', 'katalog-pustaka.html', 'katalog-tokoh.html'];
+const BERKAMERA = ['starter-explainer.html', 'starter-sinematik.html', 'katalog-pustaka.html', 'katalog-tokoh.html'];
+// halaman ber-adegan bawaan (SINEMA_UJI wajib; kait modul + kamera di ?kosong=1): starter sinematik, katalog pustaka aset, katalog tokoh
+const ADEGAN = ['starter-sinematik.html', 'katalog-pustaka.html', 'katalog-tokoh.html'];
 
 let gagal = 0;
 for (const file of files) {
@@ -145,7 +145,7 @@ for (const file of files) {
     if (sinema) {
       if (!sinema.paralaks) masalah.push('sinema: bidang terjauh dan terdekat (yang tampil) tidak bergeser berbeda (> 1 px) saat CAM.fx += 300');
       if (!sinema.rigBersih) masalah.push(`sinema: rig atau pembungkus [data-z] ber-filter/mix-blend-mode/opacity/clip-path/mask (computed) — paralaks rata: ${sinema.kotor}`);
-      if (!sinema.adaSemua) masalah.push(`sinema: modul tidak lengkap — perlu #wv-langit, ≥ 3 .wv-kabut, ≥ 1 .wv-partikel, .wv-pendar, lapisan GRADE (katalog: + api, asap, 4 kain, ≥ 10 jenis aset pustaka) (dapat ${JSON.stringify(sinema.ada)})`);
+      if (!sinema.adaSemua) masalah.push(`sinema: modul tidak lengkap — perlu #wv-langit, ≥ 3 .wv-kabut, ≥ 1 .wv-partikel, .wv-pendar, lapisan GRADE (katalog pustaka: + api, asap, 4 kain, ≥ 10 jenis aset pustaka; katalog tokoh: + api, 4 kanvas .wv-tokoh, ≥ 30 tokoh, 6 arketipe) (dapat ${JSON.stringify(sinema.ada)})`);
       if (!kanvasSinema.length) masalah.push('sinema: tidak ada kanvas di #stage');
       for (const k of kanvasSinema) {
         if (!k.sama) masalah.push(`sinema: kanvas ${k.nama}: t yang sama lewat jalur seek berbeda memberi piksel berbeda`);

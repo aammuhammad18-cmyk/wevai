@@ -124,12 +124,13 @@ window.PASCA_UJI=()=>{const r={},O=window.OPENER,st=$('#stage'),ind=document.cre
   const alfa=k=>{ind.style.opacity=k;O.seek(5);const d=P.H['wv-uji-pasca'];return d?d.style.display==='none'?'none':+d.style.opacity:'tak ada';},a1=alfa(1),a5=alfa(.5),a0=alfa(0);
   ind.style.opacity='';r.halationLeluhur=a1>0&&Math.abs(a5/a1-.5)<.02&&a0==='none';r.alfaLeluhur=[a1,a5,a0];
   ind.remove();delete SUMBER['wv-uji-pasca'];O.seek(5);r.halationIkut=r.halationIkut&&!P.H['wv-uji-pasca'];   // sumber lepas → halation hilang
-  /* grade() sungguhan: tl → seek → GRADE → lapisan. ease 'none' di tengah rentang = titik tengah persis; hanya tween uji dibuang lagi */
-  const tw0=new Set(tl.getTweensOf(GRADE)),w0=warnaRGB(GRADE.bayangan);
-  r.gradeKosong=grade(6,2,{bayangan:'#ffffff',bayanganKuat:1},'none')===undefined;O.seek(7);
+  /* grade() sungguhan: tl → seek → GRADE → lapisan, sesudah DURATION (tak bertumpuk grade() halaman). ease 'none' di tengah = titik
+     tengah persis; hanya tween uji dibuang lagi */
+  const T=O.DURATION+2,tw0=new Set(tl.getTweensOf(GRADE));r.gradeKosong=grade(T,2,{bayangan:'#ffffff',bayanganKuat:1},'none')===undefined;
+  O.seek(T);const w0=warnaRGB(GRADE.bayangan),k0=GRADE.bayanganKuat;O.seek(T+1);
   const cs=getComputedStyle(P.bay),m=warnaRGB(GRADE.bayangan),bg=warnaRGB(cs.backgroundColor);
   r.tengah=[GRADE.bayangan,GRADE.bayanganKuat,cs.backgroundColor,cs.opacity].join(' ');
-  r.warnaTween=m.every((v,i)=>Math.abs(v-(w0[i]+255)/2)<=1&&Math.abs(bg[i]-v)<=1)&&Math.abs(+cs.opacity-.75)<.01;   // .5 → 1 di tengah = .75
+  r.warnaTween=m.every((v,i)=>Math.abs(v-(w0[i]+255)/2)<=1&&Math.abs(bg[i]-v)<=1)&&Math.abs(+cs.opacity-(k0+1)/2)<.01;
   tl.getTweensOf(GRADE).forEach(t=>{if(!tw0.has(t))tl.remove(t);});
   try{grade(0,1,'neon');r.presetDitolak=false;}catch(e){r.presetDitolak=Object.keys(PRESET_GRADE).every(n=>e.message.includes(n));}
   r.presetLengkap=Object.values(PRESET_GRADE).every(p=>GRADE_KUNCI.every(k=>k in p)&&Object.keys(p).length===GRADE_KUNCI.length);   // semua kunci GRADE, persis

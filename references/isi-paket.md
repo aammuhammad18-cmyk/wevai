@@ -19,7 +19,7 @@ Daftar berkas skill ini; dibaca bila perlu. Dipindah utuh dari SKILL.md (3 Nov 2
 | `references/sinematografi.md` | KAMERA SINEMATIK 2.5D/3D: memilih dunia, kosakata → panggilan, aturan 180°/30°/cahaya, jebakan 3D |
 | `assets/starter-explainer-3d.html` | EXPLAINER dunia 3D: Three.js r161 + `CAM`, `mat()`, `fromSVG()`, cahaya key/fill/rim, HUD di luar `#world`, `?demo=1` |
 | `assets/starter-explainer.html` | EXPLAINER gaya aksi kontinu (vektor): mode aliran (strip + hero + objek dunia) + view peta + whip + contoh mode kolase |
-| `assets/starter-sinematik.html` | EXPLAINER siluet sinematik 100 % kode: obor, rim, kabut, grade (`techniques.md` §7d) |
+| `assets/starter-sinematik.html` | EXPLAINER siluet sinematik 100 % kode: babak 60 dtk (lima adegan, tiga dunia, satu shot mata elang 2.5D), obor, rim, kabut, grade (`techniques.md` §7d; pola babak `sinematografi.md` §5) |
 | `references/relief-candi.md` | RELIEF CANDI HIDUP: dinding galeri berpahat sebagai bingkai narasi — `reliefHidup`, `SINAR`, kosakata `pustaka.dindingRelief`, aturan, biaya, akurasi budaya |
 | `assets/starter-relief.html` | EXPLAINER relief candi hidup 100 % kode: cahaya obor menyapu pahatan andesit, tokoh relief hidup pelan, kamera menyusuri galeri |
 | `references/pustaka.md` | PUSTAKA ASET JAWA KUNO `pustaka.*`: candi, gapura, rumah panggung, beringin, lontar, gunung, sawah, obor/api/asap, relief, kain — kontrak, opsi, jebakan, catatan budaya |

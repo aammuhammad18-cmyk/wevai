@@ -73,10 +73,11 @@ pita rim tajam di atas, bayangan jatuh di lantai. SVG `buat()` = warna rata saja
   `bayangan()` ±12 di jalur berurutan (= ekspor); di svg ber-`relief()` derau ±2; svg tanpa `will-change`, kamera bergerak: ±22;
   rect pembatal penuh: ±58. **Kanvas yang dihapus penuh: identik** (`test-starters` membandingkan tiap kanvas `#stage`; di bingkai
   katalog, piksel di dalam siluet tokoh ≤ 8 beda dari ≥ 105 rb px pada t 5/12/19/25 lewat tiga jalur).
-- Sisa beda di bingkai = latar, bukan tokoh: (1) seek mundur ke tableau yang tampil sejak muat membuat ulang lapisan `will-change`-nya
-  → tepi latar bergeser ±1 px (maks 84; katalog pustaka 76). Jalur 25→5 = 25→19→12→0,1→5 (hash sama): penentunya "lapisan muat
-  pertama" vs "dibuat ulang". Dugaan: `snap`/`export`/`bench` memasang viewport SESUDAH `goto`. Ekspor maju (juga 2 worker) tidak
-  menampilkan ulang tableau. (2) pendar `sumber()` yang di-`scale` kedip tiap frame: cincin ±4, berurutan vs lompat.
+- Sisa beda di bingkai dulu = latar, bukan tokoh (katalog: maks 84; pustaka 76–97). Akar (terukur, `evals/bukti/2026-11-03-babak-sinematik`):
+  lapisan `will-change` (svg bidang, kabut, pendar) dirasterisasi saat DIBUAT lalu hanya ditransform, jadi seek langsung, lompat mundur,
+  dan tiba berurutan (juga worker ekspor kedua) membuat lapisan pada kamera berbeda. Viewport sebelum `goto` tidak mengubahnya. Obat:
+  semua yang ikut kamera = bitmap tetap yang ditransform kompositor: svg bidang `panggang()` ke kanvas GPU (blok `babak`), kabut dan
+  pendar = kanvas (runtime).
 
 ## Jebakan
 

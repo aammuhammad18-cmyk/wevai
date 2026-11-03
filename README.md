@@ -321,7 +321,7 @@ assets/
   starter-opener.html            opener / promo architecture (GSAP + Three.js)
   starter-explainer*.html        one starter per explainer style
   starter-explainer-3d.html      3D world explainer (Three.js + shared cinematic camera)
-  starter-sinematik.html         cinematic silhouette scene, 100% code (torchlight, fog, embers, one grade)
+  starter-sinematik.html         60 s cinematic history act, 100% code: five scenes, three worlds, one 2.5D eagle-eye shot
   katalog-pustaka.html           showcase of the procedural ancient-Java asset library (src/runtime/pustaka.js)
   katalog-tokoh.html             showcase of the character rig v2: archetypes, IK walk, crowd (src/runtime/tokoh.js)
   starter-elang.html             3D eagle-eye establishing shot: procedural landscape, flight path, film tone mapping

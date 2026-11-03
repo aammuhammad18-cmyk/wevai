@@ -10,8 +10,8 @@
    dirasterisasi SEKALI ke kanvas di tempatnya. Lapisan will-change Chrome dirasterisasi saat DIBUAT (muat, seek langsung, tampil
    lagi, tiba berurutan) lalu hanya ditransform, jadi dolly/truck membuat piksel bergantung jalur seek dan worker ekspor (katalog
    pustaka: maks 78–97; evals/bukti/2026-11-03-babak-sinematik). Kanvas = bitmap tetap yang ditransform kompositor, nol raster SVG
-   per frame. Kanvasnya perangkat lunak (willReadFrequently): bitmap di RAM, bukan memori GPU yang ikut habis bersama kanvas per
-   frame (terukur: 87 MP kanvas GPU di babak = konteks hilang, kanvas kosong). area [x,y,w,h] px bidang (bawaan frame ± 1/8);
+   per frame. Kanvas GPU: kanvas perangkat lunak (willReadFrequently) dilukis ke lapisan bidang dan menyisakan beda ±3 bergantung riwayat
+   seek (terukur). Jaga luas semua kanvas halaman: 87 MP = konteks GPU hilang, kanvas kosong (terukur). area [x,y,w,h] px bidang (bawaan frame ± 1/8);
    resolusi > 1 bila kamera mendarat dekat, < 1 untuk bidang jauh; kabur (px) = ruang tajam sempit. Isi svg yang berubah per
    frame ikut beku: jangan panggang svg itu. */
 const ADEGAN=[];
@@ -33,7 +33,7 @@ function panggang(svg,{resolusi=1,area=[-W/8,-H/8,W*1.25,H*1.25],kabur=0}={}){
   k.style.cssText=`position:absolute;left:${x}px;top:${y}px;width:${w}px;height:${h}px;pointer-events:none`+(svg.style.mixBlendMode?';mix-blend-mode:'+svg.style.mixBlendMode:'');
   c.removeAttribute('style');c.setAttribute('viewBox',`${x} ${y} ${w} ${h}`);c.setAttribute('width',k.width);c.setAttribute('height',k.height);
   img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(new XMLSerializer().serializeToString(c));
-  return img.decode().then(()=>{const g=k.getContext('2d',{willReadFrequently:true});if(kabur)g.filter=`blur(${kabur*resolusi}px)`;g.drawImage(img,0,0,k.width,k.height);svg.replaceWith(k);return k;});}
+  return img.decode().then(()=>{const g=k.getContext('2d');if(kabur)g.filter=`blur(${kabur*resolusi}px)`;g.drawImage(img,0,0,k.width,k.height);svg.replaceWith(k);return k;});}
 
 /* kait untuk scripts/test-starters.mjs — tidak dipanggil deliverable. Fixture: adegan [2, 3) berisi satu bidang + callback penghitung,
    dan svg kecil yang dipanggang; lalu dibersihkan (pengaturnya tertinggal di rantai tanpa elemen: no-op). */

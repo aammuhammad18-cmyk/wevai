@@ -243,7 +243,7 @@ for (const file of files) {
       if (ada('halationSkala') && !pasca.halationSkala) masalah.push(`pasca: left halation (px stage) berbeda > 1 px antara #stage scale .5 dan 1 (${pasca.halationKiri})`);
       if (ada('halationIkut') && !pasca.halationIkut) masalah.push('pasca: halation tidak mengikuti pendar yang digeser, tidak muncul untuk sumber yang didaftarkan sesudah lapisan dibuat, atau tidak hilang saat sumbernya dilepas');
       if (ada('halationLeluhur') && !pasca.halationLeluhur) masalah.push(`pasca: halation tidak ikut opacity leluhur pendar — opacity 1 / .5 / 0 pada induk bidang harus memberi alfa halation a / a÷2 / display:none (dapat ${pasca.alfaLeluhur}); fly()/fadeUp()/show() memudarkan aset yang memuat pendar, sedangkan halation ada di luar view`);
-      if (ada('warnaTween') && !pasca.warnaTween) masalah.push(`pasca: grade(6,2,{bayangan:'#ffffff',bayanganKuat:1},'none') + seek(7) harus memberi GRADE.bayangan = titik tengah #1a1440→#ffffff (rgb 141,138,160) dan bayanganKuat .75, dan lapisan bayangan harus menulis warna + opacity itu (dapat: ${pasca.tengah})`);
+      if (ada('warnaTween') && !pasca.warnaTween) masalah.push(`pasca: grade(DURATION+2,2,{bayangan:'#ffffff',bayanganKuat:1},'none') + seek ke tengahnya harus memberi GRADE.bayangan = titik tengah warna awal→#ffffff dan bayanganKuat = titik tengah kuat awal→1, dan lapisan bayangan harus menulis warna + opacity itu (dapat: ${pasca.tengah})`);
       if (ada('gradeKosong') && !pasca.gradeKosong) masalah.push('pasca: grade() harus tanpa nilai kembali — tl.to mengembalikan tl induk, jadi grade(...).kill() akan mematikan seluruh timeline');
       if (ada('presetDitolak') && !pasca.presetDitolak) masalah.push("pasca: grade(0,1,'neon') harus melempar error yang menyebut semua preset yang tersedia");
       if (ada('presetLengkap') && !pasca.presetLengkap) masalah.push('pasca: setiap PRESET_GRADE harus memuat tepat semua kunci GRADE (kalau tidak, pindah preset menyisakan nilai preset lama)');
@@ -255,6 +255,9 @@ for (const file of files) {
     // ditolak, tanpa WebGL2 jatuh ke gambar diam. Fixture sendiri (dinding 320×200), SINAR dipulihkan. Blok di atas `const tl=`.
     const iRelief = html.indexOf('<wv:relief-hidup>');
     if (iRelief >= 0 && !(iRelief < html.indexOf('const tl='))) masalah.push('relief-hidup: blok <wv:relief-hidup> harus di atas `const tl=` (kode adegan memanggil modul saat dimuat)');
+    // RELIEF_UJI menyetel SINAR sendiri, padahal adegan bawaan men-tween SINAR: di halaman ber-adegan ia (dan CAM_UJI sesudahnya) jalan di ?kosong=1
+    if (iRelief >= 0 && adegan) { await page.goto(pathToFileURL(file).href + '?kosong=1', { waitUntil: 'load', timeout: 60000 });
+      await page.waitForFunction('window.OPENER && window.OPENER.ready', { timeout: 60000 }); }
     const rel = await page.evaluate(() => window.RELIEF_UJI ? window.RELIEF_UJI() : null);
     if (iRelief >= 0 && !rel) masalah.push('relief-hidup: RELIEF_UJI tidak ada');
     if (rel) {

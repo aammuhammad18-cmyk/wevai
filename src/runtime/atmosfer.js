@@ -59,7 +59,7 @@ void main(){vec2 c=R*.5,p=vec2(gl_FragCoord.x,R.y-gl_FragCoord.y)-c;float cr=cos
   col+=Sc*(.7*A.w)*smoothstep(.25,.9,b)*bebas*exp(-d*2.2)*smoothstep(S.z,3.*S.z,d);}
  o=vec4(col,1.);}`;
 /* langit(opsi) → kanvas #wv-langit, anak PERTAMA #stage (di belakang dunia, bukan di dalamnya: langit di tak hingga).
-   opsi ditimpakan ke LANGIT. Kamera: uv diputar CAM.roll di pusat frame dan digeser (CAM.fx/fy − pusat)·0,02 px;
+   opsi ditimpakan ke LANGIT. Kamera (selama terbang(): pose rel): uv diputar CAM.roll di pusat frame dan digeser (CAM.fx/fy − pusat)·0,02 px;
    guncangan handheld tidak diikutkan (±0,7° tak terlihat di langit). Digambar ulang hanya lewat onUpdate tl, yang
    terpicu hanya saat tl.time() berubah. Tanpa WebGL2: <div> gradien CSS + console.warn. Panggilan kedua mengganti. */
 function langit(opsi={}){
@@ -80,25 +80,25 @@ function langit(opsi={}){
   gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);
   const U={};for(const k of ['R','T','Z','M','Hz','Sc','Ac','C','S','A'])U[k]=gl.getUniformLocation(pr,k);
   const v3=(k,w)=>gl.uniform3fv(U[k],warnaRGB(w).map(x=>x/255));gl.uniform2f(U.R,W,H);
-  const gambar=()=>{if(!c.isConnected)return;const t=tl.time(),cam=typeof CAM!=='undefined';
+  const gambar=()=>{if(!c.isConnected)return;const t=tl.time(),cam=typeof CAM!=='undefined',r=cam&&CAM.rail>=0&&RAILS[CAM.rail](t),C=cam&&(r||CAM);
     v3('Z',L.zenit);v3('M',L.tengah);v3('Hz',L.horizon);v3('Sc',L.warnaMatahari);v3('Ac',L.awanWarna);
     gl.uniform1f(U.T,t);gl.uniform4f(U.S,L.matahariX,L.matahariY,L.matahariR,L.pendar);gl.uniform4f(U.A,L.bintang,L.awan,t*L.hanyut,L.sinar);
-    gl.uniform3f(U.C,cam?(CAM.fx-W/2)*.02:0,cam?(CAM.fy-H/2)*.02:0,cam?CAM.roll*Math.PI/180:0);gl.drawArrays(gl.TRIANGLES,0,3);};
+    gl.uniform3f(U.C,cam?(C.fx-W/2)*.02:0,cam?(C.fy-H/2)*.02:0,cam?(CAM.roll+(r?r.roll:0))*Math.PI/180:0);gl.drawArrays(gl.TRIANGLES,0,3);};
   gambar();rantaiUpdate(gambar);return c;}
 /* perspektif udara: campur warna ke LANGIT.horizon sebanding z/zJauh (0..1) — bidang makin jauh, makin pudar */
 function warnaJarak(warna,z,zJauh=-800){const k=Math.max(0,Math.min(1,z/zJauh)),a=warnaRGB(warna),b=warnaRGB(LANGIT.horizon);
   return '#'+a.map((v,i)=>Math.round(v+(b[i]-v)*k).toString(16).padStart(2,'0')).join('');}
 
-/* kabut(bidang,{y,…}) → <div class="wv-kabut"> anak bidang (ikut paralaks). Tile fBm 2D ber-seed lebar×tebal
-   dipanggang SEKALI (kisi berperiode → menyambung di tepi; alfa memudar ke atas/bawah), ditampilkan sebagai
-   background repeat-x; per frame hanya translateX dari t (tanpa will-change: lihat panggang()). y = garis tengah pita (px bidang). Bidang jauh: rapat
-   lebih besar + warna warnaJarak(…, z). Elemen = 3 tile mulai x −lebar/2: di SETIAP fase hanyut pita menutup
+/* kabut(bidang,{y,…}) → <canvas class="wv-kabut"> anak bidang (ikut paralaks). Tile fBm 2D ber-seed lebar×tebal
+   dipanggang SEKALI (kisi berperiode → menyambung di tepi; alfa memudar ke atas/bawah), tiga kali berjajar di kanvas; per frame
+   hanya translateX dari t, digeser kompositor (div ber-background dirasterisasi ulang = piksel bergantung riwayat seek: lihat
+   panggang()). y = garis tengah pita (px bidang). Bidang jauh: rapat lebih besar + warna warnaJarak(…, z). Mulai x −lebar/2: di SETIAP fase hanyut pita menutup
    [−lebar/2, 3·lebar/2] bidangnya, jadi kamera boleh bergeser ±lebar/2 (truck, zoom < 1, roll, handheld) tanpa
    ujung pita masuk frame. */
 function kabut(bidang,{y,tebal=180,warna=LANGIT.horizon,rapat=.6,hanyut=20,seed=1,lebar=W}={}){
   if(!(bidang instanceof HTMLElement))throw new Error('kabut: bidang wajib elemen HTML (bukan <g> SVG)');
   if(y==null)throw new Error('kabut: y (garis tengah pita, px bidang) wajib');
-  const c=document.createElement('canvas');c.width=lebar;c.height=tebal;
+  const c=document.createElement('canvas');c.width=3*lebar;c.height=tebal;
   const x=c.getContext('2d'),im=x.createImageData(lebar,tebal),d=im.data,[r,g,b]=warnaRGB(warna),p0=Math.max(1,Math.round(lebar/300)),S=new Float32Array(lebar*tebal);
   /* fBm 2D 5 oktaf (sel pertama ±300×60 px): tiap baris kisi = vnoise 1D ber-seed sendiri, dihitung SEKALI per baris
      (bukan per piksel), lalu diinterpolasi halus antarbaris. Loop polos: ±40 ms untuk 1920×180. */
@@ -107,10 +107,8 @@ function kabut(bidang,{y,tebal=180,warna=LANGIT.horizon,rapat=.6,hanyut=20,seed=
     for(let j=0;j<tebal;j++){const v=j*fy,q=Math.floor(v),w=v-q,e=w*w*(3-2*w),u=R[q],z=R[q+1];for(let i=0;i<lebar;i++)S[j*lebar+i]+=a*(u[i]+(z[i]-u[i])*e);}}
   for(let j=0;j<tebal;j++){const tepi=Math.sin(Math.PI*(j+.5)/tebal)**1.5;   // memudar ke atas/bawah
     for(let i=0;i<lebar;i++){const o=(j*lebar+i)*4;d[o]=r;d[o+1]=g;d[o+2]=b;d[o+3]=255*rapat*tepi*(.2+.8*Math.min(1,Math.max(0,S[o/4]*2.6-1.05)));}}   // kabut tipis + gumpalan
-  x.putImageData(im,0,0);
-  const el=document.createElement('div');el.className='wv-kabut';
-  el.style.cssText=`position:absolute;left:${-lebar/2}px;top:${y-tebal/2}px;width:${3*lebar}px;height:${tebal}px;pointer-events:none;`+
-    `background:url("${c.toDataURL()}") repeat-x;background-size:${lebar}px ${tebal}px`;
+  for(let i=0;i<3;i++)x.putImageData(im,i*lebar,0);
+  const el=c;el.className='wv-kabut';el.style.cssText=`position:absolute;left:${-lebar/2}px;top:${y-tebal/2}px;pointer-events:none`;
   bidang.appendChild(el);
   const geser=()=>{if(el.isConnected)el.style.transform=`translateX(${-(((tl.time()*hanyut)%lebar+lebar)%lebar)}px)`;};
   geser();rantaiUpdate(geser);return el;}
@@ -159,7 +157,7 @@ window.ATM_UJI=()=>{const r={},O=window.OPENER,cam=typeof CAM!=='undefined',buan
     P=['bara','debu','asap','kunang'].map((jenis,i)=>partikel(i?jauh:'depan',{jenis,n:40,area:[200,200,480,360],seed:i+1})),
     k1=kabut(jauh,{y:700,seed:2,hanyut:W/4}),k0=kabut(dekat,{y:760,seed:3,hanyut:W/4}),   // satu siklus hanyut = lebar/hanyut = 4 dtk
     L1=lapisDepan(document.createElement('div')),L2=lapisDepan(document.createElement('div')),
-    foto=()=>[L,...P,k1,k0].map(e=>e.toDataURL?e.toDataURL():e.style.transform);
+    foto=()=>[L,...P,k1,k0].map(e=>e.style.transform+(e.toDataURL?e.toDataURL():''));
   buang.push(...P,L1,L2);if(!lama)buang.push(L);
   r.lapisUrut=P[0].nextElementSibling===L1&&L1.nextElementSibling===L2&&!!L2.nextElementSibling;   // bara 'depan' → L1 → L2 → anak #stage lain
   O.seek(5);const a=foto();O.seek(9);O.seek(.1);O.seek(5);const b=foto();r.seekSama=a.length===b.length&&a.every((x,i)=>x===b[i]);

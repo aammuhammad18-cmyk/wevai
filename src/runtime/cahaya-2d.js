@@ -25,15 +25,16 @@ function filterCahaya(el,b,m,isi){const f=elSVG('filter',{id:'wv-cahaya-'+(++cah
     x:b.x-m,y:b.y-m,width:b.width+2*m,height:b.height+2*m,'color-interpolation-filters':'sRGB'},defsSVG(el.ownerSVGElement));
   f.innerHTML=isi;el.setAttribute('filter',`url(#${f.id})`);return f;}
 
-/* sumber(nama,{x,y,bidang,…}) → <div class="wv-pendar"> di bidang (elemen HTML: <div data-z> atau anaknya): gradien
-   radial warna → transparan, screen. Inti panas + ekor panjang (dua skala glowA/glowB spike) supaya terbaca sebagai
+/* sumber(nama,{x,y,bidang,…}) → <canvas class="wv-pendar"> di bidang (elemen HTML: <div data-z> atau anaknya): gradien
+   radial warna → transparan, screen, dipanggang sekali di 256 px lalu diregang (bitmap tetap; div bergradien dirasterisasi ulang). Inti panas + ekor panjang (dua skala glowA/glowB spike) supaya terbaca sebagai
    cahaya, bukan bulatan. Kedip dari tl.time() tanpa akumulasi; skala lewat properti CSS `scale`, bukan transform,
    supaya x/y GSAP pada pendar (sumber yang pindah) tidak saling timpa. Nama yang sama = entri baru menggantikan. */
 function sumber(nama,{x,y,bidang,warna='#ffb347',jangkau=420,kuat=1,kedip=0,seed=1}={}){
   if(x==null||y==null||!(bidang instanceof HTMLElement))throw new Error('sumber: x, y (px bidang) dan bidang (elemen HTML, bukan <g> SVG) wajib');
-  const w=warnaRGB(warna),c=a=>`rgba(${w},${a})`,inti=w.map(v=>Math.round(v+(255-v)*.6)),el=document.createElement('div');el.className='wv-pendar';
-  el.style.cssText=`position:absolute;left:${x-jangkau}px;top:${y-jangkau}px;width:${2*jangkau}px;height:${2*jangkau}px;pointer-events:none;`+
-    `mix-blend-mode:screen;background:radial-gradient(closest-side,rgba(${inti},.9),${c(.55)} 8%,${c(.22)} 25%,${c(.08)} 55%,${c(0)})`;
+  const w=warnaRGB(warna),c=a=>`rgba(${w},${a})`,inti=w.map(v=>Math.round(v+(255-v)*.6)),el=document.createElement('canvas');el.className='wv-pendar';
+  el.width=el.height=256;const g=el.getContext('2d'),gr=g.createRadialGradient(128,128,0,128,128,128);
+  [[0,`rgba(${inti},.9)`],[.08,c(.55)],[.25,c(.22)],[.55,c(.08)],[1,c(0)]].forEach(([o,v])=>gr.addColorStop(o,v));g.fillStyle=gr;g.fillRect(0,0,256,256);
+  el.style.cssText=`position:absolute;left:${x-jangkau}px;top:${y-jangkau}px;width:${2*jangkau}px;height:${2*jangkau}px;pointer-events:none;mix-blend-mode:screen`;
   bidang.appendChild(el);const s=SUMBER[nama]={x,y,bidang,warna,jangkau,kuat,kedip,el};
   const kedipkan=()=>{if(!el.isConnected)return;const t=tl.time();
     el.style.opacity=s.kuat*(1-s.kedip*vnoise(t*7,seed));el.style.scale=1+s.kedip*.06*vnoise(t*5,seed+1);};

@@ -11,11 +11,12 @@
   Brantas: ketukan "pusat kerajaan pindah ke Jawa Timur (abad X)". Resep, data, akurasi: references/peta-relief.md.
   POLANYA:
     - medan(JAWA) (blok peta-relief): tinggi(x,z) km murni — pantai + garis 200 m Natural Earth, gunung GVP, wilayah bentuk tangan
-    - petaRelief(M,{tegak,halus}): kisi + tambalan halus, warna hipsometrik Jagad, kontur shader, laut paparan/dalam, bayang awan
+    - petaRelief(M,{tegak,halus}): kisi + tambalan halus, warna hipsometrik Jagad, kontur shader, laut paparan/dalam, jurang gunung
+      (geometri di tambalan, normal per piksel di kisi kasar), bayang awan; uCetak 1 → 0 = peta cetak menjadi relief bercahaya
     - sungaiPeta / rutePeta / labelPeta: pita sungai & tabung rute selebar piksel tetap, label DOM diproyeksi ulang tiap render
-    - terbang() dua ruas (blok terbang) + lensa; matahari rendah WNW: bayangan gunung panjang (diorama); tone mapping film ACES
+    - terbang() dua ruas (blok terbang) + lensa; matahari sore 22° dari WNW: bayangan gunung panjang (diorama); tone mapping film ACES
     - autoplay + loop, TANPA player; panel scrub hanya bila ?debug=1; ?clean=1 untuk export
-  Ganti: JAWA (pulau lain: scripts/peta-data.mjs), RUTE (titik, puncak), TERBANG (titik/tatap per ruas), LABEL, #cap, SORE (matahari).
+  Ganti: JAWA (pulau lain: scripts/peta-data.mjs), RUTE (titik, puncak), RUAS/RUAS2 (fokus, jarak, yaw, pitch), lbl(...), #cap, SORE.
   Buka dengan klik dua kali. Hanya butuh browser + internet (GSAP, three, font dari CDN). Suara: isi src #vo.
 -->
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@500&family=Source+Serif+4:ital,wght@1,500&family=Young+Serif&display=swap" rel="stylesheet">

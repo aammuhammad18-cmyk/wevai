@@ -1179,7 +1179,8 @@ const panel=(hem,k,sisi)=>{const s=[[-72,-64],[-80,-10],[-78,60],[-70,hem*.6],[-
     putri:{badan:.86,putri:1,kepala:'jamang',kain:1,motif:'ceplok',warnaKain:['#1e2034','#c4ad78','#7a3428'],sabuk:'#9a7438',sampur:'#5a2e3a',emas:1,kemben:'#3a1c24'},
     rakyat:{badan:1,kepala:'ikat',kain:0,warnaKain:'#3e3428'}},
   DUDUK={kainD:0,kainJ:0,wiron:0,sampurD:0,sampurJ:0,pangku:1},
-  BENDA={tombak:[60,1130],tongkat:[0,600],cangkul:[60,760],payung:[260,1280],perisai:[80,340],sesaji:[46,90]},
+  /* benda: [lebar, panjang, tumpu] — tumpu 0 = ikut genggaman, 1 = di tanah bila pose bawa, 2 = selalu di tanah */
+  BENDA={tombak:[60,1130,1],tongkat:[14,600,2],cangkul:[64,900,2],payung:[260,1280,1],perisai:[80,340,0],sesaji:[46,90,0]},
   URUT={samping:['bawaJ','lenganJ','hastaJ','tanganJ','pahaJ','betisJ','kakiJ','kainJ','sampurJ','perut','dada','leher','kepala','keris','panggul','pahaD','betisD','kakiD','pangku','kainD','wiron','sabuk','sampurD','bawaD','lenganD','hastaD','tanganD'],
     depan:['pahaJ','betisJ','kakiJ','pahaD','betisD','kakiD','kainJ','kainD','wiron','keris','perut','dada','panggul','pangku','sabuk','sampurJ','sampurD','leher','kepala','bawaJ','lenganJ','hastaJ','tanganJ','bawaD','lenganD','hastaD','tanganD']},
   TULANG_SLOT={kainD:'pahaD',kainJ:'pahaJ',pangku:'panggul',wiron:'panggul',sabuk:'panggul',keris:'panggul',bawaD:'tanganD',bawaJ:'tanganJ'};
@@ -1218,7 +1219,7 @@ function rakit(o){o=opsi('buat',BUAT,o);if(!POSE[o.pose])salah('buat',`pose tida
     /* bahan = warna rata bernada malam. TANPA gradien per slot: tiap segmen berbayang sendiri = manekin kayu bersendi bola (terukur
        di katalog). Volume = satu gradien layar per tokoh searah cahaya (kanvas gerak) */
     bahan=c=>dt?J(campur(c,'#08060c',.32)):null,
-    P=(n,pts,f,x={})=>(B[n]=B[n]||[]).push({d:typeof pts==='string'?pts:halus(pts),f:dt?f:null,k:typeof pts==='string'?x.k:kotakTitik(pts),...x}),
+    P=(n,pts,f,x={})=>(B[n]=B[n]||[]).push({d:typeof pts==='string'?pts:x.lurus?'M'+pts.map(tk).join('L')+'Z':halus(pts),f:dt?f:null,k:typeof pts==='string'?x.k:kotakTitik(pts),...x}),
     garis=(n,d,c,w)=>dt&&P(n,d,null,{s:c,w}),
     Mb=n=>M[IX[TULANG_SLOT[n]||n]],bagian=(n,c,pts)=>P(n,pts,bahan(c)),emas=J('#b8873a'),rambut=J('#120c0a'),urat=rgba(J(campur(kulit,'#000',.55)),.55);
   /* tubuh */
@@ -1270,7 +1271,7 @@ function rakit(o){o=opsi('buat',BUAT,o);if(!POSE[o.pose])salah('buat',`pose tida
   if(dt>1&&A.motif&&typeof pustaka!=='undefined')G.pola=pustaka.kain({motif:A.motif,id:`${id}-kain`,skala:1.35,warna:warnaKain.map(J)});
   const kain=(n,pts)=>{const m=Mb(n),sg=Math.sign(m[0]*Lx+m[1]*Ly)||1;P(n,pts,G.pola?'pola':bahan(warnaKain[0]));
       if(dt)P(n,pts,{id:`${id}-l${n}`,x1:sg>0?1:0,y1:0,x2:sg>0?0:1,y2:0,st:[[0,'#05030a',.05],[.18,'#05030a',.3],[.32,'#05030a',.12],[.5,'#05030a',.42],[.66,'#05030a',.22],[.84,'#05030a',.55],[1,'#05030a',.72]]});},
-    pk=A.kain?1:.86,hp=hem+12;
+    pk=A.kain?1:.86,hp=A.kain?hem-10:hem+12;
   kain('kainD',panel(hem,k,1));kain('kainJ',panel(hem,k,-1));
   kain('pangku',campurTitik([[-100,-44],[100,-44],[180,16],[246,66],[232,100],[0,110],[-232,100],[-246,66],[-180,16]].map(([x,y])=>[x*pk,y]),
     [[-72,-44],[62,-44],[132,24],[204,66],[198,100],[60,110],[-62,106],[-86,60],[-82,8]].map(([x,y])=>[x*pk,y]),k));
@@ -1287,17 +1288,17 @@ function rakit(o){o=opsi('buat',BUAT,o);if(!POSE[o.pose])salah('buat',`pose tida
     P('keris',[[-8,14],[8,14],[6,180],[0,196],[-6,180]],J('#3e2616'),{m});}
   /* benda di tangan, selalu tegak: gagang di tanah (pose bawa 1) atau ikut genggaman */
   [A.bawa||[]].flat().forEach((b,j)=>{if(!b)return;const n=j?'bawaJ':'bawaD',[lb,pj]=BENDA[b]||salah('buat',`benda tidak dikenal: ${b} (${Object.keys(BENDA).join(' ')})`),
-      c=J('#3a2618'),bs=J('#7a7a80'),g1=[[1,0,0,1]][0],R=(x0,x1,y0,y1)=>[[x0,y0],[x1,y0],[x1,y1],[x0,y1]];
-    if(b==='tombak'){P(n,R(-5,5,0,110-pj),bahan(c),{k:[-5,110-pj,5,0]});P(n,[[0,-pj],[13,40-pj],[9,92-pj],[0,108-pj],[-9,92-pj],[-13,40-pj]],bs);
+      c=J('#3a2618'),bs=J('#7a7a80'),R=(n,x0,x1,y0,y1,w)=>P(n,[[x0,y0],[x1,y0],[x1,y1],[x0,y1]],w,{lurus:1});
+    if(b==='tombak'){R(n,-5,5,0,110-pj,bahan(c));P(n,[[0,-pj],[13,40-pj],[9,92-pj],[0,108-pj],[-9,92-pj],[-13,40-pj]],bs);
       P(n,[[-8,112-pj],[8,112-pj],[14,170-pj],[0,186-pj],[-14,170-pj]],J('#6a1e18'));}
-    if(b==='tongkat')P(n,[[-6,0],[6,0],[7,20-pj],[14,-pj],[0,-pj-10],[-12,8-pj],[-6,24-pj]],bahan(c));
-    if(b==='cangkul'){P(n,R(-5,5,0,10-pj),c);P(n,[[-4,-pj],[58,26-pj],[66,92-pj],[4,60-pj]],bs);}
-    if(b==='payung'){P(n,R(-5,5,0,100-pj),c);P(n,[[-240,150-pj],[-210,96-pj],[-110,48-pj],[0,36-pj],[110,48-pj],[210,96-pj],[240,150-pj],[0,124-pj]],bahan(J('#6a2420')));
+    if(b==='tongkat'){R(n,-6,6,0,26-pj,bahan(c));P(n,[[-8,30-pj],[12,22-pj],[14,-pj],[0,-pj-10],[-12,8-pj]],bahan(c));}
+    if(b==='cangkul'){R(n,-5,5,-58,-pj,c);P(n,[[-6,-66],[58,-30],[62,0],[-6,-4]],bs);}
+    if(b==='payung'){R(n,-5,5,0,100-pj,c);P(n,[[-240,150-pj],[-210,96-pj],[-110,48-pj],[0,36-pj],[110,48-pj],[210,96-pj],[240,150-pj],[0,124-pj]],bahan(J('#6a2420')));
       P(n,[[-150,70-pj],[0,-pj],[150,70-pj],[0,56-pj]],J('#8a3a24'));garis(n,`M-238,${150-pj}Q0,${104-pj} 238,${150-pj}`,emas,8);}
     if(b==='perisai'){P(n,[[0,-175],[52,-120],[72,-20],[60,90],[0,165],[-60,90],[-72,-20],[-52,-120]],bahan(J('#4a2c1a')));
       if(dt)P(n,[[0,-24],[22,0],[0,24],[-22,0]],emas);garis(n,'M0,-150V-36M0,36V140',J('#2a180e'),5);}
     if(b==='sesaji'){P(n,[[-44,-6],[44,-6],[32,22],[-32,22]],J('#5a3a20'));P(n,[[-36,-8],[0,-80],[36,-8]],J('#a0502a'));if(dt)P(n,[[-6,-90],[6,-90],[6,-78],[-6,-78]],J('#e8c070'));}
-    G.bawa.push([n.slice(-1),b,lb,pj,b==='perisai'||b==='sesaji'?0:1]);});
+    G.bawa.push([n.slice(-1),b,lb,pj,BENDA[b][2]]);});
   G.slot=URUT[k>.3?'samping':'depan'].filter(n=>B[n]);
   G.kotak=G.slot.map(n=>B[n].reduce((a,p)=>p.k?[min(a[0],p.k[0]),min(a[1],p.k[1]),max(a[2],p.k[2]),max(a[3],p.k[3])]:a,[1e9,1e9,-1e9,-1e9]));
   return G;}
@@ -1306,7 +1307,7 @@ function rakit(o){o=opsi('buat',BUAT,o);if(!POSE[o.pose])salah('buat',`pose tida
 function bentuk(G,R){const{s,h,x,y,slot,bawa}=G,m=[],Q=[];
   for(const n of slot){let q=R.M[IX[TULANG_SLOT[n]||n]];
     if(n.startsWith('bawa')){const b=bawa.find(v=>v[0]===n.slice(-1)),g=kali(R.M[IX['tangan'+n.slice(-1)]],[0,32]);
-      q=[1,0,0,1,g[0],b&&b[4]?lerp(g[1]+b[3]*.42,0,R.bawa):g[1]];}
+      q=[1,0,0,1,g[0],!b||!b[4]?g[1]:b[4]>1?0:lerp(g[1]+b[3]*.38,0,R.bawa)];}
     Q.push(q);m.push(`matrix(${f4(q[0])},${f4(q[1])},${f4(q[2])},${f4(q[3])},${f(q[4])},${f(q[5])})`);}
   return{akar:`translate(${f(x+R.dx*s*h)},${f(y)}) scale(${f4(s*h)},${f4(s)})`,W:[s*h,0,0,s,x+R.dx*s*h,y],m,q:Q,M:R.M};}
 const tampak=(G,n,R)=>(!(n in DUDUK)||DUDUK[n]===R.duduk)&&(R.benda!==0||!n.startsWith('bawa'));
@@ -1438,11 +1439,11 @@ function katalogTokoh(){
   LANGIT.horizon=LA.horizon;
   svgDi(A3,lantai(960,'#120c10')+PU.beringin({x:-60,y:1120,tinggi:980,seed:5,cahaya:MA}));
   TK.gerak(A3,[
-    {id:'kResi',arketipe:'resi',arah:'depan',x:300,y:992,tinggi:560,fase:.1,kunci:[[0,'berdiri'],[3.4,'menunjuk',{durasi:.9}]]},
+    {id:'kResi',arketipe:'resi',arah:'depan',hadap:'kiri',x:300,y:992,tinggi:560,fase:.1,kostum:{bawa:[null,'tongkat']},kunci:[[0,'berdiri'],[3.4,'menunjuk',{durasi:.9}]]},
     {id:'kPayung',arketipe:'rakyat',arah:'samping',x:668,y:986,tinggi:575,fase:.6,kostum:{bawa:['payung',null]},kunci:[[0,'tombak']]},
     {id:'kRaja',arketipe:'raja',arah:'tigaperempat',x:790,y:1004,tinggi:640,fase:.35,kunci:[[0,'berdiri']]},
     {id:'kPutri',arketipe:'putri',arah:'samping',hadap:'kiri',x:1130,y:1010,tinggi:560,fase:.8,kunci:[[0,'bersila'],[1.6,'silasembah',{durasi:1}]]},
-    {id:'kPetani',arketipe:'petani',arah:'tigaperempat',hadap:'kiri',x:1420,y:984,tinggi:540,fase:.5,kunci:[[0,'berdiri']]},
+    {id:'kPetani',arketipe:'petani',arah:'tigaperempat',hadap:'kiri',x:1420,y:984,tinggi:540,fase:.5,kunci:[[0,'berdiri',{tangan:['genggam','terbuka']}]]},
     {id:'kPrajurit',arketipe:'prajurit',arah:'depan',x:1660,y:1000,tinggi:650,fase:.2,kunci:[[0,'tombak']]}],{cahaya:MA,lantai:1000,rim:5});
   partikel(A2,{jenis:'kunang',n:40,area:[80,780,1760,220],seed:5});
   kabut(A0,{y:700,tebal:210,warna:pudar('#f2a27a',-1500),rapat:.45,hanyut:4,seed:2});

@@ -48,10 +48,18 @@ const TANPA_SUBJEK = ['starter-opener.html', 'starter-elang.html'];
 const FILM = { 'starter-elang.html': 4 };   // THREE.ACESFilmicToneMapping (r161): api tetap jingga jenuh, AgX r161 memucatkannya (evals/bukti/2026-11-03-mata-elang)
 // blok terbang (src/runtime/terbang.js) disuntikkan ke starter 2.5D: jalur terbang() 2.5D diuji di kamera-dom sungguhan tanpa menambah berkas starter
 const TERBANG = readFileSync(join(ROOT, 'src', 'runtime', 'terbang.js'), 'utf8');
+// halaman BERAT dilewati bila WebGL jatuh ke render perangkat lunak (runner CI tanpa GPU). Terukur SwiftShader, laptop acuan:
+// starter-elang siap 80 dtk, satu frame 66,6 dtk, frame motion blur mematikan proses GPU. Uji penuhnya di mesin ber-GPU.
+const BERAT = ['starter-elang.html'];
+const glLunak = await (async () => { const p = await browser.newPage();
+  const r = await p.evaluate(() => { const g = document.createElement('canvas').getContext('webgl2'), e = g && g.getExtension('WEBGL_debug_renderer_info');
+    return e ? g.getParameter(e.UNMASKED_RENDERER_WEBGL) : ''; });
+  await p.close(); return /SwiftShader|llvmpipe|softpipe|Basic Render/i.test(r) ? r : ''; })();
 
-let gagal = 0;
+let gagal = 0, lewat = 0;
 for (const file of files) {
   const name = basename(file);
+  if (glLunak && BERAT.includes(name)) { lewat++; console.log(`lewat  ${name} — WebGL perangkat lunak (${glLunak}): terlalu berat, uji di mesin ber-GPU`); continue; }
   // halaman bawaan ADEGAN sudah berisi adegan (langit, grade, bidang [data-z]); kait modul dan kamera mengandaikan halaman yang
   // belum memakai modul (awalBersih, jalur 2D tanpa bidang, grade netral), jadi dijalankan di ?kosong=1 (rig + modul tanpa adegan).
   // Kait adegan (SINEMA_UJI) dibaca dari halaman bawaan. Katalog kamera ?demo=1 tidak ada di halaman ini.
@@ -342,5 +350,5 @@ for (const file of files) {
 }
 
 await browser.close();
-console.log(gagal ? `\n${gagal} starter bermasalah.` : `\n${files.length} starter lolos.`);
+console.log(gagal ? `\n${gagal} starter bermasalah.` : `\n${files.length - lewat} starter lolos${lewat ? `, ${lewat} dilewati (WebGL perangkat lunak)` : ''}.`);
 process.exit(gagal ? 1 : 0);

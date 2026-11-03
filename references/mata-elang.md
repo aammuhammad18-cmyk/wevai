@@ -142,6 +142,9 @@ detik menembus celah ±0,45 dtk.
 - **`CAM.rail` aktif sejak t = 0**: kait atau kode yang menyetel pose bola (`CAM3_UJI`) harus menyetel `rail:-1` dulu.
 - **Bayangan matahari**: `key` kamera-three diposisikan ulang tiap frame oleh `ikutMatahari()`. Tanpa itu, kotak bayang
   ±20 m tertinggal di fokus lama saat kamera terbang.
+- **CI tanpa GPU**: di SwiftShader halaman ini siap 80 dtk, satu frame 66,6 dtk, dan frame motion blur mematikan proses GPU
+  (terukur di laptop acuan). Karena itu `test-starters` melewatinya bila WebGL jatuh ke perangkat lunak (`BERAT`) dan
+  mencetak baris `lewat`. Matematika tetap diuji `test-elang`; uji penuh jalan di mesin ber-GPU.
 - **Biaya**: dirancang ≤ 350 ms/frame di mesin acuan (tanah ±190 rb verteks, 5,2 rb pohon instanced, 1,4 rb di antaranya
   berbayang, bayangan 2048, MSAA 4×, 2 PointLight obor). Belum di-bench; ukur dengan `bench-frame.mjs` di mesin senggang. Segmen MB ±4,6× render.
 

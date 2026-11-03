@@ -85,4 +85,10 @@ ACES memberi rentang dan kontras siluet lebih besar. AgX menyimpan detail bayang
 - Biaya per frame (`bench-frame.mjs`): tidak dijalankan karena render pemilik sedang berjalan. Ukur di mesin senggang:
   `node scripts/bench-frame.mjs assets/starter-elang.html "clean=1" 20`, di luar segmen motion blur dan di dalamnya
   (frame mulai detik 2 → di luar; ubah detik mulai di skrip untuk segmen KABUR 4,53–5,43 dtk).
-- Waktu `test-starters` di runner CI (SwiftShader, tanpa GPU): halaman ini paling berat di antara starter.
+- Runner CI (tanpa GPU) tidak diukur langsung. Sebagai pengganti, SwiftShader di laptop acuan (Idle, sambil render pemilik):
+  - siap 80,2 dtk;
+  - `seek(2)` 66,6 dtk sampai piksel selesai;
+  - `seek(5)` (motion blur, 8 sub-frame) mematikan proses GPU ("Target closed").
+
+  Karena itu `test-starters` melewati halaman ini bila WebGL perangkat lunak terdeteksi (`BERAT`, baris `lewat`). Uji
+  penuh lolos di HD 4000.

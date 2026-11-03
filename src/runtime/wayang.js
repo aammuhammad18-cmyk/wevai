@@ -389,7 +389,7 @@ window.WAYANG_UJI=()=>{const r={},O=window.OPENER,P=wayang.PANGGUNG,b0={...BLENC
   /* satu figur menempel kelir, satu dekat lampu; baris memotong bagian tubuh yang sama: kekerasan tepi = lompatan piksel terbesar; skala = jarak puncak kepala ke kaki lampu */
   Object.assign(BLENCONG,{kedip:0,kuat:1,x:960,y:250});let c=wayang.panggung({simping:false,seed:2,res:1,tinggi:520});
   wayang.figur({jenis:'gunungan',x:300,z:4,seed:1,tinggi:460});wayang.figur({jenis:'alusan',x:800,z:4,seed:2,kunci:[[1,{tanganD:'ngancam'},{durasi:2}]]});wayang.figur({jenis:'alusan',x:1200,z:240,seed:2});
-  const seek=t=>O.seek(t),keras=a=>{let m=0;for(let i=1;i<a.length;i++)m=Math.max(m,Math.abs(a[i]-a[i-1]));return m;},seek(.5);
+  const seek=t=>O.seek(t),keras=a=>{let m=0;for(let i=1;i<a.length;i++)m=Math.max(m,Math.abs(a[i]-a[i-1]));return m;};seek(.5);
   const m=wayang.proyeksi(240,BLENCONG.jarak,BLENCONG.nyala).skala,y0=980-Math.round(520*.67),y1=Math.round(250+(y0-250)*m),puncak=(x0,x1)=>{const q=c.getContext('2d').getImageData(x0,0,x1-x0,H).data,n=x1-x0;for(let y=40;y<H;y++)for(let i=0;i<n;i++){const k=(y*n+i)*4;if(lum(q,k)<60)return y;}return H;};
   r.keras=[+keras(baris(c,y0,640,1020)).toFixed(1),+keras(baris(c,y1,1050,1700)).toFixed(1)];r.tepiTajam=r.keras[0]>2*r.keras[1];
   r.puncak=[puncak(640,1020),puncak(1050,1700)];r.skalaJarak=(r.puncak[1]-250)/(r.puncak[0]-250)>1.3;

@@ -299,9 +299,9 @@ melengkung; kamera WebGL ikut geser `camX` searah untuk paralaks latar.
 
 Dua jenis transisi yang terasa murahan: whip translasi yang menyingkap tepi
 dunia (gap hitam, terbaca "pindah halaman" — whip dengan overscan + blur berarah
-di §4c #6 sah), dan spin/yaw/roll kejut (zoom tiba-tiba +
-blur adalah bahasa preset editor video, bukan motion design). Penerbangan yang
-menukik dan berguling hanya sah sebagai shot mata elang (`sinematografi.md` §3). Urutan yang benar:
+di §4c #6 sah), dan spin/yaw/roll kejut (zoom tiba-tiba + blur = bahasa preset
+editor video). Penerbangan yang menukik dan berguling hanya sah sebagai shot mata
+elang (`sinematografi.md` §3; `terbang()`: `mata-elang.md`). Urutan yang benar:
 
 1. **Kamera bernapas** (fondasi, selalu aktif): rig dunia drift zoom pelan
    `sine.inOut` ±4-5% per adegan, arah bergantian, dirantai tanpa lompatan.

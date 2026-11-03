@@ -115,7 +115,7 @@ const tl=gsap.timeline({paused:true});const rig=$('#world');
 /* ---------- dunia WebGL: TANPA jam sendiri, digambar dari tl.time() ---------- */
 const renderer=new THREE.WebGLRenderer({canvas:$('#gl'),antialias:true});
 renderer.setPixelRatio(1);renderer.setSize(W,H,false);            // 1: ekspor 1080p tetap ringan di GPU lemah
-renderer.toneMapping=THREE.NoToneMapping;                         // warna brand tepat (mat() juga toneMapped:false)
+renderer.toneMapping=THREE.NoToneMapping;                         // warna brand tepat; sejarah/sinematik: ACESFilmic .45 (sinematografi.md §6)
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 const scene=new THREE.Scene();
 const camera=new THREE.PerspectiveCamera(35,W/H,.1,200);          // fov/mm diatur applyCam dari CAM

@@ -260,7 +260,7 @@ focus(6,.8,'peti');                    // hero shot
 **Tone mapping: brand atau film.** `EffectComposer` + `OutputPass` menerapkan `renderer.toneMapping` ke seluruh frame
 dan **mengabaikan** `material.toneMapped:false` (ACES: `#EE1C25` → 241,26,37).
 - Brand/produk WAJIB `THREE.NoToneMapping` (starter explainer 3D dan opener; biarkan).
-- Sejarah/sinematik (api, matahari, senja): `ACESFilmicToneMapping`, exposure ±.45. Tanpanya highlight menggunting.
+- Sejarah/sinematik (api, matahari, senja): `ACESFilmicToneMapping`, exposure ±.5. Tanpanya highlight menggunting.
   AgX r161 memucatkan api jadi salem (`mata-elang.md`).
 
 **`composer.render()` tanpa argumen** membaca jam sendiri → frame berbeda tiap ekspor. Selalu `composer.render(0)`

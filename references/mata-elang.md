@@ -1,7 +1,7 @@
 # Mata elang — shot terbang 3D dan 2.5D
 
 Dibaca HANYA saat membangun shot mata elang. Aturan kapan shot ini sah ada di `sinematografi.md` §3: satu per bab,
-termotivasi, ≥ 3 dtk tanpa cut, mendarat di subjek. Contoh hidup: `assets/starter-elang.html` (10–11 dtk, sawah → gapura
+termotivasi, ≥ 3 dtk tanpa cut, mendarat di subjek. Contoh hidup: `assets/starter-elang.html` (11,5 dtk, sawah → gapura
 bentar → lembah dan gunung saat senja). Bukti dan angka: `evals/bukti/2026-11-03-mata-elang/`.
 
 ## Isi
@@ -76,15 +76,15 @@ melakukannya di `siapkan()`.
 
 ## Tone mapping film
 
-Starter elang memakai `renderer.toneMapping = THREE.ACESFilmicToneMapping`, `toneMappingExposure = .45`. Tanpa tone
+Starter elang memakai `renderer.toneMapping = THREE.ACESFilmicToneMapping`, `toneMappingExposure = .5`. Tanpa tone
 mapping, matahari dan api menggunting. Konten brand/produk tetap `NoToneMapping` (`sinematografi.md` §6). Dibandingkan di
-r161 (bukti: `tonemap.jpg`, `obor.jpg`):
+r161 pada exposure .45 (bukti: `tonemap.jpg`):
 - **Api**: oranye #ff6a1a ×1…×4 tetap jingga jenuh di ACES, lalu kuning-putih seperti inti api. AgX "base" r161
   memucatkannya menjadi salem/persik (×1: 188,101,58).
 - **Senja berlatar terang**: ACES memberi rentang luminans 79 dan kontras subjek 64; AgX 69 dan 49, dengan bayangan
   lebih terangkat. ACES menelan detail bayangan terdalam: siluet, bukan masalah.
-- **Exposure**: ACES r161 mengalikan exposure/0,6. Mulai dari .45, lalu naik/turun 0,05 sambil melihat langit di dekat
-  matahari.
+- **Exposure**: ACES r161 mengalikan exposure/0,6. Mulai dari .45–.5, lalu naik/turun 0,05 sambil melihat langit di
+  dekat matahari.
 
 ## Motion blur
 
@@ -102,7 +102,7 @@ detik menembus celah ±0,45 dtk.
 
 ## Resep
 
-1. **Cahaya dulu.** Matahari rendah (1–4°) di depan arah terbang, 10–25° dari subjek akhir. Hasilnya siluet + rim pada
+1. **Cahaya dulu.** Matahari rendah (1–4°, tetapi di atas cakrawala jauh) di depan arah terbang, 10–25° dari subjek akhir. Hasilnya siluet + rim pada
    gapura, pohon, dan kelapa, air sawah yang menyala, dan kabut yang bercahaya. Jangan menaruh matahari tepat di belakang
    bahu gunung (cek azimut: matahari lenyap, langit pucat).
 2. **Laju menentukan roll** (fisika, bukan selera). v²/g ≈ 92 m pada 30 m/dtk, sehingga geser samping 4 m dalam 120 m
@@ -142,8 +142,8 @@ detik menembus celah ±0,45 dtk.
 - **`CAM.rail` aktif sejak t = 0**: kait atau kode yang menyetel pose bola (`CAM3_UJI`) harus menyetel `rail:-1` dulu.
 - **Bayangan matahari**: `key` kamera-three diposisikan ulang tiap frame oleh `ikutMatahari()`. Tanpa itu, kotak bayang
   ±20 m tertinggal di fokus lama saat kamera terbang.
-- **Biaya**: dirancang ≤ 350 ms/frame di mesin acuan (tanah ±190 rb verteks, 5 rb pohon instanced, bayangan 2048, MSAA
-  4×). Belum di-bench; ukur dengan `bench-frame.mjs` di mesin senggang. Segmen MB ±4,6× render.
+- **Biaya**: dirancang ≤ 350 ms/frame di mesin acuan (tanah ±190 rb verteks, 5,2 rb pohon instanced, 1,4 rb di antaranya
+  berbayang, bayangan 2048, MSAA 4×, 2 PointLight obor). Belum di-bench; ukur dengan `bench-frame.mjs` di mesin senggang. Segmen MB ±4,6× render.
 
 ## Nama global
 

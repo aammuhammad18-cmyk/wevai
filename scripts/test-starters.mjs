@@ -272,7 +272,7 @@ for (const file of files) {
       const ada = k => way[k] != null;
       for (const k of ['tepiTajam', 'skalaJarak', 'kayonAda', 'seekSama', 'kedipHidup', 'lenganHidup', 'dalangCermin', 'dalangLukis', 'ditolak']) if (!ada(k)) masalah.push(`wayang: field ${k} kosong`);
       if (ada('tepiTajam') && !way.tepiTajam) masalah.push(`wayang: bayangan menempel kelir harus > 2× lebih tajam daripada dekat lampu (lompatan piksel ${way.keras})`);
-      if (ada('skalaJarak') && !way.skalaJarak) masalah.push(`wayang: bayangan dekat lampu harus lebih lebar > 1,2× (piksel gelap ${way.lebar})`);
+      if (ada('skalaJarak') && !way.skalaJarak) masalah.push(`wayang: bayangan dekat lampu harus membesar dari kaki lampu > 1,3× (puncak kepala y ${way.puncak})`);
       if (ada('kayonAda') && !way.kayonAda) masalah.push(`wayang: gunungan tidak tampak sebagai renda (${way.kayonGanti} pergantian gelap-terang di satu baris, perlu ≥ 12)`);
       if (ada('seekSama') && !way.seekSama) masalah.push('wayang: piksel kanvas berbeda antara seek(3) langsung dan seek(7)→seek(.1)→seek(3)');
       if (ada('kedipHidup') && !way.kedipHidup) masalah.push('wayang: BLENCONG.kedip .6 tidak mengubah piksel antara t 3 dan 3,3');

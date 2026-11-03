@@ -386,12 +386,13 @@ return{panggung,figur,gambar,rancang,rancangKayon,tatah,jalur,proyeksi,kedipan,i
 window.WAYANG_UJI=()=>{const r={},O=window.OPENER,P=wayang.PANGGUNG,b0={...BLENCONG},lum=(d,i)=>.3*d[i]+.59*d[i+1]+.11*d[i+2],
     bersih=()=>{if(P.c)P.c.remove();Object.assign(P,{c:null,figur:[],opsi:null,simpingWarna:null});},
     baris=(c,y,x0,x1)=>{const d=c.getContext('2d').getImageData(x0,y,x1-x0,1).data,o=[];for(let i=0;i<d.length;i+=4)o.push(lum(d,i));return o;};
-  /* satu figur menempel kelir, satu dekat lampu; baris memotong kain: kekerasan tepi = lompatan piksel terbesar, lebar = piksel gelap */
+  /* satu figur menempel kelir, satu dekat lampu; baris memotong bagian tubuh yang sama: kekerasan tepi = lompatan piksel terbesar; skala = jarak puncak kepala ke kaki lampu */
   Object.assign(BLENCONG,{kedip:0,kuat:1,x:960,y:250});let c=wayang.panggung({simping:false,seed:2,res:1,tinggi:520});
-  wayang.figur({jenis:'gunungan',x:300,z:4,seed:1,tinggi:460});wayang.figur({jenis:'alusan',x:800,z:4,seed:2,kunci:[[1,{tanganD:'ngancam'},{durasi:2}]]});wayang.figur({jenis:'alusan',x:1450,z:240,seed:2});
-  const seek=t=>O.seek(t),keras=a=>{let m=0;for(let i=1;i<a.length;i++)m=Math.max(m,Math.abs(a[i]-a[i-1]));return m;},gelap=(a,k)=>a.filter(v=>v<k).length;seek(.5);
-  const y0=980-Math.round(520*.4),dekat=baris(c,y0,640,1020),jauh=baris(c,y0,1100,1900);r.keras=[+keras(dekat).toFixed(1),+keras(jauh).toFixed(1)];r.lebar=[gelap(dekat,70),gelap(jauh,70)];
-  r.tepiTajam=r.keras[0]>2*r.keras[1];r.skalaJarak=r.lebar[1]>1.2*r.lebar[0];
+  wayang.figur({jenis:'gunungan',x:300,z:4,seed:1,tinggi:460});wayang.figur({jenis:'alusan',x:800,z:4,seed:2,kunci:[[1,{tanganD:'ngancam'},{durasi:2}]]});wayang.figur({jenis:'alusan',x:1200,z:240,seed:2});
+  const seek=t=>O.seek(t),keras=a=>{let m=0;for(let i=1;i<a.length;i++)m=Math.max(m,Math.abs(a[i]-a[i-1]));return m;},seek(.5);
+  const m=wayang.proyeksi(240,BLENCONG.jarak,BLENCONG.nyala).skala,y0=980-Math.round(520*.67),y1=Math.round(250+(y0-250)*m),puncak=(x0,x1)=>{const q=c.getContext('2d').getImageData(x0,0,x1-x0,H).data,n=x1-x0;for(let y=40;y<H;y++)for(let i=0;i<n;i++){const k=(y*n+i)*4;if(lum(q,k)<60)return y;}return H;};
+  r.keras=[+keras(baris(c,y0,640,1020)).toFixed(1),+keras(baris(c,y1,1050,1700)).toFixed(1)];r.tepiTajam=r.keras[0]>2*r.keras[1];
+  r.puncak=[puncak(640,1020),puncak(1050,1700)];r.skalaJarak=(r.puncak[1]-250)/(r.puncak[0]-250)>1.3;
   /* gunungan: baris memotong tajuk = renda (banyak pergantian gelap-terang) */
   const a=baris(c,980-Math.round(460*1.5*.55),90,510);let g=0;for(let i=1;i<a.length;i++)if((a[i]<90)!==(a[i-1]<90))g++;r.kayonGanti=g;r.kayonAda=g>=12;
   /* dua jalur seek + kedip hidup + lengan bergerak */

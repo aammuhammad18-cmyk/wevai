@@ -9,8 +9,9 @@ Dibaca hanya di jalur ini. Sumber: `src/runtime/wayang.js` (blok `<wv:wayang>`, 
 
 ## Kapan dipakai
 
-- Cocok: sisipan legenda dan kisah pewayangan, pembuka bab sejarah Jawa, ganti mode "kertas meredup, blencong menyala" (`babad-jawa-01`):
-  legenda #cap memuat "Cerita rakyat · sumber" seperti mode lama.
+- Cocok: sisipan legenda dan kisah pewayangan, pembuka bab sejarah Jawa, pengganti wajar mode "kertas meredup, blencong menyala" (`babad-jawa-01`).
+
+- Sisipan legenda: potong ke `starter-wayang` di awal kisah, `kedip` tenang, legenda `#cap` sesuai mode lama ("Cerita rakyat · bukan catatan sejarah · sumber"), gunungan membuka dan menutup kisah.
 - Lemah: data, angka, tokoh sejarah nyata (wayang = tokoh lakon, bukan potret), adegan cepat. Promo: hanya bila dimotivasi; tanpa itu gimmick.
 - Jangan dipakai untuk mengklaim ritual (ruwatan, sesaji, makna mistis): starter sengaja netral.
 
@@ -54,13 +55,15 @@ Salah opsi = `Error('wayang.…')` yang menyebut pilihan sah. `jenis:'panakawan'
 
 ## Biaya
 
-Setup (bake, ±1–2 dtk). Tiap frame: satu kelir `drawImage` + per figur 3–5 sprite + satu blur bila z besar + dua gradien penuh. Angka
-terukur `performance.now()`: lihat `evals/bukti/2026-11-03-wayang/README.md`. `bench-frame` dijalankan pengendali sesudah merge.
+Setup: rancang + panggang sprite ±1–2 dtk saat muat. Tiap frame: satu `drawImage` kelir, per figur 2–6 sprite + kotak kerja + satu blur bila z besar, dua gradien penuh.
+Terukur di halaman (`performance.now()` + flush, mesin acuan, Idle): sisi bayang median 143–202 ms, sisi dalang 173–240 ms; tanpa capture. Rinci:
+`evals/bukti/2026-11-03-wayang/README.md`. `bench-frame` dijalankan sesudah merge; sasaran ≤ 350 ms/frame dengan capture bisa jadi di tepi batas. Bila lewat: turunkan `res`, kurangi
+jumlah figur bergerak, atau `simping:false`.
 
 ## Determinisme
 
 Keadaan = `tl.time()` + `CAM` + `BLENCONG`; kunci figur dan kedip murni. Satu kanvas dihapus penuh tiap frame (temuan `tokoh.md`). `test-starters`
-membandingkan piksel lewat dua jalur seek (`sinema` semua kanvas, `WAYANG_UJI`).
+membandingkan piksel lewat dua jalur seek (`sinema` semua kanvas, `WAYANG_UJI`), dan kerusakan sengaja pada blur, seek, gunungan, cermin, serta lukisan terbukti tertangkap (`evals/bukti/2026-11-03-wayang/README.md`).
 
 ## Batas
 

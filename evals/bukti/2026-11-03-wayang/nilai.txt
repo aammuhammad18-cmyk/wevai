@@ -21,13 +21,10 @@ t9_00.png  13/52/84    70.9 ok  subjek 14.5 ok  +37.8 ok      4 ok #150b06 #daae
 bingkai     p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
 t11_00.png  13/50/80    67.3 ok  subjek 14.7 ok  +35.9 ok      4 ok #cca263 #130a05 #684420  ok
 1 bingkai: 1 ok, 0 peringatan. Ambang: rentang >= 28, kontras >= 10, titik terang >= +30, warna 2-6 (>= 5 % bingkai).
-=== t13_80: blencong layar 960,238; subjek 470,410,260,590
-bingkai     p5/p50/p95  rentang  kontras                titik terang  warna                         hasil
-t13_80.png  11/37/70    58.8 ok  subjek 7.9 peringatan  +38.3 ok      4 ok #110904 #aa8751 #775027  peringatan
-peringatan:
-- subjek menyatu dengan latar: kontras < 10 (1 bingkai: t13_80.png)
-    saran: beri rim light (cahaya-2d rim) atau pisahkan nilai terang-gelap subjek dari latar
-1 bingkai: 0 ok, 1 peringatan. Ambang: rentang >= 28, kontras >= 10, titik terang >= +30, warna 2-6 (>= 5 % bingkai).
+=== t13_80: blencong layar 960,238; subjek 530,410,170,590
+bingkai     p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
+t13_80.png  11/37/70    58.8 ok  subjek 13.7 ok  +38.3 ok      4 ok #110904 #aa8751 #775027  ok
+1 bingkai: 1 ok, 0 peringatan. Ambang: rentang >= 28, kontras >= 10, titik terang >= +30, warna 2-6 (>= 5 % bingkai).
 === t15_00: blencong layar 960,110; subjek 1130,100,620,930
 bingkai     p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
 t15_00.png  11/43/74    62.8 ok  subjek 14.6 ok  +35.9 ok      4 ok #110804 #b69056 #8a5c2d  ok

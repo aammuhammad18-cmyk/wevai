@@ -496,12 +496,10 @@ const tatah=(jenis,garis,u=4)=>{if(!TATAH[jenis])salah('tatah',`jenis tidak dike
 
 /* ---------- fisika bayangan: lampu titik ber-api selebar `nyala`, figur sejarak z dari kelir ---------- */
 /* perbesaran proyeksi pusat m = d/(d−z); penumbra = nyala·z/(d−z). z dijepit di bawah lampu. Murni, diuji */
-const proyeksi=(z,jarak=BLENCONG.jarak,nyala=BLENCONG.nyala)=>{const zz=max(0,min(z,jarak*.85)),d=jarak-zz;return{skala:jarak/d,blur:nyala*zz/d,getar:zz/d};};
+const proyeksi=(z,jarak=BLENCONG.jarak,nyala=BLENCONG.nyala)=>{const zz=max(0,min(z,jarak*.85)),d=jarak-zz;return{skala:jarak/d,blur:nyala*zz/d};};
 /* kedip api: 3 oktaf noise dari t (tanpa akumulasi); kuat 0..1 = pengali terang, dx/dy = geser api (px per kedip) */
 const kedipan=(t,seed=BLENCONG.seed,k=BLENCONG.kedip)=>{const a=vnoise(t*5.1,seed),b=vnoise(t*11.3,seed+1),c=vnoise(t*23.7,seed+2),n=.5*a+.3*b+.2*c;
   return{kuat:1-k*.55*n,dx:k*26*(vnoise(t*3.7,seed+3)-.5),dy:k*22*(vnoise(t*4.3,seed+4)-.5)};};
-/* cahaya di kelir pada jarak r dari kaki lampu: hukum cos³ + cahaya bias kain */
-const terang=(r,d=900)=>.2+.8*(d*d/(d*d+r*r))**1.5;
 /* IK dua tulang analitik (rumus sama dengan tokoh.ik). Sudut dari arah bawah ke +x; di luar jangkau dijepit lurus; sisi +1 = siku ke depan, −1 = ke belakang/bawah, nilai antara = siku lewat tengah saat pose berganti (telapak meleset sesaat, tanpa lompatan) */
 const ik=(L1,L2,tx,ty,sisi=-1)=>{const d=hypot(tx,ty)||1e-9,dd=min(L1+L2-1e-6,max(abs(L1-L2)+1e-6,d)),a1=atan2(tx,ty)+sisi*acos(max(-1,min(1,(L1*L1+dd*dd-L2*L2)/(2*L1*dd)))),
     bx=L1*sin(a1),by=L1*cos(a1),a2=atan2(tx/d*dd-bx,ty/d*dd-by);return[a1,a2,bx,by,bx+L2*sin(a2),by+L2*cos(a2)];};
@@ -549,9 +547,6 @@ function potongLengan(L1,L2,w,cakar){const b=(x,y)=>[x*w,y],
 
 /* polilinea dalam poligon: tiap baris y → ruas [x kiri, x kanan] dipotong tepi (titik mentah, cukup untuk penempatan pola) */
 const potongBaris=(p,y)=>{const X=[];for(let i=0;i<p.length;i++){const a=p[i],b=p[(i+1)%p.length];if((a[1]<=y)!==(b[1]<=y))X.push(a[0]+(y-a[1])/(b[1]-a[1])*(b[0]-a[0]));}X.sort((m,n)=>m-n);return X;},
-  /* pola penuh di dalam bentuk: selang-seling baris tatah; tepi = jarak aman dari garis luar; lengkung = baris melengkung seperti wiron */
-  polaIsi=(p,y0,y1,dy,urut,u,tepi=9,lengkung=0)=>{let s='',i=0;for(let y=y0;y<=y1;y+=dy,i++){const X=potongBaris(p,y);if(X.length<2)continue;const a=X[0]+tepi,c=X[X.length-1]-tepi;if(c-a<12)continue;const n=max(2,round((c-a)/30)),g=[];
-      for(let k=0;k<=n;k++){const q=k/n;g.push([a+(c-a)*q,y+lengkung*sin(PI*q)]);}s+=tatah(urut[i%urut.length],g,u*(urut[i%urut.length]==='masmasan'?.92:1));}return s;},
   /* tepi: garis luar disusutkan ke titik beratnya → baris tatah mengikuti bentuk */
   polaTepi=(p,j,u,k=.86)=>{let cx=0,cy=0;p.forEach(q=>{cx+=q[0];cy+=q[1];});cx/=p.length;cy/=p.length;const g=p.map(([x,y])=>[cx+(x-cx)*k,cy+(y-cy)*k]);g.push(g[0]);return tatah(j,g,u);};
 
@@ -627,7 +622,7 @@ function rancang(jn,seed=1){const J=JENIS[jn],R=mulberry32(seed*7919+jn.length),
   ubin('seritan',T(Gl.serit),jn==='raksasa'?2.7:2);
   if(J.gelung==='cupit urang'){/* jamang di dahi + garuda mungkur di belakang gelung */
     isi('perhiasan',T([[20,-108],[30,-120],[-2,-146],[-46,-136],[-44,-120],[-6,-126]]),prada);ubin('bubukan',T([[14,-120],[-36,-132]]),1.7);
-    const Gm=isi('perhiasan',T([[-96,-146],[-128,-158],[-146,-136],[-138,-112],[-154,-90],[-132,-72],[-104,-80],[-80,-96]]),prada);LB.push(polaTepi(T([[-96,-146],[-128,-158],[-146,-136],[-138,-112],[-154,-90],[-132,-72],[-104,-80],[-80,-96]]),'bubukan',1.9,.66));}
+    isi('perhiasan',T([[-96,-146],[-128,-158],[-146,-136],[-138,-112],[-154,-90],[-132,-72],[-104,-80],[-80,-96]]),prada);LB.push(polaTepi(T([[-96,-146],[-128,-158],[-146,-136],[-138,-112],[-154,-90],[-132,-72],[-104,-80],[-80,-96]]),'bubukan',1.9,.66));}
   if(J.gelung==='ukel keyongan'){const S=[];for(let a=0;a<4.4*PI;a+=.5)S.push([-84+cos(a)*(3+a*1.9),-84+sin(a)*(3+a*1.9)]);ubin('bubukan',T(S),1.6);
     isi('perhiasan',T([[16,-106],[28,-118],[-4,-138],[-38,-130],[-36,-116],[-6,-122]]),prada);ubin('bubukan',T([[10,-118],[-30,-126]]),1.5);}
   /* sumping */isi('perhiasan',T(jn==='raksasa'?[[-12,-78],[-30,-98],[-46,-70],[-42,-36],[-24,-14,1],[-16,-44]]:[[-10,-70],[-22,-86],[-38,-68],[-34,-44],[-22,-30,1],[-12,-48]]),prada);ubin('bubukan',T(jn==='raksasa'?[[-20,-76],[-32,-50]]:[[-18,-68],[-26,-50]]),1.5);
@@ -642,12 +637,12 @@ function rancang(jn,seed=1){const J=JENIS[jn],R=mulberry32(seed*7919+jn.length),
     ATAS.push({n:'gusi',d:jalur(T([[72,-27,1],[44,-33],[16,-28],[-8,-12],[18,-20],[60,-21]])),w:'merahGusi'});
     for(const x of[58,48,38,28])ATAS.push({n:'gigi',d:jalur(T([[x,-25+(58-x)*.02,1],[x+7,-24+(58-x)*.02,1],[x+3,-12+(58-x)*.02,1]])),w:'gading'});
     ATAS.push({n:'gigi',d:jalur(T([[6,-20,1],[16,-23,1],[12,4,1]])),w:'gading'});ATAS.push({n:'gigi',d:jalur(T([[56,-8,1],[44,-3,1],[60,-40,1]])),w:'gading'});   // taring atas + bawah
-    isi('perhiasan',T([[32,-126],[70,-122],[84,-104],[66,-102],[38,-108]]),'rambut');const Jm=T([[44,-134],[50,-120],[-4,-138],[-58,-122],[-64,-136],[-6,-154]]);isi('perhiasan',Jm,prada);ubin('bubukan',T([[30,-132],[-6,-146],[-52,-132]]),1.9);ubin('seritan',T([[-30,10],[12,22],[50,14]]),2.2);}
+    isi('perhiasan',T([[32,-126],[70,-122],[84,-104],[66,-102],[38,-108]]),'rambut');isi('perhiasan',T([[44,-134],[50,-120],[-4,-138],[-58,-122],[-64,-136],[-6,-154]]),prada);ubin('bubukan',T([[30,-132],[-6,-146],[-52,-132]]),1.9);ubin('seritan',T([[-30,10],[12,22],[50,14]]),2.2);}
   /* lengan */
   const[L1,L2,w]=LENGAN[jn],Pot=potongLengan(L1,L2,w,jn==='raksasa');Object.assign(G,{L:[L1,L2],bahuD,bahuB,Pot});
   G.lubangAtas=lingkar(0,0,3)+tatah('bubukan',[[0,16],[0,34]],1.9)+tatah('inten',[[-13*w,50],[13*w,50]],2.3)+tatah('bubukan',[[-13*w,62],[13*w,62]],1.6)+tatah('tratasan',[[0,90],[0,L1-40]],2);
   G.lubangHasta=lingkar(0,0,2.6)+tatah('tratasan',[[0,30],[0,L2-140]],2)+tatah('inten',[[-10*w,L2-112],[10*w,L2-112]],2.2)+tatah('bubukan',[[-9*w,L2-96],[9*w,L2-96]],1.5);
-  Object.assign(G,{bagian:BG,atas:ATAS,lubang:LB.join(''),J,jn,seed,U,R:null});return G;}
+  Object.assign(G,{bagian:BG,atas:ATAS,lubang:LB.join(''),J,jn,seed,U});return G;}
 
 /* GUNUNGAN (kayon, jenis gapuran): siluet gunung meruncing; satu sisi = gerbang berpenjaga, kalpataru dililit naga, banteng berhadapan
    harimau, kera, burung; sisi balik = api merah. Data simetris kecuali hewan berhadapan. lapis urut bawah → atas: positif digambar di atas
@@ -724,11 +719,10 @@ function pangkatKayon(D,res,warna,balik){const u=res,lb=660,tg=1040,c=kanvasBaru
 
 /* ---------- panggung: satu kanvas layar penuh ---------- */
 const PANGGUNG={c:null,figur:[],opsi:null};
-const SISI=['bayang','dalang'];
 function panggung(o={}){const D={dasar:980,sisi:'bayang',simping:true,seed:5,res:1.25,tinggi:560};for(const k in o)if(!(k in D))salah('panggung',`opsi tidak dikenal: ${k} (${Object.keys(D).join(' ')})`);
-  const p={...D,...o};if(!SISI.includes(p.sisi))salah('panggung',`sisi tidak dikenal: ${p.sisi} (${SISI.join(' ')})`);
+  const p={...D,...o};if(!['bayang','dalang'].includes(p.sisi))salah('panggung',`sisi tidak dikenal: ${p.sisi} (bayang dalang)`);
   const c=kanvasBaru(W,H);c.className='wv-wayang';c.style.cssText='position:absolute;left:0;top:0;pointer-events:none';$('#stage').prepend(c);
-  const S=kanvasBaru(W,H);Object.assign(PANGGUNG,{c,x:c.getContext('2d'),S,xs:S.getContext('2d',{}),figur:[],opsi:p,kelir:bakeKelir(p)});
+  const S=kanvasBaru(W,H);Object.assign(PANGGUNG,{c,x:c.getContext('2d'),S,xs:S.getContext('2d'),figur:[],opsi:p,kelir:bakeKelir(p)});
   if(p.simping)bakeSimpingan(p);
   rantaiUpdate(gambar);gambar();return c;}
 
@@ -748,10 +742,10 @@ function bakeKelir(p){const c=kanvasBaru(W,H),x=c.getContext('2d'),B=BLENCONG,g=
 /* simpingan: wayang simpingan menancap di debog di kedua sisi; tinggi menurun dari ujung debog ke tengah; muka membelakangi tempat
    perkeliran (sumber: Subagya 2013). x = koordinat layar sisi BAYANG, jadi simpingan kanan dalang ada di kiri layar */
 function bakeSimpingan(p){const Lb=kanvasBaru(W,H),xB=Lb.getContext('2d'),warna=p.sisi==='dalang',Lw=warna?kanvasBaru(W,H):null,xW=warna?Lw.getContext('2d'):null,R=mulberry32(p.seed*31);
-  const baris=(sisi,ragam,x0,dx,hadap)=>{for(let i=0;i<9;i++){const jn=ragam[i%ragam.length],G=rancang(jn,floor(R()*1e4)),k=(1.04-.055*i)*JENIS[jn].tinggi*p.tinggi/1000;
+  const baris=(ragam,x0,dx,hadap)=>{for(let i=0;i<9;i++){const jn=ragam[i%ragam.length],G=rancang(jn,floor(R()*1e4)),k=(1.04-.055*i)*JENIS[jn].tinggi*p.tinggi/1000;
       G.muka=JENIS[jn].muka;gambarDiam(xB,G,x0+i*dx,p.dasar,k,hadap,p,0);if(warna)gambarDiam(xW,G,x0+i*dx,p.dasar,k,hadap,p,1);}};
-  baris('kanan',['gagahan','alusan','alusan','putri','gagahan','alusan','putri','alusan','putri'],30,50,-1);
-  baris('kiri',['raksasa','gagahan','raksasa','gagahan','gagahan','raksasa','gagahan','alusan','gagahan'],W-30,-50,1);
+  baris(['gagahan','alusan','alusan','putri','gagahan','alusan','putri','alusan','putri'],30,50,-1);
+  baris(['raksasa','gagahan','raksasa','gagahan','gagahan','raksasa','gagahan','alusan','gagahan'],W-30,-50,1);
   /* siluet simpingan masuk kelir dipanggang (tajam: menempel kelir), warnanya lapisan terpisah di sisi dalang */
   PANGGUNG.kelir.getContext('2d').globalAlpha=.94;PANGGUNG.kelir.getContext('2d').drawImage(Lb,0,0);PANGGUNG.kelir.getContext('2d').globalAlpha=1;PANGGUNG.simpingWarna=Lw;}
 /* figur diam ke kanvas pemanggang: lengan menjuntai (simpingan) */
@@ -785,7 +779,7 @@ function gambarFigur(x,F,S,M,warna,p){const res=warna?F.sw:F.sb;
   const pakai=(m)=>x.setTransform(m[0],m[1],m[2],m[3],m[4],m[5]);
   if(F.kayon){const balik=warna&&cos(S.putar*RAD)<0,sp=balik?F.swb:res;pakai(M);x.drawImage(sp.c,sp.x0,sp.y0,sp.c.width/sp.u,sp.c.height/sp.u);
     /* gapit: batang tanduk memanjang di tengah */
-    if(!warna||1){x.strokeStyle=warna?'#6a4628':WARNA_BAYANG;x.lineWidth=5;x.beginPath();x.moveTo(0,-880);x.lineTo(0,200);x.stroke();}return;}
+    x.strokeStyle=warna?'#6a4628':WARNA_BAYANG;x.lineWidth=5;x.beginPath();x.moveTo(0,-880);x.lineTo(0,200);x.stroke();return;}
   const G=F.G,U=G.U,L=warna?F.lw:F.lb,lengan=(P)=>{const m1=kali(M,[cos(-P.a1),sin(-P.a1),-sin(-P.a1),cos(-P.a1),P.bahu[0],P.bahu[1]]);pakai(m1);x.drawImage(L.c1,-L.w/2*U,-30*U,L.c1.width/L.u*U,L.c1.height/L.u*U);
       const m2=kali(M,[cos(-P.a2),sin(-P.a2),-sin(-P.a2),cos(-P.a2),P.siku[0],P.siku[1]]);pakai(m2);x.drawImage(L.c2,-L.w/2*U,-30*U,L.c2.width/L.u*U,L.c2.height/L.u*U);},
     rotan=(P,c)=>{pakai(M);x.strokeStyle=c;x.lineWidth=3.2;x.beginPath();x.moveTo(P.telapak[0],P.telapak[1]);const dx=P.telapak[0]*.14+18,y1=460;x.lineTo(P.telapak[0]+dx,y1);x.stroke();};
@@ -824,7 +818,7 @@ function lampu(x,K,V,Lx){const cx=W/2+(V[0]*Lx+V[4]-W/2)*1.5+150,cy=64+(V[5]+V[3
   const fy=18-K.dy*.5,fx=102+K.dx*.3,t=30+26*a,gl=x.createRadialGradient(fx,fy-18,2,fx,fy-18,190);gl.addColorStop(0,`rgba(255,226,150,${.7*a})`);gl.addColorStop(.2,`rgba(255,180,80,${.3*a})`);gl.addColorStop(1,'rgba(255,150,50,0)');
   x.globalCompositeOperation='lighter';x.fillStyle=gl;x.fillRect(fx-200,fy-210,400,400);x.fillStyle='#fff0b8';x.fill(new Path2D(jalur([[fx-9,fy+8],[fx+K.dx*.2,fy-t,1],[fx+9,fy+8],[fx,fy+13]])));x.globalCompositeOperation='source-over';}
 
-return{panggung,figur,gambar,rancang,rancangKayon,tatah,jalur,proyeksi,kedipan,terang,ik,keadaan,siapKunci,poseLengan,JENIS,MUKA,PIHAK,POSE,TATAH,PANGGUNG};})();
+return{panggung,figur,gambar,rancang,rancangKayon,tatah,jalur,proyeksi,kedipan,ik,keadaan,siapKunci,poseLengan,JENIS,MUKA,PIHAK,POSE,TATAH,PANGGUNG};})();
 /* kait untuk scripts/test-starters.mjs — tidak dipanggil deliverable; di ?kosong=1. Fixture sendiri (panggung tanpa simpingan), dibersihkan */
 window.WAYANG_UJI=()=>{const r={},O=window.OPENER,P=wayang.PANGGUNG,b0={...BLENCONG},lum=(d,i)=>.3*d[i]+.59*d[i+1]+.11*d[i+2],
     bersih=()=>{if(P.c)P.c.remove();Object.assign(P,{c:null,figur:[],opsi:null,simpingWarna:null});},

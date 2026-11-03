@@ -9,7 +9,7 @@ import { readFileSync } from 'node:fs';
 const baca = n => readFileSync(new URL(`../src/runtime/${n}.js`, import.meta.url), 'utf8');
 const { wayang, BLENCONG } = new Function('tl', 'W', 'H', 'window', 'document', '$', baca('atmosfer') + '\n' + baca('wayang') + ';return {wayang,BLENCONG}')(
   { time: () => 0, eventCallback: () => null }, 1920, 1080, {}, {}, () => null);
-const { proyeksi, kedipan, terang, ik, keadaan, siapKunci, poseLengan, rancang, rancangKayon, tatah, jalur, JENIS, MUKA, PIHAK, POSE, TATAH } = wayang;
+const { proyeksi, kedipan, ik, keadaan, siapKunci, poseLengan, rancang, rancangKayon, tatah, jalur, JENIS, MUKA, PIHAK, POSE, TATAH } = wayang;
 const dekat = (a, b, e = 1e-6) => assert.ok(Math.abs(a - b) < e, `${a} ≉ ${b}`);
 
 test('IK: telapak sampai target dalam jangkauan, di luar jangkauan dijepit lurus, siku di sisi yang diminta', () => {
@@ -39,7 +39,6 @@ test('bayangan: menempel kelir = tajam & 1:1; makin dekat lampu makin besar dan 
   assert.ok(proyeksi(6, 620, 24).blur < .3, 'figur di kelir harus tajam');
   assert.ok(proyeksi(9999, 620, 24).skala < 7, 'z di balik lampu harus dijepit');
   assert.deepEqual(proyeksi(100), proyeksi(100, BLENCONG.jarak, BLENCONG.nyala));
-  assert.ok(terang(0) > terang(300) && terang(300) > terang(900) && terang(5000) >= .2);
 });
 
 test('kunci gerak: murni waktu, tanpa lompatan, langkah kembali ke nol, kunci salah ditolak', () => {

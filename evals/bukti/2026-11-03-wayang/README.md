@@ -22,8 +22,8 @@ prioritas Idle, mesin acuan, agen lain ikut memakai Chrome. Bukan bench: `bench-
 | 13,6–14,4 raksasa blur besar | 202 (382) | 240 (251) |
 | 19,5–21 gunungan tutup | 147 (209) | 173 (185) |
 
-Muat sampai `OPENER.ready`: 2,1–8,5 dtk (bayang), 2,6–4,0 dtk (dalang). Lonjakan maks = satu-dua sampel pertama sesudah seek. Sasaran ≤ 350 ms/frame termasuk capture: 
-sisi bayang kemungkinan di tepi batas; dipastikan oleh bench.
+Muat sampai `OPENER.ready`: 2,1–8,5 dtk (bayang), 2,6–4,0 dtk (dalang). Penyebab sampel maks belum ditelusuri. Ditambah capture, perkiraan kasar 313–402 ms/frame
+(bayang) dan 343–440 (dalang): sasaran ≤ 350 ms bisa terlewati; bench menentukan.
 
 `nilai-visual`: 8 bingkai, 8 ok, 0 peringatan (`nilai.txt`).
 

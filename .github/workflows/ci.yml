@@ -26,6 +26,9 @@ jobs:
       - name: Uji VO Gemini (node:test, tanpa jaringan dan tanpa kunci)
         run: node --test scripts/test-vo.mjs
 
+      - name: Uji pustaka aset Jawa kuno (node:test, tanpa browser)
+        run: node --test scripts/test-pustaka.mjs
+
       - name: Starter sinkron dengan src/runtime
         run: node scripts/build-starters.mjs --check
 

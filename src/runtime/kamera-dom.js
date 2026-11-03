@@ -8,12 +8,13 @@
 CAM.mode='dom';
 const BIDANG=[...rig.querySelectorAll('[data-z]')].map(e=>({el:e,z:+e.dataset.z}));
 let blurKu=0;
-function applyCam(){
-  const P=W*CAM.mm/36;let fx=CAM.fx,fy=CAM.fy,roll=CAM.roll;
+function applyCam(){let fx=CAM.fx,fy=CAM.fy,roll=CAM.roll,zoom=CAM.zoom,mm=CAM.mm;
+  if(CAM.rail>=0){const s=RAILS[CAM.rail](tl.time());fx=s.fx;fy=s.fy;zoom=s.zoom;mm=s.mm;roll+=s.roll;}   // terbang() (terbang.js)
+  const P=W*mm/36;
   if(CAM.shake){const t=tl.time(),a=CAM.shake;fx+=(noise(t*1.7,CAM.seed)-.5)*40*a;fy+=(noise(t*1.3,CAM.seed+1)-.5)*30*a;roll+=(noise(t*.9,CAM.seed+2)-.5)*1.2*a;}
   if(!CAM.pitch&&!CAM.yaw&&!roll&&!CAM.shake&&!BIDANG.length)
-    rig.style.transform=`translate(${W/2-CAM.fx*CAM.zoom}px,${H/2-CAM.fy*CAM.zoom}px) scale(${CAM.zoom})`;
-  else rig.style.transform=`translate(${W/2}px,${H/2}px) perspective(${P}px) rotateX(${CAM.pitch}deg) rotateY(${CAM.yaw}deg) rotateZ(${roll}deg) scale(${CAM.zoom}) translate(${-fx}px,${-fy}px)`;
+    rig.style.transform=`translate(${W/2-fx*zoom}px,${H/2-fy*zoom}px) scale(${zoom})`;
+  else rig.style.transform=`translate(${W/2}px,${H/2}px) perspective(${P}px) rotateX(${CAM.pitch}deg) rotateY(${CAM.yaw}deg) rotateZ(${roll}deg) scale(${zoom}) translate(${-fx}px,${-fy}px)`;
   if(BIDANG.length)rig.style.transformStyle='preserve-3d';
   for(const b of BIDANG){b.el.style.transform=`translateZ(${b.z}px) scale(${(P0-b.z)/P0})`;
     b.el.style.filter=CAM.aperture?`blur(${Math.min(24,Math.abs(b.z-CAM.focus)*CAM.aperture/100).toFixed(2)}px)`:'';}

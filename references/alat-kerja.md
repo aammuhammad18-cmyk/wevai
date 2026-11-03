@@ -115,6 +115,7 @@ Jangan menganggap perintah latar agen cukup untuk menahan sleep.
 | Bridge AE | `scripts/ae/bridge/aset-svg.py`, `svg2png.cjs`, `rig-tokoh.py` | aset SVG→PNG 2× dan rig karakter untuk `references/ae-bridge-higgsfield.md` |
 | Uji VO Gemini | `node --test scripts/test-vo.mjs` | uji `vo-gemini.mjs` tanpa jaringan dan tanpa kunci (fetch, jam, dan tidur palsu); bagian dari `rilis.mjs` dan CI |
 | Uji pustaka aset | `node --test scripts/test-pustaka.mjs` | uji `src/runtime/pustaka.js` tanpa browser: determinisme, opsi salah ditolak, SVG well-formed; bagian dari `rilis.mjs` dan CI |
+| Uji mata elang | `node --test scripts/test-elang.mjs` | matematika `terbang()` (Catmull-Rom, look-ahead, roll, guncang trauma) tanpa browser; bagian dari `rilis.mjs` dan CI |
 
 ## VO Gemini (banyak kunci)
 

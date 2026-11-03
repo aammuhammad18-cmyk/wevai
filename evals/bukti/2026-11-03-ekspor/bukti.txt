@@ -37,7 +37,7 @@ mesin yang sama, semua Chrome uji berprioritas Idle dan memegang kunci Chrome be
                     dengan alat/antre-render.sh milik pemilik; tidak bertambah per sambungan karena tiap babak durasi video dan audionya sama)
    RUN 4 (gagal):   html hilang -> [GAGAL] tidak-ada; FORMAT=xyz -> export-frames kode 1 -> [GAGAL] format-salah; bab2 tetap diproses (dilewati);
                     kode keluar 1, gabungan tidak dibuat, tidak ada sisa .sementara.mp4
-   Bersih-bersih (22 proses turunan: powershell penahan sleep, node export-frames, 2 ffmpeg, ±17 chrome):
+   Bersih-bersih (22 proses turunan: powershell penahan sleep, node export-frames, 2 ffmpeg, 16 chrome, 2 conhost):
      galat tak tertangani di tengah render (preload uji melempar): 22/22 proses mati dalam 4.6 dtk, [tahan-sleep] dilepas, tanpa sisa sementara
      process.emit('SIGINT') saat menunggu penanda (pengendali Ctrl+C; sinyal OS tidak bisa dikirim ke Node di Windows): "[henti] sinyal SIGINT",
        [tahan-sleep] dilepas, kode keluar 130, 2/2 proses turunan mati

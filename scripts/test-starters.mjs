@@ -39,16 +39,18 @@ const browser = await luncurkan({
 });
 
 // starter yang wajib punya kait atmosfer/cahaya-2d/pasca; BERKAMERA = yang juga punya CAM (kabut berparalaks hanya terukur di sana: panggung belum punya CAM)
-const MODUL = ['starter-explainer.html', 'starter-explainer-panggung.html', 'starter-sinematik.html'];
-const BERKAMERA = ['starter-explainer.html', 'starter-sinematik.html'];
+const MODUL = ['starter-explainer.html', 'starter-explainer-panggung.html', 'starter-sinematik.html', 'katalog-pustaka.html'];
+const BERKAMERA = ['starter-explainer.html', 'starter-sinematik.html', 'katalog-pustaka.html'];
+// halaman ber-adegan bawaan (SINEMA_UJI wajib; kait modul + kamera di ?kosong=1): starter sinematik dan katalog pustaka aset
+const ADEGAN = ['starter-sinematik.html', 'katalog-pustaka.html'];
 
 let gagal = 0;
 for (const file of files) {
   const name = basename(file);
-  // halaman bawaan starter-sinematik sudah berisi adegan (langit, grade, bidang [data-z]); kait modul dan kamera mengandaikan halaman yang
+  // halaman bawaan ADEGAN sudah berisi adegan (langit, grade, bidang [data-z]); kait modul dan kamera mengandaikan halaman yang
   // belum memakai modul (awalBersih, jalur 2D tanpa bidang, grade netral), jadi dijalankan di ?kosong=1 (rig + modul tanpa adegan).
-  // Kait adegan (SINEMA_UJI) dibaca dari halaman bawaan. Katalog ?demo=1 tidak ada di starter ini.
-  const adegan = name === 'starter-sinematik.html';
+  // Kait adegan (SINEMA_UJI) dibaca dari halaman bawaan. Katalog kamera ?demo=1 tidak ada di halaman ini.
+  const adegan = ADEGAN.includes(name);
   const page = await browser.newPage();
   const errs = [];
   page.on('pageerror', e => errs.push(e.message));
@@ -141,9 +143,9 @@ for (const file of files) {
     }
     if (adegan && !sinema) masalah.push('sinema: SINEMA_UJI tidak ada');
     if (sinema) {
-      if (!sinema.paralaks) masalah.push('sinema: bidang z −900 dan z 0 tidak bergeser berbeda (> 1 px) saat CAM.fx += 300');
+      if (!sinema.paralaks) masalah.push('sinema: bidang terjauh dan terdekat (yang tampil) tidak bergeser berbeda (> 1 px) saat CAM.fx += 300');
       if (!sinema.rigBersih) masalah.push(`sinema: rig atau pembungkus [data-z] ber-filter/mix-blend-mode/opacity/clip-path/mask (computed) — paralaks rata: ${sinema.kotor}`);
-      if (!sinema.adaSemua) masalah.push(`sinema: modul tidak lengkap — perlu #wv-langit, ≥ 3 .wv-kabut, ≥ 1 .wv-partikel, 2 .wv-pendar, lapisan GRADE (dapat ${JSON.stringify(sinema.ada)})`);
+      if (!sinema.adaSemua) masalah.push(`sinema: modul tidak lengkap — perlu #wv-langit, ≥ 3 .wv-kabut, ≥ 1 .wv-partikel, .wv-pendar, lapisan GRADE (katalog: + api, asap, 4 kain, ≥ 10 jenis aset pustaka) (dapat ${JSON.stringify(sinema.ada)})`);
       if (!kanvasSinema.length) masalah.push('sinema: tidak ada kanvas di #stage');
       for (const k of kanvasSinema) {
         if (!k.sama) masalah.push(`sinema: kanvas ${k.nama}: t yang sama lewat jalur seek berbeda memberi piksel berbeda`);

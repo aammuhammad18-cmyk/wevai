@@ -8,3 +8,6 @@ manifest.json
 __pycache__/
 *.mp4
 .superpowers/
+# kunci API Gemini untuk scripts/vo-gemini.mjs: tempatnya ~/.wevai, di luar repo; ini jaring pengaman bila terlanjur disalin ke sini
+gemini-kunci*.txt
+gemini-kunci-status.json

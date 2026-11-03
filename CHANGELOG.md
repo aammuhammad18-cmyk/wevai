@@ -84,14 +84,15 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
   - **Plugin Antigravity tidak ditambahkan.** `.antigravity-plugin/plugin.json` (`"skills": "./"`) diuji dengan
     `agy plugin validate --strict --json` pada salinan sementara repo (profil `agy` terpisah; `~/.gemini` tidak berubah): `SKILL.md` di
     akar terbaca sebagai 1 skill, tetapi mode ketat GAGAL (exit 1): `SKILL.md: the body is 37243 bytes; only the first 24000 are loaded`.
-    Salinan yang `SKILL.md`-nya dipotong di bawah 24 000 byte lolos ketat. Jadi syarat memasukkan manifest (lolos ketat) belum terpenuhi.
+    Salinan yang `SKILL.md`-nya dipotong di bawah 24 000 byte lolos ketat.
+    - Teratasi kemudian: sesudah `SKILL.md` dirapikan (butir "SKILL.md muat batas Antigravity" di bawah), manifest
+      `.antigravity-plugin/plugin.json` (`"skills": "./"`, logo `icon.svg`) lolos `--strict --json` dengan 1 skill dan `findings`
+      kosong, lalu ditambahkan.
+    - Versinya ikut `bump-version.mjs` (15 tempat).
+    - README menyebut `agy plugin install https://github.com/aammuhammad18-cmyk/wevai`; pemasangannya sendiri belum diuji.
   - **Celah yang diketahui**:
-    - **`SKILL.md` melewati 24 000 byte** (bodi 36,7 KB dengan LF, 37,3 KB dengan CRLF seperti checkout Windows). Bila batas itu juga berlaku
-      pada skill di folder global (belum terverifikasi; validator hanya menyebut skill plugin), agen Antigravity hanya memuat sampai sekitar
-      langkah 3 "Alur kerja" (di checkout CRLF batasnya jatuh di tengah kalimat langkah 3): langkah 4–7, seluruh "Checklist sebelum
-      menyerahkan", "Jebakan", "After Effects", dan "Isi paket" tidak termuat. Karena itu definisi `<folder skill>`, catatan shell, dan aturan
-      salin starter ditaruh di 24 000 byte pertama (byte ±2 200, ±2 700, dan ±23 200). Mengatasinya = menyusun ulang `SKILL.md` (MAYOR
-      menurut `docs/aturan-rilis.md`), jadi keputusan pemilik; uji empirisnya: minta agen Antigravity mengutip langkah 6 "Alur kerja".
+    - Batas 24 000 byte `SKILL.md`: teratasi dengan butir "SKILL.md muat batas Antigravity". Uji empirisnya tetap: minta agen
+      Antigravity mengutip langkah 6 "Alur kerja".
     - Belum dijalankan di Antigravity sungguhan (App/CLI/IDE) dan belum di macOS/Linux. Deteksi browser macOS/Linux hanya daftar lokasi
       standar yang belum dicoba di OS itu; seluruh verifikasi dilakukan di Windows 11 (PowerShell 5.1, Git Bash).
     - URL MCP Higgsfield di README belum terverifikasi (hanya sumber pihak ketiga).
@@ -115,6 +116,28 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
     badan melebihi 24 000 byte.
   - Semua jalur anggaran turun 4–5 KB: Opener 219,9 → 215 KB, Siluet sinematik 234,5 → 230 KB.
   - `docs/aturan-rilis.md` kini menyatakan bahwa menata ulang isi `SKILL.md` tanpa mengubah aturan bukan perubahan MAYOR.
+- **VO Gemini** (`scripts/vo-gemini.mjs` dan `scripts/test-vo.mjs`, baru; `references/alat-kerja.md` › "VO Gemini (banyak kunci)";
+  README › "Voice-over with Gemini"): VO dari Gemini TTS lewat API resmi (Interactions API `POST /v1beta/interactions`, model bawaan
+  `gemini-3.8-flash-tts`, suara bawaan Iapetus), Node ≥ 18 tanpa dependensi. Naskah JSON `[{id, teks, suara?, gaya?}]` → `<id>.wav`
+  (24 kHz mono 16-bit) + `<id>.json` `{teks, suara, model, gaya, dur}`; `dur` = jumlah sampel ÷ laju, persis (bukan ffprobe). Segmen
+  yang json-nya cocok dan wav-nya ada dilewati, jadi menjalankan ulang = melanjutkan. Sampai 10 kunci (env `GEMINI_API_KEYS` /
+  `GEMINI_API_KEY`, atau `~/.wevai/gemini-kunci.txt`), tak pernah tercetak atau tertulis utuh; status istirahat di
+  `~/.wevai/gemini-kunci-status.json` berkunci hash sha256. Pindah kunci otomatis: 429 per menit (istirahat sebesar `retryDelay`),
+  429 per hari (sampai tengah malam Pasifik, dihitung dengan Intl, benar untuk PST dan PDT; `retryDelay` diabaikan karena Google
+  pernah mengirim "1s" untuk kuota harian), 429 `limit: 0` (model di luar paket kunci: tidak ditunggu, tidak disimpan), kunci tidak sah (24 jam), 5xx atau jaringan (ulang 1, 2, 4 dtk, lalu kunci berikutnya);
+  gagal konten atau `status: incomplete` = gagal segmen, bukan salah kunci. Semua kunci istirahat: ≤ 15 mnt tidur, selebihnya
+  menunggu reset harian dan lanjut sendiri (`--jangan-tunggu` = kode keluar 2 + perintah ulang). `--cek-kunci` (GET `/models`, tanpa
+  kuota TTS) dan `--daftar-suara` (GET `/voices`, tempat suara beraksen regional dicari).
+  **Keputusan**: pemilik memilih "failover + aman" setelah dua fakta: kuota Gemini dihitung per proyek, bukan per kunci, dan Google
+  APIs Terms §2(d) melarang menyiasati batas. Karena itu README dan `alat-kerja.md` memuat peringatannya, dan alat ini tidak
+  dipasarkan sebagai cara menggandakan kuota gratis. Kunci dipakai berurutan (kunci pertama sampai gagal), bukan bergilir.
+  **Gerbang**: `node --test scripts/test-vo.mjs` (tanpa jaringan dan tanpa kunci; fetch, jam, dan tidur palsu) masuk
+  `scripts/rilis.mjs`, `.github/workflows/ci.yml`, dan `docs/aturan-rilis.md`; `.gitignore` menolak `gemini-kunci*.txt`.
+  **Celah yang diketahui**: belum dicoba dengan kunci sungguhan. Bentuk permintaan dan galat 429 diambil dari dokumen resmi
+  (`aistudio.google.com/docs/speech-generation`, `/docs/api-errors`) dan laporan forum Google. Panduan memakai
+  `generation_config.speech_config`, sedangkan referensi API menyebut `structured_speech_config`; bila Google menjawab 400
+  `parameter_unknown`, ubah `bangunPermintaan()` (satu fungsi). Batas per menit tidak ditebak: alat mengikuti jawaban 429.
+  **Status penerimaan**: menunggu uji langsung pemilik dengan kunci sendiri.
 
 ## 1.3.0 — 2026-11-02
 

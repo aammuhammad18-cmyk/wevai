@@ -347,4 +347,5 @@ bagian 1 dan 1b. Ringkasnya:
 7. **Khusus explainer: naskah VO + ajakan merekam** — pesan penutup wajib
    memuat naskah VO lengkap dan meminta user merekam/generate lalu mengirim
    ulang audionya untuk disinkronkan. Detail bentuk naskah, petunjuk rekam,
-   dan retime di `references/explainer.md` → "Penyerahan".
+   dan retime di `references/explainer.md` → "Penyerahan". User punya kunci Gemini API?
+   Tawarkan VO langsung: `scripts/vo-gemini.mjs` (`references/alat-kerja.md` › VO Gemini).

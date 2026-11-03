@@ -82,6 +82,7 @@ bocor ke render berikutnya.
 | Arsip mandiri | `node "<folder skill>/scripts/vendor-libs.mjs"` | menanam GSAP + font ke dalam berkas supaya tetap bisa diputar offline bertahun-tahun (jalur WebGL tetap butuh internet) |
 | Dev server | `python "<folder skill>/scripts/serve.py"` | hanya bila mengedit dengan module JS lokal |
 | Ekspresi kepala | `python "<folder skill>/scripts/kepala-ekspresi.py" kepala.png` | varian senang/cemas/kaget + kedip untuk kartun panggung |
+| VO Gemini | `node "<folder skill>/scripts/vo-gemini.mjs" naskah.json` | membuat VO (WAV + durasi persis) dari Gemini TTS lewat API resmi; beberapa kunci bergantian, lanjut sendiri. Baca peringatan kuota di bagian "VO Gemini (banyak kunci)" di bawah. Tanpa dependensi |
 
 Skrip yang merender, membuka Chrome, menulis berkas, atau memakai jaringan (`snap`, `export-frames`,
 `bench-frame`, `test-starters`, `eval-run`, `build-starters`, `vendor-libs`, `ae/bridge/svg2png.cjs`,
@@ -111,3 +112,96 @@ Jangan menganggap perintah latar agen cukup untuk menahan sleep.
 | Eval | `node scripts/eval-run.mjs <folder-hasil> [--snap]` | menjalankan brief baku di `evals/briefs/`, lint + potret, lalu menulis kartu nilai |
 | Anggaran konteks | `node scripts/context-budget.mjs` | berapa besar yang harus dibaca agen per jalur pekerjaan |
 | Bridge AE | `scripts/ae/bridge/aset-svg.py`, `svg2png.cjs`, `rig-tokoh.py` | aset SVG→PNG 2× dan rig karakter untuk `references/ae-bridge-higgsfield.md` |
+| Uji VO Gemini | `node --test scripts/test-vo.mjs` | uji `vo-gemini.mjs` tanpa jaringan dan tanpa kunci (fetch, jam, dan tidur palsu); bagian dari `rilis.mjs` dan CI |
+
+## VO Gemini (banyak kunci)
+
+`scripts/vo-gemini.mjs` membuat VO dari **Gemini TTS lewat API resmi Google**. Node ≥ 18, tanpa dependensi, tanpa ffmpeg. VO dari
+sumber lain (rekaman sendiri, TTS berbayar) tetap sah; alat ini hanya jalan pintas.
+
+**Peringatan: baca sebelum menambah kunci.**
+
+- Kuota Gemini API dihitung **per proyek Google Cloud, bukan per kunci** ("Rate limits are applied per project, not per API key").
+  Kunci yang berasal dari satu proyek berbagi satu kuota, jadi menambah kunci dari proyek yang sama **tidak menambah apa pun**.
+  Kuota harian reset tengah malam waktu Pasifik.
+- Syarat Google APIs §2(d): "You agree to, and will not attempt to circumvent, such limitations documented with each API."
+  Alat ini **bukan cara menggandakan kuota gratis**. Fungsinya ketahanan: kunci yang sah dipakai bergantian bila satu kena
+  batas atau bermasalah, kecepatan menyesuaikan batas per menit, dan pekerjaan lanjut sendiri sesudah reset.
+- Pakai hanya kunci yang **berhak Anda pakai**: mis. proyek anggota tim yang berbeda (masing-masing dengan izin dan kuotanya),
+  atau satu kunci berbayar sebagai cadangan. Membuat proyek atau akun hanya demi menambah kuota gratis berisiko penangguhan akun.
+  Batas alat: 10 kunci.
+- Sumber: https://developers.google.com/terms · https://ai.google.dev/gemini-api/docs/rate-limits ·
+  https://aistudio.google.com/docs/speech-generation
+
+**Pakai** (dari folder proyek; keluaran relatif terhadap folder tempat perintah dijalankan):
+
+```bash
+node "<folder skill>/scripts/vo-gemini.mjs" naskah.json                       # → audio/vo/<id>.wav + <id>.json
+node "<folder skill>/scripts/vo-gemini.mjs" naskah.json --keluar audio/vo --suara Kore --gaya "hangat, tempo sedang" --paralel 2
+node "<folder skill>/scripts/vo-gemini.mjs" --cek-kunci                       # tiap kunci: sah / tidak sah + status istirahat (tanpa kuota TTS)
+node "<folder skill>/scripts/vo-gemini.mjs" --daftar-suara                    # suara dari API; bawaan bahasa id-ID
+node "<folder skill>/scripts/vo-gemini.mjs" --help
+```
+
+`naskah.json` = larik `[{ "id": "p01", "teks": "…", "suara": "Kore", "gaya": "…" }]`. `suara` dan `gaya` opsional dan menimpa
+`--suara` / `--gaya`. `id` menjadi nama berkas, jadi hanya huruf, angka, `_ - .` (garis miring atau `..` ditolak). Satu segmen =
+satu permintaan, masukan maksimal 8.192 token: pecah per paragraf.
+
+| Opsi | Arti |
+|---|---|
+| `--keluar <folder>` | folder keluaran (bawaan `audio/vo`) |
+| `--model` | bawaan `gemini-3.8-flash-tts`; ada juga `gemini-3.8-flash-lite-tts` dan `gemini-3.1-flash-tts-preview` |
+| `--suara` | bawaan `Iapetus` (narator); `Kore` cocok untuk pencerita |
+| `--gaya "<teks>"` | gaya per giliran bicara: emosi, tempo, volume (dikirim sebagai `speech_metadata.style`) |
+| `--paralel N` | N segmen sekaligus (bawaan 1, maksimal 10; makin besar makin cepat menabrak batas per menit) |
+| `--jangan-tunggu` | jangan menunggu reset harian: berhenti dengan kode 2 dan cetak perintah ulang |
+| `--kunci <berkas>` | berkas kunci lain (menggantikan berkas bawaan) |
+| `--cek-kunci` | periksa tiap kunci lewat `GET /v1beta/models` (tanpa kuota TTS): tersamar, sah atau tidak, dan status istirahat tersimpan |
+| `--daftar-suara` | daftar suara dari `GET /v1beta/voices`; `--bahasa` (bawaan `id-ID`, atau `semua`) dan `--cari <kata>` menyaring |
+
+**Kunci.** Maksimal 10, ganda dibuang, dipakai **berurutan** (kunci pertama sampai gagal, bukan bergilir). Sumber, digabung dengan urutan ini:
+
+1. env `GEMINI_API_KEYS` (dipisah koma atau spasi);
+2. env `GEMINI_API_KEY`;
+3. berkas teks: satu kunci per baris, `#` = komentar. Bawaan `~/.wevai/gemini-kunci.txt` (Windows:
+   `C:\Users\<nama>\.wevai\gemini-kunci.txt`), atau `--kunci <berkas>`.
+
+Simpan berkas kunci **di luar repo mana pun** dan jangan pernah di-commit (`.gitignore` repo ini sudah menolak
+`gemini-kunci*.txt`). Kunci yang bocor ke repo publik diblokir Google. Alat ini tidak mencetak atau menulis kunci utuh: di
+layar `AIza…k3Xy`, dan status istirahat di `~/.wevai/gemini-kunci-status.json` hanya memuat 12 heks pertama sha256 kunci.
+
+**Pindah kunci, istirahat, reset** (semuanya otomatis):
+
+| Kejadian | Tindakan |
+|---|---|
+| 429 per menit | kunci istirahat selama `retryDelay` (bawaan 60 dtk), langsung pindah. Kena lagi sesudah istirahat → minimal 1 menit |
+| 429 per hari | kunci istirahat sampai tengah malam Pasifik berikutnya (+1 menit; DST dihitung benar), pindah. `retryDelay` diabaikan: untuk kuota harian Google pernah mengirim "1s" |
+| 429 `limit: 0` | model ini tidak termasuk paket kunci itu: kunci dilewati di jalan ini saja (tidak disimpan, karena bergantung pada model), tidak ditunggu. Coba `--model` lain atau kunci berbayar |
+| 400/401/403 kunci tidak sah (juga "leaked", ditolak penagihan) | dilewati 24 jam, dilaporkan tersamar; kunci lain meneruskan |
+| 5xx atau jaringan putus | ulang pada kunci yang sama setelah 1, 2, 4 dtk, lalu kunci berikutnya. Gagal di semua kunci → segmen itu gagal |
+| 200 tanpa audio, ditolak filter konten, atau `status: incomplete` (bisa terpotong) | **gagal segmen**, bukan salah kunci: dicatat, dikerjakan terus, didaftar di akhir |
+| semua kunci istirahat | sisa ≤ 15 menit: tidur lalu lanjut. Lebih lama: **menunggu reset harian dan lanjut sendiri** (jam lanjut dicatat dalam waktu lokal; WIB ≈ 15.00 saat PST, ≈ 14.00 saat PDT). Dengan `--jangan-tunggu`: kode keluar 2 + perintah ulang |
+| semua kunci tidak sah atau `limit: 0` | berhenti dengan kode 1 dan alasan tiap kunci (tersamar); setelah diperbaiki: `--cek-kunci` |
+
+Alat ini tidak menebak batas per menit; ia mengikuti jawaban Google. Kunci yang kena 429 istirahat, dan bila semua kunci istirahat
+alat tidur (dipotong 30 dtk dengan jam dinding dicek ulang, jadi laptop yang sempat tidur tidak membuatnya terlambat bangun).
+Status istirahat tersimpan di disk, jadi kunci yang habis hari ini tidak dicoba lagi di jalan berikutnya sebelum waktunya. Selama
+laptop tidur tidak ada yang berjalan, termasuk penantian ini: pakai penahan sleep bila ingin lanjut tanpa dijaga.
+
+**Keluaran dan lanjut.** Per segmen: `<id>.wav` (24 kHz mono 16-bit; PCM mentah dibungkus header RIFF) dan `<id>.json`
+`{teks, suara, model, gaya, dur}`. `dur` = jumlah sampel ÷ laju sampel, **persis**, tidak pernah taksiran ffprobe. Segmen yang
+json-nya cocok (teks, suara, model, gaya) dan wav-nya ada **dilewati**: menjalankan ulang selalu aman dan berarti melanjutkan.
+Segmen gagal tidak meninggalkan json, jadi dicoba lagi di jalan berikutnya. Aturan VO tetap: tiap VO utuh dan durasinya persis;
+jeda antar-VO diatur saat menyusun linimasa (alat ini tidak menyambung audio).
+
+**Aksen.** Aksen diatur lewat **suara regional**, bukan lewat `--gaya` (dokumen Google menyarankan menghindari perubahan aksen di
+gaya). Jalankan `--daftar-suara` (bawaan bahasa `id-ID`; `--bahasa semua --cari <kata>` memperluas), lihat kolom aksen dan
+wilayah, lalu pakai isi kolom `id` sebagai `--suara` atau `"suara"` per segmen. Jeda di tengah teks: sisipkan `<short pause>` atau
+`<long pause>`; tag dalam bahasa Inggris paling andal.
+
+**Bila Google mengubah API.** Bentuk permintaan ada di `bangunPermintaan()` dan jawaban di `ambilAudio()` (dua fungsi, bagian
+"API" `vo-gemini.mjs`); pengenal galat 429 di `klasifikasi()`. Yang dipakai: Interactions API `POST /v1beta/interactions`,
+header `x-goog-api-key`, `response_format: {type: "audio"}`, `generation_config.speech_config`, gaya sebagai anotasi
+`speech_metadata`. Sesudah mengubah: `node --test scripts/test-vo.mjs`. Catatan: panduan bicara memakai `speech_config`,
+sedangkan referensi API menyebut `structured_speech_config`; bila Google menjawab 400 `parameter_unknown`, ganti nama itu di
+`bangunPermintaan()`.

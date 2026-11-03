@@ -14,14 +14,15 @@ menempel pada lukisan seperti latar film animasi lukis tangan di kamera multipla
    ditaruh di `<canvas class="wv-lukis">` dalam bidang `[data-z]`. Per frame: nol kerja, hanya transform kamera.
 2. **Yang hidup** (orang, burung, asap, kabut) = `lukis.sprite()`: tiap POSE dilukis sekali, lalu digerakkan dengan transform/opacity
    (GSAP atau fungsi murni `tl.time()`), dan pose diganti `lukis.siklus()` ("on twos" ala gambar tangan, bukan derau per frame).
-3. **Semua derau = fungsi koordinat objek (px bidang) + seed**, tidak pernah posisi layar atau nomor frame. Hash bilangan bulat
-   (pcg3d), jadi sama byte di GPU mana pun.
+3. **Semua derau = fungsi koordinat objek (px bidang) + seed**, tidak pernah posisi layar atau nomor frame. Kisi derau dari hash
+   bilangan bulat (pcg3d), sama persis di GPU mana pun (bukan hash `sin()`).
 4. **Dilarang**: menulis ulang kanvas lukisan per frame; filter CSS/SVG ber-seed waktu di view/rig; tekstur layar yang diam
    (*shower door*: lukisan bergeser di balik kertas yang diam); `grainHidup` (melompat 12×/dtk). Butir = kertas yang ikut bidang.
    Teks tetap DOM tajam di `#ui`, tidak pernah dilukis.
 
-Diuji (`scripts/test-starters.mjs`, blok lukis): kamera ditahan + waktu maju 1/60 dtk = piksel identik; bidang = dirinya tergeser
-tepat saat kamera digeser; dua mutasi (filter layar ber-seed per frame, tekstur layar diam) wajib tertangkap.
+Diuji (`scripts/test-starters.mjs`): kamera ditahan + waktu maju 1/60 dtk = piksel identik; bidang = dirinya tergeser tepat saat
+kamera digeser; dua mutasi (filter layar ber-seed per frame, tekstur layar diam) wajib tertangkap; `LUKIS_UJI`: markup sama di kotak
+tergeser = piksel sama di ruang objek (mutasi derau berkoordinat kanvas tertangkap).
 
 ## API
 
@@ -60,7 +61,7 @@ Bawaan = bidang tengah, cat air. Opsi asing atau di luar rentang → `Error('luk
 | `res` | 1 | resolusi kanvas. Dolly sampai `zoom` z: `res` ≈ z supaya kertas tak lunak |
 
 Patokan per bidang (starter): langit `kuas 9, panjang .9, basah .85, aliran .6, tepi .25`; gunung jauh `kuas 7, variasi .2,
-butir .8`; bidang ramai/detail `kuas 4`; latar depan gelap `kuas 5, variasi .3, sapuan .5, tepi .9`; sprite kecil `kuas 1.5–3`.
+butir .8`; bidang ramai/detail `kuas 4`; latar depan gelap `kuas 5, variasi .2, sapuan .4, tepi .9`; sprite kecil `kuas 1.5–3`.
 
 ## Palet senja (legenda)
 
@@ -70,10 +71,10 @@ butir .8`; bidang ramai/detail `kuas 4`; latar depan gelap `kuas 5, variasi .3, 
 | cakrawala | `#d48a7e` → `#f2b585` → `#f8d4a0` | merah jambu ke aprikot; awan dekat matahari `#e3967f`, sisi bawah `#f6b48c` |
 | matahari | `#fff6e2` (kertas), pendar `#ffdca8` | cahaya aset `{x, y, warna:'#ffcf96'}` |
 | kabut jarak (`LANGIT.horizon` saat membangun aset jauh) | `#9d7d92` | ungu kusam: gunung tidak larut ke aprikot |
-| gunung, bukit | `#4e4166`, `#33404c` | dingin; latar depan `#241a22`, daun `#2c3328` |
+| gunung, bukit | `#4e4166`, `#33404c` | dingin; latar depan `#241a22`, daun `#262a26` |
 | palet nada | `senja` `#2a2036` · `#9c6b70` · `#f7dcb0` | `nada` .15–.3 menyerasikan |
 
-Kilas balik: bangun adegan seperti biasa, lalu `palet:'kenang', nada:.7` di setiap bidang dan sprite (sepia, satu nada).
+Kilas balik: adegan yang sama dengan `palet:'kenang', nada:.7–.8` di setiap bidang dan sprite (sepia, satu nada); starter: `?kenang=1`.
 
 ## Resep
 
@@ -85,7 +86,8 @@ Kilas balik: bangun adegan seperti biasa, lalu `palet:'kenang', nada:.7` di seti
 3. **Satu kanvas per bidang**: gabungkan semua markup bidang itu dalam satu `lukis.bidang()`.
 4. **Sprite**: orang = siluet umum tanpa wajah, rim ke arah matahari, kaki/lengan sebagai garis bersendi; jalan = 8 pose, `siklus`
    6 fps + tween x linear. Asap = beberapa gumpal (sprite) dengan fase sendiri, posisi/skala/opacity fungsi murni `tl.time()`.
-5. **Kamera** pelan: geser + dolly ≤ 1,1 (bitmap diskalakan). Legenda DOM di `#ui`, kantong gelap di bawahnya.
+5. **Kamera** pelan: geser + dolly ≤ 1,1 (bitmap diskalakan). Legenda DOM di `#ui` di atas kantong gelap (starter: tebing gelap kiri
+   bawah sebagai *repoussoir*; air sawah yang terang di bawah teks = gagal kontras).
 6. **Siap**: `Promise.all([document.fonts.ready, lukis.siap()]).then(…OPENER.ready=true…)`.
 
 ## Biaya

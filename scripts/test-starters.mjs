@@ -226,7 +226,7 @@ for (const file of files) {
         if (g0.tepat > .0005) masalah.push(`lukis: bidang z ${z0} tidak ikut kamera utuh — geser 40 px: ${(g0.tepat * 100).toFixed(3)} % piksel ≠ dirinya tergeser`);
         if (g1.dua > .002) masalah.push(`lukis: bidang z ${z1} tidak ikut kamera utuh — geser 40 px: ${(g1.dua * 100).toFixed(3)} % piksel beda > 2`);
         await p.evaluate(() => { document.body.insertAdjacentHTML('beforeend', '<svg width="0" height="0" style="position:absolute"><filter id="mutDidih"><feTurbulence baseFrequency=".04" numOctaves="2" seed="1"/><feDisplacementMap in="SourceGraphic" scale="8" xChannelSelector="R" yChannelSelector="G"/></filter></svg>');
-          const f = document.querySelector('#mutDidih feTurbulence'); $('#view').style.filter = 'url(#mutDidih)'; rantaiUpdate(() => f.setAttribute('seed', 1 + Math.floor(tl.time() * 60))); });
+          const f = document.querySelector('#mutDidih feTurbulence'); $('#view').style.filter = 'url(#mutDidih)'; rantaiUpdate(() => f.setAttribute('seed', 1 + Math.round(tl.time() * 60))); });
         const md = await diam();
         await p.evaluate(() => { $('#view').style.filter = ''; const e = document.createElement('div'), n = "<svg xmlns='http://www.w3.org/2000/svg' width='256' height='256'><filter id='n'><feTurbulence baseFrequency='.7' numOctaves='2'/></filter><rect width='256' height='256' filter='url(%23n)'/></svg>";
           e.style.cssText = 'position:absolute;inset:0;pointer-events:none;mix-blend-mode:multiply;opacity:.35;background:url("data:image/svg+xml,' + n.replace(/</g, '%3C').replace(/>/g, '%3E') + '")'; $('#stage').appendChild(e); });

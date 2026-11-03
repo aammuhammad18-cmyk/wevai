@@ -41,6 +41,10 @@ dalam panggung yang sengaja dibuat lebih tinggi dari frame, mengikuti subjek
 (lompatan: tinggi kamera mengikuti busur, framing longgar di udara). Zoom
 diinterpolasi logaritmik supaya terasa rata.
 
+Kamera = `CAM` bersama (`kamera.js` + `kamera-dom.js`, sama dengan starter lain): `cam(at,x,y,z,dur,ease)` hanyalah `camTo` ke
+pose absolut, jadi dolly/truck/angle/handheld, `shot()` dan bidang `[data-z]` berparalaks tersedia di panggung. Satu `CAM` untuk semua
+panggung: `scene(name)` hanya mencatat POSE AWAL (`sc.cam={x,y,z}`) dan `cut()`/`slide()` menaruh `CAM` di sana. Tulis gerak urut waktu.
+
 ## Hukum 2 — Kontinu di dalam panggung, cut di antaranya
 
 Kalimat VO berganti ≠ panggung berganti. Selama hubungan ruang/sebab-akibatnya
@@ -60,7 +64,7 @@ d = 96 px horizontal atau 72 px vertikal, blur ≤ 10 px pada kontainer,
 TANPA scale bump, TANPA garis-garis sapuan tambahan.
 ```
 
-Offset diterapkan ke rig kamera panggung, bukan dengan menggeser frame yang
+Offset diterapkan ke `CAM` (`fx`/`fy`, blur lewat `CAM.blur`), bukan dengan menggeser frame yang
 sudah di-crop. Jangan terbang lintas dunia 3 detik (naik ke langit, menyelam ke
 bawah tanah, zoom keluar) — itu pola "tahan → pan jauh sambil zoom → cut → ulangi"
 yang melelahkan. Satu-satunya pengecualian: shot mata elang (`sinematografi.md` §3).

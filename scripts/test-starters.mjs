@@ -261,11 +261,12 @@ for (const file of files) {
       const t25 = await page.evaluate(src => { (0, eval)(src);
         const at = Math.max(planAt, 0) + 1, K = PLAN.mm * PLAN.zoom, R = terbang(at, 2, [[W / 2, H / 2, 1], [W / 2 + 500, H / 2 - 80, 1.8], [W / 2 + 900, H / 2 + 40, 3]], { guncang: 0 });
         const angka = s => (s.match(/-?[\d.]+(e-?\d+)?/g) || []).map(Number), ambil = t => { window.OPENER.seek(t); return rig.style.transform; };
-        const a = ambil(at + 1), s1 = R(at + 1), b = ambil(at + 2 - 1e-4), c = ambil(at + 2 + 1e-4); ambil(at + .3); const a2 = ambil(at + 1);
+        const a = ambil(at + 1), s1 = R(at + 1), b = ambil(at + 2 - 1e-4), c = ambil(at + 2 + 1e-4), lepas = CAM.rail === -1; ambil(at + .3); const a2 = ambil(at + 1);
+        // style.transform diserialisasi Chrome ke 6 angka bermakna: bandingkan relatif, bukan 1e-6
         const P = +(/perspective\(([\d.]+)px\)/.exec(a) || [])[1], rz = +(/rotateZ\((-?[\d.e-]+)deg\)/.exec(a) || [])[1];
         const nb = angka(b), nc = angka(c);
-        return { dolly: Math.abs(P - W * s1.mm / 36) < 1e-6 && Math.abs(s1.mm * s1.zoom - K) < 1e-9, roll: Math.abs(rz) > .3, sama: a === a2,
-          sambung: nb.length === nc.length && nb.every((v, i) => Math.abs(v - nc[i]) < .5), lepas: CAM.rail === -1, a, b, c };
+        return { dolly: Math.abs(P / (W * s1.mm / 36) - 1) < 1e-5 && Math.abs(s1.mm * s1.zoom - K) < 1e-9, roll: Math.abs(rz) > .3, sama: a === a2,
+          sambung: nb.length === nc.length && nb.every((v, i) => Math.abs(v - nc[i]) < .5), lepas, a, b, c };
       }, TERBANG);
       if (!t25.dolly) masalah.push(`terbang 2.5D: perspective rig harus W·mm/36 dari pose terbang (mm·zoom tetap) — ${t25.a}`);
       if (!t25.roll) masalah.push(`terbang 2.5D: tikungan tidak menghasilkan rotateZ — ${t25.a}`);

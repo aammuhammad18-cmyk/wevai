@@ -20,7 +20,7 @@ Sumber rincian:
 | E | Sub-proyek 3, sisa: babak multi-adegan 60 dtk + `CAM` di kartun panggung | belum | |
 | F | Sub-proyek 4a: pustaka aset prosedural Jawa kuno | kode selesai; vonis visual pemilik menunggu | 31172c7..0f1bef0 |
 | G | Sub-proyek 4b: rig tokoh v2 | belum | |
-| H | Sub-proyek 5: mata elang 3D | belum | |
+| H | Sub-proyek 5: mata elang 3D | kode selesai; bench + vonis visual pemilik menunggu | 93e1629..087736e |
 | I | Sub-proyek 6: ekspor panjang | belum | |
 | J | Sub-proyek 7: gaya lanjutan | belum | |
 | K | Sub-proyek 8: penilaian visual otomatis + galeri | K1 selesai; K2 galeri belum | K1: a3486a1..f114d7d |
@@ -51,6 +51,9 @@ Rilis 1.4.0 (L) mencakup:
 - Biaya ≤ 350 ms/frame.
 - Kait uji modul tahan terhadap halaman yang sudah terisi, sehingga `?kosong=1` tidak lagi dibutuhkan.
 - Kartun panggung memakai `CAM` (kamera 2.5D).
+- Shot mata elang brief 10 memakai `terbang()` 2.5D: penanda `<wv:terbang>` dipasang sesudah `kamera-dom` di
+  `starter-sinematik.html`. Ini menaikkan jalur Siluet di atas pelacak 235 KB (perkiraan +1,3 KB); usulkan angka barunya ke pemilik
+  bersama target anggaran explainer/sinematik yang masih menunggu.
 
 ### F. Pustaka aset Jawa kuno (`src/runtime/pustaka.js`, blok `<wv:pustaka>`; `build-starters` hanya membaca `src/runtime`)
 
@@ -82,6 +85,10 @@ Rilis 1.4.0 (L) mencakup:
 - Motion blur hanya lewat akumulasi sub-frame, dan hanya di segmen cepat.
 - Hasil: shot pembuka 8–12 dtk di atas sawah → menembus gapura → reveal gunung.
 - three tetap r161 kecuali ada alasan terukur untuk naik versi.
+- Tindak lanjut sesudah masuk `main`:
+  - bench di mesin senggang: `bench-frame.mjs assets/starter-elang.html "clean=1" 20`, ditambah satu run yang mulai di segmen motion blur;
+  - sawah lembah dekat kotak-kotak pada grid kasar;
+  - vonis visual pemilik.
 
 ### I. Ekspor panjang
 

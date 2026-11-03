@@ -38,7 +38,7 @@ const JALUR = [
   ['Opener 3D', ['references/opener-konsep.md', 'references/techniques.md', 'assets/starter-opener.html', 'references/sinematografi.md'], 245],   // 190 aturan opener + 30 blok kamera (perkakas) + ±21 sinematografi.md (bacaan wajib 3D) + 5: resep modul atmosfer/cahaya-2d/pasca di techniques.md §7d, +3,2 KB (238,6 → 241,8 KB)
   ['Mata elang 3D', ['references/sinematografi.md', 'references/mata-elang.md', 'assets/starter-elang.html'], 155],   // pelacak: ukuran saat masuk (149 KB) + ruang
   ['Peta relief 3D', ['references/sinematografi.md', 'references/peta-relief.md', 'assets/starter-peta-relief.html'], 175],   // pelacak: ukuran saat masuk (171 KB) + ruang
-  ['Explainer kartun panggung', ['references/explainer.md', 'references/kartun-panggung.md', 'assets/starter-explainer-panggung.html'], 170],   // +40: perkakas, bukan aturan: blok atmosfer/cahaya-2d/pasca + demo sinematik (122,1 → 167,8 KB: +44,8 blok di starter, +0,9 contoh kulit B; demo kini di starter-sinematik.html, diukur jalur "Siluet sinematik")
+  ['Explainer kartun panggung', ['references/explainer.md', 'references/kartun-panggung.md', 'assets/starter-explainer-panggung.html'], 190],   // +20 (4 Nov): blok kamera.js + kamera-dom.js di starter (CAM bersama, ±15 KB), bukan aturan. +40 sebelumnya: perkakas, bukan aturan: blok atmosfer/cahaya-2d/pasca + demo sinematik (122,1 → 167,8 KB: +44,8 blok di starter, +0,9 contoh kulit B; demo kini di starter-sinematik.html, diukur jalur "Siluet sinematik")
   ['Build di After Effects', ['references/kartun-panggung.md', 'references/ae-bridge-higgsfield.md'], 95],
   ['Scaffold multi-file', ['references/architecture.md'], 70],
 ];

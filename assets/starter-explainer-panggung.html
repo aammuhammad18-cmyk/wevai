@@ -116,7 +116,7 @@ void main(){vec2 c=R*.5,p=vec2(gl_FragCoord.x,R.y-gl_FragCoord.y)-c;float cr=cos
   col+=Sc*(.7*A.w)*smoothstep(.25,.9,b)*bebas*exp(-d*2.2)*smoothstep(S.z,3.*S.z,d);}
  o=vec4(col,1.);}`;
 /* langit(opsi) → kanvas #wv-langit, anak PERTAMA #stage (di belakang dunia, bukan di dalamnya: langit di tak hingga).
-   opsi ditimpakan ke LANGIT. Kamera: uv diputar CAM.roll di pusat frame dan digeser (CAM.fx/fy − pusat)·0,02 px;
+   opsi ditimpakan ke LANGIT. Kamera (selama terbang(): pose rel): uv diputar CAM.roll di pusat frame dan digeser (CAM.fx/fy − pusat)·0,02 px;
    guncangan handheld tidak diikutkan (±0,7° tak terlihat di langit). Digambar ulang hanya lewat onUpdate tl, yang
    terpicu hanya saat tl.time() berubah. Tanpa WebGL2: <div> gradien CSS + console.warn. Panggilan kedua mengganti. */
 function langit(opsi={}){
@@ -137,25 +137,24 @@ function langit(opsi={}){
   gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);
   const U={};for(const k of ['R','T','Z','M','Hz','Sc','Ac','C','S','A'])U[k]=gl.getUniformLocation(pr,k);
   const v3=(k,w)=>gl.uniform3fv(U[k],warnaRGB(w).map(x=>x/255));gl.uniform2f(U.R,W,H);
-  const gambar=()=>{if(!c.isConnected)return;const t=tl.time(),cam=typeof CAM!=='undefined';
+  const gambar=()=>{if(!c.isConnected)return;const t=tl.time(),cam=typeof CAM!=='undefined',r=cam&&CAM.rail>=0&&RAILS[CAM.rail](t),C=cam&&(r||CAM);
     v3('Z',L.zenit);v3('M',L.tengah);v3('Hz',L.horizon);v3('Sc',L.warnaMatahari);v3('Ac',L.awanWarna);
     gl.uniform1f(U.T,t);gl.uniform4f(U.S,L.matahariX,L.matahariY,L.matahariR,L.pendar);gl.uniform4f(U.A,L.bintang,L.awan,t*L.hanyut,L.sinar);
-    gl.uniform3f(U.C,cam?(CAM.fx-W/2)*.02:0,cam?(CAM.fy-H/2)*.02:0,cam?CAM.roll*Math.PI/180:0);gl.drawArrays(gl.TRIANGLES,0,3);};
+    gl.uniform3f(U.C,cam?(C.fx-W/2)*.02:0,cam?(C.fy-H/2)*.02:0,cam?(CAM.roll+(r?r.roll:0))*Math.PI/180:0);gl.drawArrays(gl.TRIANGLES,0,3);};
   gambar();rantaiUpdate(gambar);return c;}
 /* perspektif udara: campur warna ke LANGIT.horizon sebanding z/zJauh (0..1) — bidang makin jauh, makin pudar */
 function warnaJarak(warna,z,zJauh=-800){const k=Math.max(0,Math.min(1,z/zJauh)),a=warnaRGB(warna),b=warnaRGB(LANGIT.horizon);
   return '#'+a.map((v,i)=>Math.round(v+(b[i]-v)*k).toString(16).padStart(2,'0')).join('');}
 
-/* kabut(bidang,{y,…}) → <div class="wv-kabut"> anak bidang (ikut paralaks). Tile fBm 2D ber-seed lebar×tebal
-   dipanggang SEKALI (kisi berperiode → menyambung di tepi; alfa memudar ke atas/bawah), ditampilkan sebagai
-   background repeat-x; per frame hanya translateX dari t. y = garis tengah pita (px bidang). Bidang jauh: rapat
-   lebih besar + warna warnaJarak(…, z). Elemen = 3 tile mulai x −lebar/2: di SETIAP fase hanyut pita menutup
+/* kabut(bidang,{y,…}) → <canvas class="wv-kabut"> anak bidang (ikut paralaks). Tile fBm 2D ber-seed lebar×tebal
+   dipanggang SEKALI (kisi berperiode → menyambung di tepi; alfa memudar ke atas/bawah), tiga kali berjajar di kanvas; per frame
+   hanya translateX dari t (bitmap tetap, digeser kompositor). y = garis tengah pita (px bidang). Bidang jauh: rapat lebih besar + warna warnaJarak(…, z). Mulai x −lebar/2: di SETIAP fase hanyut pita menutup
    [−lebar/2, 3·lebar/2] bidangnya, jadi kamera boleh bergeser ±lebar/2 (truck, zoom < 1, roll, handheld) tanpa
    ujung pita masuk frame. */
 function kabut(bidang,{y,tebal=180,warna=LANGIT.horizon,rapat=.6,hanyut=20,seed=1,lebar=W}={}){
   if(!(bidang instanceof HTMLElement))throw new Error('kabut: bidang wajib elemen HTML (bukan <g> SVG)');
   if(y==null)throw new Error('kabut: y (garis tengah pita, px bidang) wajib');
-  const c=document.createElement('canvas');c.width=lebar;c.height=tebal;
+  const c=document.createElement('canvas');c.width=3*lebar;c.height=tebal;
   const x=c.getContext('2d'),im=x.createImageData(lebar,tebal),d=im.data,[r,g,b]=warnaRGB(warna),p0=Math.max(1,Math.round(lebar/300)),S=new Float32Array(lebar*tebal);
   /* fBm 2D 5 oktaf (sel pertama ±300×60 px): tiap baris kisi = vnoise 1D ber-seed sendiri, dihitung SEKALI per baris
      (bukan per piksel), lalu diinterpolasi halus antarbaris. Loop polos: ±40 ms untuk 1920×180. */
@@ -164,10 +163,8 @@ function kabut(bidang,{y,tebal=180,warna=LANGIT.horizon,rapat=.6,hanyut=20,seed=
     for(let j=0;j<tebal;j++){const v=j*fy,q=Math.floor(v),w=v-q,e=w*w*(3-2*w),u=R[q],z=R[q+1];for(let i=0;i<lebar;i++)S[j*lebar+i]+=a*(u[i]+(z[i]-u[i])*e);}}
   for(let j=0;j<tebal;j++){const tepi=Math.sin(Math.PI*(j+.5)/tebal)**1.5;   // memudar ke atas/bawah
     for(let i=0;i<lebar;i++){const o=(j*lebar+i)*4;d[o]=r;d[o+1]=g;d[o+2]=b;d[o+3]=255*rapat*tepi*(.2+.8*Math.min(1,Math.max(0,S[o/4]*2.6-1.05)));}}   // kabut tipis + gumpalan
-  x.putImageData(im,0,0);
-  const el=document.createElement('div');el.className='wv-kabut';
-  el.style.cssText=`position:absolute;left:${-lebar/2}px;top:${y-tebal/2}px;width:${3*lebar}px;height:${tebal}px;pointer-events:none;will-change:transform;`+
-    `background:url("${c.toDataURL()}") repeat-x;background-size:${lebar}px ${tebal}px`;
+  for(let i=0;i<3;i++)x.putImageData(im,i*lebar,0);
+  const el=c;el.className='wv-kabut';el.style.cssText=`position:absolute;left:${-lebar/2}px;top:${y-tebal/2}px;pointer-events:none`;
   bidang.appendChild(el);
   const geser=()=>{if(el.isConnected)el.style.transform=`translateX(${-(((tl.time()*hanyut)%lebar+lebar)%lebar)}px)`;};
   geser();rantaiUpdate(geser);return el;}
@@ -206,34 +203,35 @@ function partikel(bidang,{jenis,n=60,area=[0,0,W,H],seed=1,warna}={}){
       if(a>.003){cx.globalAlpha=Math.min(1,a);cx.drawImage(sp,x-s,y-s,2*s,2*s);}}};
   gambar();rantaiUpdate(gambar);return cv;}
 
-/* kait untuk scripts/test-starters.mjs — tidak dipanggil deliverable. Fixture sendiri (dua bidang, langit, keempat
-   jenis partikel, dua kabut, dua lapisan depan), lalu semuanya dibersihkan seperti CAM_UJI; callback rantai yang
-   tertinggal jadi no-op. */
-window.ATM_UJI=()=>{const r={},O=window.OPENER,cam=typeof CAM!=='undefined',buang=[],
-    bidang=z=>{const b=document.createElement('div');b.dataset.z=z;b.style.cssText=`position:absolute;left:0;top:0;width:${W}px;height:${H}px`;
-      rigDunia().appendChild(b);buang.push(b);if(cam)BIDANG.push({el:b,z});return b;},jauh=bidang(-600),dekat=bidang(0),L=langit(),
+/* kait untuk scripts/test-starters.mjs — tidak dipanggil deliverable. Fixture sendiri (dua bidang, keempat jenis partikel,
+   dua kabut, dua lapisan depan; langit bila halaman belum punya), lalu dibersihkan; callback rantai yang tertinggal jadi no-op.
+   Halaman berisi: langitnya dipakai lalu dipulihkan; seek ke DURATION dulu (tween halaman mencatat nilai awal) sebelum CAM ditulis. */
+window.ATM_UJI=()=>{const r={},O=window.OPENER,cam=typeof CAM!=='undefined',buang=[],lama=$('#wv-langit');O.seek(O.DURATION);
+  const bidang=z=>{const b=document.createElement('div');b.dataset.z=z;b.style.cssText=`position:absolute;left:0;top:0;width:${W}px;height:${H}px`;
+      rigDunia().appendChild(b);buang.push(b);if(cam)BIDANG.push({el:b,z});return b;},jauh=bidang(-600),dekat=bidang(0),L=lama||langit(),
     P=['bara','debu','asap','kunang'].map((jenis,i)=>partikel(i?jauh:'depan',{jenis,n:40,area:[200,200,480,360],seed:i+1})),
     k1=kabut(jauh,{y:700,seed:2,hanyut:W/4}),k0=kabut(dekat,{y:760,seed:3,hanyut:W/4}),   // satu siklus hanyut = lebar/hanyut = 4 dtk
     L1=lapisDepan(document.createElement('div')),L2=lapisDepan(document.createElement('div')),
-    foto=()=>[...document.querySelectorAll('.wv-partikel,#wv-langit,.wv-kabut')].map(e=>e.toDataURL?e.toDataURL():e.style.transform);
-  buang.push(L,...P,L1,L2);
+    foto=()=>[L,...P,k1,k0].map(e=>e.style.transform+(e.toDataURL?e.toDataURL():''));
+  buang.push(...P,L1,L2);if(!lama)buang.push(L);
   r.lapisUrut=P[0].nextElementSibling===L1&&L1.nextElementSibling===L2&&!!L2.nextElementSibling;   // bara 'depan' → L1 → L2 → anak #stage lain
   O.seek(5);const a=foto();O.seek(9);O.seek(.1);O.seek(5);const b=foto();r.seekSama=a.length===b.length&&a.every((x,i)=>x===b[i]);
-  if(cam){const simpan={...CAM},kiri=e=>e.getBoundingClientRect().left;
-    Object.assign(CAM,{fx:W/2,fy:H/2,zoom:1,pitch:0,yaw:0,roll:0,shake:0});applyCam();const j0=kiri(k1),d0=kiri(k0);
-    CAM.fx+=300;applyCam();r.kabutParalaks=Math.abs((kiri(k1)-j0)-(kiri(k0)-d0))>1;
+  if(cam){const simpan={...CAM},kiri=e=>e.getBoundingClientRect().left,
+      netral=dx=>{Object.assign(CAM,{fx:W/2+dx,fy:H/2,zoom:1,mm:35,pitch:0,yaw:0,roll:0,shake:0,rail:-1});applyCam();};
+    netral(0);const j0=kiri(k1),d0=kiri(k0);
+    netral(300);r.kabutParalaks=Math.abs((kiri(k1)-j0)-(kiri(k0)-d0))>1;
     /* ujung pita tidak boleh masuk frame: 6 fase satu siklus hanyut × kamera ±300 px */
     const fr=$('#stage').getBoundingClientRect();r.kabutMenutup=true;
-    for(let i=0;i<6;i++){O.seek((i+.5)/6*4);for(const dx of [-300,300]){CAM.fx=W/2+dx;applyCam();
+    for(let i=0;i<6;i++){O.seek((i+.5)/6*4);for(const dx of [-300,300]){netral(dx);
       for(const k of [k1,k0]){const e=k.getBoundingClientRect();if(e.left>fr.left+1||e.right<fr.right-1)r.kabutMenutup=false;}}}
     Object.assign(CAM,simpan);}
   else r.kabutParalaks=r.kabutMenutup=null;
-  const gl=L.getContext&&L.getContext('webgl2'),lepas=gl&&gl.getExtension('WEBGL_lose_context');if(lepas)lepas.loseContext();
+  const gl=!lama&&L.getContext&&L.getContext('webgl2'),lepas=gl&&gl.getExtension('WEBGL_lose_context');if(lepas)lepas.loseContext();
   for(const e of buang)e.remove();
   if(cam){for(const e of [jauh,dekat])BIDANG.splice(BIDANG.findIndex(x=>x.el===e),1);if(!BIDANG.length)rig.style.transformStyle='';applyCam();}
   const gc=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=()=>null;let f;
   try{f=langit();}finally{HTMLCanvasElement.prototype.getContext=gc;}
-  r.fallback=f instanceof HTMLDivElement&&/gradient/.test(f.style.background);f.remove();
+  r.fallback=f instanceof HTMLDivElement&&/gradient/.test(f.style.background);f.remove();if(lama)$('#stage').prepend(lama);   // langit() melepas langit halaman
   try{partikel(dekat,{jenis:'salju'});r.jenisDitolak=false;}catch(e){r.jenisDitolak=/bara debu asap kunang/.test(e.message);}
   const g=document.createElementNS('http://www.w3.org/2000/svg','g'),tolak=f=>{try{f();return false;}catch(e){return /elemen HTML/.test(e.message);}};
   r.kabutDitolak=tolak(()=>kabut(g,{y:700}));r.partikelDitolak=[g,'Depan'].every(b=>tolak(()=>partikel(b,{jenis:'bara'})));
@@ -243,13 +241,11 @@ window.ATM_UJI=()=>{const r={},O=window.OPENER,cam=typeof CAM!=='undefined',buan
    ubah sumbernya lalu jalankan: node scripts/build-starters.mjs */
 /* CAHAYA-2D (spec sub-proyek 2 §4.2) — cahaya bersumber untuk adegan SVG: pendar berkedip, gelap yang meredup
    menjauhi sumber, rim pada siluet, bayangan jatuh, relief. Filter dan mask DIPANGGANG sekali saat dipanggil —
-   atributnya tidak pernah ditulis lagi; per frame hanya opacity/scale pendar (lapisan sendiri, will-change).
+   atributnya tidak pernah ditulis lagi; per frame hanya opacity/scale pendar.
    x, y sumber = px bidang = satuan pengguna svg bidang (<svg viewBox="0 0 1920 1080"> di 0,0 bidangnya). Sumber yang
    pindah: geser pendar-nya (tl.to(SUMBER.obor.el,{x:…})); rim/redup/relief dipasang ulang di cut. Membaca tl saat
    dipanggil saja — tidak dipanggil = halaman tidak berubah sedikit pun.
-   Kamera yang men-zoom (dolly) mengubah skala bidang tiap frame → Chrome me-raster ulang svg-nya dan filter yang
-   dipanggang ikut dihitung ulang (adegan uji: +125–170 ms/frame). Beri <svg> bidang ber-filter will-change:transform:
-   bitmap-nya diskalakan, bukan di-raster ulang (terukur ≈ biaya tanpa modul; lunaknya tak terlihat di zoom 1,25).
+   Dolly = svg bidang + filternya di-raster ulang tiap frame (+125–170 ms): panggang() (blok babak) atau will-change (techniques.md §7d).
    Butuh dari atmosfer: rantaiUpdate, vnoise, warnaRGB (hook uji: rigDunia). */
 
 /* SUMBER: nama → {x, y, bidang, warna, jangkau, kuat, kedip, el}. kuat/kedip dibaca tiap frame, jadi boleh di-tween
@@ -268,15 +264,16 @@ function filterCahaya(el,b,m,isi){const f=elSVG('filter',{id:'wv-cahaya-'+(++cah
     x:b.x-m,y:b.y-m,width:b.width+2*m,height:b.height+2*m,'color-interpolation-filters':'sRGB'},defsSVG(el.ownerSVGElement));
   f.innerHTML=isi;el.setAttribute('filter',`url(#${f.id})`);return f;}
 
-/* sumber(nama,{x,y,bidang,…}) → <div class="wv-pendar"> di bidang (elemen HTML: <div data-z> atau anaknya): gradien
-   radial warna → transparan, screen. Inti panas + ekor panjang (dua skala glowA/glowB spike) supaya terbaca sebagai
+/* sumber(nama,{x,y,bidang,…}) → <canvas class="wv-pendar"> di bidang (elemen HTML: <div data-z> atau anaknya): gradien
+   radial warna → transparan, screen, kanvas 256 px yang diregang (bitmap tetap). Inti panas + ekor panjang (dua skala glowA/glowB spike) supaya terbaca sebagai
    cahaya, bukan bulatan. Kedip dari tl.time() tanpa akumulasi; skala lewat properti CSS `scale`, bukan transform,
    supaya x/y GSAP pada pendar (sumber yang pindah) tidak saling timpa. Nama yang sama = entri baru menggantikan. */
 function sumber(nama,{x,y,bidang,warna='#ffb347',jangkau=420,kuat=1,kedip=0,seed=1}={}){
   if(x==null||y==null||!(bidang instanceof HTMLElement))throw new Error('sumber: x, y (px bidang) dan bidang (elemen HTML, bukan <g> SVG) wajib');
-  const w=warnaRGB(warna),c=a=>`rgba(${w},${a})`,inti=w.map(v=>Math.round(v+(255-v)*.6)),el=document.createElement('div');el.className='wv-pendar';
-  el.style.cssText=`position:absolute;left:${x-jangkau}px;top:${y-jangkau}px;width:${2*jangkau}px;height:${2*jangkau}px;pointer-events:none;`+
-    `mix-blend-mode:screen;will-change:transform,opacity;background:radial-gradient(closest-side,rgba(${inti},.9),${c(.55)} 8%,${c(.22)} 25%,${c(.08)} 55%,${c(0)})`;
+  const w=warnaRGB(warna),c=a=>`rgba(${w},${a})`,inti=w.map(v=>Math.round(v+(255-v)*.6)),el=document.createElement('canvas');el.className='wv-pendar';
+  el.width=el.height=256;const g=el.getContext('2d'),gr=g.createRadialGradient(128,128,0,128,128,128);
+  [[0,`rgba(${inti},.9)`],[.08,c(.55)],[.25,c(.22)],[.55,c(.08)],[1,c(0)]].forEach(([o,v])=>gr.addColorStop(o,v));g.fillStyle=gr;g.fillRect(0,0,256,256);
+  el.style.cssText=`position:absolute;left:${x-jangkau}px;top:${y-jangkau}px;width:${2*jangkau}px;height:${2*jangkau}px;pointer-events:none;mix-blend-mode:screen`;
   bidang.appendChild(el);const s=SUMBER[nama]={x,y,bidang,warna,jangkau,kuat,kedip,el};
   const kedipkan=()=>{if(!el.isConnected)return;const t=tl.time();
     el.style.opacity=s.kuat*(1-s.kedip*vnoise(t*7,seed));el.style.scale=1+s.kedip*.06*vnoise(t*5,seed+1);};
@@ -476,16 +473,19 @@ function gambarPasca(){const P=pascaL,G=GRADE;if(!P||!P.hal.isConnected)return; 
 
 /* kait untuk scripts/test-starters.mjs — tidak dipanggil deliverable. Fixture sendiri (satu bidang + satu sumber
    sementara, didaftarkan SESUDAH lapisan dibuat), lalu semuanya dibersihkan — juga lapisan singleton dan listener ticker,
-   supaya grade() sungguhan sesudahnya mulai dari nol. Callback kedip yang tertinggal di rantai tl jadi no-op (isConnected). */
-window.PASCA_UJI=()=>{const r={},O=window.OPENER,st=$('#stage'),g0={...GRADE},ind=document.createElement('div'),b=document.createElement('div'),
+   supaya grade() sungguhan sesudahnya mulai dari nol. Callback kedip yang tertinggal di rantai tl jadi no-op (isConnected).
+   Halaman ber-grade(): lapisan + tween GRADE-nya dipertahankan, seek ke DURATION dulu (seperti ATM_UJI). */
+window.PASCA_UJI=()=>{const r={},O=window.OPENER,st=$('#stage'),ind=document.createElement('div'),b=document.createElement('div'),ada=!!pascaL,
     /* gaya rig + pembungkus [data-z] pada t yang sama, sebelum dan sesudah lapisan ada: tak boleh berubah. Bukan === '' —
        #world panggung memang ber-filter blur(0px) dari animasi cut-nya sendiri */
     gaya=()=>[rigDunia(),...document.querySelectorAll('[data-z]')].map(e=>['filter','opacity','mixBlendMode','clipPath','mask'].map(k=>e.style[k]).join('|')).join();
-  r.awalBersih=!pascaL&&!$('.wv-pasca');O.seek(5);const g1=gaya();
+  r.awalBersih=ada?tl.getTweensOf(GRADE).length>0&&document.querySelectorAll('.wv-pasca').length===4:!$('.wv-pasca');
+  O.seek(O.DURATION);O.seek(5);const g1=gaya(),g0={...GRADE};
   /* view = anak #stage yang memuat rig. Panggung: view = rig sendiri → kontras/saturasi tak ditulis ke mana pun (pisah false).
      Filter TERHITUNG yang dibandingkan untuk netral: GSAP (whip) bisa meninggalkan `filter: none` inline di view, padahal
      modul menghapus tulisannya dengan '' — dua bentuk yang sama-sama tanpa filter */
-  const vw=viewDunia(),f0=vw.style.filter,pisah=vw!==rigDunia(),fc=()=>getComputedStyle(vw).filter,c0=fc();
+  const vw=viewDunia(),f0=vw.style.filter,pisah=vw!==rigDunia(),fc=()=>getComputedStyle(vw).filter;
+  Object.assign(GRADE,{kontras:1,saturasi:1});O.seek(5);const c0=fc();
   ind.style.cssText='position:absolute;left:0;top:0';   // induk bidang: leluhur BUKAN induk langsung pendar
   b.style.cssText=`position:absolute;left:0;top:0;width:${W}px;height:${H}px;visibility:visible`;   // visible: menembus #collage.off
   rigDunia().appendChild(ind);ind.appendChild(b);
@@ -494,10 +494,8 @@ window.PASCA_UJI=()=>{const r={},O=window.OPENER,st=$('#stage'),g0={...GRADE},in
   r.netral=fc()===c0;   // GRADE netral (kontras = saturasi = 1) tidak menulis apa pun ke view
   Object.assign(GRADE,{bayanganKuat:.5,sorotKuat:.5,vignette:.5,halation:.5,kontras:1.08,saturasi:.9});
   const a=kiriPada(.5),c=kiriPada(1);
-  /* kontras/saturasi: filter di VIEW (bukan rig/[data-z]: rigBersih di bawah dihitung dengan filter ini aktif). Selama non-netral
-     modul memiliki filter view: tulisan asing (blur whip() ke #collage) ditimpa lagi pada frame berikutnya — dibandingkan dengan
-     nilai hidup, bukan cache modul. Kembali ke netral menghapus tulisan modul sendiri, bukan filter asing. Panggung (pisah false):
-     view = rig, tak ada yang ditulis, dan tulisan uji di sini ikut dilewati. */
+  /* kontras/saturasi = filter VIEW (aturannya: gambarPasca); rigBersih di bawah dihitung dengan filter ini aktif. Panggung (pisah
+     false): view = rig, tak ada yang ditulis, uji tulisan asing dilewati */
   r.filterView=!pisah||vw.style.filter==='contrast(1.08) saturate(0.9)';
   if(pisah){vw.style.filter='blur(7px)';O.seek(5);r.filterPulih=vw.style.filter==='contrast(1.08) saturate(0.9)';}else r.filterPulih=true;
   Object.assign(GRADE,{kontras:1,saturasi:1});O.seek(5);r.netral=r.netral&&fc()===c0;
@@ -513,17 +511,19 @@ window.PASCA_UJI=()=>{const r={},O=window.OPENER,st=$('#stage'),g0={...GRADE},in
   const alfa=k=>{ind.style.opacity=k;O.seek(5);const d=P.H['wv-uji-pasca'];return d?d.style.display==='none'?'none':+d.style.opacity:'tak ada';},a1=alfa(1),a5=alfa(.5),a0=alfa(0);
   ind.style.opacity='';r.halationLeluhur=a1>0&&Math.abs(a5/a1-.5)<.02&&a0==='none';r.alfaLeluhur=[a1,a5,a0];
   ind.remove();delete SUMBER['wv-uji-pasca'];O.seek(5);r.halationIkut=r.halationIkut&&!P.H['wv-uji-pasca'];   // sumber lepas → halation hilang
-  /* grade() sungguhan: tl → seek → GRADE → lapisan. ease 'none' di tengah rentang = titik tengah persis; tween dibuang lagi */
-  r.gradeKosong=grade(6,2,{bayangan:'#ffffff',bayanganKuat:1},'none')===undefined;O.seek(7);
-  const cs=getComputedStyle(P.bay),m=warnaRGB(GRADE.bayangan),w0=warnaRGB(g0.bayangan),bg=warnaRGB(cs.backgroundColor);
+  /* grade() sungguhan sesudah DURATION (tak bertumpuk grade() halaman); ease 'none' di tengah = titik tengah persis */
+  const T=O.DURATION+2,tw0=new Set(tl.getTweensOf(GRADE));r.gradeKosong=grade(T,2,{bayangan:'#ffffff',bayanganKuat:1},'none')===undefined;
+  O.seek(T);const w0=warnaRGB(GRADE.bayangan),k0=GRADE.bayanganKuat;O.seek(T+1);
+  const cs=getComputedStyle(P.bay),m=warnaRGB(GRADE.bayangan),bg=warnaRGB(cs.backgroundColor);
   r.tengah=[GRADE.bayangan,GRADE.bayanganKuat,cs.backgroundColor,cs.opacity].join(' ');
-  r.warnaTween=m.every((v,i)=>Math.abs(v-(w0[i]+255)/2)<=1&&Math.abs(bg[i]-v)<=1)&&Math.abs(+cs.opacity-.75)<.01;   // .5 → 1 di tengah = .75
-  tl.getTweensOf(GRADE).forEach(t=>tl.remove(t));
+  r.warnaTween=m.every((v,i)=>Math.abs(v-(w0[i]+255)/2)<=1&&Math.abs(bg[i]-v)<=1)&&Math.abs(+cs.opacity-(k0+1)/2)<.01;
+  tl.getTweensOf(GRADE).forEach(t=>{if(!tw0.has(t))tl.remove(t);});
   try{grade(0,1,'neon');r.presetDitolak=false;}catch(e){r.presetDitolak=Object.keys(PRESET_GRADE).every(n=>e.message.includes(n));}
   r.presetLengkap=Object.values(PRESET_GRADE).every(p=>GRADE_KUNCI.every(k=>k in p)&&Object.keys(p).length===GRADE_KUNCI.length);   // semua kunci GRADE, persis
-  gsap.ticker.remove(gambarPasca);for(const e of document.querySelectorAll('.wv-pasca'))e.remove();pascaL=null;
+  if(!ada){gsap.ticker.remove(gambarPasca);for(const e of document.querySelectorAll('.wv-pasca'))e.remove();pascaL=null;}
   Object.assign(GRADE,g0);fit();if(pisah)vw.style.filter=f0;   // fit() = skala stage persis seperti saat dimuat
-  r.dibersihkan=!pascaL&&!$('.wv-pasca')&&!Object.hasOwn(SUMBER,'wv-uji-pasca')&&GRADE_KUNCI.every(k=>GRADE[k]===g0[k])&&(!pisah||vw.style.filter===f0);return r;};
+  r.dibersihkan=(ada?!!pascaL&&document.querySelectorAll('.wv-pasca').length===4&&tl.getTweensOf(GRADE).length===tw0.size:!pascaL&&!$('.wv-pasca'))&&
+    !Object.hasOwn(SUMBER,'wv-uji-pasca')&&GRADE_KUNCI.every(k=>GRADE[k]===g0[k])&&(!pisah||vw.style.filter===f0);return r;};
 /* </wv:pasca> */
 /* ---------- panggung: satu frame per adegan, kamera sendiri ---------- */
 const scenes=[];

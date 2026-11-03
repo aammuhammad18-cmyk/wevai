@@ -9,8 +9,8 @@ sawah, obor/api/asap, relief, kain. Sumber: `src/runtime/pustaka.js`, blok `<wv:
 
 ## Kontrak
 
-- Generator markup **mengembalikan string SVG**, tanpa menyentuh DOM. Sisipkan ke `<svg viewBox="0 0 1920 1080"
-  style="will-change:transform">` di bidang `[data-z]` (helper `bidang()`/`svgDi()` katalog: salin).
+- Generator markup **mengembalikan string SVG**, tanpa menyentuh DOM. Sisipkan ke `<svg viewBox="0 0 1920 1080">` di bidang `[data-z]`
+  (helper `bidang()`/`svgDi()` katalog: salin), lalu `panggang(svg)` (blok `babak`) ke kanvas: piksel tak bergantung jalur seek.
 - Hasilnya `<g id class="wv-pustaka" data-pustaka="candi" transform="translate(x,y) scale(tinggi/1000)">`. `(x, y)` = titik
   dasar tengah (tanah), px bidang. `tinggi` = tinggi aset dalam px.
 - **Deterministik**: seed + opsi + cahaya + `LANGIT` sama → string sama byte demi byte. id = `opsi.id` atau hash opsi, jadi

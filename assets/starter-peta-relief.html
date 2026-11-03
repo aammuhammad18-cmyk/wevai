@@ -1,0 +1,851 @@
+<!doctype html>
+<html lang="id">
+<!-- Made with the WeVai skill v1.3.0 by aammuhammad18 (https://github.com/aammuhammad18-cmyk/wevai) - MIT - https://github.com/aammuhammad18-cmyk/wevai -->
+<head>
+<meta charset="utf-8">
+<title>WeVai — Starter Peta Relief 3D (Jawa, pusat kerajaan pindah ke timur)</title>
+<!--
+  STARTER PETA RELIEF 3D satu-berkas, 16:9 — 18 dtk, 100 % KODE (Three.js r161; tanpa gambar, foto, ubin peta, atau DEM):
+  Jawa sebagai relief bercahaya yang tumbuh dari kulit topografi kertas. Peta datar berkontur naik jadi relief (gunung GVP di
+  koordinat nyata), kamera turun ke jantung Mataram Kuno, lalu mengikuti busur rute yang menyala ke timur dan mendarat di lembah
+  Brantas: ketukan "pusat kerajaan pindah ke Jawa Timur (abad X)". Resep, data, akurasi: references/peta-relief.md.
+  POLANYA:
+    - medan(JAWA) (blok peta-relief): tinggi(x,z) km murni — pantai + garis 200 m Natural Earth, gunung GVP, wilayah bentuk tangan
+    - petaRelief(M,{tegak,halus}): kisi + tambalan halus, warna hipsometrik Jagad, kontur shader, laut paparan/dalam, jurang gunung
+      (geometri di tambalan, normal per piksel di kisi kasar), bayang awan; uCetak 1 → 0 = peta cetak menjadi relief bercahaya
+    - sungaiPeta / rutePeta / labelPeta: pita sungai & tabung rute selebar piksel tetap, label DOM diproyeksi ulang tiap render
+    - terbang() dua ruas (blok terbang) + lensa; matahari sore 22° dari WNW: bayangan gunung panjang (diorama); tone mapping film ACES
+    - autoplay + loop, TANPA player; panel scrub hanya bila ?debug=1; ?clean=1 untuk export
+  Ganti: JAWA (pulau lain: scripts/peta-data.mjs), RUTE (titik, puncak), RUAS/RUAS2 (fokus, jarak, yaw, pitch), lbl(...), #cap, SORE.
+  Buka dengan klik dua kali. Hanya butuh browser + internet (GSAP, three, font dari CDN). Suara: isi src #vo.
+-->
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@500&family=Source+Serif+4:ital,wght@1,500&family=Young+Serif&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha384-g4NTh/Iv5PPU4xPyhEWqPcwtNXOvdaDI8LLnyYfyNZOjKJeYQyjzQ9X5275eBjpt" crossorigin="anonymous"></script>
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/"
+}}
+</script>
+<style>
+:root{--kertas:#e8e1cc;--tinta:#2a2620;--soga:#b4532a;--sungai:#1f5a75}
+html,body{margin:0;height:100%;background:#000;overflow:hidden}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;overflow:hidden;background:var(--kertas)}
+#world{position:absolute;inset:0}
+#gl{position:absolute;inset:0;width:1920px;height:1080px;display:block}
+#ui{position:absolute;inset:0;pointer-events:none}
+/* label peta: kotak nol di titik 3D (transform tiap render); teks bertepi kertas seperti peta kulit topografi */
+.lp{position:absolute;left:0;top:0;width:0;height:0;opacity:0;white-space:nowrap;color:var(--tinta);
+  text-shadow:0 0 3px var(--kertas),0 0 3px var(--kertas),0 0 8px rgba(232,225,204,.9),0 0 16px rgba(232,225,204,.6)}
+.lp b{position:absolute;left:0;font-weight:500}
+.lp.gunung b{bottom:70px;transform:translateX(-50%);font:500 34px/1 'DM Mono',monospace;letter-spacing:.08em}
+.lp.gunung::before{content:'';position:absolute;left:-1px;bottom:8px;width:2px;height:56px;background:currentColor;box-shadow:0 0 4px var(--kertas)}
+.lp.sungai b{transform:translate(-50%,-50%);font:italic 500 40px/1 'Source Serif 4',serif;color:var(--sungai);letter-spacing:.03em}
+.lp.laut b{transform:translate(-50%,-50%);font:italic 500 46px/1 'Source Serif 4',serif;letter-spacing:.22em;color:rgba(42,38,32,.78)}
+.lp.tempat b{bottom:-17px;left:30px;font:400 46px/1 'Young Serif',serif}
+.lp.tempat.kiri b{left:auto;right:30px}
+.lp.tempat i{position:absolute;left:-9px;top:-9px;width:18px;height:18px;border-radius:50%;background:var(--soga);box-shadow:0 0 0 3px var(--kertas)}
+.lp.tempat u{position:absolute;left:-30px;top:-30px;width:60px;height:60px;border-radius:50%;border:3px solid var(--soga);box-sizing:border-box;opacity:0}
+/* kantong teks: kertas lembut di kiri bawah (laut selatan), luminans ≥ 80 % di bawah legenda */
+#saku{position:absolute;left:0;bottom:0;width:1100px;height:420px;opacity:0;background:radial-gradient(80% 90% at 0% 100%,rgba(232,225,204,.94) 0%,rgba(232,225,204,.8) 42%,rgba(232,225,204,0) 100%)}
+#cap{position:absolute;left:120px;bottom:104px;opacity:0;color:var(--tinta)}
+#cap .kick{font:500 34px/1 'DM Mono',monospace;letter-spacing:.3em;color:var(--soga)}
+#cap .ttl{font:400 88px/1.02 'Young Serif',serif;margin-top:18px;letter-spacing:-.01em}
+.vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(90% 85% at 50% 46%,transparent 48%,rgba(42,34,22,.56) 100%)}
+#dbg{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);display:none;gap:12px;align-items:center;padding:10px 16px;border-radius:14px;background:rgba(14,16,22,.9);color:#cfd5e3;font:13px system-ui;z-index:50}
+#dbg input{width:360px}#dbg span{font-variant-numeric:tabular-nums;min-width:6ch}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="world"><canvas id="gl" width="1920" height="1080"></canvas></div>
+  <div class="vig"></div>
+  <div id="ui">
+    <div id="label"></div>
+    <div id="saku"></div>
+    <!-- legenda dokumenter di luar dunia 3D: masuk saat kamera tiba di jantung Mataram -->
+    <div id="cap"><div class="kick">ABAD X</div><div class="ttl">Pusat kerajaan<br>pindah ke timur</div></div>
+  </div>
+  <div id="dbg"><button id="dPlay">Pause</button><input id="dScrub" type="range" min="0" max="1000" value="0"><span id="dClock">0.00s</span></div>
+</div>
+<audio id="vo" src="" preload="auto"></audio>
+
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass }     from 'three/addons/postprocessing/RenderPass.js';
+import { OutputPass }     from 'three/addons/postprocessing/OutputPass.js';
+import { BokehPass }      from 'three/addons/postprocessing/BokehPass.js';
+
+const $=(s,r=document)=>r.querySelector(s);
+const q=new URLSearchParams(location.search),W=1920,H=1080,DUR=18;
+function fit(){const s=Math.min(innerWidth/W,innerHeight/H);$('#stage').style.transform=`translate(-50%,-50%) scale(${s})`;}
+addEventListener('resize',fit);fit();
+const tl=gsap.timeline({paused:true});const rig=$('#world');
+
+/* ---------- dunia WebGL: TANPA jam sendiri, digambar dari tl.time(). Satuan km ---------- */
+const renderer=new THREE.WebGLRenderer({canvas:$('#gl')});
+renderer.setPixelRatio(1);renderer.setSize(W,H,false);
+renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.72;   // FILM: sejarah/sinematik (brand/produk: NoToneMapping)
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(35,W/H,.5,9000);   // near/far disetel ulang tiap render dari ketinggian kamera (siapkan)
+const composer=new EffectComposer(renderer,new THREE.WebGLRenderTarget(W,H,{type:THREE.HalfFloatType,samples:4}));   // MSAA 4×
+composer.addPass(new RenderPass(scene,camera));composer.addPass(new OutputPass());
+
+/* <wv:kamera> dibangun dari src/runtime/kamera.js — JANGAN edit di sini;
+   ubah sumbernya lalu jalankan: node scripts/build-starters.mjs */
+/* KAMERA — satu objek keadaan, fungsi murni dari tl.time() (SKILL.md Hukum #2).
+   Inti ini TIDAK menyentuh DOM/WebGL: ia hanya menulis angka ke CAM lewat tween GSAP berdetik
+   absolut. Backend (kamera-dom / kamera-three) mendefinisikan applyCam() yang membaca CAM dan
+   menggambar. Kosakata: techniques.md §3b. */
+const CAM={mode:'dom',          // 'dom' (2.5D) | 'three' — diisi backend
+  fx:W/2,fy:H/2,fz:0,           // titik fokus (koordinat dunia)
+  zoom:1,                       // 2.5D: skala rig; 3D: camera.zoom
+  dist:10,yaw:0,pitch:0,roll:0, // kamera relatif ke fokus (derajat); 2.5D: yaw/pitch kecil = tilt/paralaks
+  mm:35,                        // lensa (filmGauge 36); 2.5D: perspective = W*mm/36 px
+  focus:0,aperture:0,           // rack focus (aperture 0 = mati)
+  shake:0,seed:1,               // handheld: value-noise ber-seed, bukan Math.random
+  blur:0,                       // blur berarah saat whip
+  rail:-1,railU:0};             // jalur aktif: indeks RAILS (-1 = mati) — rail() 3D, terbang() (terbang.js)
+const RAILS=[];                 // dibuat saat setup: {curve,look} dari rail(), fungsi t→pose dari terbang()
+/* RENCANA: bayangan CAM saat setup. Nilai relatif ('+=220', '*=1.4') diselesaikan DI SINI menjadi angka
+   absolut — GSAP menyelesaikan nilai relatif saat tween pertama kali dirender, sehingga hasilnya bergantung
+   jalur seek (putar ≠ lompat ≠ worker export). Karena itu gerak relatif wajib dipanggil urut waktu. */
+const PLAN={...CAM},P0=W*35/36;let planAt=-Infinity;
+const camDefaults=v=>{Object.assign(CAM,v);Object.assign(PLAN,v);};                          // nilai awal dari backend 3D, CAM dan PLAN harus kembar
+const mutlak=(at,v)=>{const o={};for(const k in v){let x=v[k];
+  if(typeof x==='string'){if(at<planAt)throw new Error('gerak relatif harus dipanggil urut waktu (detik '+at+' setelah '+planAt+')');
+    const op=x.slice(0,2),n=parseFloat(x.slice(2));
+    if(!['+=','-=','*='].includes(op)||isNaN(n))throw new Error('nilai relatif tidak dikenal: '+k+' '+x+' (pakai +=, -=, *=)');
+    x=op==='*='?PLAN[k]*n:op==='-='?PLAN[k]-n:PLAN[k]+n;}
+  o[k]=PLAN[k]=x;}planAt=Math.max(planAt,at);return o;};
+const camTo=(at,dur,v,ease='power2.inOut')=>tl.to(CAM,{...mutlak(at,v),duration:dur,ease,onUpdate:applyCam},at);
+const cutTo=(at,v)=>tl.set(CAM,{...mutlak(at,v),onUpdate:applyCam},at);                       // lompat di titik cut
+const camReset=()=>{gsap.killTweensOf(CAM);Object.assign(PLAN,CAM);planAt=-Infinity;};       // buang semua gerak kamera yang sudah ditulis
+/* alias kamera KOLASE (explainer.md "Resep kamera kolase") — angka & easing persis yang lama */
+const look=(at,x,y,z,dur=1.6,ease='sine.inOut')=>camTo(at,dur,{fx:x,fy:y,zoom:z},ease);     // meluncur ke aset lain
+const home=(at,x=W/2,y=H/2,dur=1.2)=>look(at,x,y,1,dur,'power2.inOut');                     // zoom out ke frame adegan, lalu DIAM
+const into=(cutAt,x,y,z)=>camTo(cutAt-.9,.9,{fx:x,fy:y,zoom:z},'power2.in');                // push-through sebelum cut
+const settle=(cutAt,x,y,z)=>camTo(cutAt,1.1,{fx:x,fy:y,zoom:z*.94},'power3.out');           // mendarat setelah cut
+const breath=(a,b,z)=>camTo(a,b-a,{zoom:z},'sine.inOut');                                   // napas halus saat "diam"
+/* value-noise 1D ber-seed: hash bilangan bulat → interpolasi smoothstep. Dipakai handheld.
+   Bukan Math.random: t yang sama selalu memberi nilai yang sama (scrub & export reproducible). */
+const hash=(i,s)=>{let x=(Math.imul(i,374761393)+Math.imul(s,668265263))|0;x=Math.imul(x^x>>>13,1274126177);return((x^x>>>16)>>>0)/4294967296;};
+const noise=(t,s=1)=>{const i=Math.floor(t),f=t-i,u=f*f*(3-2*f),a=hash(i,s);return a+(hash(i+1,s)-a)*u;};
+
+/* UKURAN SHOT (techniques.md §3b): berapa bagian frame yang diisi subjek. ECU 6,7× frame … EWS 0,1×. */
+const SHOT={ECU:6.7,CU:2.86,MCU:1.67,MS:1.11,WS:.45,EWS:.1};
+/* kotak elemen dalam koordinat root (dunia tanpa transform kamera, atau #stage untuk HUD). HTML: rantai
+   offset. Elemen tanpa offsetLeft (SVG — bersarang, ber-viewBox, ber-transform): kotak layarnya relatif ke
+   root, dibagi skala panggung. ponytail: mengandaikan root belum di-transform kamera — benar saat setup. */
+function rectIn(el,root){
+  if(typeof el.offsetLeft!=='number'){const a=el.getBoundingClientRect(),b=root.getBoundingClientRect(),k=b.width/root.offsetWidth||1;
+    return{x:(a.left-b.left)/k,y:(a.top-b.top)/k,w:a.width/k,h:a.height/k};}
+  let x=0,y=0,n=el;while(n&&n!==root){x+=n.offsetLeft;y+=n.offsetTop;n=n.offsetParent;}
+  return{x,y,w:el.offsetWidth,h:el.offsetHeight};}
+let lastShot=null;
+function shot(at,dur,size,el,{ease='power2.inOut',fill=SHOT[size]}={}){
+  if(!fill)throw new Error('ukuran shot tidak dikenal: '+size+' (ECU CU MCU MS WS EWS)');
+  if(CAM.mode==='three'&&CAM.frame3d){const v=CAM.frame3d(fill,el);CAM.cek3&&CAM.cek3(at,dur,el,v);camTo(at,dur,v,ease);return v;}   // 3D: el = Object3D atau nama, bukan selector DOM
+  if(typeof el==='string'){const sel=el;el=$(sel);if(!el)throw new Error('shot: subjek '+sel+' tidak ada');}
+  const r=rectIn(el,rig);let cx=r.x+r.w/2,cy=r.y+r.h/2;
+  /* subjek di dalam bidang [data-z]: bidang diskalakan (P0-z)/P0 dari pusatnya, jadi titik fokusnya ikut bergeser (tepat di 35 mm) */
+  for(let n=el.parentNode;n&&n!==rig;n=n.parentNode)if(n.dataset&&n.dataset.z!=null){
+    const p=rectIn(n,rig),s0=(P0-n.dataset.z)/P0,ox=p.x+p.w/2,oy=p.y+p.h/2;cx=ox+s0*(cx-ox);cy=oy+s0*(cy-oy);break;}
+  const v={fx:cx,fy:cy,zoom:Math.max(.1,Math.min(6,Math.min(W*fill/r.w,H*fill/r.h)))};
+  hud.check(at,dur,r,v);
+  if(dur===0&&lastShot&&lastShot.el===el&&lastShot.size===size&&Math.abs(lastShot.yaw-PLAN.yaw)<30)
+    console.warn('aturan 30°: cut ke subjek yang sama dengan ukuran '+size+' tanpa beda sudut ≥ 30° terasa jump cut (detik '+at+')');
+  lastShot={el,size,yaw:PLAN.yaw};
+  camTo(at,dur,v,ease);return v;}
+
+/* SUDUT KAMERA. 2.5D: sudut kecil (dunia pipih); 3D: sudut film sungguhan. */
+const ANGLE={
+  dom:{eye:{pitch:0,yaw:0,roll:0},high:{pitch:-8},low:{pitch:8},overhead:{pitch:-8,zoom:'*=.8'},worm:{pitch:8,zoom:'*=1.3'},
+       dutch:{roll:12},ots:{yaw:6,pitch:-3},pov:{pitch:0,yaw:0,roll:0,shake:.6}},
+  three:{eye:{pitch:0,roll:0},high:{pitch:-30},low:{pitch:25,mm:24},overhead:{pitch:-89.9},worm:{pitch:60,mm:16},
+         dutch:{roll:15},ots:{yaw:35,pitch:-8,mm:50},pov:{pitch:0,roll:0,mm:28,shake:.5}}};
+const angle=(at,dur,name,o={},ease='power2.inOut')=>{const p=ANGLE[CAM.mode][name];
+  if(!p)throw new Error('sudut tidak dikenal: '+name+' ('+Object.keys(ANGLE[CAM.mode]).join(' ')+')');
+  return camTo(at,dur,{...p,...o},ease);};
+
+/* GERAK — relatif terhadap RENCANA ('+=', '*=' diselesaikan saat setup), jadi bisa dirantai tanpa tahu nilai sebelumnya */
+const dolly=(at,dur,k,ease)=>camTo(at,dur,CAM.mode==='three'?{dist:'*='+(1/k)}:{zoom:'*='+k},ease);   // k>1 mendekat
+const truck=(at,dur,dx,ease)=>{if(CAM.mode!=='three')return camTo(at,dur,{fx:'+='+dx},ease);
+  const y=PLAN.yaw*Math.PI/180;return camTo(at,dur,{fx:'+='+dx*Math.cos(y),fz:'+='+-dx*Math.sin(y)},ease);};   // 3D: geser sepanjang vektor kanan kamera
+const pedestal=(at,dur,dy,ease)=>camTo(at,dur,{fy:'+='+dy},ease);                                      // dy>0 = turun (sumbu layar)
+const pan=(at,dur,dYaw,ease)=>camTo(at,dur,{yaw:'+='+dYaw},ease);
+const tilt=(at,dur,dPitch,ease)=>camTo(at,dur,{pitch:'+='+dPitch},ease);
+const crane=(at,dur,{dy=0,dPitch=0}={},ease)=>camTo(at,dur,{fy:'+='+dy,pitch:'+='+dPitch},ease);
+let AXIS=null;const rule180=a=>{AXIS=a;};                                                             // garis aksi (yaw); null = bebas
+const arc=(at,dur,toYaw,ease='sine.inOut')=>camTo(at,dur,{yaw:AXIS==null?toYaw:Math.max(AXIS-89,Math.min(AXIS+89,toYaw))},ease);
+const lens=(at,dur,mm,ease)=>camTo(at,dur,{mm},ease);
+/* vertigo. 2.5D: subjek di z=0 tidak terpengaruh perspective, bidang data-z bergeser → cukup tween mm. */
+const dollyZoom=(at,dur,mm,ease)=>camTo(at,dur,CAM.mode==='three'?{mm,dist:PLAN.dist*mm/PLAN.mm}:{mm},ease);   // 3D: dist/mm konstan → subjek di fokus tetap sebesar semula
+/* whip pan (techniques.md §4c #6; bernama whipPan karena starter aksi kontinu sudah punya whip(t,dari,ke) antar-view): dunia bergeser 180 px + blur 0,28 dtk; panggil cutTo(at+.28, …) untuk shot berikutnya */
+const whipPan=(at,dir=1)=>{if(CAM.mode==='three')return camTo(at,.28,{yaw:'+='+(70*dir)},'power2.in');   // 3D: putar yaw, tanpa blur rig
+  camTo(at,.28,{fx:'+='+(-180*dir)},'power2.in');cutTo(at,{blur:18});cutTo(at+.28,{blur:0});};
+/* handheld: backend memanggil applyCam dari ticker selama CAM.shake ≠ 0, jadi goyangan hidup saat diputar DAN saat seek */
+const handheld=(a,b,amp=.5)=>{camTo(a,.3,{shake:amp},'sine.out');camTo(b-.3,.3,{shake:0},'sine.in');};
+/* ZONA AMAN HUD: kamera tahu kantong teks, sehingga shot() tidak membawa subjek ke bawah label.
+   Elemen di dalam rig = koordinat dunia; di luar rig (HUD #stage) = koordinat layar, dikonversi
+   ke dunia memakai kamera shot itu. */
+const HUD=[];
+const hud={
+  reserve(sel,at,dur){const e=$(sel);if(!e)throw new Error('hud.reserve: '+sel+' tidak ada');HUD.push({sel,el:e,at,to:at+dur});},
+  check(at,dur,r,v){for(const h of HUD){if(at+dur<h.at||at>h.to)continue;
+    const dalam=rig.contains(h.el);let p=rectIn(h.el,dalam?rig:$('#stage'));
+    if(!dalam)p={x:(p.x-W/2)/v.zoom+v.fx,y:(p.y-H/2)/v.zoom+v.fy,w:p.w/v.zoom,h:p.h/v.zoom};   // layar → dunia
+    if(r.x<p.x+p.w&&r.x+r.w>p.x&&r.y<p.y+p.h&&r.y+r.h>p.y)
+      throw new Error('zona aman: subjek shot pada detik '+at+' masuk kantong teks '+h.sel+' — geser fokus, ganti ukuran shot, atau pindahkan teks');}}};
+
+/* posisi kamera dari koordinat bola di sekitar fokus (derajat); pitch negatif = kamera di atas fokus, menunduk */
+const pose=c=>{const y=c.yaw*Math.PI/180,p=c.pitch*Math.PI/180;
+  return{x:c.fx+c.dist*Math.cos(p)*Math.sin(y),y:c.fy-c.dist*Math.sin(p),z:c.fz+c.dist*Math.cos(p)*Math.cos(y)};};
+/* jarak agar subjek h×w mengisi `fill` frame; sisi panjang sensor 36 mm menentukan (filmGauge 36) */
+const jarakBingkai=(h,w,fill,mm,aspect=W/H)=>{if(!(Math.max(h,w)>0))throw new Error('jarakBingkai: ukuran subjek 0');
+  if(!(fill>0)||!(mm>0))throw new Error('jarakBingkai: fill ('+fill+') dan mm ('+mm+') harus > 0');
+  const d=Math.max(h,w/aspect)/fill*mm*Math.max(aspect,1)/36;if(!isFinite(d))throw new Error('jarakBingkai: ukuran subjek 0');return d;};
+/* </wv:kamera> */
+/* <wv:kamera-three> dibangun dari src/runtime/kamera-three.js — JANGAN edit di sini;
+   ubah sumbernya lalu jalankan: node scripts/build-starters.mjs */
+/* BACKEND 3D — membaca CAM, menulis ke `camera` Three.js (r161). Starter menyediakan THREE, scene, camera,
+   renderer, composer SEBELUM blok ini; render() starter memanggil applyCam() lalu composer.render(0).
+   Di sini fx/fy/fz = koordinat dunia Three (Y ke atas), dist dalam unit dunia, yaw/pitch/roll derajat. */
+CAM.mode='three';
+camDefaults({fx:0,fy:0,fz:0,dist:10,yaw:0,pitch:0,mm:35,zoom:1,lantai:null});   // lantai: tinggi y bidang tanah (null = tanpa jepit)
+/* warna dari token CSS ('--accent'), hex, atau THREE.Color — dunia 3D ikut style brief, tanpa hardcode */
+const warna=c=>new THREE.Color(typeof c==='string'&&c.startsWith('--')?getComputedStyle(document.documentElement).getPropertyValue(c).trim():c);
+
+/* ---------- KAMERA ---------- */
+/* satu jalur untuk kamera render DAN kamera bayangan cek3: pose, lookAt, roll, lensa. Keadaan rail hanya CAM.rail + CAM.railU (0..1).
+   Kembali: titik yang ditatap (pusat lampu key). */
+/* lantai: kamera tidak pernah turun di bawah c.lantai+margin (low/worm sesudah WS, dip di tengah tween) — dijepit per frame.
+   margin = near·(1+tan(½ fov vertikal)): di bawah itu near plane memotong lantai dan dasar frame menyingkap latar (lensa lebar paling parah) */
+const jepitLantai=(p,c)=>{if(c.lantai==null)return p;
+  const m=Math.max(.05,camera.near*(1+(36/Math.max(W/H,1))/(2*c.mm*(c.zoom||1))));if(p.y<c.lantai+m)p.y=c.lantai+m;return p;};
+function arahkan(cam,c,dx=0,dy=0,dz=0,roll=c.roll){let p,f,s;
+  if(c.rail>=0){const R=RAILS[c.rail];if(typeof R=='function'){s=R(tl.time());p=new THREE.Vector3(...s.p);f=s.look;roll+=s.roll;}   // terbang()
+    else{p=R.curve.getPointAt(c.railU);f=R.look;}}else{p=pose(c);f=[c.fx,c.fy,c.fz];}
+  jepitLantai(p,c);
+  cam.position.set(p.x+dx,p.y+dy,p.z+dz);cam.lookAt(f[0],f[1],f[2]);cam.rotateZ(roll*Math.PI/180);
+  if(s){cam.rotateY(s.gy*Math.PI/180);cam.rotateX(s.gp*Math.PI/180);}   // guncangan trauma
+  cam.zoom=c.zoom;cam.filmGauge=36;cam.setFocalLength(c.mm);return f;}   // setFocalLength = updateProjectionMatrix (zoom sudah terpasang)
+/* rail: kamera meluncur sepanjang Catmull-Rom (≥ 3 titik) sambil menatap titik `look`. Di ujung, CAM kembali ke pose bola
+   yang tepat di titik terakhir (kebalikan pose()), jadi camTo/shot sesudahnya berlanjut tanpa lompatan. */
+function rail(at,dur,pts,{look=null,ease='sine.inOut'}={}){
+  if(at<planAt)throw new Error('gerak relatif harus dipanggil urut waktu (detik '+at+' setelah '+planAt+')');
+  if(pts.length<3)throw new Error('rail: butuh ≥ 3 titik (CatmullRomCurve3 2 titik rusak di r161)');
+  const f=look||[PLAN.fx,PLAN.fy,PLAN.fz],curve=new THREE.CatmullRomCurve3(pts.map(q=>new THREE.Vector3(...q)),false,'centripetal'),
+    e=curve.getPointAt(1),dx=e.x-f[0],dy=e.y-f[1],dz=e.z-f[2],d=Math.hypot(dx,dy,dz);
+  if(d<1e-6)throw new Error('rail: titik terakhir sama dengan look — kamera tidak punya arah');
+  const i=RAILS.push({curve,look:f})-1;
+  return[cutTo(at,{rail:i,railU:0}),camTo(at,dur,{railU:1},ease),
+    cutTo(at+dur,{rail:-1,fx:f[0],fy:f[1],fz:f[2],dist:d,pitch:-Math.asin(dy/d)*180/Math.PI,yaw:Math.atan2(dx,dz)*180/Math.PI})];}
+/* handheld: noise ber-seed dari tl.time() → goyangan sama di putar, scrub, dan ekspor. Tidak me-render. */
+function applyCam(){let dx=0,dy=0,dz=0,roll=CAM.roll;
+  if(CAM.shake){const t=tl.time(),a=CAM.shake,s=CAM.seed;
+    dx=(noise(t*1.7,s)-.5)*.1*a;dy=(noise(t*1.3,s+1)-.5)*.1*a;dz=(noise(t*1.1,s+3)-.5)*.1*a;roll+=(noise(t*.9,s+2)-.5)*.6*a;}
+  applyLux(arahkan(camera,CAM,dx,dy,dz,roll));   // lampu dihitung ulang tiap render/seek dari LUX + titik yang ditatap
+  bokeh.enabled=CAM.aperture>0;Object.assign(bokeh.uniforms,{focus:{value:CAM.focus},aperture:{value:CAM.aperture*.0007},maxblur:{value:.01}});}
+const objek3=o=>{if(typeof o==='string'){const n=o;o=scene.getObjectByName(n);if(!o)throw new Error('shot: subjek 3D '+n+' tidak ada');}return o;};
+/* updateWorldMatrix(true,true): setFromObject tidak memperbarui rantai induk — sebelum render pertama subjek bersarang terbaca di posisi lokal */
+const kotak3=o=>{o.updateWorldMatrix(true,true);const b=new THREE.Box3().setFromObject(o);if(b.isEmpty())throw new Error('shot: subjek 3D kosong — '+(o.name||o.type));
+  const s=b.getSize(new THREE.Vector3());if(Math.max(s.x,s.y)<=0)throw new Error('shot: subjek 3D berukuran 0 — '+(o.name||o.type)+' (skala 0 dari tl.from?)');return b;};
+/* shot() di inti memanggil ini: fokus = pusat Box3, jarak dari tinggi/lebar kotak pada lensa RENCANA */
+CAM.frame3d=(fill,o)=>{const b=kotak3(objek3(o)),c=b.getCenter(new THREE.Vector3()),s=b.getSize(new THREE.Vector3());
+  /* jarakBingkai = jarak ke bidang yang mengisi frame; bidang itu adalah permukaan DEPAN subjek, bukan pusatnya:
+     tambah setengah rentang kotak searah pandang (bidang tanpa kedalaman = 0, tidak berubah) */
+  const v=pose({fx:0,fy:0,fz:0,dist:1,yaw:PLAN.yaw,pitch:PLAN.pitch}),dalam=(Math.abs(v.x)*s.x+Math.abs(v.y)*s.y+Math.abs(v.z)*s.z)/2;
+  return{fx:c.x,fy:c.y,fz:c.z,dist:jarakBingkai(s.y,s.x,fill,PLAN.mm)+dalam};};
+/* ZONA AMAN HUD 3D: proyeksikan 8 sudut kotak subjek dari pose AKHIR shot ke piksel panggung, bandingkan
+   dengan kotak elemen HUD di #stage. Sudut di belakang kamera = subjek menelan frame. */
+CAM.cek3=(at,dur,o,v)=>{const hs=HUD.filter(h=>!(at+dur<h.at||at>h.to));if(!hs.length)return;
+  const b=kotak3(objek3(o)),c=new THREE.PerspectiveCamera(35,W/H,.01,1e4);arahkan(c,{...PLAN,...v});c.updateMatrixWorld();
+  let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;
+  for(let i=0;i<8;i++){const p=new THREE.Vector3(i&1?b.max.x:b.min.x,i&2?b.max.y:b.min.y,i&4?b.max.z:b.min.z);
+    if(p.clone().applyMatrix4(c.matrixWorldInverse).z>-c.near){x0=y0=-Infinity;x1=y1=Infinity;break;}
+    p.project(c);const px=(p.x+1)/2*W,py=(1-p.y)/2*H;x0=Math.min(x0,px);x1=Math.max(x1,px);y0=Math.min(y0,py);y1=Math.max(y1,py);}
+  for(const h of hs){const r=rectIn(h.el,$('#stage'));
+    if(x0<r.x+r.w&&x1>r.x&&y0<r.y+r.h&&y1>r.y)
+      throw new Error('zona aman: subjek shot pada detik '+at+' masuk kantong teks '+h.sel+' — geser fokus, ganti ukuran shot, atau pindahkan teks');}};
+
+/* ---------- CAHAYA, LAMPU PRAKTIS, FOKUS ---------- */
+/* rig key/fill/rim: satu set lampu, nilainya di-tween di LUX (fungsi murni tl.time() lewat onUpdate). */
+const LUX={kAz:45,kEl:50,kI:0,kR:1,kG:1,kB:1,fI:0,fsR:1,fsG:1,fsB:1,fgR:1,fgG:1,fgB:1,rI:0};
+const key=new THREE.DirectionalLight(0xffffff,0),fill=new THREE.HemisphereLight(0xffffff,0xffffff,0),rim=new THREE.DirectionalLight(0xffffff,0);
+key.name='key';key.castShadow=true;key.shadow.mapSize.set(2048,2048);
+Object.assign(key.shadow.camera,{left:-20,right:20,top:20,bottom:-20,near:1,far:80});
+scene.add(key,key.target,fill,rim,rim.target);
+function applyLux(f=[CAM.fx,0,CAM.fz]){const a=LUX.kAz*Math.PI/180,e=LUX.kEl*Math.PI/180,R=30,c=new THREE.Vector3(f[0],0,f[2]);
+  key.position.set(c.x+R*Math.cos(e)*Math.sin(a),R*Math.sin(e),c.z+R*Math.cos(e)*Math.cos(a));key.target.position.copy(c);
+  key.color.setRGB(LUX.kR,LUX.kG,LUX.kB);key.intensity=LUX.kI;
+  fill.color.setRGB(LUX.fsR,LUX.fsG,LUX.fsB);fill.groundColor.setRGB(LUX.fgR,LUX.fgG,LUX.fgB);fill.intensity=LUX.fI;
+  rim.position.set(c.x-R*.5,R*.6,c.z-R*.8);rim.target.position.copy(c);rim.intensity=LUX.rI;}
+/* [key az, el, warna, I | fill sky, ground, I | rim I] — heuristik riset §Pencahayaan */
+const CAHAYA3={
+  day:   [45,50,'#FFF6E8',2.5,'#DDEBFF','#C9B79C',1.0,.6],
+  golden:[60,6,'#FFB46B',2.8,'#FFD9A8','#6B4A3A',.5,1.2],
+  blue:  [0,30,'#6FA8FF',0,'#6FA8FF','#1B2244',.8,.4],
+  night: [200,40,'#9DB7FF',.3,'#2A3560','#0C1020',.25,.5],
+  lowkey:[80,12,'#FFFFFF',1.4,'#FFFFFF','#000000',.12,0],
+  studio:[45,35,'#FFFFFF',2.5,'#FFFFFF','#B0B0B0',.7,1.5]};
+function nilaiLux(n){const [kAz,kEl,k,kI,s,g,fI,rI]=CAHAYA3[n],K=new THREE.Color(k),S=new THREE.Color(s),G=new THREE.Color(g);
+  return{kAz,kEl,kI,kR:K.r,kG:K.g,kB:K.b,fI,fsR:S.r,fsG:S.g,fsB:S.b,fgR:G.r,fgG:G.g,fgB:G.b,rI};}
+let lampAt=-Infinity;
+function light(at,dur,preset,o={}){if(!CAHAYA3[preset])throw new Error('preset cahaya tidak dikenal: '+preset+' ('+Object.keys(CAHAYA3).join(' ')+')');
+  if(at<lampAt)throw new Error('light(): panggil urut waktu (detik '+at+' setelah '+lampAt+')');lampAt=at;
+  return tl.to(LUX,{...nilaiLux(preset),...o,duration:dur,ease:'sine.inOut'},at);}
+/* lampu praktis: PointLight di posisi dunia mesh + bahan berpendar (tidak kena tone mapping) */
+function practical(mesh,color,intensity=2,distance=8){const c=warna(color),L=new THREE.PointLight(c,intensity,distance);
+  mesh.getWorldPosition(L.position);scene.add(L);
+  Object.assign(mesh.material,{emissive:c,emissiveIntensity:1,toneMapped:false});mesh.material.emissive.copy(c);return L;}
+/* DOF: BokehPass dibuat sekali, sebelum OutputPass; hidup hanya bila CAM.aperture>0.
+   ponytail: CAM.focus dihitung saat setup dari pose(PLAN) — tidak mengikuti kamera yang bergerak sesudahnya. */
+const bokeh=new BokehPass(scene,camera,{focus:0,aperture:0,maxblur:.01});bokeh.enabled=false;
+composer.insertPass(bokeh,composer.passes.length-1);
+const jarakFokus=o=>{const p=jepitLantai(pose(PLAN),PLAN),c=kotak3(objek3(o)).getCenter(new THREE.Vector3());return Math.hypot(c.x-p.x,c.y-p.y,c.z-p.z);};
+const focus=(at,dur,obj,aperture=6,ease='sine.inOut')=>camTo(at,dur,{focus:jarakFokus(obj),aperture},ease);
+const rackFocus=(at,dur,a,b)=>{cutTo(at,{focus:jarakFokus(a),aperture:6});focus(at,dur,b);};
+
+/* ---------- MATERIAL & ASET ---------- */
+/* warna brand tepat lewat composer WAJIB renderer.toneMapping=NoToneMapping (bawaan): OutputPass memetakan seluruh frame dan
+   mengabaikan toneMapped:false (flag itu hanya untuk render langsung). Sejarah/sinematik: tone mapping film (sinematografi.md §6). */
+const TOON=new THREE.DataTexture(new Uint8Array([90,170,255]),3,1,THREE.RedFormat);   // 3 tingkat bayangan kartun
+TOON.minFilter=TOON.magFilter=THREE.NearestFilter;TOON.needsUpdate=true;
+const MAT={
+  flat:     c=>new THREE.MeshBasicMaterial({color:c,toneMapped:false}),
+  toon:     c=>new THREE.MeshToonMaterial({color:c,gradientMap:TOON,toneMapped:false}),
+  clay:     c=>new THREE.MeshStandardMaterial({color:c,roughness:.9,metalness:0,toneMapped:false}),
+  glossy:   c=>new THREE.MeshPhysicalMaterial({color:c,roughness:.25,clearcoat:1,toneMapped:false}),
+  realistis:c=>new THREE.MeshStandardMaterial({color:c,roughness:.5,metalness:.1,toneMapped:false})};
+function mat(family,color){if(!MAT[family])throw new Error('mat: family tidak dikenal: '+family+' ('+Object.keys(MAT).join(' ')+')');return MAT[family](warna(color));}
+/* logo/ikon SVG (string, bukan berkas — file:// memblokir loader) → grup 3D. depth/bevel dalam unit DUNIA
+   (dibagi scale karena geometri dibangun dalam unit SVG). Geometri dipusatkan, jadi grup.position bebas dipakai. */
+function fromSVG(svg,{depth=.2,bevel=.02,family='toon',scale=.01}={}){const g=new THREE.Group();
+  for(const p of new SVGLoader().parse(svg).paths){if(p.userData&&p.userData.style&&p.userData.style.fill==='none')continue;   // garis saja: tak punya isi untuk diekstrusi
+    const m=mat(family,p.color);
+    for(const s of SVGLoader.createShapes(p))
+      g.add(new THREE.Mesh(new THREE.ExtrudeGeometry(s,{depth:depth/scale,bevelEnabled:bevel>0,bevelSize:bevel/scale,bevelThickness:bevel/scale}),m));}
+  const c=kotak3(g).getCenter(new THREE.Vector3());for(const m of g.children)m.geometry.translate(-c.x,-c.y,-c.z);
+  g.scale.set(scale,-scale,scale);return g;}   // SVG y ke bawah → balik
+
+/* ?demo=1 — katalog kosakata 3D (bukan rundown). Starter memanggilnya SETELAH koreografi contoh: semua gerak kamera
+   & cahaya contoh dibuang (camReset tidak mereset lampAt/LUX, jadi dikerjakan di sini). 29 entri × DUR/30. */
+function demoKamera3(){camReset();gsap.killTweensOf(LUX);lampAt=-Infinity;HUD.length=0;gsap.killTweensOf('#hud>*');tl.set('#hud',{opacity:0},0);   // kantong teks contoh tidak berlaku di katalog
+  const P0={fx:0,fy:0,fz:0,dist:14,yaw:0,pitch:-12,roll:0,mm:35,zoom:1,shake:0,rail:-1,railU:0},step=DUR/30,d=step*.7;let t=0;
+  light(0,0,'day');cutTo(0,P0);
+  for(const k in SHOT){shot(t,d,k,'subjek');t+=step;}cutTo(t,P0);t+=step;
+  for(const k in ANGLE.three){cutTo(t,P0);angle(t,d,k);t+=step;}cutTo(t,P0);
+  for(const [f,a] of [[dolly,1.5],[truck,2],[pedestal,1],[pan,15],[tilt,-8],[arc,40]]){f(t,step*.8,a);t+=step;}cutTo(t,P0);
+  rail(t,step*.9,[[8,2,10],[0,3,12],[-8,2,10]],{look:[0,.8,0]});t+=step;cutTo(t,P0);
+  cutTo(t,{yaw:-55,pitch:-18});   // cahaya samping: pose 3/4 supaya bayangan & sisi teduh terbaca
+  for(const k in CAHAYA3){light(t,step*.5,k);t+=step;}cutTo(t,P0);handheld(t,t+step,.8);t+=step;
+  window.DEMO_AKHIR=t;}
+/* ---------- kait untuk scripts/test-starters.mjs — tidak dipanggil deliverable ---------- */
+window.CAM3_UJI=()=>{const r={},c0={...CAM},V=()=>new THREE.Vector3();tl.pause(0);
+  /* halaman tanpa 'subjek' (opener) / tanpa #hud: kubus pengganti sementara supaya langkah yang butuh subjek tidak melempar;
+     field yang bermakna hanya dengan dunia starter 3D (subjek, HUD, lantai, katalog) dikembalikan null di akhir */
+  const pinjam=!scene.getObjectByName('subjek')?new THREE.Mesh(new THREE.BoxGeometry(1.6,1.6,1.6)):null,adaHud=!!$('#hud .lbl');
+  if(pinjam){pinjam.name='subjek';pinjam.position.y=.8;scene.add(pinjam);}
+  Object.assign(CAM,{yaw:30,pitch:-15,roll:0,shake:0,zoom:1,mm:PLAN.mm,rail:-1},CAM.frame3d(SHOT.MS,'subjek'));applyCam();composer.render(0);   // rail -1: halaman yang terbang sejak t=0
+  const p=pose(CAM);r.poseCocok=camera.position.distanceTo(new THREE.Vector3(p.x,p.y,p.z))<1e-6;
+  const n=kotak3(objek3('subjek')).getCenter(V()).project(camera);r.ndc=[n.x,n.y];
+  const bid=new THREE.Mesh(new THREE.PlaneGeometry(1.6,1.6));scene.add(bid);   // datar: tanpa distorsi perspektif kedalaman
+  {const py=PLAN.yaw,pp=PLAN.pitch;PLAN.yaw=PLAN.pitch=0;Object.assign(CAM,{yaw:0,pitch:0},CAM.frame3d(SHOT.WS,bid));PLAN.yaw=py;PLAN.pitch=pp;}   // frame3d membaca sudut dari PLAN
+  applyCam();camera.updateMatrixWorld();
+  const y=v=>new THREE.Vector3(0,v,0).project(camera).y;r.isiTinggi=(y(.8)-y(-.8))/2;scene.remove(bid);bid.geometry.dispose();
+  if(adaHud){hud.reserve('#hud .lbl',0,99);
+  try{shot(0,.1,'CU','subjek');r.hudTabrakDitolak=false;}catch(e){r.hudTabrakDitolak=/zona aman/.test(e.message);}HUD.pop();}
+  /* piksel dibaca di task yang SAMA dengan render: tanpa preserveDrawingBuffer buffer kosong setelah komposit */
+  const m=new THREE.Mesh(new THREE.PlaneGeometry(10,10),mat('flat','#EE1C25'));
+  m.position.copy(camera.position);m.quaternion.copy(camera.quaternion);m.translateZ(-1);scene.add(m);composer.render(0);
+  const gl=renderer.getContext(),px=new Uint8Array(4);gl.readPixels(W/2,H/2,1,1,gl.RGBA,gl.UNSIGNED_BYTE,px);
+  r.pikselBrand=[px[0],px[1],px[2]].join(',');scene.remove(m);m.geometry.dispose();m.material.dispose();
+  try{shot(0,0,'MS',new THREE.Group());r.kosongDitolak=false;}catch(e){r.kosongDitolak=/kosong/.test(e.message);}
+  try{mat('neon','#fff');r.familyDitolak=false;}catch(e){r.familyDitolak=/neon/.test(e.message);}
+  const L0={...LUX},la0=lampAt,t0=lampAt+1,tw=light(t0,.1,'golden');tl.time(t0+.2);r.keyGolden=LUX.kI;r.elGolden=LUX.kEl;
+  try{light(t0-1,.1,'day');r.lightUrutDitolak=false;}catch(e){r.lightUrutDitolak=/urut/.test(e.message);}
+  tw.kill();tl.remove(tw);tl.time(0);Object.assign(LUX,L0);lampAt=la0;applyLux();
+  CAM.aperture=0;applyCam();r.bokehSaatNol=bokeh.enabled;CAM.aperture=6;applyCam();r.bokehSaatEnam=bokeh.enabled;
+  const jp=pose(PLAN),jc=kotak3(objek3('subjek')).getCenter(V());r.jarakHarapan=Math.hypot(jc.x-jp.x,jc.y-jp.y,jc.z-jp.z);r.jarakFokus=jarakFokus('subjek');
+  {const rl=CAM.rail;Object.assign(LUX,nilaiLux('day'));CAM.rail=-1;applyLux();const kx=key.target.position.x;CAM.fx+=10;applyCam();r.keyIkutKamera=Math.abs(key.target.position.x-kx-10)<1e-6;
+   CAM.fx-=10;CAM.rail=rl;Object.assign(LUX,L0);}   // pulihkan: tween yang pertama dirender sesudah ini mencatat nilai awal dari CAM
+  const P1={...PLAN},pa1=planAt,nR=RAILS.length,tA=Math.max(planAt,0)+1,pts=[[0,2,12],[6,3,8],[10,4,0]];
+  try{rail(tA,2,pts.slice(0,2));r.railDuaDitolak=false;}catch(e){r.railDuaDitolak=/≥ 3/.test(e.message);}
+  const tws=rail(tA,2,pts,{look:[0,1,0],ease:'none'}),cv=RAILS[nR].curve;
+  tl.time(tA+1);applyCam();r.railTengah=camera.position.distanceTo(cv.getPointAt(.5));
+  tl.time(tA+2+1e-3);applyCam();r.railSambung=camera.position.distanceTo(V().set(10,4,0));
+  const nR2=RAILS.length;try{rail(planAt-1,2,pts);r.railUrutDitolak=false;}catch(e){r.railUrutDitolak=/urut waktu/.test(e.message)&&RAILS.length===nR2;}
+  try{const w2=rail(planAt,1,[[0,2,12],[6,3,8],[0,1,0]],{look:[0,1,0]});r.railLookDitolak=false;for(const w of w2){w.kill();tl.remove(w);}}
+  catch(e){r.railLookDitolak=/sama dengan look/.test(e.message)&&RAILS.length===nR2;}
+  tl.time(0);for(const w of tws){w.kill();tl.remove(w);}RAILS.length=nR;Object.assign(PLAN,P1);planAt=pa1;
+  {const h=[];for(const k of ['ECU','CU']){Object.assign(CAM,{yaw:30,pitch:-15,roll:0,shake:0,zoom:1,mm:PLAN.mm,rail:-1},CAM.frame3d(SHOT[k],'subjek'));applyCam();camera.updateMatrixWorld();
+    const bx=kotak3(objek3('subjek')),n=bx.getCenter(V()).project(camera);h.push({k,dalam:bx.containsPoint(camera.position),ndc:[n.x,n.y]});}
+   r.dekatDiLuar={hasil:h,ok:h.every(e=>!e.dalam&&Math.abs(e.ndc[0])<.05&&Math.abs(e.ndc[1])<.05)};}
+  /* low/worm sesudah WS: tanpa lantai kamera turun ke bawah y=0 (layar hitam); dengan CAM.lantai dijepit di atasnya */
+  {const y=[];for(const k of ['low','worm']){Object.assign(CAM,{yaw:0,pitch:PLAN.pitch,roll:0,shake:0,zoom:1,mm:PLAN.mm,rail:-1},CAM.frame3d(SHOT.WS,'subjek'),ANGLE.three[k]);
+    applyCam();y.push(camera.position.y);}
+   r.lantaiAman={y,ok:y.every(v=>v>=0)};
+   /* worm (16 mm, lebar) dijepit dekat lantai: dasar frame harus lantai, bukan latar yang tersingkap karena near plane memotong lantai */
+   Object.assign(CAM,{fx:0,fy:0,fz:0,dist:14,yaw:0,pitch:-12,roll:0,shake:0,zoom:1,mm:35,rail:-1},ANGLE.three.worm);applyCam();   // pose katalog: fokus di permukaan lantai
+   composer.render(0);const gl=renderer.getContext(),px=new Uint8Array(4);gl.readPixels(W/2,4,1,1,gl.RGBA,gl.UNSIGNED_BYTE,px);
+   const bg=scene.background,lb=bg&&bg.isColor?Math.round(bg.clone().convertLinearToSRGB().r*255+bg.clone().convertLinearToSRGB().g*255+bg.clone().convertLinearToSRGB().b*255):0;
+   r.wormTanpaPita={dasar:px[0]+px[1]+px[2],latar:lb,ok:Math.abs(px[0]+px[1]+px[2]-lb)>12};}
+  /* subjek bersarang dibingkai di posisi DUNIA, walau matriks induknya belum pernah diperbarui render */
+  {const g=new THREE.Group(),b=new THREE.Mesh(new THREE.BoxGeometry(1,1,1));g.position.set(5,0,-3);b.position.y=1;g.add(b);scene.add(g);
+   const v=CAM.frame3d(SHOT.WS,b);r.bersarangBenar={f:[v.fx,v.fy,v.fz],ok:Math.hypot(v.fx-5,v.fy-1,v.fz+3)<1e-6};
+   scene.remove(g);b.geometry.dispose();b.material.dispose();}
+  {const m=new THREE.Mesh(new THREE.BoxGeometry(1,1,1));m.name='nolUji';m.scale.setScalar(0);scene.add(m);
+   try{CAM.frame3d(SHOT.MS,m);r.nolDitolak=false;}catch(e){r.nolDitolak=/berukuran 0 — nolUji/.test(e.message)||e.message;}
+   scene.remove(m);m.geometry.dispose();m.material.dispose();}
+  /* lowkey harus tampak lowkey: dari pose 3/4 (cahaya samping) lantai & sisi membelakangi key jauh lebih gelap daripada day */
+  {const L1={...LUX},lum=()=>{const gl=renderer.getContext(),o=[];   // piksel layar (dari atas): lantai kanan-bawah, sisi kubus kiri (= -x, membelakangi key az 80)
+    for(const [x,y] of [[1750,850],[800,600]]){const px=new Uint8Array(4);gl.readPixels(x,H-y,1,1,gl.RGBA,gl.UNSIGNED_BYTE,px);o.push(px[0]+px[1]+px[2]);}return o;};
+   Object.assign(CAM,{yaw:-55,pitch:-18,roll:0,shake:0,zoom:1,mm:PLAN.mm,rail:-1},CAM.frame3d(SHOT.WS,'subjek'));
+   Object.assign(LUX,nilaiLux('day'));applyCam();composer.render(0);const d=lum();
+   Object.assign(LUX,nilaiLux('lowkey'));applyCam();composer.render(0);const k=lum();
+   r.lowkeyGelap={lantai:k[0]/Math.max(1,d[0]),wajah:k[1]/Math.max(1,d[1]),d,k};Object.assign(LUX,L1);}
+  Object.assign(CAM,c0);
+  if(pinjam){scene.remove(pinjam);pinjam.geometry.dispose();pinjam.material.dispose();for(const k of ['ndc','jarakFokus','jarakHarapan','dekatDiLuar','lowkeyGelap','lantaiAman','wormTanpaPita','demoAkhir'])r[k]=null;}
+  if(!adaHud)r.hudTabrakDitolak=null;
+  applyCam();composer.render(0);if(r.demoAkhir!==null)r.demoAkhir=window.DEMO_AKHIR||0;r.DUR=DUR;r.toneMapping=renderer.toneMapping;return r;};
+/* </wv:kamera-three> */
+/* <wv:terbang> dibangun dari src/runtime/terbang.js — JANGAN edit di sini;
+   ubah sumbernya lalu jalankan: node scripts/build-starters.mjs */
+/* MATA ELANG — terbang(at,dur,titik,opsi): satu shot terbang kontinu (sinematografi.md §3; opsi + resep: mata-elang.md). Jalur
+   Catmull-Rom sentripetal berparameter panjang busur; tatap = look-ahead u+ahead atau target per titik; roll tan φ = v²κ/g, dihaluskan
+   jendela Hann ±halus dtk (roll tak bisa seketika; pesawat sungguhan pun) lalu dijepit lunak rollMaks·tanh(φ/rollMaks);
+   guncang trauma²×noise ber-seed. Murni fungsi tl.time(); backend membaca RAILS[CAM.rail](t). 3D: titik [x,y,z]. 2.5D: titik
+   [fx,fy,zoom], zoom = DOLLY (mm·zoom tetap: bidang [data-z] dekat membesar lebih cepat, z > 0 terlewati), tanpa look-ahead. */
+function jalurElang(titik,{ahead=.04,look=null}={}){const n=titik.length;
+  if(n<2)throw new Error('terbang: butuh ≥ 2 titik');
+  if(look&&look.length!==n)throw new Error('terbang: look harus '+n+' target (satu per titik, null = otomatis)');
+  const pad=Q=>[Q[0].map((v,k)=>2*v-Q[1][k]),...Q,Q[n-1].map((v,k)=>2*v-Q[n-2][k])],P=pad(titik),
+    jarak=(a,b)=>Math.hypot(...a.map((v,k)=>v-b[k])),
+    seg=(Q,x)=>{const i=Math.min(n-2,Math.max(0,Math.floor(x))),[a,b,c,d]=Q.slice(i,i+4),h=(p,q)=>Math.max(Math.sqrt(jarak(p,q)),1e-4),   // knot sentripetal = jarak^½
+      t1=h(a,b),t2=t1+h(b,c),t3=t2+h(c,d),t=t1+(x-i)*(t2-t1),L=(p,q,u,v)=>p.map((e,k)=>((v-t)*e+(t-u)*q[k])/(v-u)),
+      A=L(a,b,0,t1),B=L(b,c,t1,t2),C=L(c,d,t2,t3);return L(L(A,B,0,t2),L(B,C,t1,t3),t1,t2);},   // Barry–Goldman
+    M=64*(n-1),X=[],S=[];
+  for(let k=0,q;k<=M;k++){const x=k/64,p=seg(P,x);X.push(x);S.push(k?S[k-1]+jarak(p,q):0);q=p;}   // tabel panjang busur
+  const Lt=S[M];if(!(Lt>1e-9))throw new Error('terbang: semua titik sama — jalur tanpa panjang');
+  const xDi=u=>{const d=Math.min(1,Math.max(0,u))*Lt;let a=0,b=M;while(b-a>1){const m=a+b>>1;S[m]<=d?a=m:b=m;}return X[a]+(X[b]-X[a])*Math.min(1,(d-S[a])/(S[b]-S[a]||1));},
+    ujung=(x,e)=>{const a=seg(P,x),b=seg(P,x+e),l=jarak(a,b)||1;return u=>a.map((v,k)=>v+(v-b[k])/l*u*Lt);},   // lurus keluar dari ujung
+    awal=ujung(0,1e-3),akhir=ujung(n-1,-1e-3),pos=u=>u<0?awal(-u):u>1?akhir(u-1):seg(P,xDi(u)),
+    satu=d=>{const l=Math.hypot(...d)||1;return d.map(e=>e/l);},   // target per titik → ARAH satuan: target dekat & jauh berpindah rata
+    T=look&&pad(look.map((v,i)=>satu((v||pos(S[i*64]/Lt+ahead)).map((e,k)=>e-titik[i][k]))));
+  return{L:Lt,U:titik.map((_,i)=>S[i*64]/Lt),pos,tatap:u=>{if(!T)return pos(u+ahead);const p=pos(u),d=satu(seg(T,xDi(u)));return p.map((e,k)=>e+d[k]*Lt);}};}
+function terbang(at,dur,titik,{ease='sine.inOut',ahead=.04,look=null,rollMaks=30,halus=.4,g,guncang=2,trauma0=.2,trauma=[],luruh=1,seed=7}={}){
+  if(at<planAt)throw new Error('terbang: panggil urut waktu (detik '+at+' setelah '+planAt+')');
+  if(!(dur>0))throw new Error('terbang: dur harus > 0');
+  const tiga=CAM.mode==='three',E=gsap.parseEase(ease),z0=PLAN.zoom,m0=PLAN.mm,Pm=W*m0/36,r=Math.PI/180,G=g||(tiga?9.81:700),
+    J=jalurElang(tiga?titik:titik.map(([x,y,z])=>{if(!(z>0))throw new Error('terbang 2.5D: zoom harus > 0');return[x,-y,-Pm*(1-z0/z)];}),{ahead,look}),
+    laju=p=>{const a=Math.max(0,p-1e-3),b=Math.min(1,p+1e-3);return J.L*(E(b)-E(a))/(b-a)/dur;},
+    vMaks=Math.max(...Array.from({length:101},(_,i)=>laju(i/100)))||1,
+    detik=J.U.map(u=>{let a=0,b=1;for(let k=0;k<40;k++){const m=(a+b)/2;E(m)<u?a=m:b=m;}return at+dur*(a+b)/2;}),
+    ev=typeof trauma=='function'?trauma(detik):trauma,
+    P_=t=>Math.min(1,Math.max(0,(t-at)/dur)),
+    bank=t=>{const p=P_(t),u=E(p),v=laju(p),[a,b,c]=[u-ahead,u,u+ahead].map(J.pos),x1=b[0]-a[0],z1=b[2]-a[2],x2=c[0]-b[0],z2=c[2]-b[2];
+      return -Math.atan(v*v*Math.atan2(x1*z2-z1*x2,x1*x2+z1*z2)/(ahead*J.L)/G)/r;},   // κ horizontal (rata-rata ±ahead); belok kanan → negatif
+    dt=1/240,n0=Math.max(1,Math.round(halus/dt)),M=Math.max(1,Math.ceil(dur/dt)),idl=Array.from({length:M+2*n0+1},(_,i)=>bank(at+(i-n0)*dt)),
+    hw=Array.from({length:2*n0+1},(_,i)=>.5+.5*Math.cos(Math.PI*(i-n0)/(n0+1))),sw=hw.reduce((a,b)=>a+b),   // tabel 240 Hz ⊛ Hann, sekali saat setup
+    RL=Array.from({length:M+1},(_,i)=>{let q=0;for(let k=0;k<=2*n0;k++)q+=hw[k]*idl[i+k];return rollMaks*Math.tanh(q/sw/rollMaks);}),
+    R=t=>{const p=P_(t),u=E(p),v=laju(p),b=J.pos(u),x=Math.min(M,Math.max(0,(t-at)/dt)),j=Math.min(M-1,Math.floor(x)),
+      roll=RL[j]+(RL[j+1]-RL[j])*(x-j),
+      tr=Math.min(1,trauma0*v/vMaks+ev.reduce((s,[te,k])=>s+(t>=te?Math.max(0,k-(t-te)*luruh):0),0)),
+      gz=i=>tr*tr*guncang*(2*noise(t*9,seed+i)+noise(t*19,seed+i+3)-1.5);
+      if(tiga)return{p:b,look:J.tatap(u),roll:roll+gz(2),gy:gz(0),gp:gz(1)};
+      const zoom=z0*Pm/Math.max(Pm*.02,Pm+b[2]),mm=m0*z0/zoom,P=W*mm/36;
+      return{fx:b[0]+P*Math.tan(gz(0)*r)/zoom,fy:-b[1]+P*Math.tan(gz(1)*r)/zoom,zoom,mm,roll:roll+gz(2)};};
+  const i=RAILS.push(R)-1,e=R(at+dur),roll=PLAN.roll+e.roll;   // ujung: CAM berlanjut dari pose akhir, tanpa lompatan
+  cutTo(at,{rail:i,railU:0});camTo(at,dur,{railU:1},'none');
+  if(tiga){const f=e.look,dx=e.p[0]-f[0],dy=e.p[1]-f[1],dz=e.p[2]-f[2],d=Math.hypot(dx,dy,dz);
+    cutTo(at+dur,{rail:-1,fx:f[0],fy:f[1],fz:f[2],dist:d,pitch:-Math.asin(dy/d)/r,yaw:Math.atan2(dx,dz)/r,roll});}
+  else cutTo(at+dur,{rail:-1,fx:e.fx,fy:e.fy,zoom:e.zoom,mm:e.mm,roll});
+  R.detik=detik;return R;}
+/* </wv:terbang> */
+/* <wv:peta-relief> dibangun dari src/runtime/peta-relief.js — JANGAN edit di sini;
+   ubah sumbernya lalu jalankan: node scripts/build-starters.mjs */
+/* PETA RELIEF 3D — Jawa sebagai relief bercahaya untuk video sejarah (resep, data, batas akurasi: peta-relief.md). Satuan km;
+   x ke timur, z ke selatan, y ke atas = tinggi × tegak. Murni (diuji test-peta, tanpa THREE): proyeksi, lonlat, dekode, medan,
+   jalurRute. Butuh THREE: petaRelief, sungaiPeta, rutePeta, labelPeta, tempelLabel, ikutMatahariPeta.
+   Butuh blok kamera (hash), terbang (jalurElang), kamera-three (camera, key, scene, W, H). Data JAWA:
+   - pantai, dalam: Natural Earth 10m (domain publik) ne_10m_land + ne_10m_bathymetry_K_200, dibuat scripts/peta-data.mjs
+     (Douglas–Peucker 0,5 km / 1,5 km; kuantum 0,002°);
+   - gunung (Holosen) dan gunungTua (Pleistosen): [nama, lon, lat, puncak m] Global Volcanism Program, VOTW 5.4.0 (7 Ags 2026),
+     doi:10.5479/si.GVP.VOTW5-2026.5.4, diambil lewat WFS 3 Nov 2026; jari kaki (km) dan opsi bentuk = perkiraan, bukan data;
+   - sungai: SKEMATIS, titik kota/muara yang dilalui (NE 10m tidak memuat satu pun sungai Jawa); wilayah: bentuk tangan. */
+const JAWA={
+  pantai:{kotak:[103,-9.5,117,-3],q:.002,s:'yqrD90HVFjH-BpFU7BLdaIWjBMtIczBPfdnBenCMLMPkCtBTVbrBhBvBaVFRRGTHJTEFYHEhDDfbLnCpBZ_DA7FgB3FuB5CFhBQBeVO3DYZwBhBQjBcrDgBLWrBINMxBH1ESnDepSuBpBiBtBOjBPCsBXYKwCcqBSKkBCEKPW0C6CBoCbSbDdMbHVdjCFtBONQTGJSpBgBhBBrBUnC8BpCS7BFPFDNNDJOjDPnCOxETTPlBMLHZWREVNVapBStBCHDJZRJRIT2BTQMKgBFOGuBqBayBSGaRSXEfc3BgBVSGmB2C-C8CGQJ0CayBMIWAElBeVmCWaiBQsBIuGkB2DUoB6C2CUiCWYgBMiBDWXEhCGJqBXQDiBQuB4BqBDgCvBwBJ8BdaAgBWWGoEFiBRS1BOLqBHsBCoFeIsBNYauBDiBWKkBHiBPkBjBUFkBCqCYqCV0DpF-ClB6BDiBlBWLWMQJQEyBacFAWQEWFCNOAWUKXAV0BfyE9BwBE2BiBIMCaTSMEyBT-BAWNGMWEM9C0ClD0CrBiB3FgB7C6BFqBbqBPsBAqBYKJuBLiBhBUFoBIS0BSCiBNmBdyBXyGT2CQ2B6BoBhBiGbqF1BsBFsBC6EYoBqBKDKdOJwCfgCnBaDiBSoBIeM2CmDoC0EOsBGuCSsBJWeMcgBwDmByCOwBbeAIMyBxBGnB2BrEYpB-GT-BMQKyBiCaP4BJiBN0C7CuBZkCRqCH2BYWESDsD5DiCD4CU8BCqBOYE0BLUMSFuBhBqBHQKEqBUDWhBV1CkBzBKDeIIPvBPHJELSfaNajBFRNF7BGQVwCnBuBwBWGeRarBCfJ9CHTlBXHPAzCyC7BgE3B0CPsC_BkCTqBISJafOFYC6CyByDkBiETqBOWBgCRSEiBkBQI4BHkBImC8BeGgBR-BlCgBNYA-BOQF0BrB-BH6BjBOPITH_BTlBGxCpBvEtB7HCTMXEhCMHOKEmCSRC_CUnBQPwBJaR2BRkBzBBXZjBpBB3CevCAVGEQWaFkBjBgBvBUnBC_BjBXalCRrBGbczBPLQGkBJGpBNpBKpBYNNJwBHGfFXTZADaLKjBBfkBrBKVWtBDlBWXeTCfNRIxB6BVOzCepBCrFXlBVzB5BhBVrBMXQPTJBXMjBZtBJdZ7BgB7CYtCArBUVAIOpBatBCzBLjBS3FU1BazBXTGXWzBGdMJFJTBjBTFNeJGHDX1BSPPJpBOXiBRNxBWNAdNlCSFkBPIjBHZO_BAXOxDhBNchBMJkBHBdrBvBB1CiBzCSjEIXSzBOlBSAHzBYpCQhCkBdCzB0BnBG9HkElDe 4ykD39C--CAQtBG7DUpBFrBJJhChBjBb9BvCRrB9B7GGnBafyC5BSfAjBPnBhC9ClBnEThDI9BmBxCDVaTOhBIGERHpBMhBV3BSjCPHHRN_DEXkB9BChBpBhDD1GXxCFtBGzCP9BI9BB9BX_BXtDzBjCJIH4BdMvCKPUFsCLiBVWTTpBU1CsC3C0DdWdPDRMnBTxBHHbIVLQ7BAbUd9BbEP6BRNNlBLtBErBkBrFqC_BwBvBOvC0CbU7BQPMIVtBBPFRPFPGT6E3HOtCOjBPHpECHIEkBDYLStC8BNehC8B1CwBHSYULUrBuBzBUJGRezBW3CqDrBsBFQOiBJQdU7BIHQQeEgBVkB7BkBnBmBrBEVKKmBdWXCbZlB8BXKlBC1BsBlBIvBNbiCZQPLPGX8BjE0D5DqCxBU uxxD39CZJPK5DAEFUGgBDQtBsC5BOPDLzCZLGDPUjBEXFXNJpBNIaKCKHOOEUPAtBTX9B9BnDNnBThEVZtDLjDrCtFzCrQtG3FzCjFjDvBNnBORmBEsBWsCT2CHmCIsFPuB7BqCNsBCsBagElBTLNLpDLL_BO7D-BXaCUKQaQWiCkBuBEWnBjBrCvD9BV7BORUDiBSiDDaT1CRPlB_B9ClB9BjBnCZjDPxCQHqCU0CBqBdyCnDEVDhBZLlBPJ5BDNCFMFmBJSbUsBzCGZzB6BlCyBbmCpBe5BWXqBrBAPjBJJXDhBjBHTalB2BLAF_KhHfbTHjBIPVTFVGlEiDpBStBIjDP1CzBtEvEjCtBzCaNOAUcgCGgCbiGSgET-B3GArBRRGFM_KAzD9BpCZrBDjBIxCuBlCMIaPAvB9BjBRfaBMQOFc5LA 03uD_nIQRBTlBHvCAJGAeOKFQ 8uqDtyHWDCPrBGtEoB5BBFOESYY0BZ0CP i9vD5-GcHDd5DOEQqBU ylxDj-GE3BRVlBLpBIlBUNUIKSBIaIAIVOLoCHEEHAJQMOIF -6wD5uIYFqBjCIbjBnBbI1BoBRUTIyB-BSD y7wD33GCZNJ1BE7BaXPlBQlBRELeLWTVPVGlBePTIbPHbYKuB1BBHMEYmBoBLSgBKoDCwCH-CvB 8huD9yFkBlBEXHnBfTjBAJKXJZAV2BgC-BMD w1xD_pDESejBnB9GHH1BuCHeiB8C w5mD_rGA_BHjBPPRFRXLDJGUwBTQFYrBpBLDBSUYyBoBIHUS gsmD_zFSXDbHHvBgBTkBGKKA i2vDx9GapBDtB7BSFMhBEVgCYacEUF 68xDziIiBNmBbehBInB5B3CDrC1B5BnChE3B5BK3BKBKSKGIJoBRVfpBFNGhBXdANKUYUuBPGfBZTGhDNEBaHMJARNXcnCVTOfNjBqB9BEDNXFNKSMCGPKbHAlBTFRKNeRSZHPE7BgBbGLYCWEWOYUFMGMd-BAeQoBJSOIAQZWWEMfMMoEJ4BXWJ2BWgBUIkBAQgB6BkBqDmD6CiBSAeP0DZyBZ -rvDh4GwBRQNOjBbArBdlCHZXtBDRLVjBQDKTXHnBDlFWTVjBCbXhBvChBNRSXIxBD3EIjBKvBPTEHiBLOMUjBMHBJjBsBjBBLRF1JmC7CEHoBKcHIJPHGJiBIYiBG6BsB0B6BBSqCQ4EKuCLsJMwCNyEQ6DBiESiCN u1pD39CEnBZ_Baf3DZJJFRAjBJFzCHJWDkCtC-BCSTSrBNANQbAlBZV9BdjCAbhBZHdMHWMekBwBrBsBDsBNoB mnoD39CMDIPHhBOTHFHEbRTIRJNQ1BIbDHZNITLNMR4BrBmB ooyDn8IxBkBrBDjDcfYJDjB0BESQYLwBoBwBqBIGShB2BRBHKI6BXOqByCqBKIUBuBUPWD4DqB 2rvDh9GOJIRDL_BGpBQPSQQMH s-wDp6GQTHBZKZDdMZaKUSA k9wD_iIoC3BWfNrB_CxClCDLFFVRNlEvBpBbjC5CpBNHTCVORIGNUSIGRBvBFJxBTtBAnBQAQiCkBWkBEYd8BzBgBbsB1BmB9CwCjE-BnBIzDAjBM1B0BxC0DTgDEa0BGkBlBQFqBYOLwCNmF5BiBO8CAmBIqBcoCoCkBQWAqBLgBVmCNkFjCgCxB wyxDl0DUNKRLFJdVdAXSlBBZdFRXpBJLfXNZdlBPXdJcJGNHHUOiCYKEKTeDSK-BDY1BsCD-CYgCM4CsBuCYsCyBciDuCKZT5DGnB2BpCERtBPBRYzB'},
+  dalam:{kotak:[103.6,-12,117.4,-4],q:.002,s:'8guD_2Lr7IAA84GuP9OoCvBAvB0BF8F5IoCnFiD_DBvDzBvBWlBuFgBoCuCrByLYyD8CzB8C2C0BKkHjEUtBH9N_E1EHfQ7B-C3DqB7CmBVkClFqBfsDa4DXoCwB4DA0F2CkElBgDnCwFHc1B5B9DAvCoBvCmDLCxBnBhCgBf8IEkCZqE-CwBE0P5CgD1BwBnCgDAqEvF2BnBwEA-EhDiECoCnCgGvB-BtBqG-CuBLqCzCoCYoCXoFgDgDAwBwB4DXyCwBmH_CwEY4FpDwJ3CoElF2GkD2X9D4CQ0DyCgG_CwEY4DvBkO5BkCUwI2FaTW7DqC9CuBZwBGiCkCmCW4H_CoCvB4DYgDvBwDS4EpEgGAyHrCoBiBHoB3C6ETuDayB4DYWXC9E-E9CgClFqCXuG2BiD0BoFXgDsBYcHoB7BoC3CeHuB6DkCuCyCUsC_G4GjJ0DrEN_EnDxKiCtCiGYgDZiCMyBoF6E2BOwD-CoEG8L4HsDU0EJ8FzC-CD0G6B2D0CYoC0BmBbiEyD0FNgGkUsnBmDqDkDwHO-CrBoHkC4DAgDwBwByCiJA_5H glnDzrK6Cea8CLuCjDGpDhBChD wqyDl-I2EkCyFAA4e1BLXhBc_ByBEApEtBtBrEmDrCWxExB5BYzC3CjBHvEoF1I2B3DlBjD1ClDB7BZLrBenEH_B_GrEjBvBC5ByBzB4GnD8CW2HpCgI0B6FzDmEF6C_B quyDpvHkBYqFLA-GpDhB_DqBtBHJlBqBvGZ7D0B_BsBOiB4B 6yyDn6F-BaA6QxClCnCvE9E_DhBlCUjC6B7B0Dd'},
+  /* [nama, lon, lat, puncak m (GVP)], jari kaki km, opsi {k: lengkung profil, kawah: jari km, cekung: km, kaldera:[jari bibir, tinggi bibir, lantai, jari kerucut tengah]} */
+  gunung:[['Pulosari',105.978,-6.343,1324,8],['Karang',106.05,-6.268,1768,10],['Perbakti-Gagak',106.675,-6.75,1726,6],['Salak',106.733,-6.716,2218,11],
+    ['Gede-Pangrango',106.983,-6.786,3026,15],['Patuha',107.4,-7.162,2422,9],['Tangkuban Parahu',107.6,-6.77,2084,13,{k:1.3}],['Papandayan',107.7306,-7.3175,2643,9],
+    ['Guntur',107.841,-7.143,2251,8],['Tampomas',107.9612,-6.7639,1690,8],['Galunggung',108.058,-7.25,2168,10],['Talagabodas',108.07,-7.208,2201,8],
+    ['Ciremai',108.408,-6.895,3039,14],['Slamet',109.208,-7.242,3428,20],['Dieng',109.879,-7.2,2565,10,{k:1}],['Sundoro',109.997,-7.3014,3149,12],
+    ['Sumbing',110.0747,-7.3819,3370,13],['Merbabu',110.44,-7.454,3118,12],['Merapi',110.446,-7.54,2910,13,{kawah:.5}],['Lawu',111.192,-7.625,3265,18],
+    ['Kelud',112.314,-7.935,1730,11,{kawah:.7,cekung:.2}],['Kawi-Butak',112.45,-7.92,2651,12],['Arjuno-Welirang',112.575,-7.733,3343,14],['Penanggungan',112.62,-7.616,1631,6],
+    ['Semeru',112.922,-8.108,3657,15],['Tengger',112.95,-7.942,2329,18,{k:1.5,kaldera:[4.6,2.65,2.15,1.4]}],['Lamongan',113.341,-7.981,1641,9],
+    ['Iyang-Argapura',113.57,-7.97,3088,16,{k:1.3}],['Raung',114.056,-8.119,3260,14,{kawah:.8,cekung:.25}],['Ijen',114.242,-8.058,2769,10,{kawah:.6,cekung:.2}],
+    ['Baluran',114.37,-7.85,1247,8],['Buyan-Bratan',115.133,-8.283,2244,10],['Batur',115.3775,-8.2403,1711,8],['Agung',115.508,-8.343,2997,12]],
+  gunungTua:[['Tanggamus',104.675,-5.427,2079,12],['Pesawaran-Ratai',105.093,-5.505,1575,9],['Rajabasa',105.6314,-5.7803,1282,5],['Endut',106.37,-6.62,1297,7],
+    ['Halimun',106.45,-6.72,1929,9],['Kendeng',106.526,-6.768,1732,7],['Halimun-Talaga',106.563,-6.846,1741,7],['Kancana',107.041,-6.897,1213,6],
+    ['Sanggabuana',107.22,-6.58,1291,7],['Tilu',107.529,-7.156,2042,7],['Kancana',107.63,-7.32,2182,7],['Wayang-Windu',107.637,-7.213,2184,5],
+    ['Malabar',107.639,-7.132,2307,9],['Kendang',107.709,-7.245,2594,8],['Mandalagiri',107.78,-7.4,1831,7],['Cikuray',107.86,-7.322,2784,9],
+    ['Mandalawangi',107.864,-7.058,1631,7],['Canlancang',107.95,-6.958,1651,6],['Putri',107.973,-7.269,1796,5],['Sedakeling',108.03,-7.12,1676,6],
+    ['Cakrabuana',108.13,-7.03,1721,8],['Sawal',108.27,-7.18,1764,9],['Ungaran',110.3455,-7.1876,2033,11],['Telomoyo',110.3998,-7.3613,1891,6],
+    ['Muria',110.88,-6.62,1625,14],['Lasem',111.52,-6.68,806,7],['Wilis',111.758,-7.808,2563,17],['Pandan',111.7997,-7.4592,908,5],
+    ['Selokaki',112.35,-7.83,1083,5],['Argowayang',112.43,-7.77,2198,7],['Ringgit',113.85,-7.72,1250,8],['Merbuk',114.653,-8.226,1359,8],
+    ['Patas',114.817,-8.261,1390,8],['Seraja',115.654,-8.377,1142,6]],
+  /* SKEMATIS, hulu → muara, [lon, lat, …] lewat kota yang dilalui; galat ± beberapa km (peta-relief.md "Batas akurasi") */
+  sungai:{'Bengawan Solo':[110.9,-7.93,110.92,-7.83,110.86,-7.69,110.85,-7.57,110.95,-7.47,111.03,-7.42,111.25,-7.4,111.45,-7.4,111.55,-7.27,111.6,-7.15,
+      111.75,-7.17,111.88,-7.15,112.03,-7.12,112.17,-7.11,112.35,-7.06,112.47,-6.98,112.57,-6.89],
+    Brantas:[112.53,-7.76,112.52,-7.87,112.62,-7.96,112.6,-8.1,112.45,-8.16,112.3,-8.13,112.17,-8.12,111.98,-8.08,111.92,-8.02,111.99,-7.9,112.01,-7.82,
+      112.06,-7.7,112.1,-7.59,112.25,-7.52,112.43,-7.46,112.57,-7.48,112.71,-7.54,112.86,-7.55],
+    Citarum:[107.66,-7.21,107.75,-7.05,107.62,-6.99,107.5,-6.95,107.38,-6.91,107.3,-6.75,107.37,-6.53,107.31,-6.3,107.28,-6.15,107.15,-6.02,107.03,-5.95],
+    Cimanuk:[107.9,-7.25,107.97,-7.05,108.08,-6.88,108.18,-6.75,108.25,-6.55,108.33,-6.32,108.37,-6.22],
+    Citanduy:[108.35,-7.25,108.54,-7.37,108.7,-7.47,108.85,-7.68],
+    Serayu:[109.92,-7.22,109.9,-7.36,109.8,-7.4,109.69,-7.4,109.55,-7.43,109.4,-7.47,109.29,-7.51,109.2,-7.58,109.12,-7.69],
+    Progo:[110.08,-7.27,110.17,-7.32,110.2,-7.42,110.21,-7.52,110.22,-7.61,110.25,-7.72,110.25,-7.85,110.21,-7.98],
+    Opak:[110.45,-7.6,110.48,-7.68,110.495,-7.755,110.46,-7.86,110.38,-7.95,110.3,-8.01]},
+  /* bentuk tangan (bukan data): [lon, lat, jari x km, jari z km, tinggi km] — dataran tinggi, pegunungan selatan, perbukitan */
+  wilayah:[[105.05,-5.45,50,40,.3],[106.2,-6.55,40,30,.25],[106.6,-6.75,35,25,.45],[107.75,-7.1,80,35,.65],[107.2,-7.25,70,18,.45],[107.9,-7.45,45,15,.4],
+    [109.6,-7.18,50,15,.45],[109.6,-7.5,40,12,.35],[109.95,-7.3,25,15,.6],[111.6,-7.3,90,12,.25],[111.8,-6.9,80,12,.2],[110.75,-8.0,45,14,.4],
+    [111.3,-8.1,40,14,.55],[111.75,-8.15,35,12,.55],[112.2,-8.25,40,10,.4],[112.75,-8.3,40,10,.35],[114.15,-8.0,22,16,1.2],[113.3,-7.05,70,10,.12],[115.2,-8.3,30,12,.45],[112.65,-8.0,22,18,.35],[112.55,-7.9,14,12,.4]]};   // terakhir: dataran tinggi Batu–Malang
+
+/* proyeksi equirektangular di lintang tengah peta (galat skala ≤ 0,4 % di tepi utara/selatan Jawa) */
+const PETA0={lon:110,lat:-7.3},KM_LON=111.32*Math.cos(PETA0.lat*Math.PI/180),KM_LAT=110.58;
+const proyeksi=(lon,lat)=>[(lon-PETA0.lon)*KM_LON,(PETA0.lat-lat)*KM_LAT];
+const lonlat=(x,z)=>[PETA0.lon+x/KM_LON,PETA0.lat-z/KM_LAT];
+/* string scripts/peta-data.mjs → cincin [[lon,lat],…]: selisih kuantum q, zigzag, varint 5 bit per huruf base64url */
+function dekode({q,s}){const H='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+  return s.split(' ').filter(Boolean).map(t=>{const v=[];let n=0,k=1;
+    for(const c of t){const d=H.indexOf(c);if(d<0)throw new Error('dekode: huruf asing '+c);n+=(d&31)*k;if(d<32){v.push(n%2?-(n+1)/2:n/2);n=0;k=1;}else k*=32;}
+    const r=[];for(let i=0,x=0,y=0;i<v.length;i+=2){x+=v[i];y+=v[i+1];r.push([x*q,y*q]);}return r;});}
+/* MEDAN: tinggi(x,z) km, murni & deterministik. Darat = dataran pantai + wilayah + fBm, gunung = kerucut ber-kawah & beralur di
+   koordinat GVP (puncak = bibir kawah = data), digabung smooth-max; lembah sungai diukir. Laut = parameter kedalaman untuk warna:
+   0 di pantai → −0,2 tepat di garis 200 m (NE) → menurun di laut dalam. */
+function medan(D=JAWA,{seed=3}={}){
+  const ss=(a,b,x)=>{const t=Math.min(1,Math.max(0,(x-a)/(b-a)));return t*t*(3-2*t);},smax=(a,b,k)=>{const h=Math.max(k-Math.abs(a-b),0)/k;return Math.max(a,b)+h*h*k/4;},
+    vn=(x,z)=>{const i=Math.floor(x),j=Math.floor(z),u=x-i,v=z-j,a=u*u*(3-2*u),b=v*v*(3-2*v),h=(p,q)=>hash(p*7919+q*104729,seed);
+      return(h(i,j)*(1-a)+h(i+1,j)*a)*(1-b)+(h(i,j+1)*(1-a)+h(i+1,j+1)*a)*b;},
+    fbm=(x,z)=>{let s=0,a=.5,f=1;for(let o=0;o<4;o++){s+=a*(2*vn(x*f+o*17,z*f)-1);a*=.5;f*=2.07;}return s;},
+    d2=(x,z,a,b)=>{const ex=b[0]-a[0],ez=b[1]-a[1],l=ex*ex+ez*ez,t=l?Math.min(1,Math.max(0,((x-a[0])*ex+(z-a[1])*ez)/l)):0,px=x-a[0]-t*ex,pz=z-a[1]-t*ez;return px*px+pz*pz;},
+    ember=(R,B,x0,z0,x1,z1)=>{const nx=Math.ceil((x1-x0)/B)+1,nz=Math.ceil((z1-z0)/B)+1,E=Array.from({length:nx*nz},()=>[]);   // ember B km: ruas dekat titik
+      R.forEach((r,k)=>{const i0=Math.floor((Math.min(r[0][0],r[1][0])-x0)/B),i1=Math.floor((Math.max(r[0][0],r[1][0])-x0)/B),j0=Math.floor((Math.min(r[0][1],r[1][1])-z0)/B),j1=Math.floor((Math.max(r[0][1],r[1][1])-z0)/B);
+        for(let j=Math.max(0,j0);j<=Math.min(nz-1,j1);j++)for(let i=Math.max(0,i0);i<=Math.min(nx-1,i1);i++)E[j*nx+i].push(k);});
+      return(x,z)=>{const i=Math.floor((x-x0)/B),j=Math.floor((z-z0)/B);let q=Infinity,m=-1;   // terdekat di 3×3 ember: pasti tepat bila d ≤ B
+        for(let b=j-1;b<=j+1;b++)for(let a=i-1;a<=i+1;a++){if(a<0||b<0||a>=nx||b>=nz)continue;for(const k of E[b*nx+a]){const e=d2(x,z,R[k][0],R[k][1]);if(e<q){q=e;m=k;}}}
+        if(m<0)return[Infinity,-1,0];const[a,b]=R[m],ex=b[0]-a[0],ez=b[1]-a[1],l=ex*ex+ez*ez;
+        return[Math.sqrt(q),m,l?Math.min(1,Math.max(0,((x-a[0])*ex+(z-a[1])*ez)/l)):0];};},
+    /* poligon: dalam/luar ganjil-genap per baris z (titik di luar kotak data dijepit ke dalamnya), jarak ke tepi ASLI (ruas di tepi kotak
+       klip diabaikan): tepat ≤ 8 km lewat ember, lebih jauh dari kisi pembantu 6 km (bilinear), dilebur 6–8 km tanpa lompatan */
+    bidang=data=>{const K=data.kotak,[x0,z0]=proyeksi(K[0],K[3]),[x1,z1]=proyeksi(K[2],K[1]),e=1e-6,
+        R=dekode(data).map(r=>r.map(p=>proyeksi(p[0],p[1]))),semua=R.flatMap(r=>r.map((a,i)=>[a,r[(i+1)%r.length]])),
+        tepi=(a,b,k,v)=>Math.abs(a[k]-v)<e&&Math.abs(b[k]-v)<e,bukan=([a,b])=>!(tepi(a,b,0,x0)||tepi(a,b,0,x1)||tepi(a,b,1,z0)||tepi(a,b,1,z1)),asli=semua.filter(bukan),
+        dekat=ember(asli,8,x0,z0,x1,z1),G=8,gx=Math.ceil((x1-x0)/G)+1,gz=Math.ceil((z1-z0)/G)+1,kisi=new Float32Array(gx*gz),
+        jarang=R.flatMap(r=>{const o=[];let run=[];const tutup=()=>{const v=run.filter((_,i)=>i%3===0||i===run.length-1);for(let i=1;i<v.length;i++)o.push([v[i-1],v[i]]);run=[];};
+          r.forEach((a,i)=>{const b=r[(i+1)%r.length];if(bukan([a,b])){if(!run.length)run.push(a);run.push(b);}else tutup();});tutup();return o;}),   // kisi pembantu (> 6 km): ruas ASLI dijarangkan 3× per rangkaian (tanpa tali busur memotong tepi kotak klip)
+        B=5,pita=Array.from({length:Math.ceil((z1-z0)/B)+1},()=>[]);   // tepi per pita z 5 km: uji dalam/luar tidak menyapu semua ruas
+      for(let j=0;j<gz;j++)for(let i=0;i<gx;i++){const x=x0+i*G,z=z0+j*G;let q=Infinity;for(const[a,b]of jarang){const v=d2(x,z,a,b);if(v<q)q=v;}kisi[j*gx+i]=Math.sqrt(q);}
+      for(const r of semua)for(let k=Math.floor((Math.min(r[0][1],r[1][1])-z0)/B);k<=Math.floor((Math.max(r[0][1],r[1][1])-z0)/B);k++)if(pita[k])pita[k].push(r);
+      let zc=NaN,X=[];
+      const jepit=(x,z)=>[Math.min(x1-e,Math.max(x0+e,x)),Math.min(z1-e,Math.max(z0+e,z))],
+        dalam=(x,z)=>{[x,z]=jepit(x,z);if(z!==zc){zc=z;X=[];for(const[a,b]of pita[Math.floor((z-z0)/B)])if((a[1]>z)!==(b[1]>z))X.push(a[0]+(z-a[1])*(b[0]-a[0])/(b[1]-a[1]));X.sort((p,q)=>p-q);}
+          let lo=0,hi=X.length;while(lo<hi){const m=lo+hi>>1;X[m]<=x?lo=m+1:hi=m;}return(X.length-lo)%2===1;},
+        jarak=(x,z)=>{const[cx,cz]=jepit(x,z),luar=Math.hypot(x-cx,z-cz),[d]=dekat(cx,cz);if(d<=6)return d+luar;
+          const u=(cx-x0)/G,v=(cz-z0)/G,i=Math.min(gx-2,Math.floor(u)),j=Math.min(gz-2,Math.floor(v)),a=u-i,b=v-j,k=j*gx+i,
+            g=Math.max(6,(kisi[k]*(1-a)+kisi[k+1]*a)*(1-b)+(kisi[k+gx]*(1-a)+kisi[k+gx+1]*a)*b);
+          return(d<=8?d+(g-d)*ss(6,8,d):g)+luar;};
+      return{dalam,jarak,sdf:(x,z)=>dalam(x,z)?jarak(x,z):-jarak(x,z)};},
+    darat=bidang(D.pantai),laut=bidang(D.dalam),
+    G=[...D.gunung.map(g=>[g,0]),...D.gunungTua.map(g=>[g,1])].map(([[nama,lon,lat,m,R,o={}],tua],i)=>{const[x,z]=proyeksi(lon,lat);
+      return{nama,lon,lat,x,z,E:m/1e3,R,tua,k:tua?1.35:1.7,kawah:tua?0:.45,cekung:.12,alur:tua?.32:.22,lancip:tua?.09:.03,
+        jurang:8+Math.floor(hash(i,seed+5)*7),fase:hash(i,seed+6)*6.283,...o};}),
+    /* jurang radial: 8–14 per gunung, jarak tak rata dan berliuk ke kaki (sin bertumpuk), sempit ((1−|sin|)^2,5), dalamnya beda-beda
+       (barranco dalam di antara alur dangkal), dalam ke kaki. Rumus SAMA dengan jurang() di shader petaRelief */
+    jurang=(g,r,a)=>{const q=g.jurang*a/2+.9*Math.sin(3*a+g.fase)+.45*Math.sin(7*a+2*g.fase+2.3*r)+.5*r*Math.sin(5*a+g.fase);
+      return g.alur*ss(.08,.42,r)*(1-ss(.82,1,r))*(1-Math.abs(Math.sin(q)))**2.5*(.3+.7*(.5+.5*Math.sin(.61*q+2.1*g.fase)));},
+    /* kaki tak bulat: R(a) = R·(1 + ,12 sin(2a+fase) + ,06 sin(3a+2fase)) — lereng satu sisi lebih landai; sama dengan shader */
+    kerucut=(g,x,z,alur=1)=>{const dx=x-g.x,dz=z-g.z,q=dx*dx+dz*dz;if(q>=g.R*g.R*1.4)return 0;const a=Math.atan2(dz,dx),R=g.R*(1+.12*Math.sin(2*a+g.fase)+.06*Math.sin(3*a+2*g.fase)),d=Math.sqrt(q);
+      if(d>=R)return 0;const r0=(d-g.kawah)/(R-g.kawah),c=g.lancip,r=(Math.sqrt(r0*r0+c*c)-c)/(Math.sqrt(1+c*c)-c),f=alur?jurang(g,r,a):0;   // puncak sedikit membulat
+      if(g.kaldera){const[rb,hb,lt,rk]=g.kaldera,luar=d<rb?lt+(hb-lt)*ss(rb-1.4,rb,d):hb*Math.pow(1-(d-rb)/(R-rb),g.k)*(1-f);
+        return Math.max(luar,d<rk?lt+(g.E-lt)*Math.pow(1-d/rk,1.2):0);}   // dinding kaldera, lantai pasir, kerucut tengah = puncak GVP
+      if(d<g.kawah)return g.E-g.cekung*(1-(d/g.kawah)**2);   // kawah: bibir = puncak GVP
+      return g.E*Math.pow(1-r,g.k)*(1-f);},
+    W=D.wilayah.map(([lon,lat,rx,rz,h])=>[...proyeksi(lon,lat),rx,rz,h]),
+    wilayah=(x,z)=>{let s=0;for(const[cx,cz,rx,rz,h]of W){const u=(x-cx)/rx,v=(z-cz)/rz,q=u*u+v*v;if(q<9)s+=h*Math.exp(-q);}return s;},
+    kasar=(x,z,dc,alur=1)=>{const w=wilayah(x,z);let h=Math.max(Math.min(.002*dc,.03),.0025*Math.min(dc,40)+(w+(.04+.15*w)*fbm(x/28,z/28))*ss(0,8,dc));
+      for(const g of G){const c=kerucut(g,x,z,alur);if(c>0)h=smax(h,c*ss(0,3,dc),.06);}return h;},
+    kedalaman=(x,z,dc)=>{const dd=laut.sdf(x,z);return dd>0?-.2-2.6*(1-Math.exp(-dd/45)):-.2*-dc/Math.max(1e-6,-dc-dd);},
+    /* sungai: Catmull-Rom (jalurElang) per 0,8 km, ekor di laut dipotong; muka air (batas bawah ukiran) = minimum berjalan dari hulu (tak pernah naik) atas
+       tanah TERENDAH di penampang (±0,3 km di hulu → ±2,4 km di hilir) — jalur skematis yang menyusur lereng tidak berjalan di atas tanggul */
+    S=Object.entries(D.sungai).map(([nama,ll])=>{const T=[];for(let i=0;i<ll.length;i+=2)T.push(proyeksi(ll[i],ll[i+1]));
+      const J=jalurElang(T),n=Math.ceil(J.L/.8);let p=Array.from({length:n+1},(_,i)=>J.pos(i/n));
+      while(p.length>2&&!darat.dalam(...p.at(-1)))p.pop();
+      let m=Infinity;const air=p.map(([x,z],i)=>{const a=p[Math.max(0,i-1)],b=p[Math.min(p.length-1,i+1)],l=Math.hypot(b[0]-a[0],b[1]-a[1])||1,ux=(a[1]-b[1])/l,uz=(b[0]-a[0])/l;
+        const w=.3+2.1*i/(p.length-1);for(const o of[0,-w/2,w/2,-w,w]){const X=x+ux*o,Z=z+uz*o,dc=darat.sdf(X,Z);m=Math.min(m,dc>0?kasar(X,Z,dc):0);}return Math.max(0,m);});   // penampang ±0,3 km (hulu) → ±2,4 km (hilir)
+      return{nama,p,air};}),
+    ruasS=S.flatMap((s,k)=>s.p.slice(1).map((b,i)=>[s.p[i],b,k,i])),dekatS=ember(ruasS,5,-1e3,-600,1e3,600),
+    tinggi=(x,z,alur=1)=>{const dc=darat.sdf(x,z);if(dc<=0)return kedalaman(x,z,dc);let h=kasar(x,z,dc,alur);   // alur 0: kerucut halus (kisi kasar; jurang di shader)
+      const[d,m,t]=dekatS(x,z);if(m>=0&&d<4.5){const[,,k,i]=ruasS[m],a=S[k].air,hr=a[i]+(a[i+1]-a[i])*t,u=(i+t)/(a.length-1);   // lembah melebar ke hilir: hulu sempit (tak memangkas puncak gunung)
+        if(h>hr){const dasar=Math.max(hr,h-.08);h=dasar+(h-dasar)*ss(.25+.45*u,1.2+3.3*u,d);}}   // ukiran ≤ 80 m di bawah tanah asli: lembah, bukan ngarai
+      return h;};
+  return{tinggi,darat,laut,gunung:G,sungai:S,kerucut};}
+/* RUTE: lengkung skematis di atas peta, berparameter panjang busur 3D (jalurElang): jejak tanah Catmull-Rom lewat titik [lon,lat],
+   ujung menempel tanah (+turun km), tengah naik `puncak` km (visual) sebagai busur sin^½ (puncak datar) — tanda perpindahan, bukan jalan. */
+function jalurRute(M,titik,{tegak=4,puncak=20,turun=1.2,n=160}={}){const J=jalurElang(titik.map(([lon,lat])=>proyeksi(lon,lat)));
+  return jalurElang(Array.from({length:n+1},(_,i)=>{const u=i/n,[x,z]=J.pos(u);return[x,Math.max(0,M.tinggi(x,z))*tegak+turun+puncak*Math.sin(Math.PI*u)**.5,z];}));}
+/* JARING: kisi tensor (rapat `langkah` km di `kotak`, lalu tumbuh 40 %/baris sampai ±tepi km: laut jauh di kabut) + satu tambalan
+   `halus` (kotak lon/lat, `bagi` per sel kasar) di lubang kisi kasar. Tepi tambalan = interpolasi tepi kasar (tanpa retak), dilebur ke
+   detail penuh dalam 2 langkah. Bahan: MeshStandard + warna hipsometrik (sawah → tegal → hutan → tanah vulkanik → abu), garis kontur
+   shader 100/500 m (memudar bila terlalu rapat), laut dari kedalaman (paparan terang, garis 200 m, laut dalam), garis pantai tinta,
+   alur lereng di shader (searah turun), bayang awan berarak (uWaktu = tl.time()). Peta di `grup`: grup.scale.y = relief naik. */
+function petaRelief(M,{kotak=[105,-9.1,115.9,-5.5],langkah=1.8,halus=null,tegak=4,tepi=2600,warnaLaut={}}={}){
+  const ss=(a,b,x)=>{const t=Math.min(1,Math.max(0,(x-a)/(b-a)));return t*t*(3-2*t);},C=h=>new THREE.Color(h),
+    [ax0,az0]=proyeksi(kotak[0],kotak[3]),[ax1,az1]=proyeksi(kotak[2],kotak[1]),
+    sumbu=(a,b,s)=>{const n=Math.round((b-a)/s),v=Array.from({length:n+1},(_,i)=>a+(b-a)*i/n),t=[];for(let k=1;;k++){const d=s*(1.4**k-1)/.4;t.push(d);if(d>tepi)break;}
+      return[...t.map(d=>a-d).reverse(),...v,...t.map(d=>b+d)];},
+    xs=sumbu(ax0,ax1,langkah),zs=sumbu(az0,az1,langkah),nx=xs.length,Hc=new Float32Array(nx*zs.length);
+  for(let j=0;j<zs.length;j++)for(let i=0;i<nx;i++)Hc[j*nx+i]=M.tinggi(xs[i],zs[j],0);   // urut baris: tembolok baris z di medan(). Kasar: kerucut tanpa jurang (jurang per piksel di shader)
+  const P={sawah:C('#93a565'),tegal:C('#aaa56f'),hutan:C('#86905f'),tanah:C('#9c8b6e'),abu:C('#8a8079'),cadas:C('#8e7a66')},c=new THREE.Color(),
+    GN=M.gunung,dominan=(x,z)=>{let m=-1,b=0;GN.forEach((g,i)=>{const v=M.kerucut(g,x,z,0);if(v>b){b=v;m=i;}});return m;},   // gunung yang menguasai titik: indeks jurang shader
+    jaring=(X,Z,H,lubang,luar)=>{const nx=X.length,nz=Z.length,n=nx*nz,pos=new Float32Array(n*3),nor=new Float32Array(n*3),col=new Float32Array(n*3),gun=new Float32Array(n),idx=[],
+        Y=k=>Math.max(H[k],0)*tegak,r=Math.max(1,Math.round(3.6/Math.min(...X.slice(1).map((v,i)=>v-X[i])))),at=(i,j)=>H[Math.min(nz-1,Math.max(0,j))*nx+Math.min(nx-1,Math.max(0,i))];
+      for(let j=0;j<nz;j++)for(let i=0;i<nx;i++){const k=j*nx+i,il=Math.max(0,i-1),ir=Math.min(nx-1,i+1),jl=Math.max(0,j-1),jr=Math.min(nz-1,j+1),
+          gx=(Y(j*nx+ir)-Y(j*nx+il))/(X[ir]-X[il]),gz=(Y(jr*nx+i)-Y(jl*nx+i))/(Z[jr]-Z[jl]),l=Math.hypot(gx,1,gz),h=H[k],
+          lereng=Math.hypot(gx,gz)/tegak,ao=Math.max(-1,Math.min(1,((at(i-r,j)+at(i+r,j)+at(i,j-r)+at(i,j+r))/4-h)/.12));   // cekung (lembah) + / cembung (punggung) −
+        pos.set([X[i],Y(k),Z[j]],k*3);nor.set([-gx/l,1/l,-gz/l],k*3);gun[k]=dominan(X[i],Z[j]);
+        c.copy(P.sawah).lerp(P.tegal,ss(.05,.45,h)).lerp(P.hutan,ss(.4,1.3,h)).lerp(P.tanah,ss(1.2,2.3,h)).lerp(P.abu,ss(2.2,3.3,h)).lerp(P.cadas,.5*ss(.25,.6,lereng))
+          .multiplyScalar(ao>0?1-.4*ao:1-.18*ao);col.set([c.r,c.g,c.b],k*3);
+        if(luar)luar(i,j,nor,k*3);}
+      for(let j=0;j<nz-1;j++)for(let i=0;i<nx-1;i++){if(lubang&&i>=lubang[0]&&i<lubang[1]&&j>=lubang[2]&&j<lubang[3])continue;const a=j*nx+i,b=a+1,d=a+nx;idx.push(a,d,b,b,d,d+1);}
+      const g=new THREE.BufferGeometry();g.setIndex(idx);g.setAttribute('position',new THREE.BufferAttribute(pos,3));g.setAttribute('normal',new THREE.BufferAttribute(nor,3));
+      g.setAttribute('color',new THREE.BufferAttribute(col,3));g.setAttribute('tinggi',new THREE.BufferAttribute(H,1));g.setAttribute('gunung',new THREE.BufferAttribute(gun,1));return g;},
+    U={uWaktu:{value:0},uAwan:{value:.1},uKontur:{value:1},uCetak:{value:0},uTerang:{value:.9},uNaik:{value:1},uTegak:{value:tegak},uTinta:{value:C('#5a5244')},
+      uPantai:{value:C(warnaLaut.pantai||'#dfe2d6')},uDangkal:{value:C(warnaLaut.dangkal||'#c3cfcb')},uLaut:{value:C(warnaLaut.laut||'#88a0ad')},uLautDalam:{value:C(warnaLaut.dalam||'#5d7889')}},
+    uG=GN.map(g=>new THREE.Vector4(g.x,g.z,g.R,g.kawah)),uG2=GN.map(g=>new THREE.Vector4(g.lancip,g.alur,g.jurang,g.fase)),
+    bahan=jk=>{const m=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.93,metalness:0});   // jk: kuat jurang shader (kisi kasar 1, tambalan 0: jurangnya sudah geometri)
+      m.onBeforeCompile=s=>{Object.assign(s.uniforms,U,{uJurang:{value:jk*.7},uG:{value:uG},uG2:{value:uG2}});
+    s.vertexShader=s.vertexShader.replace('#include <common>','#include <common>\nattribute float tinggi,gunung;varying float vH;varying vec3 vDunia;flat varying float vG;')
+      .replace('#include <begin_vertex>','#include <begin_vertex>\nvH=tinggi;vG=gunung;vDunia=(modelMatrix*vec4(transformed,1.)).xyz;');
+    s.fragmentShader=s.fragmentShader.replace('#include <common>',`#include <common>
+uniform float uWaktu,uAwan,uKontur,uCetak,uTerang,uJurang,uNaik,uTegak;uniform vec3 uTinta,uPantai,uDangkal,uLaut,uLautDalam;uniform vec4 uG[${GN.length}],uG2[${GN.length}];
+varying float vH;varying vec3 vDunia;flat varying float vG;
+float h21(vec2 p){vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
+float vn(vec2 p){vec2 i=floor(p),f=fract(p),u=f*f*(3.-2.*f);return mix(mix(h21(i),h21(i+vec2(1,0)),u.x),mix(h21(i+vec2(0,1)),h21(i+1.),u.x),u.y);}
+float iso(float v,float px){float f=max(fwidth(v),1e-6),d=abs(fract(v+.5)-.5)/f;return(1.-smoothstep(px*.5,px*.5+1.,d))*(1.-smoothstep(.1,.3,f));}
+float jurang(vec2 p,int i){vec4 g=uG[i],h=uG2[i];vec2 d=p-g.xy;float a=atan(d.y,d.x),R=g.z*(1.+.12*sin(2.*a+h.w)+.06*sin(3.*a+2.*h.w)),r0=(length(d)-g.w)/(R-g.w),
+    r=(sqrt(r0*r0+h.x*h.x)-h.x)/(sqrt(1.+h.x*h.x)-h.x),q=h.z*a*.5+.9*sin(3.*a+h.w)+.45*sin(7.*a+2.*h.w+2.3*r)+.5*r*sin(5.*a+h.w);
+  return h.y*smoothstep(.08,.42,r)*(1.-smoothstep(.82,1.,r))*pow(1.-abs(sin(q)),2.5)*(.3+.7*(.5+.5*sin(.61*q+2.1*h.w)));}`)
+      .replace('#include <color_fragment>',`#include <color_fragment>
+float fh=max(fwidth(vH),1e-6),darat=smoothstep(-fh,fh,vH),paparan=smoothstep(-.2-fh,-.2+fh,vH);
+diffuseColor.rgb*=1.+.09*(vn(vDunia.xz/7.)-.5)*(1.-smoothstep(.15,.5,fwidth(vDunia.x/7.)))+.06*(vn(vDunia.xz/1.9+7.)-.5)*(1.-smoothstep(.15,.5,fwidth(vDunia.x/1.9)));   // belang lahan, pudar bila lebih kecil dari piksel
+diffuseColor.rgb=mix(mix(mix(uLaut,uLautDalam,smoothstep(.2,2.6,-vH)),mix(uPantai,uDangkal,smoothstep(0.,.2,-vH)),paparan),diffuseColor.rgb,darat);
+float kontur=max(iso(vH*10.,1.)*.14*(1.-smoothstep(.04,.08,fwidth(vH*10.))),iso(vH*2.,1.6)*.32)*step(0.,vH)*uKontur,pantai=1.-smoothstep(.6,1.6,abs(vH)/fh),g200=1.-smoothstep(.5,1.5,abs(vH+.2)/fh);
+diffuseColor.rgb=mix(diffuseColor.rgb,uTinta,max(kontur,max(pantai*.75,g200*.4)));`)
+      .replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\nroughnessFactor=mix(.42,roughnessFactor,darat);')
+      .replace('#include <normal_fragment_maps>',`#include <normal_fragment_maps>
+{vec2 p=vDunia.xz;float kuat=uJurang*darat*(1.-smoothstep(.25,.6,fwidth(p.x)));   // jurang kerucut per piksel: rumus = jurang() medan, H = tinggi visual
+ if(vG>-.5&&kuat>.001){int i=int(vG+.5);vec3 nw=normalize((vec4(normal,0.)*viewMatrix).xyz),nu=nw/max(nw.y,.05);float e=.12,f=jurang(p,i),H=max(vH,0.)*uTegak*uNaik*kuat;
+   nu.xz+=H*vec2(jurang(p+vec2(e,0.),i)-f,jurang(p+vec2(0.,e),i)-f)/e;normal=normalize((viewMatrix*vec4(normalize(nu),0.)).xyz);}}`)
+      .replace('#include <opaque_fragment>',`outgoingLight*=1.-uAwan*smoothstep(.52,.74,.65*vn(vDunia.xz/90.+vec2(uWaktu*.03,uWaktu*.01))+.35*vn(vDunia.xz/30.-vec2(uWaktu*.045,0.)));
+outgoingLight=mix(outgoingLight,diffuseColor.rgb*uTerang,uCetak);   // uCetak 1 = peta cetak datar (kulit topografi), 0 = relief bercahaya
+#include <opaque_fragment>`);};return m;},
+    mat=bahan(1),grup=new THREE.Group();
+  const dek=(A,v)=>A.reduce((m,a,i)=>Math.abs(a-v)<Math.abs(A[m]-v)?i:m,0),[p0,p1]=halus?[proyeksi(halus.kotak[0],halus.kotak[3]),proyeksi(halus.kotak[2],halus.kotak[1])]:[],
+    lubang=halus&&[dek(xs,p0[0]),dek(xs,p1[0]),dek(zs,p0[1]),dek(zs,p1[1])],gk=jaring(xs,zs,Hc,lubang,null),mesh=[new THREE.Mesh(gk,mat)];
+  mesh[0].name='peta';
+  if(halus){const[i0,i1,j0,j1]=lubang,m=halus.bagi||4,bagi=A=>A.slice(0,-1).flatMap((a,i)=>Array.from({length:m},(_,k)=>a+(A[i+1]-a)*k/m)).concat(A.at(-1)),
+      X=bagi(xs.slice(i0,i1+1)),Z=bagi(zs.slice(j0,j1+1)),Nc=gk.attributes.normal.array,w=(i,j)=>ss(0,2*langkah,Math.min(X[i]-X[0],X.at(-1)-X[i],Z[j]-Z[0],Z.at(-1)-Z[j])),
+      bil=(A,i,j,o)=>{const ci=i0+Math.min(i1-i0-1,Math.floor(i/m)),cj=j0+Math.min(j1-j0-1,Math.floor(j/m)),u=(X[i]-xs[ci])/(xs[ci+1]-xs[ci]),v=(Z[j]-zs[cj])/(zs[cj+1]-zs[cj]),k=s=>((cj+(s>>1))*nx+ci+(s&1))*o;
+        return Array.from({length:o},(_,q)=>(A[k(0)+q]*(1-u)+A[k(1)+q]*u)*(1-v)+(A[k(2)+q]*(1-u)+A[k(3)+q]*u)*v);},
+      Hf=new Float32Array(X.length*Z.length);
+    for(let j=0;j<Z.length;j++)for(let i=0;i<X.length;i++){const hc=bil(Hc,i,j,1)[0];Hf[j*X.length+i]=hc+(M.tinggi(X[i],Z[j],1)-hc)*w(i,j);}   // tepi = garis tepi kasar
+    mesh.push(new THREE.Mesh(jaring(X,Z,Hf,null,(i,j,nor,o)=>{const t=w(i,j);if(t>=1)return;const n=bil(Nc,i,j,3),a=nor.subarray(o,o+3);   // normal tepi = normal kasar: tanpa jahitan cahaya
+      for(let q=0;q<3;q++)a[q]=n[q]+(a[q]-n[q])*t;const l=Math.hypot(a[0],a[1],a[2]);for(let q=0;q<3;q++)a[q]/=l;}),bahan(0)));
+    mesh[1].name='peta-halus';}
+  for(const m of mesh){m.castShadow=m.receiveShadow=true;grup.add(m);}
+  scene.add(grup);
+  return{M,grup,U,tegak,tinggiDunia:(x,z)=>Math.max(0,M.tinggi(x,z))*tegak};}
+/* SUNGAI: pita di muka air lembah (medan sudah mengukirnya), lebar dalam PIKSEL (vertex shader: ∝ jarak kamera), menipis ke hulu.
+   Satu mesh per sungai: sungaiPeta(...)[nama].mat.color bisa di-tween (sungai yang sedang diceritakan menyala). uPx = 2·tan(½fov)/H. */
+function sungaiPeta(peta,{lebar=3.2,warna:w='#2e6e8e',angkat=.03}={}){const{M,tegak,grup}=peta,U={uPx:{value:.001}},hasil={U};
+  for(const s of M.sungai){const n=s.p.length,pos=[],arah=[],sisi=[],lb=[],idx=[];
+    s.p.forEach(([x,z],i)=>{const a=s.p[Math.max(0,i-1)],b=s.p[Math.min(n-1,i+1)],dx=b[0]-a[0],dz=b[1]-a[1],l=Math.hypot(dx,dz)||1,y=(Math.max(0,M.tinggi(x,z))+angkat)*tegak;   // di tanah terukir (muka air hanya batas bawah ukiran)
+      for(const sd of[-1,1]){pos.push(x,y,z);arah.push(-dz/l,dx/l);sisi.push(sd);lb.push(.4+.6*i/(n-1));}if(i)idx.push(2*i-2,2*i-1,2*i,2*i-1,2*i+1,2*i);});
+    const g=new THREE.BufferGeometry();g.setIndex(idx);g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('arah',new THREE.Float32BufferAttribute(arah,2));
+    g.setAttribute('sisi',new THREE.Float32BufferAttribute(sisi,1));g.setAttribute('lebar',new THREE.Float32BufferAttribute(lb,1));
+    const mat=new THREE.MeshBasicMaterial({color:warna(w),side:THREE.DoubleSide,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-4});
+    mat.onBeforeCompile=sh=>{sh.uniforms.uPx=U.uPx;sh.uniforms.uLebar={value:lebar};
+      sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nattribute vec2 arah;attribute float sisi,lebar;uniform float uPx,uLebar;')
+        .replace('#include <begin_vertex>','#include <begin_vertex>\ntransformed.xz+=arah*sisi*lebar*uLebar*uPx*.5*distance((modelMatrix*vec4(transformed,1.)).xyz,cameraPosition);');};
+    const mesh=new THREE.Mesh(g,mat);mesh.name='sungai '+s.nama;mesh.renderOrder=1;grup.add(mesh);hasil[s.nama]={mesh,mat,s};}
+  return hasil;}
+/* RUTE MENYALA: tabung inti (HDR, ACES menggulirkannya ke kuning-putih) + tabung pendar aditif (Fresnel terbalik), lebar dalam piksel,
+   tergambar sampai uMaju (0..1, tween GSAP = fungsi murni waktu); kepala = sprite pendar + PointLight yang menerangi tanah di ujung. */
+function rutePeta(peta,J,{lebar=7,warna:w='#ffb35c',cahaya=40}={}){const U={uMaju:{value:0},uPx:{value:.001}},
+    kurva=new(class extends THREE.Curve{getPoint(u,t=new THREE.Vector3()){return t.set(...J.pos(u));}})(),geo=new THREE.TubeGeometry(kurva,700,1,10,false),
+    bahan=(pendar,lb,kuat)=>{const m=new THREE.MeshBasicMaterial({color:warna(w).multiplyScalar(kuat),transparent:pendar,depthWrite:!pendar,blending:pendar?THREE.AdditiveBlending:THREE.NormalBlending});
+      m.onBeforeCompile=s=>{Object.assign(s.uniforms,U);s.uniforms.uLebar={value:lb};
+        s.vertexShader=s.vertexShader.replace('#include <common>','#include <common>\nuniform float uPx,uLebar;varying float vU;varying vec3 vN,vV;')
+          .replace('#include <begin_vertex>','#include <begin_vertex>\nvU=uv.x;transformed+=normal*(uLebar*uPx*.5*distance((modelMatrix*vec4(transformed,1.)).xyz,cameraPosition)-1.);')
+          .replace('#include <project_vertex>','#include <project_vertex>\nvV=-mvPosition.xyz;vN=normalMatrix*normal;');
+        s.fragmentShader=s.fragmentShader.replace('#include <common>','#include <common>\nuniform float uMaju;varying float vU;varying vec3 vN,vV;')
+          .replace('#include <color_fragment>','#include <color_fragment>\nif(vU>uMaju)discard;'+(pendar?'diffuseColor.a*=pow(abs(dot(normalize(vN),normalize(vV))),2.2);':''));};return m;},
+    inti=new THREE.Mesh(geo,bahan(false,lebar,5)),pendar=new THREE.Mesh(geo,bahan(true,lebar*4.5,1.4)),   // inti ×5: ACES → putih-kuning panas, tepi jingga
+    kanvas=Object.assign(document.createElement('canvas'),{width:128,height:128}),g2=kanvas.getContext('2d'),gr=g2.createRadialGradient(64,64,0,64,64,64);
+  [[0,'rgba(255,255,255,1)'],[.18,'rgba(255,214,150,.9)'],[.45,'rgba(255,150,60,.3)'],[1,'rgba(255,120,40,0)']].forEach(([o,c])=>gr.addColorStop(o,c));g2.fillStyle=gr;g2.fillRect(0,0,128,128);
+  const kepala=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(kanvas),blending:THREE.AdditiveBlending,depthWrite:false,color:warna(w).multiplyScalar(3.5)})),
+    L=new THREE.PointLight(warna(w),cahaya,0,2),maju={v:0};
+  inti.name='rute';pendar.renderOrder=2;kepala.renderOrder=3;peta.grup.add(inti,pendar,kepala,L);
+  return{J,U,maju,inti,pendar,kepala,cahaya:L,
+    /* panggil tiap frame sesudah kamera: tebal piksel, kepala di ujung yang tergambar */
+    perbarui(){const u=Math.min(1,Math.max(0,maju.v)),p=new THREE.Vector3(...J.pos(u)),d=p.clone().applyMatrix4(peta.grup.matrixWorld).distanceTo(camera.position);
+      U.uMaju.value=u;kepala.position.copy(p);L.position.copy(p);kepala.visible=L.visible=u>0;kepala.scale.setScalar(lebar*6*U.uPx.value*d);L.intensity=cahaya*Math.min(1,u*20);}};}
+/* LABEL DOM di titik 3D: diproyeksikan ulang setiap render (seek mana pun), jadi selalu menempel di peta. sepanjang: titik kedua
+   [lon,lat] → teks diputar searah layar (sungai), tetap tegak (±40°). Tanpa uji oklusi: label di balik punggung gunung tetap tampak. */
+const LABEL=[];
+function labelPeta(peta,teks,{lon,lat,naik=0,kelas='',sepanjang=null,induk='#label'}){const el=document.createElement('div'),titik=(lo,la)=>{const[x,z]=proyeksi(lo,la);
+    return new THREE.Vector3(x,peta.tinggiDunia(x,z)+naik,z);};
+  el.className='lp '+kelas;el.innerHTML=teks;document.querySelector(induk).appendChild(el);
+  LABEL.push({el,peta,p:titik(lon,lat),q:sepanjang&&titik(...sepanjang)});return el;}
+function tempelLabel(){camera.updateMatrixWorld();const v=new THREE.Vector3(),u=new THREE.Vector3(),layar=a=>[(a.x+1)/2*W,(1-a.y)/2*H];
+  for(const L of LABEL){L.peta.grup.updateMatrixWorld();v.copy(L.p).applyMatrix4(L.peta.grup.matrixWorld).project(camera);const ok=Math.abs(v.z)<1;L.el.style.visibility=ok?'':'hidden';if(!ok)continue;
+    const[x,y]=layar(v);let r=0;if(L.q){const[x2,y2]=layar(u.copy(L.q).applyMatrix4(L.peta.grup.matrixWorld).project(camera));r=Math.atan2(y2-y,x2-x)*180/Math.PI;if(r>90)r-=180;if(r<-90)r+=180;r=Math.max(-40,Math.min(40,r));}
+    L.el.style.transform=`translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`+(r?` rotate(${r.toFixed(2)}deg)`:'');}}
+/* bayangan matahari ikut kamera, skala km: kotak bayang ±r di sekitar titik tatap di y=0, r ∝ jarak kamera (dijepit), posisi dibulatkan ke
+   texel ruang cahaya (pola ikutMatahari di lanskap-3d). normalBias ∝ texel. Panggil sesudah applyCam(), sebelum render. */
+function ikutMatahariPeta(arah,{min=40,maks=900}={}){const d=camera.getWorldDirection(new THREE.Vector3()),c=camera.position.clone().addScaledVector(d,d.y<-.02?-camera.position.y/d.y:camera.position.y*8);
+  c.y=0;const r=Math.min(maks,Math.max(min,.8*camera.position.distanceTo(c))),ka=new THREE.Vector3().crossVectors(arah,new THREE.Vector3(0,1,0)).normalize(),
+    at=new THREE.Vector3().crossVectors(ka,arah).normalize(),tx=2*r/key.shadow.mapSize.x,bul=v=>c.addScaledVector(v,Math.round(c.dot(v)/tx)*tx-c.dot(v));
+  bul(ka);bul(at);key.target.position.copy(c);key.position.copy(c).addScaledVector(arah,3*r);
+  Object.assign(key.shadow.camera,{left:-r,right:r,top:r,bottom:-r,near:.1,far:6*r});key.shadow.camera.updateProjectionMatrix();key.shadow.normalBias=1.2*tx;}
+/* </wv:peta-relief> */
+
+/* ---------- isi dunia (ganti isinya, pertahankan polanya) ---------- */
+/* relief: tegak 4× (gunung 3,4 km → 13,6 km visual; peta-relief.md), kisi 1,8 km + tambalan 0,45 km di lembah Brantas (shot akhir) */
+const M=medan(JAWA),PETA=petaRelief(M,{tegak:4,langkah:1.8,halus:{kotak:[111.8,-8.4,113.05,-7.3],bagi:4}}),
+  SUNGAI=sungaiPeta(PETA,{lebar:3.4}),
+  /* busur skematis: Prambanan (jantung Medang/Mataram Kuno) → lembah Brantas dekat Jombang. Tanda perpindahan, BUKAN jalan atau rute pasukan */
+  RUTE=rutePeta(PETA,jalurRute(M,[[110.491,-7.752],[111.35,-7.5],[112.25,-7.54]],{tegak:4,puncak:9}),{lebar:7});
+scene.background=warna('--kertas');scene.fog=new THREE.Fog(warna('--kertas'),900,4000);   // near/far ikut jarak kamera (siapkan): jauh larut ke kertas
+/* matahari sore rendah dari barat-barat laut (az diukur dari +z = selatan ke +x = timur): bayangan gunung memanjang ke timur, seperti diorama */
+const SORE={kAz:250,kEl:22,kI:6.2,fI:1.05,rI:0},langit=(k,s,g)=>{const[a,b,c]=[k,s,g].map(h=>new THREE.Color(h));return{kR:a.r,kG:a.g,kB:a.b,fsR:b.r,fsG:b.g,fsB:b.b,fgR:c.r,fgG:c.g,fgB:c.b};};
+Object.assign(SORE,langit('#ffe1c2','#c3d1dd','#7d6b56'));
+Object.assign(LUX,nilaiLux('golden'),SORE);light(0,0,'golden',SORE);   // matahari hangat pucat (laut tetap biru), langit dingin, pantulan tanah coklat
+const MATAHARI=new THREE.Vector3().setFromSphericalCoords(1,(90-SORE.kEl)*Math.PI/180,SORE.kAz*Math.PI/180);
+key.shadow.bias=-.0005;
+
+/* label: nama di peta (DM Mono / Source Serif miring / Young Serif = kulit topografi Jagad). Muncul & hilang per ketukan */
+const lbl=(teks,o,masuk,keluar)=>{const el=labelPeta(PETA,o.kelas.startsWith('tempat')?`<i></i><u></u><b>${teks}</b>`:`<b>${teks}</b>`,o);
+  tl.fromTo(el,{opacity:0},{opacity:1,duration:.6,ease:'power2.out'},masuk);if(keluar)tl.to(el,{opacity:0,duration:.45,ease:'power2.in'},keluar);return el;};
+lbl('Laut Jawa',{lon:110.1,lat:-5.95,kelas:'laut'},1.2,5.2);
+lbl('Samudra Hindia',{lon:110.6,lat:-8.85,kelas:'laut'},1.5,5.2);
+lbl('MERAPI',{lon:110.446,lat:-7.54,naik:.4,kelas:'gunung'},4.6,8.6);
+const MATARAM=lbl('Mataram Kuno',{lon:110.491,lat:-7.752,kelas:'tempat'},5.2,9.2);
+lbl('Bengawan Solo',{lon:110.86,lat:-7.66,kelas:'sungai',sepanjang:[110.85,-7.56]},7.3,9.7);   // hulu dekat Surakarta, sebelum kepala rute lewat
+lbl('LAWU',{lon:111.192,lat:-7.625,naik:.4,kelas:'gunung'},10.6,12.6);   // sesudah kepala rute melintas di atasnya (±10 dtk)
+lbl('KELUD',{lon:112.314,lat:-7.935,naik:.6,kelas:'gunung'},13.4);
+lbl('ARJUNO-WELIRANG',{lon:112.575,lat:-7.733,naik:.4,kelas:'gunung'},13.7);
+lbl('Brantas',{lon:112.02,lat:-7.78,kelas:'sungai',sepanjang:[112.06,-7.68]},12.9);
+const BRANTAS=lbl('Lembah Brantas',{lon:112.25,lat:-7.54,kelas:'tempat kiri'},14.1);
+
+/* kamera: dua terbang() — turun dari seluruh Jawa ke jantung Mataram (mendarat, jeda sebentar), lalu mengikuti busur ke timur dan
+   mendarat di lembah Brantas. Titik = pose bola di sekitar fokus (kamera.js pose), tatap = fokus itu. g besar: roll tipis (peta, bukan pesawat) */
+const P=(f,dist,yaw,pitch)=>{const p=pose({fx:f[0],fy:0,fz:f[1],dist,yaw,pitch});return[p.x,p.y,p.z];},
+  RUAS=[[[20,10],1500,-9,-56],[[46,36],520,-14,-42],[[60,42],175,-24,-30]],   // [fokus x,z km], jarak km, yaw°, pitch°
+  RUAS2=[[[60,42],175,-24,-30],[[125,44],155,-33,-27],[[200,44],140,-38,-24],[[258,54],100,-38,-24]],
+  [f0,d0,y0,p0]=RUAS[0],T=[.5,6.5,16],   // detik: terbang 1, terbang 2 (= akhir terbang 1), mendarat. Kelipatan ,5: at+dur tepat biner (terbang() menolak at < akhir ruas lalu)
+  terbangPeta=(at,dur,R)=>terbang(at,dur,R.map(r=>P(...r)),{look:R.map(([f])=>[f[0],0,f[1]]),ease:'sine.inOut',g:450,rollMaks:6,guncang:.3,trauma0:.1});
+cutTo(0,{fx:f0[0],fy:0,fz:f0[1],dist:d0,yaw:y0,pitch:p0,roll:0,mm:50});   // seluruh Jawa, 50 mm datar, sebelum terbang pertama
+const JALAN1=terbangPeta(T[0],T[1]-T[0],RUAS),JALAN2=terbangPeta(T[1],T[2]-T[1],RUAS2);
+lens(3.2,4,35,'sine.inOut');dolly(T[2],2,1.04,'sine.inOut');   // 50 → 35 mm saat turun; napas akhir sesudah mendarat
+
+/* relief naik dari peta datar berkontur (kulit topografi) → 3D */
+tl.fromTo(PETA.grup.scale,{y:.03},{y:1,duration:2.8,ease:'power2.inOut'},.5);
+tl.fromTo(PETA.U.uCetak,{value:1},{value:0,duration:2.4,ease:'sine.inOut'},.7);   // peta cetak datar → matahari menyapu relief
+tl.fromTo(RUTE.maju,{v:0},{v:1,duration:6.6,ease:'sine.inOut'},7);
+{const a=SUNGAI.Brantas.mat.color,b=warna('#4fb3d9').multiplyScalar(1.6);   // sungai yang diceritakan menyala (warna linear > 1: ACES)
+  tl.fromTo(a,{r:a.r,g:a.g,b:a.b},{r:b.r,g:b.g,b:b.b,duration:1.2,ease:'sine.inOut'},12.6);}
+tl.fromTo(['#saku','#cap'],{opacity:0,y:14},{opacity:1,y:0,duration:.9,ease:'power2.out',stagger:.15},5.6);
+tl.to(['#cap','#saku'],{opacity:0,y:-8,duration:.5,ease:'power2.in',stagger:.08},10.2);   // keluar sebelum Lawu masuk kiri bawah
+tl.to({},{duration:.01},DUR);
+
+/* ---------- render: satu frame = fungsi murni tl.time() ---------- */
+let tGambar=NaN;
+const denyut=(el,t,mulai)=>{const u=el.querySelector('u'),s=t<mulai?-1:((t-mulai)%1.6)/1.6;u.style.opacity=s<0?0:(1-s)*.9;u.style.transform=`scale(${s<0?1:1+s*2.2})`;};   // cincin tiba, murni dari t
+const siapkan=()=>{const t=tl.time();applyCam();
+  const d=camera.getWorldDirection(new THREE.Vector3()),jarak=d.y<-.02?-camera.position.y/d.y:camera.position.y*8;   // jarak ke titik tatap di y=0
+  camera.near=Math.min(30,Math.max(.2,camera.position.y*.05));camera.far=jarak*14;camera.updateProjectionMatrix();
+  const jauh=Math.min(1,Math.max(0,(jarak-150)/1000));scene.fog.near=jarak*(.9+.1*jauh);scene.fog.far=jarak*(4.5-2.9*jauh);   // seluruh pulau: tepi peta larut ke kertas; dekat: cakrawala jauh
+  ikutMatahariPeta(MATAHARI);PETA.U.uWaktu.value=t;PETA.U.uNaik.value=PETA.grup.scale.y;
+  const px=2*Math.tan(camera.fov*Math.PI/360)/H;SUNGAI.U.uPx.value=RUTE.U.uPx.value=px;PETA.grup.updateMatrixWorld();RUTE.perbarui();
+  tempelLabel();denyut(MATARAM,t,5.4);denyut(BRANTAS,t,13.6);};
+function render(t){tGambar=t;siapkan();composer.render(0);}
+(function frame(){const t=tl.time();if(t!==tGambar)render(t);requestAnimationFrame(frame);})();
+
+/* ---------- kontrol: autoplay + loop tanpa player; ?debug=1 panel; ?clean=1 export ---------- */
+const vo=$('#vo'),hasVO=!!vo.getAttribute('src');let audioOn=false;
+function start(){tl.play(0);if(hasVO){vo.currentTime=0;vo.play().then(()=>audioOn=true).catch(()=>{});}}
+gsap.ticker.add(()=>{if(!tl.paused()&&tl.time()>=DUR)start();});
+gsap.ticker.add(()=>{if(!audioOn||tl.paused())return;if(Math.abs(vo.currentTime-tl.time())>.12)vo.currentTime=tl.time();});
+/* <wv:grain> dibangun dari src/runtime/grain.js — JANGAN edit di sini;
+   ubah sumbernya lalu jalankan: node scripts/build-starters.mjs */
+/* grain hidup (techniques.md §7d): lapisan butiran film teratas di #stage — di luar #world, jadi tidak
+   meratakan paralaks [data-z]. Tile noise dirasterisasi sekali; per frame hanya transform di lapisannya
+   sendiri, melompat 12× per detik dengan posisi fungsi murni tl.time() (bukan Math.random) — sama di
+   play, scrub, dan ekspor. Memakai tl.eventCallback('onUpdate'); callback yang sudah ada tetap dipanggil,
+   jadi pasang onUpdate timeline milik proyek SEBELUM grainHidup(). Latar gelap: overlay .15–.3;
+   latar terang: multiply .06–.15. */
+function grainHidup(tl, {opacity=.14, blend='overlay', freq=.85}={}){
+  const svg=`<svg xmlns='http://www.w3.org/2000/svg' width='256' height='256'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='${freq}' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='2.5 0 0 0 -.75 2.5 0 0 0 -.75 2.5 0 0 0 -.75 0 0 0 0 1'/></filter><rect width='256' height='256' filter='url(%23n)'/></svg>`;
+  const el=document.createElement('div'); el.className='wv-grain';
+  el.style.cssText=`position:absolute;inset:-60px;pointer-events:none;z-index:50;opacity:${opacity};mix-blend-mode:${blend};will-change:transform;transform:translate(-30px,-30px);`+
+    `background-image:url("data:image/svg+xml,${svg.replace(/</g,'%3C').replace(/>/g,'%3E')}")`;
+  document.getElementById('stage').appendChild(el);
+  const prev=tl.eventCallback('onUpdate');
+  tl.eventCallback('onUpdate',function(){const k=Math.floor(tl.time()*12);
+    el.style.transform=`translate(${k*37%60-30}px,${k*61%60-30}px)`;if(prev)prev.apply(this,arguments);});
+  return el;
+}
+/* </wv:grain> */
+/* <wv:seek> dibangun dari src/runtime/seek.js — JANGAN edit di sini;
+   ubah sumbernya lalu jalankan: node scripts/build-starters.mjs */
+/* seek sinkron untuk snap.mjs / export-frames.mjs / konsol: GSAP menulis gaya secara
+   lazy di tick berikutnya dan kanvas menunggu rAF (yang dithrottle di tab tersembunyi),
+   jadi tanpa ini screenshot tertinggal satu langkah. pause(t,false) sengaja TIDAK menekan
+   callback: onUpdate (applyCam/render) harus ikut jalan saat scrub. apply() = cara starter
+   ini menggambar ulang dirinya (kamera, render loop, atau keduanya). */
+function makeSeek(tl, apply){ return t => { if (tl.time() === t) tl.pause(t + 1e-4, false);   // pause(t) dari playhead yang sudah di t = no-op: set() pada t=0 tak pernah diterapkan di halaman segar
+  tl.pause(t, false);
+  if (gsap.ticker.tick) gsap.ticker.tick(); if (apply) apply(t); }; }
+/* </wv:seek> */
+grainHidup(tl,{opacity:.1,blend:'multiply'});
+window.OPENER={W,H,DURATION:DUR,tl,ready:false,seek:makeSeek(tl,t=>render(t)),play:start,syncSeek:true};
+/* <wv:explainer-controls> dibangun dari src/runtime/explainer-controls.js — JANGAN edit di sini;
+   ubah sumbernya lalu jalankan: node scripts/build-starters.mjs */
+addEventListener('keydown',e=>{if(/^[rR]$/.test(e.key))start();if(e.code==='Space'){e.preventDefault();tl.paused()?tl.play():tl.pause();}});
+if(q.has('debug')){const dbg=$('#dbg');dbg.style.display='flex';const sc=$('#dScrub'),ck=$('#dClock');let drag=false;
+  gsap.ticker.add(()=>{if(!drag)sc.value=String(tl.time()/DUR*1000);ck.textContent=tl.time().toFixed(2)+'s';$('#dPlay').textContent=tl.paused()?'Play':'Pause';});
+  sc.addEventListener('pointerdown',()=>{drag=true;tl.pause();});addEventListener('pointerup',()=>drag=false);
+  sc.addEventListener('input',()=>{tl.pause();tl.time(sc.value/1000*DUR);});$('#dPlay').onclick=()=>tl.paused()?tl.play():tl.pause();}
+/* </wv:explainer-controls> */
+
+/* ---------- kait untuk scripts/test-starters.mjs — tidak dipanggil deliverable ---------- */
+window.PETA_SIDIK=()=>{let h=2166136261;PETA.grup.traverse(o=>{const a=o.geometry&&o.geometry.attributes.position&&o.geometry.attributes.position.array;
+  if(a)for(let i=0;i<a.length;i+=7)h=Math.imul(h^Math.round(a[i]*1e3),16777619);});return h>>>0;};   // sidik geometri: sama di tiap muat (worker ekspor)
+window.PETA_UJI=()=>{const t0=tl.time(),r={toneMapping:renderer.toneMapping,label:[],rute:[]},st=$('#stage'),k=st.getBoundingClientRect().width/W;
+  for(const t of[2.5,6.5,8.5,11.5,15,17.5]){window.OPENER.seek(t);   // label yang tampil (opacity > ,5) harus di dalam bingkai, kotak teksnya juga
+    for(const el of document.querySelectorAll('.lp'))if(+getComputedStyle(el).opacity>.5){const b=el.querySelector('b').getBoundingClientRect(),s=st.getBoundingClientRect(),
+      x0=(b.left-s.left)/k,y0=(b.top-s.top)/k,x1=(b.right-s.left)/k,y1=(b.bottom-s.top)/k;
+      r.label.push({t,teks:el.textContent,dalam:el.style.visibility!=='hidden'&&x0>=0&&y0>=0&&x1<=W&&y1<=H,kotak:[x0,y0,x1,y1].map(Math.round)});}}
+  for(const t of[2.5,7,10,15,17.5]){window.OPENER.seek(t);r.rute.push(RUTE.U.uMaju.value);}   // rute: 0 sampai 7 dtk, sebagian, utuh
+  window.OPENER.seek(t0);r.DUR=DUR;return r;};
+document.fonts.ready.then(()=>{render(tl.time());window.OPENER.ready=true;if(q.has('clean'))return;
+  if(!hasVO){start();return;}
+  vo.play().then(()=>{audioOn=true;vo.currentTime=0;tl.play(0);}).catch(()=>{const go=()=>{removeEventListener('pointerdown',go);removeEventListener('keydown',go);start();};addEventListener('pointerdown',go);addEventListener('keydown',go);});});
+</script>
+</body>
+</html>

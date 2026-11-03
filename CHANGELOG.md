@@ -289,6 +289,8 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
       (`evals/bukti/2026-11-03-ekspor/bukti.txt` §5).
     - Kecepatan terukur di laptop 2 core: 1,20× (`starter-sinematik`) dan 1,47× (`katalog-tokoh`), bukan ±2× seperti perkiraan peta §7
       (mesin sambil dipakai tiga agen ber-Chrome Idle).
+    - Di antrean nyata pemilik (Babad Bali babak 07–09, `SYNC=1`, MP4 JPEG): 5,9–6,4 frame/dtk dengan 2 worker, dibanding 3,1–4,2
+      dengan 1 worker di babak 00–06, jadi ±1,5–2×.
     - Antrean render pemilik (Bali, lalu Nabi) ikut memakai 2 worker begitu ini masuk `main` (3 Nov, dengan izin pemilik);
       `WORKERS=1` di env mengembalikan perilaku lama.
   - **`antre-render.mjs`** (generalisasi `alat/antre-render.sh`):
@@ -345,6 +347,91 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
     - ms/frame ekspor penuh belum diukur di mesin senggang;
     - agen pembuatnya macet sesudah bukti di-commit, jadi laporan akhirnya tidak ada; gerbang dan uji penggabungan dijalankan controller.
   - **Status penerimaan**: menunggu bench di mesin senggang dan vonis visual pemilik.
+- **Peta relief 3D topografi** (sub-proyek 7, gaya lanjutan ketiga; J di `docs/rencana-1.4.0.md`; lanjutan kulit topografi Jagad Budaya).
+  - **Berkas**: `src/runtime/peta-relief.js` (blok baru `<wv:peta-relief>`, 37 KB termasuk data Jawa), `assets/starter-peta-relief.html`,
+    `references/peta-relief.md`, `scripts/test-peta.mjs`, dan `scripts/peta-data.mjs` (membangun ulang data pantai, mis. untuk Bali);
+    penunjuk di `sinematografi.md` §1, `explainer.md`, `isi-paket.md`, `alat-kerja.md`, dan README.
+  - **Data**:
+    - pantai Natural Earth 10m (domain publik), Douglas–Peucker 0,5 km, 1 262 titik; garis 200 m dari NE bathymetry K_200;
+    - 68 gunung api dari GVP VOTW 5.4.0 (doi:10.5479/si.GVP.VOTW5-2026.5.4): puncak = elevasi GVP, diuji ±20 m;
+    - Natural Earth tidak memuat sungai Jawa, jadi 8 sungai dibuat skematis (titik lewat kota yang dilaluinya, dihaluskan) dan
+      ditandai begitu di dokumen; skala tegak 4×.
+  - **Medan**: kerucut gunung berkaki tak bulat dengan 8–14 jurang radial (rumus sama di JS dan GLSL), kaldera Tengger, lembah
+    sungai landai (ukiran ≤ 80 m), dataran tinggi Batu–Malang. Shader berpalet Jagad: isoline 100/500 m yang memudar bila rapat,
+    laut paparan terang, garis 200 m dan pantai bertinta, bayangan awan. `uCetak` membuka dengan peta cetak berkontur yang naik
+    menjadi relief bercahaya.
+  - **Demo** (18 dtk, ACES, dua kaki `terbang()`): seluruh Jawa sebagai peta cetak → relief naik di bawah matahari rendah →
+    turun ke jantung Mataram Kuno, legenda "ABAD X / Pusat kerajaan pindah ke timur" → busur menyala ke timur (skematis, bukan
+    jalan atau rute pasukan) → mendarat di Lembah Brantas berlabel Kelud dan Arjuno-Welirang. Label DOM diproyeksikan ulang tiap
+    render.
+  - **Uji**: `test-peta` (7 uji: proyeksi vs haversine, dekode NE, determinisme, 68 puncak, pantai dan garis 200 m, sungai tanpa
+    tanggul, panjang busur) masuk `rilis.mjs` dan CI. `test-starters`: `PETA_UJI` (label dalam bingkai di 6 detik, rute 0 →
+    sebagian → 1), sidik geometri lintas muat, ACES; halaman dilewati di WebGL perangkat lunak.
+  - **Anggaran konteks**: jalur baru **Peta relief 3D** (`sinematografi.md` + `peta-relief.md` + `starter-peta-relief.html`) 171 KB,
+    batas pelacak 175 KB; jalur lain naik ≤ 0,2 KB.
+  - **Bukti**: `evals/bukti/2026-11-03-peta-relief/` (`kontak.jpg`, `nilai.json`). `nilai-visual`: rentang 28,8–37,4 di 7 bingkai,
+    kontras subjek yang dideklarasikan 11,0–20,5, kepala rute +31,9…+34,4. Bingkai peta lebar tanpa subjek memberi peringatan kontras
+    tengah-tepi (2,4–7,8), dijelaskan di README bukti.
+  - **Celah yang diketahui**:
+    - ms/frame belum diukur (siap 6–13 dtk di HD 4000 saat render pemilik berjalan);
+    - sungai skematis (galat beberapa km); vektor sungai asli butuh cek lisensi (OSM = ODbL, tidak cocok);
+    - label tanpa uji oklusi; gunung Sumatra barat 104,5° BT tidak dimodelkan (tertutup kabut di gambar besar);
+    - kerucut gunung masih seragam dan dataran lembah polos (pengamatan controller pada lembar kontak).
+  - **Status penerimaan**: menunggu bench di mesin senggang dan vonis visual pemilik.
+- **Babak sinematik 60 dtk** (sub-proyek 3, E di `docs/rencana-1.4.0.md`): `assets/starter-babak.html` (baru), babak "Penjaga Gerbang" untuk eval 10.
+  - **Isi**: lima adegan di tiga dunia: gerbang dari dalam, lembah + keraton, satu shot mata elang `terbang()` 2.5D 24–31 dtk yang menembus
+    celah gapura dan mendarat di penjaga, penjaga dekat, penutup. Transisi berpemicu: match cut di langit, push-through gapura, cut on
+    action, larut lewat asap obor. Penjaga = rig `tokoh.*` v2, tampak samping, rim di sisi obor.
+  - **Keputusan pemilik** (4 Nov): babak jadi starter sendiri. `starter-sinematik.html` tetap satu adegan dengan penjaga berzirah (rupa
+    f_7), jalur Siluet 233 KB (pelacak 235); jalur baru **Babak sinematik** (`explainer.md` + `techniques.md` + `sinematografi.md` +
+    starter) 364 KB, pelacak 366 KB. `SKILL.md` kini merujuk `pustaka.*` dan `tokoh.*` lewat starter babak; eval 10 memakai starter ini.
+  - **Blok baru `src/runtime/babak.js`**: `adegan(rentang, bangun)` (dunia hidup hanya di rentangnya; tersembunyi = tanpa callback, tanpa
+    gambar: 0 panggilan kanvas tersembunyi vs 49 471 yang tampil, 240 seek) dan `panggang(svg)` (svg bidang → kanvas GPU). Resep:
+    `sinematografi.md` §5 "Babak multi-adegan".
+  - **Akar beda latar sesudah lompat mundur** (katalog maks. 76/84): lapisan `will-change` (svg bidang, kabut, pendar) dirasterisasi saat
+    DIBUAT lalu hanya ditransform, jadi seek langsung, lompat, tiba berurutan, dan worker ekspor kedua memberi piksel berbeda. Dugaan
+    viewport terbukti salah (viewport sebelum `goto` memberi selisih sama). Obat di halaman/runtime: svg bidang dipanggang (babak + kedua
+    katalog), `kabut` dan pendar `sumber()` = kanvas tetap. `starter-sinematik.html` tidak memanggang bidangnya (blok `babak` tidak masuk
+    anggaran jalurnya), jadi selisih kecil itu masih ada di sana.
+  - **Uji**: `ATM_UJI`/`CAHAYA_UJI`/`PASCA_UJI`/`CAM_UJI` tahan halaman berisi; muat ulang `?kosong=1` tersisa untuk `RELIEF_UJI` dan
+    `starter-lukis`. `BABAK_UJI` dan `SINEMA_UJI.tersembunyiDiam` baru; satu mutasi per kait tertangkap. `test-starters` 16 dari 16 lolos
+    di pohon gabungan.
+  - **WORKERS 1 vs 2 pada babak** (1800 frame): 1,24× lebih cepat; 1678/1800 frame identik; sisanya di sekitar titik belah (t 29,3–34),
+    PSNR ≥ 64,9 dB, tak terlihat (`evals/bukti/2026-11-03-ekspor/bukti.txt` §7).
+  - **Bukti**: `evals/bukti/2026-11-03-babak-sinematik/`. `nilai-visual` 12 dari 12 lolos; kontras subjek paling tipis 12,9 (batas 10).
+  - **Bench semua gaya** (4 Nov, HD 4000, 3 putaran, median ms/frame, 20 frame mulai t = 2, semua deterministik, dua agen aktif):
+    sinematik 221, babak 251, elang 292, relief 233, lukis 219, peta 288, pustaka 237; **katalog tokoh 437, melewati batas 350** (tableau
+    6 tokoh detail 2). Belum tercakup: segmen motion blur elang, tableau selain pembuka, adegan babak sesudah t ±2,7 (rata-rata seluruh
+    babak: 336 ms/frame pada ekspor JPEG q95).
+  - **Celah yang diketahui**:
+    - t 27,5 lewat jalur berurutan vs seek langsung: ±3 level di 0,49 % piksel; penyebab belum terbukti;
+    - penjaga rig v2 lebih ramping dan tanpa zirah dibanding versi lama (`sebelum-sesudah.jpg`); di t 33,6 ada bidang pink rata dan ujung
+      api terpotong;
+    - kanvas panggang tidak dipanggang ulang bila konteks GPU hilang; halaman ±52 MP kanvas (87 MP pernah menghilangkan konteks);
+    - setup 2–5 dtk di mesin senggang, sampai 147 dtk saat render pemilik berjalan.
+  - **Status penerimaan**: menunggu vonis visual pemilik.
+- **Wayang kulit** (sub-proyek 7, gaya lanjutan keempat; J di `docs/rencana-1.4.0.md`).
+  - **Berkas**: `src/runtime/wayang.js` (blok baru `<wv:wayang>`, global `wayang` dan `BLENCONG`), `assets/starter-wayang.html`,
+    `references/wayang.md`, dan `scripts/test-wayang.mjs` (baru); penunjuk di `explainer.md`, `isi-paket.md`, `alat-kerja.md`, README.
+  - **Isi**: figur dari golongan umum menurut pakem (alusan, gagahan, raksasa, putri) + gunungan, tatah ber-seed sebagai kode; badan kaku,
+    lengan bersendi di bahu dan siku lewat IK, tuding dan gapit tergambar. Kelir + blencong berkedip ber-seed. Proyeksi sentral dari
+    lampu: `skala = d/(d−z)`, `blur = nyala·z/(d−z)`, jadi bayangan membesar dan mengabur saat figur mendekati lampu. Simpingan kanan dan
+    kiri. `?sisi=dalang` mencerminkan dunia dan menampilkan figur berwarna prada, lampu, dan debog.
+  - **Demo** (22 dtk): gunungan membuka, alusan dan raksasa masuk dari sisinya, saling berisyarat, kedip keras, raksasa ke lampu dan kembali,
+    gunungan menutup di tengah. Satu legenda; tanpa isi ritual.
+  - **Sumber**: Subagya 2013, Widyokusumo 2010, Ismurdyahwati 2007, UNESCO, Sonobudoyo; rincian dan batasnya di `wayang.md`.
+  - **Uji**: `test-wayang` (8 uji) masuk `rilis.mjs` dan CI; `WAYANG_UJI` dan `SINEMA_UJI` di `test-starters`; lima mutasi sengaja tertangkap.
+  - **Biaya** (bench controller, 3 putaran; dua agen aktif): sisi bayangan median 234 ms/frame, sisi dalang 293 ms (satu putaran 356, di atas
+    batas 350). Ekspor penuh 660 frame: rata-rata 271 dan 314 ms/frame.
+  - **Anggaran konteks**: jalur baru **Wayang kulit** (`explainer.md` + `techniques.md` + `wayang.md` + `starter-wayang.html`) 244 KB, pelacak 246 KB;
+    pelacak Relief candi hidup naik 295 → 297 KB karena `explainer.md` dan `SKILL.md` kini menyebut gaya ini.
+  - **Bukti**: `evals/bukti/2026-11-03-wayang/` (`kontak.jpg`, `nilai.txt`). `nilai-visual` 8 dari 8 ok; kontras 13,8 dtk bergantung pada kotak subjek.
+  - **Celah yang diketahui**:
+    - pakem belum ditinjau dalang; sumber gunungan hanya sekunder; bentuk `inten`/`masmasan` dan letak motif dirancang dari nama;
+    - sendi dua pada lengan belum ada sumber yang terbaca; tinggi relatif dan kedip adalah angka perkiraan;
+    - muka raksasa masih agak kartun; sisi dalang disederhanakan (tanpa dalang, gamelan, debog atas);
+    - panakawan ditolak generator dengan pesan alasan; `gagahan` dan `putri` hanya tampil di simpingan.
+  - **Status penerimaan**: menunggu tinjauan pakem dan vonis visual pemilik.
 
 ## 1.3.0 — 2026-11-02
 

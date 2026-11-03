@@ -1,0 +1,35 @@
+nilai-visual, starter-wayang.html (?clean=1, 1920x1080) — satu panggilan per bingkai:
+  node scripts/nilai-visual.mjs <t>.png --sumber '[{"x":<blencong di layar>,"y":<...>,"r":220}]' --subjek <kotak figur>
+posisi dari jadwal kamera + kunci figur di pagelaran().
+=== t0_50: blencong layar 960,250; subjek 690,140,540,840
+bingkai    p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
+t0_50.png  11/44/79    67.6 ok  subjek 18.6 ok  +41.7 ok      4 ok #130905 #b68546 #5e3a1b  ok
+1 bingkai: 1 ok, 0 peringatan. Ambang: rentang >= 28, kontras >= 10, titik terang >= +30, warna 2-6 (>= 5 % bingkai).
+=== t2_80: blencong layar 960,250; subjek 560,20,800,960
+bingkai    p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
+t2_80.png  11/41/75    64.2 ok  subjek 40.9 ok  +41.4 ok      4 ok #100804 #c09658 #5e3c1d  ok
+1 bingkai: 1 ok, 0 peringatan. Ambang: rentang >= 28, kontras >= 10, titik terang >= +30, warna 2-6 (>= 5 % bingkai).
+=== t7_20: blencong layar 960,250; subjek 470,430,280,560
+bingkai    p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
+t7_20.png  11/43/80    68.4 ok  subjek 10.1 ok  +42.7 ok      4 ok #110804 #cca161 #a36f36  ok
+1 bingkai: 1 ok, 0 peringatan. Ambang: rentang >= 28, kontras >= 10, titik terang >= +30, warna 2-6 (>= 5 % bingkai).
+=== t9_00: blencong layar 960,85; subjek 330,300,360,730
+bingkai    p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
+t9_00.png  13/52/84    70.9 ok  subjek 14.5 ok  +37.8 ok      4 ok #150b06 #daae6b #6e4722  ok
+1 bingkai: 1 ok, 0 peringatan. Ambang: rentang >= 28, kontras >= 10, titik terang >= +30, warna 2-6 (>= 5 % bingkai).
+=== t11_00: blencong layar 960,85; subjek 1130,100,620,930
+bingkai     p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
+t11_00.png  13/50/80    67.3 ok  subjek 14.7 ok  +35.9 ok      4 ok #cca263 #130a05 #684420  ok
+1 bingkai: 1 ok, 0 peringatan. Ambang: rentang >= 28, kontras >= 10, titik terang >= +30, warna 2-6 (>= 5 % bingkai).
+=== t13_80: blencong layar 960,238; subjek 530,410,170,590
+bingkai     p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
+t13_80.png  11/37/70    58.8 ok  subjek 13.7 ok  +38.3 ok      4 ok #110904 #aa8751 #775027  ok
+1 bingkai: 1 ok, 0 peringatan. Ambang: rentang >= 28, kontras >= 10, titik terang >= +30, warna 2-6 (>= 5 % bingkai).
+=== t15_00: blencong layar 960,110; subjek 1130,100,620,930
+bingkai     p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
+t15_00.png  11/43/74    62.8 ok  subjek 14.6 ok  +35.9 ok      4 ok #110804 #b69056 #8a5c2d  ok
+1 bingkai: 1 ok, 0 peringatan. Ambang: rentang >= 28, kontras >= 10, titik terang >= +30, warna 2-6 (>= 5 % bingkai).
+=== t20_50: blencong layar 960,250; subjek 690,140,540,840
+bingkai     p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
+t20_50.png  11/45/81    69.1 ok  subjek 18.6 ok  +42 ok        4 ok #130905 #d0a361 #a57037  ok
+1 bingkai: 1 ok, 0 peringatan. Ambang: rentang >= 28, kontras >= 10, titik terang >= +30, warna 2-6 (>= 5 % bingkai).

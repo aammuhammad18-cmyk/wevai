@@ -297,9 +297,12 @@ function demoKamera(){camReset();const O={pitch:0,yaw:0,roll:0,shake:0};cutTo(0,
   for(const [f,a] of [[dolly,1.4],[truck,220],[pedestal,-120],[pan,6],[tilt,5]]){f(t,step*.8,a);t+=step;}cutTo(t,O);home(t,W/2,H/2,step*.7);t+=step;
   for(const k in CAHAYA){light(t,step*.5,k);t+=step;}handheld(t,t+step,.8);t+=step;
   window.DEMO_AKHIR=t;}
-/* kait untuk scripts/test-starters.mjs — tidak dipanggil deliverable */
-window.CAM_UJI=()=>{const r={};tl.pause(0);
-  Object.assign(CAM,{fx:W/2,fy:H/2,zoom:1,pitch:0,yaw:0,roll:0,shake:0,blur:0,aperture:0});applyCam();
+/* kait untuk scripts/test-starters.mjs — tidak dipanggil deliverable. Halaman berisi: BIDANG disimpan,
+   goyang + cahaya diuji sesudah DURATION, lalu dipulihkan. */
+window.CAM_UJI=()=>{const r={},O=window.OPENER,simpanB=BIDANG.splice(0),simpanC={...CAM},T=O.DURATION+1,sunyi=tl.to({},{duration:3},T),
+    lamp0=[lamp,lampAt,...LAMP.map(d=>d.style.cssText)],lt0=new Set(tl.getTweensOf(LAMP));
+  tl.pause(T);rig.style.transformStyle='';
+  Object.assign(CAM,{fx:W/2,fy:H/2,zoom:1,mm:35,pitch:0,yaw:0,roll:0,shake:0,blur:0,aperture:0,rail:-1});applyCam();
   r.gayaLain=[rig.style.filter&&'filter',rig.style.transformStyle&&'transform-style',/perspective|rotate/.test(rig.style.transform)&&'transform 3D'].filter(Boolean).join(',');
   CAM.yaw=5;applyCam();r.t3d=rig.style.transform;CAM.yaw=0;
   const b=document.createElement('div');b.dataset.z='-300';b.style.cssText='position:absolute;left:0;top:0;width:10px;height:10px';rig.appendChild(b);BIDANG.push({el:b,z:-300});
@@ -310,9 +313,11 @@ window.CAM_UJI=()=>{const r={};tl.pause(0);
   rig.style.filter='blur(6px)';applyCam();r.filterAsing=rig.style.filter==='blur(6px)';rig.style.filter='';
   const h=document.createElement('div');h.style.cssText='position:absolute;left:0;top:900px;width:100px;height:50px';$('#stage').appendChild(h);
   const hr=rectIn(h,$('#stage'));r.hudStage=hr.x===0&&hr.y===900;h.remove();
-  CAM.shake=.6;tl.time(.2);gsap.ticker.tick();const g1=rig.style.transform;tl.time(.4);gsap.ticker.tick();r.shakeHidup=g1!==rig.style.transform;CAM.shake=0;applyCam();
-  const t0=Math.max(0,lampAt)+1;light(t0,.1,'golden');tl.time(t0+.2);r.lampu=getComputedStyle(LAMP[lamp]).mixBlendMode;
+  CAM.shake=.6;tl.time(T+.2);gsap.ticker.tick();const g1=rig.style.transform;tl.time(T+.4);gsap.ticker.tick();r.shakeHidup=g1!==rig.style.transform;CAM.shake=0;applyCam();
+  const t0=Math.max(T,lampAt)+1;light(t0,.1,'golden');tl.time(t0+.2);r.lampu=getComputedStyle(LAMP[lamp]).mixBlendMode;
   try{light(t0-1,.1,'day');r.urutanDitolak=false;}catch(e){r.urutanDitolak=true;}
+  tl.getTweensOf(LAMP).forEach(t=>{if(!lt0.has(t))tl.remove(t);});tl.remove(sunyi);[lamp,lampAt]=lamp0;LAMP.forEach((d,i)=>d.style.cssText=lamp0[i+2]);
+  BIDANG.push(...simpanB);Object.assign(CAM,simpanC);O.seek(0);applyCam();
   r.DUR=DUR;r.demoAkhir=window.DEMO_AKHIR||0;return r;};
 /* </wv:kamera-dom> */
 

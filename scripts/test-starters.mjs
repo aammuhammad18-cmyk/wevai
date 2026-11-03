@@ -41,21 +41,22 @@ const browser = await luncurkan({
 
 // starter yang wajib punya kait atmosfer/cahaya-2d/pasca; BERKAMERA = yang juga punya CAM (kabut berparalaks hanya terukur di sana)
 const MODUL = ['starter-explainer.html', 'starter-explainer-panggung.html', 'starter-sinematik.html', 'starter-babak.html', 'katalog-pustaka.html', 'starter-relief.html', 'katalog-tokoh.html'];
-const BERKAMERA = ['starter-explainer.html', 'starter-explainer-panggung.html', 'starter-sinematik.html', 'starter-babak.html', 'katalog-pustaka.html', 'starter-relief.html', 'katalog-tokoh.html'];
-// halaman ber-adegan bawaan (SINEMA_UJI wajib): starter sinematik, starter babak, katalog pustaka aset, starter relief, katalog tokoh
-const ADEGAN = ['starter-sinematik.html', 'starter-babak.html', 'katalog-pustaka.html', 'starter-relief.html', 'katalog-tokoh.html'];
+const BERKAMERA = ['starter-explainer.html', 'starter-explainer-panggung.html', 'starter-sinematik.html', 'starter-babak.html', 'katalog-pustaka.html', 'starter-relief.html', 'katalog-tokoh.html', 'starter-wayang.html'];
+// halaman ber-adegan bawaan (SINEMA_UJI wajib): starter sinematik, starter babak, katalog pustaka aset, starter relief, katalog tokoh, starter wayang
+const ADEGAN = ['starter-sinematik.html', 'starter-babak.html', 'katalog-pustaka.html', 'starter-relief.html', 'katalog-tokoh.html', 'starter-wayang.html'];
 // starter painterly (src/runtime/lukis.js): adegan bawaan juga, tetapi kaitnya LUKIS_UJI + blok lukis di bawah, bukan SINEMA_UJI
 const LUKIS = ['starter-lukis.html'], KOSONG = [...ADEGAN, ...LUKIS];
 // 3D tanpa subjek/#hud (field CAM3_UJI null sah); tone mapping film hanya di starter sejarah/sinematik, sisanya NoToneMapping (0) = warna brand tepat
-const TANPA_SUBJEK = ['starter-opener.html', 'starter-elang.html', 'starter-peta-relief.html'];
-const FILM = { 'starter-elang.html': 4, 'starter-peta-relief.html': 4 };   // THREE.ACESFilmicToneMapping (r161): api tetap jingga jenuh, AgX r161 memucatkannya (evals/bukti/2026-11-03-mata-elang)
+const TANPA_SUBJEK = ['starter-opener.html', 'starter-elang.html', 'starter-peta-relief.html', 'starter-diorama.html'];
+const FILM = { 'starter-elang.html': 4, 'starter-peta-relief.html': 4, 'starter-diorama.html': 4 };   // THREE.ACESFilmicToneMapping (r161): api tetap jingga jenuh, AgX r161 memucatkannya (evals/bukti/2026-11-03-mata-elang)
 // blok terbang (src/runtime/terbang.js) disuntikkan ke starter 2.5D: jalur terbang() 2.5D diuji di kamera-dom sungguhan tanpa menambah berkas starter
 const TERBANG = readFileSync(join(ROOT, 'src', 'runtime', 'terbang.js'), 'utf8');
 // halaman BERAT dilewati bila WebGL jatuh ke render perangkat lunak (runner CI tanpa GPU). Terukur SwiftShader, laptop acuan:
 // starter-elang siap 80 dtk, satu frame 66,6 dtk, frame motion blur mematikan proses GPU. Uji penuhnya di mesin ber-GPU.
 // starter-lukis: melukis SATU bidang 2240×1400 = 81,7 dtk di SwiftShader (HD 4000: ±0,3 dtk + kompilasi shader), halaman 5 bidang + 22 kanvas sprite
 // melewati batas siap 60 dtk; bagian murninya diuji test-lukis.mjs di CI.
-const BERAT = ['starter-elang.html', 'starter-lukis.html', 'starter-peta-relief.html'];   // peta: ±250 rb verteks + bayangan PCF; tidak diukur di SwiftShader
+// starter-diorama: SwiftShader siap 32 dtk, frame pertama 33,7 dtk (bayangan 4096 + MSAA + tilt); DIORAMA_UJI butuh ±60 frame. Bagian murni: test-diorama.mjs di CI.
+const BERAT = ['starter-elang.html', 'starter-lukis.html', 'starter-peta-relief.html', 'starter-diorama.html'];   // peta: ±250 rb verteks + bayangan PCF; tidak diukur di SwiftShader
 const glLunak = await (async () => { const p = await browser.newPage();
   const r = await p.evaluate(() => { const g = document.createElement('canvas').getContext('webgl2'), e = g && g.getExtension('WEBGL_debug_renderer_info');
     return e ? g.getParameter(e.UNMASKED_RENDERER_WEBGL) : ''; });
@@ -165,7 +166,7 @@ for (const file of files) {
       if (!sinema.paralaks) masalah.push('sinema: bidang terjauh dan terdekat (yang tampil) tidak bergeser berbeda (> 1 px) saat CAM.fx += 300');
       if (!sinema.rigBersih) masalah.push(`sinema: rig atau pembungkus [data-z] ber-filter/mix-blend-mode/opacity/clip-path/mask (computed) — paralaks rata: ${sinema.kotor}`);
       if (sinema.tersembunyiDiam === false) masalah.push('sinema: adegan tersembunyi menjalankan callback (penghitung panggil adegan yang tidak tampil bertambah saat seek di dalam adegan lain) — adegan tersembunyi tidak boleh menggambar');
-      if (!sinema.adaSemua) masalah.push(`sinema: modul tidak lengkap — perlu #wv-langit, ≥ 3 .wv-kabut, ≥ 1 .wv-partikel, .wv-pendar, lapisan GRADE (babak sinematik: + 3 api, 3 kanvas .wv-tokoh, ≥ 4 adegan, ≥ 10 kanvas .wv-panggang, nol svg di bidang, satu terbang(); katalog pustaka: + api, asap, 4 kain, ≥ 10 jenis aset pustaka; relief: ≥ 2 kabut + satu .wv-relief, tanpa pendar; katalog tokoh: + api, 4 kanvas .wv-tokoh, ≥ 30 tokoh, 6 arketipe) (dapat ${JSON.stringify(sinema.ada)})`);
+      if (!sinema.adaSemua) masalah.push(`sinema: modul tidak lengkap — perlu #wv-langit, ≥ 3 .wv-kabut, ≥ 1 .wv-partikel, .wv-pendar, lapisan GRADE (babak sinematik: + 3 api, 3 kanvas .wv-tokoh, ≥ 4 adegan, ≥ 10 kanvas .wv-panggang, nol svg di bidang, satu terbang(); katalog pustaka: + api, asap, 4 kain, ≥ 10 jenis aset pustaka; relief: ≥ 2 kabut + satu .wv-relief, tanpa pendar; katalog tokoh: + api, 4 kanvas .wv-tokoh, ≥ 30 tokoh, 6 arketipe; wayang: satu .wv-wayang, ≥ 3 figur, satu gunungan) (dapat ${JSON.stringify(sinema.ada)})`);
       if (!kanvasSinema.length) masalah.push('sinema: tidak ada kanvas di #stage');
       for (const k of kanvasSinema) {
         if (!k.sama) masalah.push(`sinema: kanvas ${k.nama}: t yang sama lewat jalur seek berbeda memberi piksel berbeda`);
@@ -362,6 +363,26 @@ for (const file of files) {
       if (ada('fallback') && !rel.fallback) masalah.push('relief-hidup: tanpa WebGL2 reliefHidup() harus console.warn dan menggambar relief diam (kanvas 2D opak), bukan error');
     }
 
+    // wayang (src/runtime/wayang.js): bayangan tajam menempel kelir, kabur + besar dekat lampu, gunungan berupa renda, piksel sama di dua jalur seek, kedip dan
+    // lengan hidup, sisi dalang tercermin + berwarna, input salah ditolak. Fixture sendiri di ?kosong=1. Blok di atas `const tl=`.
+    const iWayang = html.indexOf('<wv:wayang>');
+    if (iWayang >= 0 && !(iWayang < html.indexOf('const tl='))) masalah.push('wayang: blok <wv:wayang> harus di atas `const tl=` (kode adegan memanggil modul saat dimuat)');
+    const way = await page.evaluate(() => window.WAYANG_UJI ? window.WAYANG_UJI() : null);
+    if (iWayang >= 0 && !way) masalah.push('wayang: WAYANG_UJI tidak ada');
+    if (way) {
+      const ada = k => way[k] != null;
+      for (const k of ['tepiTajam', 'skalaJarak', 'kayonAda', 'seekSama', 'kedipHidup', 'lenganHidup', 'dalangCermin', 'dalangLukis', 'ditolak']) if (!ada(k)) masalah.push(`wayang: field ${k} kosong`);
+      if (ada('tepiTajam') && !way.tepiTajam) masalah.push(`wayang: bayangan menempel kelir harus > 2× lebih tajam daripada dekat lampu (lompatan piksel ${way.keras})`);
+      if (ada('skalaJarak') && !way.skalaJarak) masalah.push(`wayang: bayangan dekat lampu harus membesar dari kaki lampu > 1,3× (puncak kepala y ${way.puncak})`);
+      if (ada('kayonAda') && !way.kayonAda) masalah.push(`wayang: gunungan tidak tampak sebagai renda (${way.kayonGanti} pergantian gelap-terang di satu baris, perlu ≥ 12)`);
+      if (ada('seekSama') && !way.seekSama) masalah.push('wayang: piksel kanvas berbeda antara seek(3) langsung dan seek(7)→seek(.1)→seek(3)');
+      if (ada('kedipHidup') && !way.kedipHidup) masalah.push('wayang: BLENCONG.kedip .6 tidak mengubah piksel antara t 3 dan 3,3');
+      if (ada('lenganHidup') && !way.lenganHidup) masalah.push('wayang: kunci tanganD tidak mengubah piksel');
+      if (ada('dalangCermin') && !way.dalangCermin) masalah.push(`wayang: sisi dalang harus mencerminkan dunia: figur x 500 tampak di x 1420, bukan di x 500 (tepi di posisi cermin/asal ${way.lompat})`);
+      if (ada('dalangLukis') && !way.dalangLukis) masalah.push(`wayang: sisi dalang harus melukis figur, bukan siluet (L tengah badan ${way.pradaL}, perlu > 70)`);
+      if (ada('ditolak') && !way.ditolak) masalah.push('wayang: panakawan, jenis asing, dan sisi asing harus ditolak dengan pesan yang menyebut pilihan/alasan');
+    }
+
     // kamera 2.5D (src/runtime/kamera-dom.js): jalur 2D tidak menyentuh gaya lain; sudut → transform 3D;
     // bidang data-z berparalaks; cahaya; katalog ?demo=1 selesai sebelum DUR. Halaman dimuat ULANG dengan ?demo=1 supaya pemeriksaan
     // di atas tetap menguji jalur default deliverable; starter ber-adegan (tanpa katalog) tetap di halaman bawaannya.
@@ -413,6 +434,30 @@ for (const file of files) {
       if (!(j.roll <= j.rollMaks)) masalah.push(`elang: roll ${j.roll.toFixed(1)}° melewati batas ${j.rollMaks}°`);
       if (!(elang.celah.bebas >= .5 && elang.celah.lintas && elang.celah.lintas[1] > 1)) masalah.push(`elang: kamera tidak menembus celah gapura dengan jarak bebas ≥ 0,5 m (${JSON.stringify(elang.celah)})`);
       if (elang.subLuar !== 1 || !(elang.subDalam > 1)) masalah.push(`elang: motion blur harus hanya di segmen KABUR (luar ${elang.subLuar}, dalam ${elang.subDalam} sub-frame)`);
+    }
+    // diorama (src/runtime/diorama.js): piksel dibaca di task yang sama dengan render. Empat pemeriksaan, masing-masing dengan satu mutasi yang WAJIB tertangkap:
+    //   ulang — detik sama lewat dua jalur seek = byte sama (mutasi 'jam': tebal garis bergantung jumlah render);
+    //   garis — lambung menyumbang piksel gelap di pita fokus, dibanding lambung dimatikan (mutasi 'garis': lambung mati);
+    //   tilt  — tepi atas/bawah kehilangan ketajaman, pita fokus 0 piksel berubah (mutasi 'tilt': kuat 0);
+    //   tone  — renderer.toneMapping = FILM (mutasi 'tone': NoToneMapping). Di halaman bawaan, sebelum kait kamera 3D.
+    const dioUji = m => page.evaluate(m => window.DIORAMA_UJI ? (window.OPENER.tl.pause(), window.DIORAMA_UJI(m)) : null, m);
+    const dio = await dioUji('');
+    if (name === 'starter-diorama.html' && !dio) masalah.push('diorama: DIORAMA_UJI tidak ada');
+    if (dio) {
+      const salahDio = r => ({ ulang: r.ulangBeda > 0, garis: !(r.garis.persen > .5 && r.garis.gelap < 60), tilt: !(r.tilt.atas < .7 && r.tilt.bawah < .7 && r.tilt.fokusBeda === 0), tone: r.toneMapping !== FILM[name] });
+      const s0 = salahDio(dio);
+      if (s0.ulang) masalah.push(`diorama: detik sama lewat dua jalur seek berbeda ${dio.ulangBeda} kanal`);
+      if (s0.garis) masalah.push(`diorama: garis lambung lemah: ${dio.garis.persen.toFixed(2)} % piksel pita fokus dari lambung (harus > .5), L rata-rata ${dio.garis.gelap.toFixed(0)} (harus < 60)`);
+      if (s0.tilt) masalah.push(`diorama: tilt-shift: rasio ketajaman atas ${dio.tilt.atas.toFixed(2)} bawah ${dio.tilt.bawah.toFixed(2)} (harus < .7), piksel pita fokus berubah ${dio.tilt.fokusBeda} (harus 0)`);
+      if (s0.tone) masalah.push(`diorama: renderer.toneMapping ${dio.toneMapping}, harus ${FILM[name]}`);
+      const hasil = {};
+      for (const [mut, k] of [['jam', 'ulang'], ['garis', 'garis'], ['tilt', 'tilt'], ['tone', 'tone']]) {
+        const r = await dioUji(mut); hasil[mut] = salahDio(r)[k];
+        if (!hasil[mut]) masalah.push(`diorama: uji ${k} tumpul: mutasi '${mut}' tidak tertangkap (${JSON.stringify(r)})`);
+      }
+      const akhir = await dioUji('');
+      if (JSON.stringify(salahDio(akhir)) !== JSON.stringify(s0)) masalah.push('diorama: mutasi tidak dipulihkan DIORAMA_UJI');
+      console.log(`       diorama: ulang ${dio.ulangBeda}; garis ${dio.garis.persen.toFixed(2)} % L ${dio.garis.gelap.toFixed(0)}; tilt atas ${dio.tilt.atas.toFixed(2)} bawah ${dio.tilt.bawah.toFixed(2)} fokus ${dio.tilt.fokusBeda}; tone ${dio.toneMapping}; mutasi tertangkap ${JSON.stringify(hasil)}`);
     }
     // peta relief (starter-peta-relief.html): label yang tampil (opacity > ,5) di dalam bingkai pada 6 detik uji; rute tergambar sebagai
     // fungsi waktu (0 sampai 7 dtk, sebagian di 10, utuh sesudah tiba). Di halaman bawaan, sebelum kait kamera 3D (CAM3_UJI menyetel CAM)

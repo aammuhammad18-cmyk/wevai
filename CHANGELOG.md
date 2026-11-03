@@ -410,6 +410,51 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
     - kanvas panggang tidak dipanggang ulang bila konteks GPU hilang; halaman ±52 MP kanvas (87 MP pernah menghilangkan konteks);
     - setup 2–5 dtk di mesin senggang, sampai 147 dtk saat render pemilik berjalan.
   - **Status penerimaan**: menunggu vonis visual pemilik.
+- **Wayang kulit** (sub-proyek 7, gaya lanjutan keempat; J di `docs/rencana-1.4.0.md`).
+  - **Berkas**: `src/runtime/wayang.js` (blok baru `<wv:wayang>`, global `wayang` dan `BLENCONG`), `assets/starter-wayang.html`,
+    `references/wayang.md`, dan `scripts/test-wayang.mjs` (baru); penunjuk di `explainer.md`, `isi-paket.md`, `alat-kerja.md`, README.
+  - **Isi**: figur dari golongan umum menurut pakem (alusan, gagahan, raksasa, putri) + gunungan, tatah ber-seed sebagai kode; badan kaku,
+    lengan bersendi di bahu dan siku lewat IK, tuding dan gapit tergambar. Kelir + blencong berkedip ber-seed. Proyeksi sentral dari
+    lampu: `skala = d/(d−z)`, `blur = nyala·z/(d−z)`, jadi bayangan membesar dan mengabur saat figur mendekati lampu. Simpingan kanan dan
+    kiri. `?sisi=dalang` mencerminkan dunia dan menampilkan figur berwarna prada, lampu, dan debog.
+  - **Demo** (22 dtk): gunungan membuka, alusan dan raksasa masuk dari sisinya, saling berisyarat, kedip keras, raksasa ke lampu dan kembali,
+    gunungan menutup di tengah. Satu legenda; tanpa isi ritual.
+  - **Sumber**: Subagya 2013, Widyokusumo 2010, Ismurdyahwati 2007, UNESCO, Sonobudoyo; rincian dan batasnya di `wayang.md`.
+  - **Uji**: `test-wayang` (8 uji) masuk `rilis.mjs` dan CI; `WAYANG_UJI` dan `SINEMA_UJI` di `test-starters`; lima mutasi sengaja tertangkap.
+  - **Biaya** (bench controller, 3 putaran; dua agen aktif): sisi bayangan median 234 ms/frame, sisi dalang 293 ms (satu putaran 356, di atas
+    batas 350). Ekspor penuh 660 frame: rata-rata 271 dan 314 ms/frame.
+  - **Anggaran konteks**: jalur baru **Wayang kulit** (`explainer.md` + `techniques.md` + `wayang.md` + `starter-wayang.html`) 244 KB, pelacak 246 KB;
+    pelacak Relief candi hidup naik 295 → 297 KB karena `explainer.md` dan `SKILL.md` kini menyebut gaya ini.
+  - **Bukti**: `evals/bukti/2026-11-03-wayang/` (`kontak.jpg`, `nilai.txt`). `nilai-visual` 8 dari 8 ok; kontras 13,8 dtk bergantung pada kotak subjek.
+  - **Celah yang diketahui**:
+    - pakem belum ditinjau dalang; sumber gunungan hanya sekunder; bentuk `inten`/`masmasan` dan letak motif dirancang dari nama;
+    - sendi dua pada lengan belum ada sumber yang terbaca; tinggi relatif dan kedip adalah angka perkiraan;
+    - muka raksasa masih agak kartun; sisi dalang disederhanakan (tanpa dalang, gamelan, debog atas);
+    - panakawan ditolak generator dengan pesan alasan; `gagahan` dan `putri` hanya tampil di simpingan.
+  - **Status penerimaan**: menunggu tinjauan pakem dan vonis visual pemilik.
+- **Diorama cel-shaded** (sub-proyek 7, gaya lanjutan kelima; J di `docs/rencana-1.4.0.md`): maket museum untuk menjelaskan struktur tempat.
+  - **Berkas**: `src/runtime/diorama.js` (blok `<wv:diorama>`) dan `src/runtime/pura-bali.js` (blok `<wv:pura-bali>`, jadi tempat lain bisa
+    membuangnya), `assets/starter-diorama.html`, `references/diorama.md`, dan `scripts/test-diorama.mjs` (baru); penunjuk di `sinematografi.md`,
+    `explainer.md`, `isi-paket.md`, `alat-kerja.md`, README.
+  - **Teknik**: toon 4 tingkat, garis lambung terbalik (terukur setara tanpa garis; tepi depth/normal ±98 ms/frame dan bergerigi, ditolak), tilt-shift
+    yang pitanya di-tween dari timeline (+28 ms), alas berstrata, kartu 2D berbayangan kontak yang dirasterisasi sekali, bayangan 4096 dipanggang
+    sekali. ACES, exposure ,74.
+  - **Demo** (19 dtk): pura Bali generik tri mandala untuk format MANDALA: maket utuh, lalu `terbang()` menyusuri sumbu kelod → kaja melewati candi
+    bentar dan kori agung, mendarat di utama mandala dengan padmasana dan meru. Label zona muncul berurutan; satu legenda.
+  - **Sumber**: Bhattacarya & Riyanto 2022, Simbolon dkk. 2024, Seniwati dkk. 2022, Wirawibawa dkk. 2022, Wardana 2024; tanpa arca, sesaji, atau klaim
+    ritual. Rincian dan penyederhanaan di `diorama.md`.
+  - **Uji**: `test-diorama` (11 uji) masuk `rilis.mjs` dan CI. `DIORAMA_UJI`: determinisme, garis, tilt, tone mapping; tiap mutasi tertangkap. Halaman
+    dilewati di WebGL perangkat lunak.
+  - **Biaya** (bench controller, 3 putaran): median 240 ms/frame; ekspor penuh 570 frame rata-rata 287 ms/frame.
+  - **Anggaran konteks**: jalur baru **Diorama cel-shaded** (`sinematografi.md` + `diorama.md` + `starter-diorama.html`) 213 KB, pelacak 215 KB;
+    pelacak Painterly naik 266 → 268 KB dan Peta relief 3D 175 → 176 KB karena dokumen bersama bertambah.
+  - **Bukti**: `evals/bukti/2026-11-03-diorama/` (`kontak.jpg`, `garis.jpg`). `nilai-visual` 6 dari 6 ok: rentang 50–60, kontras subjek 18–46,8.
+  - **Celah yang diketahui**:
+    - proporsi bangunan perkiraan, bukan ukuran Asta Kosala Kosali; sebagian sumber hanya terbaca abstraknya, dua halaman hanya dari ringkasan pencarian;
+      bentuk padmasana bersandar pada Wikipedia; letak bale kulkul bertentangan antar-sumber (madya vs nista);
+    - legenda "makin dekat ke gunung, makin suci" adalah ringkasan, perlu dinilai pemilik;
+    - lipatan di dalam siluet tanpa garis (`garis.jpg`).
+  - **Status penerimaan**: menunggu tinjauan arsitektur pura dan vonis visual pemilik.
 
 ## 1.3.0 — 2026-11-02
 

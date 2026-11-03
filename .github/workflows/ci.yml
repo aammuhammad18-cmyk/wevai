@@ -40,10 +40,14 @@ jobs:
         run: node --test scripts/test-relief.mjs
       - name: Uji rig tokoh v2 (node:test, tanpa browser)
         run: node --test scripts/test-tokoh.mjs
+      - name: Uji wayang kulit (node:test, tanpa browser)
+        run: node --test scripts/test-wayang.mjs
       - name: Uji ekspor panjang (node:test, tanpa browser dan tanpa ffmpeg)
         run: node --test scripts/test-ekspor.mjs
       - name: Uji lukis painterly (node:test, kenop + antrean + siklus pose, tanpa browser)
         run: node --test scripts/test-lukis.mjs
+      - name: Uji diorama (node:test, denah tri mandala + tilt + tata kartu, tanpa browser)
+        run: node --test scripts/test-diorama.mjs
 
       - name: Starter sinkron dengan src/runtime
         run: node scripts/build-starters.mjs --check

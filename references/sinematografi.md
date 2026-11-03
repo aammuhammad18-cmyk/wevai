@@ -17,6 +17,7 @@ Satu video = satu jenis dunia. Putuskan di style brief, sebelum rundown.
 | Benda yang harus dilihat dari beberapa sisi (produk, mesin, peti kemas, gedung), low angle sungguhan, orbit, bayangan yang bergerak, cahaya siang → senja | 3D | `assets/starter-explainer-3d.html` | sudut, lensa, dan cahaya hanya jujur bila dunianya punya volume |
 | Opener/promo dengan hero produk/logo 3D | 3D di rig opener | `assets/starter-opener.html` (sudah memakai `CAM` + `kamera-three`) | kanvas Three.js di dalam `#world`; teks tetap DOM |
 | Peta wilayah sejarah: relief pulau, gunung, sungai, rute menyala | 3D | `assets/starter-peta-relief.html` (`peta-relief.md`) | relief bercahaya, label DOM menempel di titik peta |
+| Struktur sebuah tempat (kompleks pura, keraton, kota) sebagai maket museum | 3D | `assets/starter-diorama.html` (`diorama.md`) | toon + garis + tilt-shift, kartu 2D di ruang 3D |
 | Kartun panggung | 2.5D (`CAM` bersama), satu panggung per adegan | `starter-explainer-panggung.html` | kamera hanya di dalam panggung (`kartun-panggung.md`); `CAM` dan bidang `[data-z]` tersedia |
 | Kinetic typography (teks = subjek) | DOM | `starter-opener.html` (`camThrough`/`breathe` di `#world`) | kamera 3D tidak membingkai teks DOM |
 

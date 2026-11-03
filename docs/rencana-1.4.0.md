@@ -22,7 +22,7 @@ Sumber rincian:
 | G | Sub-proyek 4b: rig tokoh v2 | kode selesai; bench katalog 437 ms MELEWATI 350 (6 tokoh detail 2): optimalkan atau batasi; vonis visual pemilik menunggu | 5c9a3b1..ca20078 |
 | H | Sub-proyek 5: mata elang 3D | kode selesai; bench 292 ms (segmen motion blur belum); vonis visual pemilik menunggu | 93e1629..087736e |
 | I | Sub-proyek 6: ekspor panjang | selesai (masuk `main` 3 Nov dengan izin pemilik); 2 worker 1,2–1,5× di halaman nyata 1080p, frame identik 98–99 %, sisanya ±1 level | 429c64f..7310d5a |
-| J | Sub-proyek 7: gaya lanjutan | relief candi (233 ms), painterly (219 ms), peta relief 3D (288 ms): kode selesai, vonis pemilik menunggu; wayang berjalan; diorama belum | relief: bfdac93..811ddca; painterly: 1f6d91f..d71c88c; peta: 40fa38f..f13d624 |
+| J | Sub-proyek 7: gaya lanjutan | relief candi (233 ms), painterly (219 ms), peta relief 3D (288 ms), wayang kulit (234/293 ms), diorama (240 ms): kode selesai, vonis pemilik menunggu (wayang: + tinjauan pakem; diorama: + tinjauan arsitektur pura) | relief: bfdac93..811ddca; painterly: 1f6d91f..d71c88c; peta: 40fa38f..f13d624; wayang: 611bbcf..e0e805f; diorama: 82bee1e..e2d8b8f |
 | K | Sub-proyek 8: penilaian visual otomatis + galeri | K1 selesai; K2 galeri belum | K1: a3486a1..f114d7d |
 | L | Rilis 1.4.0 | belum | |
 

@@ -314,6 +314,7 @@ references/
   sinematografi.md               cinematic camera & lighting vocabulary, 2.5D vs 3D, 3D pitfalls
   explainer.md                   explainer styles, camera recipes, VO re-timing
   kartun-panggung.md             cartoon stage explainers
+  diorama.md                     museum-miniature diorama style: API, cost, accuracy + sources for the tri mandala layout
   architecture.md                stage, camera rig, determinism, export
   ae-bridge-higgsfield.md        building inside After Effects via the MCP bridge
   roadmap.md                     where the skill is heading
@@ -330,6 +331,8 @@ assets/
   starter-relief.html            living temple relief, 100% code (carved andesite, moving torchlight, figures that move)
   starter-lukis.html             painterly legend scene (Kuwahara + watercolour), each plane painted once, so strokes never boil
   starter-peta-relief.html       3D relief map of Java: printed contour map rises into a lit relief, route lights up
+  starter-wayang.html            wayang kulit shadow theatre, 100% code (kelir, flickering blencong, gunungan, shadow blur by distance)
+  starter-diorama.html           museum-miniature diorama (toon, ink outlines, tilt-shift) explaining a place's layout: a generic Balinese pura
 scripts/
   lint-motion.mjs                check the mechanical rules on a deliverable
   snap.mjs                       verify: capture key seconds
@@ -345,10 +348,12 @@ scripts/
   test-elang.mjs                 tests for the eagle-eye flight maths (no browser)
   test-relief.mjs                tests for the living-relief engine (no browser)
   test-tokoh.mjs                 tests for the character rig v2 (no browser)
+  test-wayang.mjs                tests for wayang kulit (no browser)
   test-ekspor.mjs                tests for antre-render.mjs and the export defaults (no browser, no ffmpeg)
   test-lukis.mjs                 tests for the painterly runtime: knobs, paint queue, pose cycle (no browser)
   test-peta.mjs                  tests for the relief-map terrain and route maths (no browser)
   peta-data.mjs                  rebuild the encoded coastline / 200 m isobath from Natural Earth (maintenance)
+  test-diorama.mjs               tests for the diorama runtime: tri mandala layout, tilt-shift band, card placement (no browser)
   serve.py                       no-cache dev server (optional)
   vendor-libs.mjs                inline GSAP + fonts for an offline archive copy
   build-starters.mjs             inline src/runtime into the starters (repo maintenance)
@@ -417,9 +422,11 @@ node --test scripts/test-pustaka.mjs       # ancient-Java asset library (no brow
 node --test scripts/test-elang.mjs        # eagle-eye flight maths (no browser)
 node --test scripts/test-relief.mjs        # living temple relief engine (no browser)
 node --test scripts/test-tokoh.mjs         # character rig v2 (no browser)
+node --test scripts/test-wayang.mjs        # wayang kulit (no browser)
 node --test scripts/test-ekspor.mjs        # render queue + export defaults (no browser, no ffmpeg)
 node --test scripts/test-lukis.mjs        # painterly runtime (no browser)
 node --test scripts/test-peta.mjs         # relief-map terrain and route maths (no browser)
+node --test scripts/test-diorama.mjs      # diorama runtime (no browser)
 node scripts/build-starters.mjs --check   # starters match src/runtime
 node scripts/bump-version.mjs --check     # version is the same everywhere
 node scripts/lint-motion.mjs assets/*.html

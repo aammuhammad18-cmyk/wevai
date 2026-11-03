@@ -6,7 +6,7 @@
    (sprite peta tinggi dengan transform fungsi murni tl.time(): lengan pendayung, layar, ombak, ikan, untaian, payung);
    (2) cahaya = lampu titik SINAR (Lambert, redaman, bayangan pahatan 24 langkah di peta tinggi) + ambien langit × AO.
    Keadaan = tl.time() + SINAR (di-tween GSAP seperti CAM/LANGIT) → putar = scrub = ekspor; kanvas digambar ulang penuh.
-   Terukur (HD 4000, saat render pemilik berjalan, prioritas Idle): 2 pass + 24 langkah ±16 ms/frame (3400×900), 32 (4300×1000); setup dinding starter 4,7 dtk;
+   Terukur (HD 4000, saat render pemilik berjalan, prioritas Idle): 2 pass + 24 langkah ±16 ms/frame (3400×900), 29–32 (4300×1000); setup dinding starter 4,1–5,1 dtk;
    Canvas 2D per piksel di CPU 737 ms/frame (tanpa bayangan); filter SVG dinamis 358 ms/frame (riset, tanpa bayangan jatuh).
    Butuh dari atmosfer: rantaiUpdate, vnoise, mulberry32, acak, warnaRGB (hook uji: rigDunia). */
 

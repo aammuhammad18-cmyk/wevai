@@ -1,0 +1,40 @@
+nilai-visual, starter-relief.html (?clean=1, 1920x1080), 3 Nov 2026 — satu panggilan per bingkai:
+  node scripts/nilai-visual.mjs <t>.png --subjek <panel yang dihadapi kamera> --sumber '[{"x":<lampu SINAR di layar>,"y":512,"r":220}]'
+posisi lampu & panel dihitung dari jadwal galeriRelief() (tanpa guncangan handheld +-5 px). Hasil: 9 bingkai ok, 0 peringatan.
+
+=== t1_00.png: lampu layar 1591,512; subjek panel x 377
+nilai-visual: 1 bingkai · sumber dideklarasikan: 1 · subjek: 377,303,1060,551
+bingkai    p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
+t1_00.png  18/36/60    41.1 ok  subjek 18.1 ok  +37.5 ok      4 ok #2f2e3a #72564b #a47c5f  ok
+=== t4_00.png: lampu layar 1067,512; subjek panel x 474
+nilai-visual: 1 bingkai · sumber dideklarasikan: 1 · subjek: 474,303,1060,551
+bingkai    p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
+t4_00.png  18/40/60    42 ok    subjek 28.5 ok  +36.5 ok      3 ok #604b47 #202232 #9b745b  ok
+=== t7_00.png: lampu layar 1018,512; subjek panel x -174
+nilai-visual: 1 bingkai · sumber dideklarasikan: 1 · subjek: 0,303,1060,551
+bingkai    p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
+t7_00.png  19/39/62    43.1 ok  subjek 24.3 ok  +38.5 ok      3 ok #674f49 #272734 #a37b5f  ok
+=== t9_60.png: lampu layar 1044,512; subjek panel x 389
+nilai-visual: 1 bingkai · sumber dideklarasikan: 1 · subjek: 389,303,1060,551
+bingkai    p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
+t9_60.png  19/38/60    41.3 ok  subjek 29.7 ok  +37.1 ok      3 ok #5c4846 #202332 #9b755c  ok
+=== t11_00.png: lampu layar 802,512; subjek panel x 437
+nilai-visual: 1 bingkai · sumber dideklarasikan: 1 · subjek: 437,303,1060,551
+bingkai     p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
+t11_00.png  19/39/58    39.3 ok  subjek 24.8 ok  +32.8 ok      4 ok #685049 #262836 #9b755d  ok
+=== t12_60.png: lampu layar 527,512; subjek panel x 492
+nilai-visual: 1 bingkai · sumber dideklarasikan: 1 · subjek: 492,303,1060,551
+bingkai     p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
+t12_60.png  19/38/60    41.2 ok  subjek 24.3 ok  +35.5 ok      4 ok #312e39 #71564c #9f785d  ok
+=== t15_20.png: lampu layar 542,512; subjek panel x -174
+nilai-visual: 1 bingkai · sumber dideklarasikan: 1 · subjek: 0,303,1060,551
+bingkai     p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
+t15_20.png  19/37/64    45.6 ok  subjek 32.6 ok  +38.6 ok      4 ok #302e39 #6e534a #a0795c  ok
+=== t17_60.png: lampu layar 623,512; subjek panel x 403
+nilai-visual: 1 bingkai · sumber dideklarasikan: 1 · subjek: 403,303,1060,551
+bingkai     p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
+t17_60.png  19/41/63    44.8 ok  subjek 30.4 ok  +33.2 ok      3 ok #695149 #262735 #a47c5f  ok
+=== t19_50.png: lampu layar 287,512; subjek panel x 459
+nilai-visual: 1 bingkai · sumber dideklarasikan: 1 · subjek: 459,303,1060,551
+bingkai     p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
+t19_50.png  19/37/58    39.8 ok  subjek 21.6 ok  +31.1 ok      4 ok #302e3a #72574d #9b755c  ok

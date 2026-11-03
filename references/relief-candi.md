@@ -118,10 +118,10 @@ ini batas atas kasar, bukan bench (`bench-frame` menunggu mesin senggang).
 | Filter SVG dipanggang (`relief()` cahaya-2d) | ≈ 0 | tidak: cahaya beku |
 | Filter SVG dianimasikan (`fePointLight` tiap frame; riset 1 Nov) | 358 (GPU), 3.663 (CPU) | hanya naungan, tanpa bayangan jatuh |
 | Canvas 2D per piksel di CPU (difus + AO, 1920×1080) | 737 | tidak (tanpa bayangan) |
-| **WebGL2, 2 pass, bayangan 24 langkah** | **±16 (3400×900), 32 (dinding starter 4300×1000)** | **ya** |
+| **WebGL2, 2 pass, bayangan 24 langkah** | **±16 (3400×900), 29–32 (dinding starter 4300×1000)** | **ya** |
 
-Setup sekali saat muat (JS, dinding starter: 764 lapis + 17 bagian hidup): 4,7 dtk di bawah beban render, termasuk normal +
-AO 0,9 dtk. Bidang besar ditandai `persegi` supaya dirasterisasi analitik. Biaya capture ekspor tetap ±170–200 ms/frame dan
+Setup sekali saat muat (JS, dinding starter: 764 lapis + 17 bagian hidup): 4,1–5,1 dtk di bawah beban render, termasuk normal
++ AO 0,9 dtk. Bidang besar ditandai `persegi` supaya dirasterisasi analitik. Biaya capture ekspor tetap ±170–200 ms/frame dan
 mendominasi, jadi kanvas relief menambah ±15 % per frame.
 
 ## Determinisme
@@ -130,7 +130,7 @@ Keadaan per frame = fungsi `tl.time()` + `SINAR`. Pose bagian hidup dihitung dar
 bayangan memakai hash koordinat piksel, bukan waktu. Kanvas digambar ulang penuh. Jadi seek(t) lewat jalur mana pun memberi
 piksel yang sama dalam satu proses: `RELIEF_UJI.seekSama` dan pemeriksaan kanvas `test-starters`. Bukti di dinding starter
 (4300×1000, kedip ,3, 17 bagian hidup): t 9,2 langsung = lompat 3 → 15 → 0,1 → 9,2 = putar 8 → 9,2 per 1/60 dtk, byte
-`readPixels` identik (hash `3d05b504`); t 9,7 berbeda.
+`readPixels` identik (hash `a94889e`); t 9,7 berbeda.
 
 ## Akurasi budaya
 

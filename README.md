@@ -323,6 +323,7 @@ assets/
   starter-explainer-3d.html      3D world explainer (Three.js + shared cinematic camera)
   starter-sinematik.html         cinematic silhouette scene, 100% code (torchlight, fog, embers, one grade)
   katalog-pustaka.html           showcase of the procedural ancient-Java asset library (src/runtime/pustaka.js)
+  katalog-tokoh.html             showcase of the character rig v2: archetypes, IK walk, crowd (src/runtime/tokoh.js)
   starter-elang.html             3D eagle-eye establishing shot: procedural landscape, flight path, film tone mapping
   starter-relief.html            living temple relief, 100% code (carved andesite, moving torchlight, figures that move)
 scripts/
@@ -338,6 +339,7 @@ scripts/
   test-pustaka.mjs               tests for the ancient-Java asset library (no browser)
   test-elang.mjs                 tests for the eagle-eye flight maths (no browser)
   test-relief.mjs                tests for the living-relief engine (no browser)
+  test-tokoh.mjs                 tests for the character rig v2 (no browser)
   serve.py                       no-cache dev server (optional)
   vendor-libs.mjs                inline GSAP + fonts for an offline archive copy
   build-starters.mjs             inline src/runtime into the starters (repo maintenance)
@@ -405,6 +407,7 @@ node --test scripts/test-nilai.mjs        # visual scoring tool (synthetic PNGs,
 node --test scripts/test-pustaka.mjs       # ancient-Java asset library (no browser)
 node --test scripts/test-elang.mjs        # eagle-eye flight maths (no browser)
 node --test scripts/test-relief.mjs        # living temple relief engine (no browser)
+node --test scripts/test-tokoh.mjs         # character rig v2 (no browser)
 node scripts/build-starters.mjs --check   # starters match src/runtime
 node scripts/bump-version.mjs --check     # version is the same everywhere
 node scripts/lint-motion.mjs assets/*.html

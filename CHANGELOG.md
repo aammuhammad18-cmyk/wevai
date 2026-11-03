@@ -244,6 +244,42 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
     - satu konteks WebGL2 per dinding, jadi 1–2 dinding per halaman;
     - sosok dan panel adalah kosakata bergaya, bukan salinan panel nyata, sedangkan legendanya "BOROBUDUR · ABAD IX".
   - **Status penerimaan**: menunggu bench di mesin senggang dan vonis visual pemilik.
+- **Rig tokoh v2** (sub-proyek 4b, G di `docs/rencana-1.4.0.md`).
+  - **Berkas**: `src/runtime/tokoh.js` (blok baru `<wv:tokoh>`, satu global `tokoh`), `assets/katalog-tokoh.html`,
+    `references/tokoh.md`, dan `scripts/test-tokoh.mjs` (baru); penunjuk di `kartun-panggung.md`.
+  - **Rig**: rangka 19 tulang dengan arah 3D yang diproyeksikan ke tiga pandang (depan, tiga perempat, samping), jadi satu pose
+    terbaca di ketiganya; slot dan lampiran ala Spine dengan urutan gambar per pandang; IK dua tulang analitik (dijepit; sisi siku
+    dan lutut menurut tanda).
+  - **Bentuk dan cahaya**: bagian tubuh bezier dari profil lebar, bukan kapsul. Warna rata bernada malam + satu gradien cahaya per
+    tokoh (gradien per segmen membuat tokoh tampak seperti manekin kayu). Rim = siluet dikurangi salinan yang digeser menjauhi cahaya;
+    arah cahaya dihitung ulang tiap frame dari obor terdekat.
+  - **Pose bernama**: berdiri (kontraposto), menunjuk, sembah, tombak, bawa, bersila, silasembah, meraih (IK), dan jalan prosedural
+    yang fasenya diambil dari jarak tempuh dengan telapak tumpu dikunci IK, jadi kaki tidak selip.
+  - **Kostum dan atribut Jawa kuno**: kain bermotif `pustaka.kain`, wiron, sabuk, sampur, keris, ikat/jamang/mahkota/jata, kelat bahu,
+    gelang, kalung, upawita, kemben; properti tombak, perisai, payung, tongkat, cangkul, sesaji. Enam arketipe (rakyat, raja,
+    prajurit, resi, petani, putri) dan `kerumunan({seed, n, area, ragam})` ber-seed.
+  - **Determinisme**: tokoh bergerak = satu kanvas per bidang yang dihapus penuh dan digambar ulang dari `tl.time()` tiap frame.
+    Transform `<g>` di svg bidang ber-`will-change` terukur tidak deterministik (tepi ±1–2, dengan rim ±12). Semua kanvas tokoh
+    identik lintas jalur seek; di dalam siluet tokoh paling banyak 8 piksel berbeda dari ≥ 105 ribu.
+  - **Etalase** `assets/katalog-tokoh.html` (28 dtk, 35 tokoh): enam arketipe saat senja di depan candi; dua prajurit ronda di
+    sepanjang tembok berobor; putri meraih altar lewat IK lalu menyembah; kerumunan 24 tokoh di depan gapura berobor.
+  - **Uji**: `test-tokoh` (10 uji: IK, determinisme dan campuran pose, telapak tanpa selip, kerumunan, SVG well-formed, log gambar
+    kanvas identik lintas jalur seek, galat berbahasa Indonesia) masuk `rilis.mjs` dan CI. `SINEMA_UJI` katalog tokoh di
+    `test-starters`: 4 kanvas tokoh, ≥ 30 tokoh, 6 arketipe.
+  - **Anggaran konteks**: tidak berubah (katalog dan `tokoh.md` di luar jalur); `tokoh.js` 41,5 KB.
+  - **Bukti**: `evals/bukti/2026-11-03-tokoh-v2/kontak.jpg`. `nilai-visual` 6 dari 6 ok: rentang 28–35, kontras subjek 18–31, titik
+    terang +58…+72 di sumber yang dideklarasikan, 2–3 warna.
+  - **Catatan budaya** (di `tokoh.md`): kemben pada putri adalah konvensi ilustrasi modern; keris di punggung bersarung ladrang cocok
+    untuk Majapahit ke atas, diragukan untuk Mataram Kuno; payung bertingkat berumbai adalah bentuk kemudian; mahkota, jamang, dan
+    jata adalah bentuk ikonik, bukan salinan arca tertentu.
+  - **Celah yang diketahui**:
+    - selisih latar (bukan tokoh) ±1 px, maks. 76–84, sesudah lompat mundur ke tableau yang tampil sejak halaman dimuat; terjadi juga
+      di `katalog-pustaka` tanpa tokoh. Ekspor maju tidak menampilkan ulang tableau, jadi kemungkinan tidak terdampak;
+    - cincin samar ±4 di pendar obor `cahaya-2d` antara jalur berurutan dan jalur lompat;
+    - ms/frame belum diukur (mesin sedang merender);
+    - pose mendayung dan menunggang belum ada; tokoh statis `buat()` hanya berwarna rata (cahaya lewat `rim()`/`bayangan()`);
+    - blok `<wv:tokoh>` baru ada di katalog; pemasangannya di starter sinematik menyusul bersama babak multi-adegan (E).
+  - **Status penerimaan**: menunggu bench di mesin senggang dan vonis visual pemilik.
 
 ## 1.3.0 — 2026-11-02
 

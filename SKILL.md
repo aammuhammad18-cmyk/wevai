@@ -314,7 +314,8 @@ bagian 1 dan 1b. Ringkasnya:
    kata, draw anotasi, push-through antar adegan) atau
    `starter-explainer.html` (aksi kontinu: dunia mengalir, hero, objek
    dunia, view peta, whip) atau `starter-sinematik.html` (siluet sinematik, `techniques.md` §7d; aset Jawa kuno:
-   `pustaka.*`, `references/pustaka.md`, katalog `assets/katalog-pustaka.html`). Struktur multi-file dan
+   `pustaka.*`, `references/pustaka.md`, katalog `assets/katalog-pustaka.html`; tokoh Jawa kuno: `tokoh.*`,
+   `references/tokoh.md`, katalog `assets/katalog-tokoh.html`). Struktur multi-file dan
    penjelasan tiap keputusan ada di `references/architecture.md`.
 4. **Bangun adegan satu per satu** dengan resep di
    `references/techniques.md` (split per huruf + motion blur berarah,

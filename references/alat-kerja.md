@@ -76,6 +76,7 @@ bocor ke render berikutnya.
 |---|---|---|
 | Lint | `node "<folder skill>/scripts/lint-motion.mjs"` | aturan yang bisa diukur dari kode; FAIL = perbaiki sebelum menyerahkan. Tanpa dependensi |
 | Snapshot | `node "<folder skill>/scripts/snap.mjs" shots 1 3.5 8` | potret detik kunci + `shots/kontak.png` (lembar kontak berlabel detik) untuk dinilai sekali lihat; `--tanpa-sheet` bila tidak perlu |
+| Nilai visual | `node "<folder skill>/scripts/nilai-visual.mjs" shots --sumber '[{"x":512,"y":598}]' --subjek 1230,205,540,845` | mengubah bingkai `snap.mjs` jadi angka: rentang luminans (flat?), kontras subjek, titik terang dekat sumber cahaya yang dideklarasikan, jumlah warna dominan; ok/peringatan per ukuran, kode keluar 1 bila ada peringatan. Saringan, bukan vonis: baca "Nilai visual (membaca angkanya)" di bawah. Tanpa dependensi |
 | Export MP4 | `node "<folder skill>/scripts/export-frames.mjs"` dengan env `MP4=out.mp4` | render frame-by-frame langsung ke MP4, ukuran dari `OPENER.W/H`, audio `#vo` ikut. Lebih cepat: `FPS=30` (separuh frame), `SYNC=1` (halaman yang `seek` menggambar sinkron — tanpa kanvas rAF/klip); `WORKERS=2` untuk video panjang — terukur ±2× di laptop 2 core (60 mnt: ±8,6 → ±4 jam); lebih dari 2 hanya bila core/GPU longgar. Master kritis: `FORMAT=png`. Tanpa `MP4=`: folder PNG + perintah ffmpeg |
 | Jeda VO | buka `scripts/vo-pauses.html` di browser | `SEG`/`PARA`/`DUR` untuk sinkron VO tanpa ffmpeg |
 | Kunci CDN | `node "<folder skill>/scripts/cdn-integrity.mjs" index.html` | memasang `integrity="sha384-…"` pada `<script src>` CDN supaya browser menolak berkas yang isinya berubah (import map Three tidak bisa) |
@@ -85,7 +86,7 @@ bocor ke render berikutnya.
 | VO Gemini | `node "<folder skill>/scripts/vo-gemini.mjs" naskah.json` | membuat VO (WAV + durasi persis) dari Gemini TTS lewat API resmi; beberapa kunci bergantian, lanjut sendiri. Baca peringatan kuota di bagian "VO Gemini (banyak kunci)" di bawah. Tanpa dependensi |
 
 Skrip yang merender, membuka Chrome, menulis berkas, atau memakai jaringan (`snap`, `export-frames`,
-`bench-frame`, `test-starters`, `eval-run`, `build-starters`, `vendor-libs`, `ae/bridge/svg2png.cjs`,
+`bench-frame`, `test-starters`, `eval-run`, `build-starters`, `vendor-libs`, `nilai-visual`, `ae/bridge/svg2png.cjs`,
 `ae/bridge/aset-svg.py`) menjawab `--help` atau `-h` dengan komentar kepalanya lalu keluar 0, tanpa
 melakukan apa pun. Aman dijalankan lebih dulu untuk melihat pemakaian dan env-nya.
 
@@ -205,3 +206,38 @@ header `x-goog-api-key`, `response_format: {type: "audio"}`, `generation_config.
 `speech_metadata`. Sesudah mengubah: `node --test scripts/test-vo.mjs`. Catatan: panduan bicara memakai `speech_config`,
 sedangkan referensi API menyebut `structured_speech_config`; bila Google menjawab 400 `parameter_unknown`, ganti nama itu di
 `bangunPermintaan()`.
+
+## Nilai visual (membaca angkanya)
+
+`scripts/nilai-visual.mjs` menilai bingkai PNG dari `snap.mjs` dengan angka, karena agen tidak bisa menonton video. Ia **saringan, bukan
+vonis**: lolos belum berarti bagus, dan mata tetap menilai rasa (`anti-ppt.md` › Kalibrasi rasa). Node ≥ 18, tanpa dependensi, ±0,8 dtk per
+bingkai 1080p di laptop produksi.
+
+```bash
+node "<folder skill>/scripts/nilai-visual.mjs" shots --sumber '[{"x":512,"y":598},{"x":778,"y":598}]' --subjek 1230,205,540,845
+```
+
+`--sumber` = sumber cahaya yang kamu tulis di style brief (piksel bingkai, `r` opsional); `--subjek` = kotak tokoh yang ketat (x,y,w,h). Keduanya
+opsional, tetapi kulit sinematik wajib menyatakan sumbernya: itu ukuran yang paling sulit lolos secara kebetulan. Windows PowerShell 5.1 membuang
+tanda kutip ganda di dalam JSON; kunci tanpa kutip (`'[{x:512,y:598}]'`) dimaafkan, atau beri nama berkas `.json`. `--keluar nilai.json` menyimpan
+laporan mesin, `--json` mencetak hanya JSON. Kode keluar 0 = semua ok, 1 = ada peringatan, 2 = galat (hanya PNG 8 bit tanpa interlace; JPEG:
+`ffmpeg -i f.jpg f.png`).
+
+| Ukuran | Ambang | Peringatan berarti |
+|---|---|---|
+| rentang luminans (p95 − p5, skala L OKLab 0–100) | ≥ 28 | **flat**: belum ada sorot dan bayangan. `sumber()` dan `redup()` (cahaya-2d), `grade()` (pasca) |
+| kontras subjek vs cincin (tanpa kotak: tengah vs tepi) | ≥ 10 | subjek menyatu dengan latar: `rim()`, atau pisahkan terang-gelapnya. Nilainya yang terbesar dari selisih rata-rata dan sorot (p95 kotak − median cincin), jadi siluet ber-rim tetap lolos |
+| titik terang dekat tiap sumber | ≥ median + 30 | sumber tidak bersinar, atau koordinatnya meleset: naikkan inti dan pendar, bloom/halation |
+| warna dominan (≥ 5 % bingkai) | 2–6 | 1 = monoton; > 6 = palet tidak serempak: satukan lewat `grade()` atau tint per adegan |
+
+Cara membaca:
+
+- Ambang adalah hasil kalibrasi dengan bingkai nyata (`evals/bukti/2026-11-03-nilai-visual/`): acuan sinematik rentang 36–41, titik terang
+  +66…+71, 3–4 warna; acuan datar rentang 4–19, titik terang ≤ +11, 1–2 warna. **Jangan menurunkan ambang agar hijau; perbaiki bingkainya.**
+  Flat yang dipilih sadar (kulit A, flat cerah) cukup ditulis di pesan penutup.
+- Ukuran titik terang dibuat untuk adegan gelap atau menengah. Di bingkai terang (median > 70) sumber nyaris mustahil ≥ +30, jadi peringatan di
+  sana harus dilihat dengan mata.
+- Shot yang bergerak (mata elang): sumber berpindah. Jalankan tanpa `--sumber`, atau per bingkai dengan koordinat bingkai itu.
+- Batas: blok warna rata yang berentang lebar (mis. adegan rak gelap di kartun panggung) lolos ukuran 1, 2, dan 4. Hanya ukuran titik terang yang
+  menjaganya, karena itu sumber cahaya wajib dideklarasikan pada kulit sinematik.
+- Uji alat: `node --test scripts/test-nilai.mjs` (PNG sintetis, tanpa browser; bagian dari `rilis.mjs` dan CI).

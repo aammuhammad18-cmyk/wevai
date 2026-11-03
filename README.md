@@ -325,6 +325,7 @@ assets/
 scripts/
   lint-motion.mjs                check the mechanical rules on a deliverable
   snap.mjs                       verify: capture key seconds
+  nilai-visual.mjs               verify by numbers: luminance range ("flat"), subject contrast, glow at declared light sources, dominant colours (tests: test-nilai.mjs)
   export-frames.mjs              export: frame-by-frame → MP4, piped to ffmpeg, optional parallel workers (16:9 or 9:16, voice-over muxed)
   vo-pauses.html                 voice-over pause detection, no ffmpeg needed
   chrome.mjs                     finds Chrome/Edge for the scripts that open a browser (no env var needed)
@@ -394,6 +395,7 @@ Before opening a PR (same checks CI runs):
 npm install --prefix scripts            # once
 node --test scripts/test-kamera.mjs        # camera core (no browser)
 node --test scripts/test-vo.mjs            # voice-over tool (no network, no keys)
+node --test scripts/test-nilai.mjs        # visual scoring tool (synthetic PNGs, no browser)
 node scripts/build-starters.mjs --check   # starters match src/runtime
 node scripts/bump-version.mjs --check     # version is the same everywhere
 node scripts/lint-motion.mjs assets/*.html

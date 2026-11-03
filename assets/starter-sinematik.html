@@ -1866,7 +1866,7 @@ function babak(){
     /* −500 halaman dalam: paduraksa di belakang penjaga, candi bata, beringin, lontar — diterangi obor penjaga */
     const OJ=[905,935],V2=bidang(-500),V3=bidang(-250);
     sumber('jagaV',{x:OJ[0],y:OJ[1]-285,bidang:V3,warna:'#ffa055',jangkau:300,kedip:.35,seed:19});   // kuat 0 sesudah aset dipanggang: menyala 22,6 (pemicu terbang)
-    const s2=svgDi(V2,'<path d="M-400,904 H2320 V1200 H-400Z" fill="#140c0d"/>'+PU.gapura({x:1000,y:905,tinggi:640,varian:'paduraksa',id:'vPaduraksa',cahaya:'jagaV',detail:1})+
+    const s2=svgDi(V2,'<path d="M-400,904 H2320 V1200 H-400Z" fill="#140c0d"/>'+PU.gapura({x:1080,y:905,tinggi:640,varian:'paduraksa',id:'vPaduraksa',cahaya:'jagaV',detail:1})+
       PU.candi({x:1580,y:892,tinggi:700,varian:'bata',jarak:-500,cahaya:{...BL,kuat:.35},detail:1,warna:'#3a2420'})+PU.beringin({x:150,y:930,tinggi:600,seed:13,jarak:-500,cahaya:{...BL,kuat:.35},detail:1})+
       PU.lontar({x:1890,y:905,tinggi:560,seed:4,jarak:-500,cahaya:{...BL,kuat:.35}}));
     relief($('#vPaduraksa'),{sumber:'jagaV',tinggi:3});
@@ -1943,8 +1943,8 @@ function babak(){
   grade(22.4,1.8,'malam-api');   // obor penjaga menyala: hangat kembali (pemicu terlihat)
   /* 3 · Mata elang 24–31: menukik, belok kanan lalu kiri (roll), lurus menembus celah (bidang +500 lenyap di zoom ±3,5), mendarat di
      penjaga. Titik = [fx, fy, zoom]; fx/fy celah = W/2 + s·(x − W/2), s = (P0 − z)/P0 bidang itu */
-  const pusat=(x,y,z)=>{const s=(P0-z)/P0;return[W/2+s*(x-W/2),H/2+s*(y-H/2)];},[gx,gy]=pusat(960,770,500),[jx,jy]=pusat(1000,800,-250);
-  terbang(24,7,[[PLAN.fx,PLAN.fy,PLAN.zoom],[PLAN.fx+200,610,1.25],[gx-110,680,1.85],[gx,gy,2.6],[gx+4,gy+12,3.55],[jx,jy,4.6]],{trauma:d=>[[d[4],.4]],rollMaks:22});
+  const pusat=(x,y,z)=>{const s=(P0-z)/P0;return[W/2+s*(x-W/2),H/2+s*(y-H/2)];},[gx,gy]=pusat(960,770,500),[jx,jy]=pusat(1000,788,-250);
+  terbang(24,7,[[PLAN.fx,PLAN.fy,PLAN.zoom],[PLAN.fx+200,610,1.25],[gx-110,680,1.85],[gx,gy,2.6],[gx+4,gy+12,3.55],[jx,jy,4.2]],{trauma:d=>[[d[4],.4]],rollMaks:22});
   dolly(31,3,1.04,'sine.out');
   /* 4 · Penjaga 34–46 */
   tl.set(LANGIT,LC,34);grade(34,0,{...PRESET_GRADE['malam-api'],halation:.85,sorotKuat:.36});

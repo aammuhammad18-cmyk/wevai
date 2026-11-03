@@ -52,7 +52,7 @@ test('kunci gerak: murni waktu, tanpa lompatan, langkah kembali ke nol, kunci sa
   const Getar = siapKunci({}, [[0, { getar: 1 }, { durasi: .1 }]]); assert.notEqual(keadaan(Getar, 2).miring, keadaan(Getar, 2.2).miring, 'getar kayon mati');
   assert.throws(() => siapKunci({}, [[1, { tinggi: 3 }]]), /kunci tidak dikenal: tinggi/);
   assert.throws(() => siapKunci({}, [[2, { x: 1 }], [1, { x: 2 }]]), /urut waktu/);
-  assert.throws(() => siapKunci({}, [[1, { tanganD: 'terbang' }]]), /pose tangan tidak dikenal: terbang \(anjujur/);
+  assert.throws(() => siapKunci({}, [[1, { tanganD: 'terbang' }]]), /pose tangan tidak dikenal: terbang \(belakang anjujur/);
 });
 
 test('tabel pakem: golongan, sisi simpingan, cermin penonton, warna muka', () => {

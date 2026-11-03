@@ -1,0 +1,2423 @@
+{
+ "tanggal": "2026-11-03",
+ "alat": "scripts/nilai-visual.mjs",
+ "ambang": {
+  "rentang": 28,
+  "kontras": 10,
+  "sumber": 30,
+  "warnaMin": 2,
+  "warnaMaks": 6,
+  "persen": 5,
+  "kuantum": 0.04,
+  "gabung": 0.12
+ },
+ "kelompok": [
+  {
+   "id": "sinematik",
+   "keterangan": "acuan sinematik (starter-sinematik.html?clean=1, t 0, 7, 11): lolos",
+   "perintah": "node scripts/nilai-visual.mjs sinematik --sumber '[{\"x\":512,\"y\":598},{\"x\":778,\"y\":598}]' --subjek 1230,205,540,845 --json",
+   "kodeKeluar": 0,
+   "laporan": {
+    "alat": "nilai-visual",
+    "opsi": {
+     "sumber": [
+      {
+       "x": 512,
+       "y": 598
+      },
+      {
+       "x": 778,
+       "y": 598
+      }
+     ],
+     "subjek": [
+      1230,
+      205,
+      540,
+      845
+     ]
+    },
+    "bingkai": [
+     {
+      "berkas": "sinematik/t0_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 15.3,
+       "p50": 25.2,
+       "p95": 51.6,
+       "rentang": 36.3,
+       "status": "ok"
+      },
+      "kontras": {
+       "mode": "subjek",
+       "a": 26.8,
+       "b": 28.5,
+       "dL": 1.6,
+       "sorot": 21.3,
+       "nilai": 21.3,
+       "status": "ok"
+      },
+      "sumber": [
+       {
+        "x": 512,
+        "y": 598,
+        "r": 76,
+        "puncak": 96.4,
+        "median": 25.2,
+        "selisih": 71.2,
+        "status": "ok"
+       },
+       {
+        "x": 778,
+        "y": 598,
+        "r": 76,
+        "puncak": 96.4,
+        "median": 25.2,
+        "selisih": 71.2,
+        "status": "ok"
+       }
+      ],
+      "warna": {
+       "jumlah": 3,
+       "dominan": [
+        {
+         "hex": "#1d1124",
+         "persen": 60.7
+        },
+        {
+         "hex": "#412d43",
+         "persen": 24.4
+        },
+        {
+         "hex": "#794b4d",
+         "persen": 11.7
+        }
+       ],
+       "status": "ok"
+      },
+      "status": "ok"
+     },
+     {
+      "berkas": "sinematik/t7_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 15.4,
+       "p50": 25.4,
+       "p95": 52.7,
+       "rentang": 37.4,
+       "status": "ok"
+      },
+      "kontras": {
+       "mode": "subjek",
+       "a": 27.8,
+       "b": 28.3,
+       "dL": 0.5,
+       "sorot": 24.3,
+       "nilai": 24.3,
+       "status": "ok"
+      },
+      "sumber": [
+       {
+        "x": 512,
+        "y": 598,
+        "r": 76,
+        "puncak": 96.4,
+        "median": 25.4,
+        "selisih": 71,
+        "status": "ok"
+       },
+       {
+        "x": 778,
+        "y": 598,
+        "r": 76,
+        "puncak": 96.3,
+        "median": 25.4,
+        "selisih": 71,
+        "status": "ok"
+       }
+      ],
+      "warna": {
+       "jumlah": 3,
+       "dominan": [
+        {
+         "hex": "#1d1224",
+         "persen": 60.6
+        },
+        {
+         "hex": "#432e43",
+         "persen": 23.2
+        },
+        {
+         "hex": "#794b4d",
+         "persen": 12.6
+        }
+       ],
+       "status": "ok"
+      },
+      "status": "ok"
+     },
+     {
+      "berkas": "sinematik/t11_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 15.4,
+       "p50": 25.5,
+       "p95": 53.8,
+       "rentang": 38.4,
+       "status": "ok"
+      },
+      "kontras": {
+       "mode": "subjek",
+       "a": 28.1,
+       "b": 28.5,
+       "dL": 0.4,
+       "sorot": 24.9,
+       "nilai": 24.9,
+       "status": "ok"
+      },
+      "sumber": [
+       {
+        "x": 512,
+        "y": 598,
+        "r": 76,
+        "puncak": 96.6,
+        "median": 25.5,
+        "selisih": 71.2,
+        "status": "ok"
+       },
+       {
+        "x": 778,
+        "y": 598,
+        "r": 76,
+        "puncak": 96.5,
+        "median": 25.5,
+        "selisih": 71,
+        "status": "ok"
+       }
+      ],
+      "warna": {
+       "jumlah": 3,
+       "dominan": [
+        {
+         "hex": "#1d1224",
+         "persen": 59.9
+        },
+        {
+         "hex": "#442f43",
+         "persen": 22.9
+        },
+        {
+         "hex": "#7a4c4d",
+         "persen": 13.2
+        }
+       ],
+       "status": "ok"
+      },
+      "status": "ok"
+     }
+    ],
+    "ringkas": {
+     "bingkai": 3,
+     "ok": 3,
+     "peringatan": 0
+    }
+   }
+  },
+  {
+   "id": "sinematik-tanpa-kotak",
+   "keterangan": "bingkai yang sama tanpa --subjek (mode tengah vs tepi): lolos",
+   "perintah": "node scripts/nilai-visual.mjs sinematik --sumber '[{\"x\":512,\"y\":598},{\"x\":778,\"y\":598}]' --json",
+   "kodeKeluar": 0,
+   "laporan": {
+    "alat": "nilai-visual",
+    "opsi": {
+     "sumber": [
+      {
+       "x": 512,
+       "y": 598
+      },
+      {
+       "x": 778,
+       "y": 598
+      }
+     ],
+     "subjek": null
+    },
+    "bingkai": [
+     {
+      "berkas": "sinematik/t0_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 15.3,
+       "p50": 25.2,
+       "p95": 51.6,
+       "rentang": 36.3,
+       "status": "ok"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 33.9,
+       "b": 21.6,
+       "dL": 12.3,
+       "nilai": 12.3,
+       "status": "ok"
+      },
+      "sumber": [
+       {
+        "x": 512,
+        "y": 598,
+        "r": 76,
+        "puncak": 96.4,
+        "median": 25.2,
+        "selisih": 71.2,
+        "status": "ok"
+       },
+       {
+        "x": 778,
+        "y": 598,
+        "r": 76,
+        "puncak": 96.4,
+        "median": 25.2,
+        "selisih": 71.2,
+        "status": "ok"
+       }
+      ],
+      "warna": {
+       "jumlah": 3,
+       "dominan": [
+        {
+         "hex": "#1d1124",
+         "persen": 60.7
+        },
+        {
+         "hex": "#412d43",
+         "persen": 24.4
+        },
+        {
+         "hex": "#794b4d",
+         "persen": 11.7
+        }
+       ],
+       "status": "ok"
+      },
+      "status": "ok"
+     },
+     {
+      "berkas": "sinematik/t7_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 15.4,
+       "p50": 25.4,
+       "p95": 52.7,
+       "rentang": 37.4,
+       "status": "ok"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 34.7,
+       "b": 21.7,
+       "dL": 13,
+       "nilai": 13,
+       "status": "ok"
+      },
+      "sumber": [
+       {
+        "x": 512,
+        "y": 598,
+        "r": 76,
+        "puncak": 96.4,
+        "median": 25.4,
+        "selisih": 71,
+        "status": "ok"
+       },
+       {
+        "x": 778,
+        "y": 598,
+        "r": 76,
+        "puncak": 96.3,
+        "median": 25.4,
+        "selisih": 71,
+        "status": "ok"
+       }
+      ],
+      "warna": {
+       "jumlah": 3,
+       "dominan": [
+        {
+         "hex": "#1d1224",
+         "persen": 60.6
+        },
+        {
+         "hex": "#432e43",
+         "persen": 23.2
+        },
+        {
+         "hex": "#794b4d",
+         "persen": 12.6
+        }
+       ],
+       "status": "ok"
+      },
+      "status": "ok"
+     },
+     {
+      "berkas": "sinematik/t11_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 15.4,
+       "p50": 25.5,
+       "p95": 53.8,
+       "rentang": 38.4,
+       "status": "ok"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 35.5,
+       "b": 21.7,
+       "dL": 13.8,
+       "nilai": 13.8,
+       "status": "ok"
+      },
+      "sumber": [
+       {
+        "x": 512,
+        "y": 598,
+        "r": 76,
+        "puncak": 96.6,
+        "median": 25.5,
+        "selisih": 71.2,
+        "status": "ok"
+       },
+       {
+        "x": 778,
+        "y": 598,
+        "r": 76,
+        "puncak": 96.5,
+        "median": 25.5,
+        "selisih": 71,
+        "status": "ok"
+       }
+      ],
+      "warna": {
+       "jumlah": 3,
+       "dominan": [
+        {
+         "hex": "#1d1224",
+         "persen": 59.9
+        },
+        {
+         "hex": "#442f43",
+         "persen": 22.9
+        },
+        {
+         "hex": "#7a4c4d",
+         "persen": 13.2
+        }
+       ],
+       "status": "ok"
+      },
+      "status": "ok"
+     }
+    ],
+    "ringkas": {
+     "bingkai": 3,
+     "ok": 3,
+     "peringatan": 0
+    }
+   }
+  },
+  {
+   "id": "f7-tanpa-kotak",
+   "keterangan": "target rupa tanpa --subjek (mode tengah vs tepi): lolos",
+   "perintah": "node scripts/nilai-visual.mjs acuan --sumber '[{\"x\":512,\"y\":598},{\"x\":778,\"y\":598}]' --json",
+   "kodeKeluar": 0,
+   "laporan": {
+    "alat": "nilai-visual",
+    "opsi": {
+     "sumber": [
+      {
+       "x": 512,
+       "y": 598
+      },
+      {
+       "x": 778,
+       "y": 598
+      }
+     ],
+     "subjek": null
+    },
+    "bingkai": [
+     {
+      "berkas": "acuan/f_0.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 12.8,
+       "p50": 25.9,
+       "p95": 53.6,
+       "rentang": 40.9,
+       "status": "ok"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 36,
+       "b": 20,
+       "dL": 16.1,
+       "nilai": 16.1,
+       "status": "ok"
+      },
+      "sumber": [
+       {
+        "x": 512,
+        "y": 598,
+        "r": 76,
+        "puncak": 95.4,
+        "median": 25.9,
+        "selisih": 69.5,
+        "status": "ok"
+       },
+       {
+        "x": 778,
+        "y": 598,
+        "r": 76,
+        "puncak": 95.2,
+        "median": 25.9,
+        "selisih": 69.3,
+        "status": "ok"
+       }
+      ],
+      "warna": {
+       "jumlah": 3,
+       "dominan": [
+        {
+         "hex": "#190f16",
+         "persen": 49.7
+        },
+        {
+         "hex": "#3e2b42",
+         "persen": 30.9
+        },
+        {
+         "hex": "#6f464c",
+         "persen": 14
+        }
+       ],
+       "status": "ok"
+      },
+      "status": "ok"
+     },
+     {
+      "berkas": "acuan/f_7.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 12.9,
+       "p50": 26.2,
+       "p95": 53.8,
+       "rentang": 41,
+       "status": "ok"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 36.5,
+       "b": 20.3,
+       "dL": 16.2,
+       "nilai": 16.2,
+       "status": "ok"
+      },
+      "sumber": [
+       {
+        "x": 512,
+        "y": 598,
+        "r": 76,
+        "puncak": 97.2,
+        "median": 26.2,
+        "selisih": 71,
+        "status": "ok"
+       },
+       {
+        "x": 778,
+        "y": 598,
+        "r": 76,
+        "puncak": 97.2,
+        "median": 26.2,
+        "selisih": 71,
+        "status": "ok"
+       }
+      ],
+      "warna": {
+       "jumlah": 4,
+       "dominan": [
+        {
+         "hex": "#170e16",
+         "persen": 44.1
+        },
+        {
+         "hex": "#382535",
+         "persen": 29.1
+        },
+        {
+         "hex": "#5c3e54",
+         "persen": 15.6
+        },
+        {
+         "hex": "#804e3f",
+         "persen": 6.2
+        }
+       ],
+       "status": "ok"
+      },
+      "status": "ok"
+     },
+     {
+      "berkas": "acuan/f_13.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 13.1,
+       "p50": 26.3,
+       "p95": 54.4,
+       "rentang": 41.4,
+       "status": "ok"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 36.7,
+       "b": 21,
+       "dL": 15.7,
+       "nilai": 15.7,
+       "status": "ok"
+      },
+      "sumber": [
+       {
+        "x": 512,
+        "y": 598,
+        "r": 76,
+        "puncak": 92,
+        "median": 26.3,
+        "selisih": 65.7,
+        "status": "ok"
+       },
+       {
+        "x": 778,
+        "y": 598,
+        "r": 76,
+        "puncak": 95.2,
+        "median": 26.3,
+        "selisih": 68.9,
+        "status": "ok"
+       }
+      ],
+      "warna": {
+       "jumlah": 3,
+       "dominan": [
+        {
+         "hex": "#1a0f17",
+         "persen": 48.5
+        },
+        {
+         "hex": "#3e2b40",
+         "persen": 31.4
+        },
+        {
+         "hex": "#6d444b",
+         "persen": 12.5
+        }
+       ],
+       "status": "ok"
+      },
+      "status": "ok"
+     }
+    ],
+    "ringkas": {
+     "bingkai": 3,
+     "ok": 3,
+     "peringatan": 0
+    }
+   }
+  },
+  {
+   "id": "f7",
+   "keterangan": "target rupa (evals/bukti/2026-11-01-spike-gapura: f_7, plus f_0 dan f_13 dari spike awal): lolos",
+   "perintah": "node scripts/nilai-visual.mjs acuan --sumber '[{\"x\":512,\"y\":598},{\"x\":778,\"y\":598}]' --subjek 1230,205,540,845 --json",
+   "kodeKeluar": 0,
+   "laporan": {
+    "alat": "nilai-visual",
+    "opsi": {
+     "sumber": [
+      {
+       "x": 512,
+       "y": 598
+      },
+      {
+       "x": 778,
+       "y": 598
+      }
+     ],
+     "subjek": [
+      1230,
+      205,
+      540,
+      845
+     ]
+    },
+    "bingkai": [
+     {
+      "berkas": "acuan/f_0.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 12.8,
+       "p50": 25.9,
+       "p95": 53.6,
+       "rentang": 40.9,
+       "status": "ok"
+      },
+      "kontras": {
+       "mode": "subjek",
+       "a": 27.5,
+       "b": 26.3,
+       "dL": 1.2,
+       "sorot": 25.7,
+       "nilai": 25.7,
+       "status": "ok"
+      },
+      "sumber": [
+       {
+        "x": 512,
+        "y": 598,
+        "r": 76,
+        "puncak": 95.4,
+        "median": 25.9,
+        "selisih": 69.5,
+        "status": "ok"
+       },
+       {
+        "x": 778,
+        "y": 598,
+        "r": 76,
+        "puncak": 95.2,
+        "median": 25.9,
+        "selisih": 69.3,
+        "status": "ok"
+       }
+      ],
+      "warna": {
+       "jumlah": 3,
+       "dominan": [
+        {
+         "hex": "#190f16",
+         "persen": 49.7
+        },
+        {
+         "hex": "#3e2b42",
+         "persen": 30.9
+        },
+        {
+         "hex": "#6f464c",
+         "persen": 14
+        }
+       ],
+       "status": "ok"
+      },
+      "status": "ok"
+     },
+     {
+      "berkas": "acuan/f_7.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 12.9,
+       "p50": 26.2,
+       "p95": 53.8,
+       "rentang": 41,
+       "status": "ok"
+      },
+      "kontras": {
+       "mode": "subjek",
+       "a": 28.2,
+       "b": 26.3,
+       "dL": 1.8,
+       "sorot": 31.7,
+       "nilai": 31.7,
+       "status": "ok"
+      },
+      "sumber": [
+       {
+        "x": 512,
+        "y": 598,
+        "r": 76,
+        "puncak": 97.2,
+        "median": 26.2,
+        "selisih": 71,
+        "status": "ok"
+       },
+       {
+        "x": 778,
+        "y": 598,
+        "r": 76,
+        "puncak": 97.2,
+        "median": 26.2,
+        "selisih": 71,
+        "status": "ok"
+       }
+      ],
+      "warna": {
+       "jumlah": 4,
+       "dominan": [
+        {
+         "hex": "#170e16",
+         "persen": 44.1
+        },
+        {
+         "hex": "#382535",
+         "persen": 29.1
+        },
+        {
+         "hex": "#5c3e54",
+         "persen": 15.6
+        },
+        {
+         "hex": "#804e3f",
+         "persen": 6.2
+        }
+       ],
+       "status": "ok"
+      },
+      "status": "ok"
+     },
+     {
+      "berkas": "acuan/f_13.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 13.1,
+       "p50": 26.3,
+       "p95": 54.4,
+       "rentang": 41.4,
+       "status": "ok"
+      },
+      "kontras": {
+       "mode": "subjek",
+       "a": 28.7,
+       "b": 26.9,
+       "dL": 1.8,
+       "sorot": 30.2,
+       "nilai": 30.2,
+       "status": "ok"
+      },
+      "sumber": [
+       {
+        "x": 512,
+        "y": 598,
+        "r": 76,
+        "puncak": 92,
+        "median": 26.3,
+        "selisih": 65.7,
+        "status": "ok"
+       },
+       {
+        "x": 778,
+        "y": 598,
+        "r": 76,
+        "puncak": 95.2,
+        "median": 26.3,
+        "selisih": 68.9,
+        "status": "ok"
+       }
+      ],
+      "warna": {
+       "jumlah": 3,
+       "dominan": [
+        {
+         "hex": "#1a0f17",
+         "persen": 48.5
+        },
+        {
+         "hex": "#3e2b40",
+         "persen": 31.4
+        },
+        {
+         "hex": "#6d444b",
+         "persen": 12.5
+        }
+       ],
+       "status": "ok"
+      },
+      "status": "ok"
+     }
+    ],
+    "ringkas": {
+     "bingkai": 3,
+     "ok": 3,
+     "peringatan": 0
+    }
+   }
+  },
+  {
+   "id": "datar",
+   "keterangan": "acuan datar (starter-explainer.html t 3, 11, 18 dan starter-explainer-kartun.html t 1.5, 8, 16, jalur bawaan): semua ditandai",
+   "perintah": "node scripts/nilai-visual.mjs aksi kartun --json",
+   "kodeKeluar": 1,
+   "laporan": {
+    "alat": "nilai-visual",
+    "opsi": {
+     "sumber": [],
+     "subjek": null
+    },
+    "bingkai": [
+     {
+      "berkas": "aksi/t3_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 71.9,
+       "p50": 88.7,
+       "p95": 90.8,
+       "rentang": 18.8,
+       "status": "peringatan"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 87,
+       "b": 87,
+       "dL": 0,
+       "nilai": 0,
+       "status": "peringatan"
+      },
+      "sumber": [],
+      "warna": {
+       "jumlah": 2,
+       "dominan": [
+        {
+         "hex": "#cededd",
+         "persen": 89.5
+        },
+        {
+         "hex": "#98be7d",
+         "persen": 8.7
+        }
+       ],
+       "status": "ok"
+      },
+      "status": "peringatan"
+     },
+     {
+      "berkas": "aksi/t11_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 88.7,
+       "p50": 92.8,
+       "p95": 92.9,
+       "rentang": 4.2,
+       "status": "peringatan"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 92.2,
+       "b": 91.5,
+       "dL": 0.7,
+       "nilai": 0.7,
+       "status": "peringatan"
+      },
+      "sumber": [],
+      "warna": {
+       "jumlah": 1,
+       "dominan": [
+        {
+         "hex": "#ebe6d4",
+         "persen": 99
+        }
+       ],
+       "status": "peringatan"
+      },
+      "status": "peringatan"
+     },
+     {
+      "berkas": "aksi/t18_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 83.5,
+       "p50": 93.9,
+       "p95": 94.1,
+       "rentang": 10.6,
+       "status": "peringatan"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 86.4,
+       "b": 93.1,
+       "dL": 6.7,
+       "nilai": 6.7,
+       "status": "peringatan"
+      },
+      "sumber": [],
+      "warna": {
+       "jumlah": 2,
+       "dominan": [
+        {
+         "hex": "#f0e9d8",
+         "persen": 63.6
+        },
+        {
+         "hex": "#bcd58b",
+         "persen": 36.4
+        }
+       ],
+       "status": "ok"
+      },
+      "status": "peringatan"
+     },
+     {
+      "berkas": "kartun/t1_50.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 77.2,
+       "p50": 82.5,
+       "p95": 89.7,
+       "rentang": 12.5,
+       "status": "peringatan"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 82.6,
+       "b": 81,
+       "dL": 1.6,
+       "nilai": 1.6,
+       "status": "peringatan"
+      },
+      "sumber": [],
+      "warna": {
+       "jumlah": 1,
+       "dominan": [
+        {
+         "hex": "#d3c6ab",
+         "persen": 99
+        }
+       ],
+       "status": "peringatan"
+      },
+      "status": "peringatan"
+     },
+     {
+      "berkas": "kartun/t8_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 74.6,
+       "p50": 82.9,
+       "p95": 89.9,
+       "rentang": 15.4,
+       "status": "peringatan"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 83,
+       "b": 83.8,
+       "dL": 0.8,
+       "nilai": 0.8,
+       "status": "peringatan"
+      },
+      "sumber": [],
+      "warna": {
+       "jumlah": 1,
+       "dominan": [
+        {
+         "hex": "#d7cab1",
+         "persen": 94.7
+        }
+       ],
+       "status": "peringatan"
+      },
+      "status": "peringatan"
+     },
+     {
+      "berkas": "kartun/t16_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 80.5,
+       "p50": 85.8,
+       "p95": 91.3,
+       "rentang": 10.8,
+       "status": "peringatan"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 85.2,
+       "b": 83.5,
+       "dL": 1.6,
+       "nilai": 1.6,
+       "status": "peringatan"
+      },
+      "sumber": [],
+      "warna": {
+       "jumlah": 1,
+       "dominan": [
+        {
+         "hex": "#dcd0b9",
+         "persen": 97
+        }
+       ],
+       "status": "peringatan"
+      },
+      "status": "peringatan"
+     }
+    ],
+    "ringkas": {
+     "bingkai": 6,
+     "ok": 0,
+     "peringatan": 6
+    }
+   }
+  },
+  {
+   "id": "datar-sumber-palsu",
+   "keterangan": "kontrol negatif: acuan datar dengan koordinat obor yang sama dideklarasikan (tak ada cahaya di sana)",
+   "perintah": "node scripts/nilai-visual.mjs aksi kartun --sumber '[{\"x\":512,\"y\":598},{\"x\":778,\"y\":598}]' --json",
+   "kodeKeluar": 1,
+   "laporan": {
+    "alat": "nilai-visual",
+    "opsi": {
+     "sumber": [
+      {
+       "x": 512,
+       "y": 598
+      },
+      {
+       "x": 778,
+       "y": 598
+      }
+     ],
+     "subjek": null
+    },
+    "bingkai": [
+     {
+      "berkas": "aksi/t3_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 71.9,
+       "p50": 88.7,
+       "p95": 90.8,
+       "rentang": 18.8,
+       "status": "peringatan"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 87,
+       "b": 87,
+       "dL": 0,
+       "nilai": 0,
+       "status": "peringatan"
+      },
+      "sumber": [
+       {
+        "x": 512,
+        "y": 598,
+        "r": 76,
+        "puncak": 100,
+        "median": 88.7,
+        "selisih": 11.3,
+        "status": "peringatan"
+       },
+       {
+        "x": 778,
+        "y": 598,
+        "r": 76,
+        "puncak": 100,
+        "median": 88.7,
+        "selisih": 11.3,
+        "status": "peringatan"
+       }
+      ],
+      "warna": {
+       "jumlah": 2,
+       "dominan": [
+        {
+         "hex": "#cededd",
+         "persen": 89.5
+        },
+        {
+         "hex": "#98be7d",
+         "persen": 8.7
+        }
+       ],
+       "status": "ok"
+      },
+      "status": "peringatan"
+     },
+     {
+      "berkas": "aksi/t11_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 88.7,
+       "p50": 92.8,
+       "p95": 92.9,
+       "rentang": 4.2,
+       "status": "peringatan"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 92.2,
+       "b": 91.5,
+       "dL": 0.7,
+       "nilai": 0.7,
+       "status": "peringatan"
+      },
+      "sumber": [
+       {
+        "x": 512,
+        "y": 598,
+        "r": 76,
+        "puncak": 93,
+        "median": 92.8,
+        "selisih": 0.2,
+        "status": "peringatan"
+       },
+       {
+        "x": 778,
+        "y": 598,
+        "r": 76,
+        "puncak": 93,
+        "median": 92.8,
+        "selisih": 0.2,
+        "status": "peringatan"
+       }
+      ],
+      "warna": {
+       "jumlah": 1,
+       "dominan": [
+        {
+         "hex": "#ebe6d4",
+         "persen": 99
+        }
+       ],
+       "status": "peringatan"
+      },
+      "status": "peringatan"
+     },
+     {
+      "berkas": "aksi/t18_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 83.5,
+       "p50": 93.9,
+       "p95": 94.1,
+       "rentang": 10.6,
+       "status": "peringatan"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 86.4,
+       "b": 93.1,
+       "dL": 6.7,
+       "nilai": 6.7,
+       "status": "peringatan"
+      },
+      "sumber": [
+       {
+        "x": 512,
+        "y": 598,
+        "r": 76,
+        "puncak": 94.2,
+        "median": 93.9,
+        "selisih": 0.3,
+        "status": "peringatan"
+       },
+       {
+        "x": 778,
+        "y": 598,
+        "r": 76,
+        "puncak": 84.2,
+        "median": 93.9,
+        "selisih": -9.7,
+        "status": "peringatan"
+       }
+      ],
+      "warna": {
+       "jumlah": 2,
+       "dominan": [
+        {
+         "hex": "#f0e9d8",
+         "persen": 63.6
+        },
+        {
+         "hex": "#bcd58b",
+         "persen": 36.4
+        }
+       ],
+       "status": "ok"
+      },
+      "status": "peringatan"
+     },
+     {
+      "berkas": "kartun/t1_50.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 77.2,
+       "p50": 82.5,
+       "p95": 89.7,
+       "rentang": 12.5,
+       "status": "peringatan"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 82.6,
+       "b": 81,
+       "dL": 1.6,
+       "nilai": 1.6,
+       "status": "peringatan"
+      },
+      "sumber": [
+       {
+        "x": 512,
+        "y": 598,
+        "r": 76,
+        "puncak": 83.2,
+        "median": 82.5,
+        "selisih": 0.7,
+        "status": "peringatan"
+       },
+       {
+        "x": 778,
+        "y": 598,
+        "r": 76,
+        "puncak": 83.2,
+        "median": 82.5,
+        "selisih": 0.7,
+        "status": "peringatan"
+       }
+      ],
+      "warna": {
+       "jumlah": 1,
+       "dominan": [
+        {
+         "hex": "#d3c6ab",
+         "persen": 99
+        }
+       ],
+       "status": "peringatan"
+      },
+      "status": "peringatan"
+     },
+     {
+      "berkas": "kartun/t8_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 74.6,
+       "p50": 82.9,
+       "p95": 89.9,
+       "rentang": 15.4,
+       "status": "peringatan"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 83,
+       "b": 83.8,
+       "dL": 0.8,
+       "nilai": 0.8,
+       "status": "peringatan"
+      },
+      "sumber": [
+       {
+        "x": 512,
+        "y": 598,
+        "r": 76,
+        "puncak": 83.1,
+        "median": 82.9,
+        "selisih": 0.3,
+        "status": "peringatan"
+       },
+       {
+        "x": 778,
+        "y": 598,
+        "r": 76,
+        "puncak": 90.4,
+        "median": 82.9,
+        "selisih": 7.5,
+        "status": "peringatan"
+       }
+      ],
+      "warna": {
+       "jumlah": 1,
+       "dominan": [
+        {
+         "hex": "#d7cab1",
+         "persen": 94.7
+        }
+       ],
+       "status": "peringatan"
+      },
+      "status": "peringatan"
+     },
+     {
+      "berkas": "kartun/t16_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 80.5,
+       "p50": 85.8,
+       "p95": 91.3,
+       "rentang": 10.8,
+       "status": "peringatan"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 85.2,
+       "b": 83.5,
+       "dL": 1.6,
+       "nilai": 1.6,
+       "status": "peringatan"
+      },
+      "sumber": [
+       {
+        "x": 512,
+        "y": 598,
+        "r": 76,
+        "puncak": 90.7,
+        "median": 85.8,
+        "selisih": 4.9,
+        "status": "peringatan"
+       },
+       {
+        "x": 778,
+        "y": 598,
+        "r": 76,
+        "puncak": 83.1,
+        "median": 85.8,
+        "selisih": -2.6,
+        "status": "peringatan"
+       }
+      ],
+      "warna": {
+       "jumlah": 1,
+       "dominan": [
+        {
+         "hex": "#dcd0b9",
+         "persen": 97
+        }
+       ],
+       "status": "peringatan"
+      },
+      "status": "peringatan"
+     }
+    ],
+    "ringkas": {
+     "bingkai": 6,
+     "ok": 0,
+     "peringatan": 6
+    }
+   }
+  },
+  {
+   "id": "kotak-kontrol-kartun-t16",
+   "keterangan": "kontrol negatif subjek: cutout kartun pada kertas (kotak 636,225,708,624)",
+   "perintah": "node scripts/nilai-visual.mjs kartun/t16_00.png --subjek 636,225,708,624 --json",
+   "kodeKeluar": 1,
+   "laporan": {
+    "alat": "nilai-visual",
+    "opsi": {
+     "sumber": [],
+     "subjek": [
+      636,
+      225,
+      708,
+      624
+     ]
+    },
+    "bingkai": [
+     {
+      "berkas": "kartun/t16_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 80.5,
+       "p50": 85.8,
+       "p95": 91.3,
+       "rentang": 10.8,
+       "status": "peringatan"
+      },
+      "kontras": {
+       "mode": "subjek",
+       "a": 82.3,
+       "b": 85.9,
+       "dL": 3.6,
+       "sorot": -5.8,
+       "nilai": 3.6,
+       "status": "peringatan"
+      },
+      "sumber": [],
+      "warna": {
+       "jumlah": 1,
+       "dominan": [
+        {
+         "hex": "#dcd0b9",
+         "persen": 97
+        }
+       ],
+       "status": "peringatan"
+      },
+      "status": "peringatan"
+     }
+    ],
+    "ringkas": {
+     "bingkai": 1,
+     "ok": 0,
+     "peringatan": 1
+    }
+   }
+  },
+  {
+   "id": "kotak-kontrol-kartun-t8",
+   "keterangan": "kontrol negatif subjek: cutout + lingkaran merah (kotak 150,200,650,700)",
+   "perintah": "node scripts/nilai-visual.mjs kartun/t8_00.png --subjek 150,200,650,700 --json",
+   "kodeKeluar": 1,
+   "laporan": {
+    "alat": "nilai-visual",
+    "opsi": {
+     "sumber": [],
+     "subjek": [
+      150,
+      200,
+      650,
+      700
+     ]
+    },
+    "bingkai": [
+     {
+      "berkas": "kartun/t8_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 74.6,
+       "p50": 82.9,
+       "p95": 89.9,
+       "rentang": 15.4,
+       "status": "peringatan"
+      },
+      "kontras": {
+       "mode": "subjek",
+       "a": 81.7,
+       "b": 82.8,
+       "dL": 1.1,
+       "sorot": 4.4,
+       "nilai": 4.4,
+       "status": "peringatan"
+      },
+      "sumber": [],
+      "warna": {
+       "jumlah": 1,
+       "dominan": [
+        {
+         "hex": "#d7cab1",
+         "persen": 94.7
+        }
+       ],
+       "status": "peringatan"
+      },
+      "status": "peringatan"
+     }
+    ],
+    "ringkas": {
+     "bingkai": 1,
+     "ok": 0,
+     "peringatan": 1
+    }
+   }
+  },
+  {
+   "id": "kotak-kontrol-kartun-t1_50",
+   "keterangan": "kontrol negatif subjek: cutout besar setinggi bingkai (kotak 399,0,1119,1080)",
+   "perintah": "node scripts/nilai-visual.mjs kartun/t1_50.png --subjek 399,0,1119,1080 --json",
+   "kodeKeluar": 1,
+   "laporan": {
+    "alat": "nilai-visual",
+    "opsi": {
+     "sumber": [],
+     "subjek": [
+      399,
+      0,
+      1119,
+      1080
+     ]
+    },
+    "bingkai": [
+     {
+      "berkas": "kartun/t1_50.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 77.2,
+       "p50": 82.5,
+       "p95": 89.7,
+       "rentang": 12.5,
+       "status": "peringatan"
+      },
+      "kontras": {
+       "mode": "subjek",
+       "a": 80.8,
+       "b": 85.2,
+       "dL": 4.4,
+       "sorot": -2.8,
+       "nilai": 4.4,
+       "status": "peringatan"
+      },
+      "sumber": [],
+      "warna": {
+       "jumlah": 1,
+       "dominan": [
+        {
+         "hex": "#d3c6ab",
+         "persen": 99
+        }
+       ],
+       "status": "peringatan"
+      },
+      "status": "peringatan"
+     }
+    ],
+    "ringkas": {
+     "bingkai": 1,
+     "ok": 0,
+     "peringatan": 1
+    }
+   }
+  },
+  {
+   "id": "kotak-kontrol-aksi-t3-kereta",
+   "keterangan": "kontrol positif subjek pada bingkai datar: kereta putih bergaris pada latar pastel (kotak 500,610,1030,150)",
+   "perintah": "node scripts/nilai-visual.mjs aksi/t3_00.png --subjek 500,610,1030,150 --json",
+   "kodeKeluar": 1,
+   "laporan": {
+    "alat": "nilai-visual",
+    "opsi": {
+     "sumber": [],
+     "subjek": [
+      500,
+      610,
+      1030,
+      150
+     ]
+    },
+    "bingkai": [
+     {
+      "berkas": "aksi/t3_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 71.9,
+       "p50": 88.7,
+       "p95": 90.8,
+       "rentang": 18.8,
+       "status": "peringatan"
+      },
+      "kontras": {
+       "mode": "subjek",
+       "a": 85.8,
+       "b": 80.6,
+       "dL": 5.2,
+       "sorot": 19.5,
+       "nilai": 19.5,
+       "status": "ok"
+      },
+      "sumber": [],
+      "warna": {
+       "jumlah": 2,
+       "dominan": [
+        {
+         "hex": "#cededd",
+         "persen": 89.5
+        },
+        {
+         "hex": "#98be7d",
+         "persen": 8.7
+        }
+       ],
+       "status": "ok"
+      },
+      "status": "peringatan"
+     }
+    ],
+    "ringkas": {
+     "bingkai": 1,
+     "ok": 0,
+     "peringatan": 1
+    }
+   }
+  },
+  {
+   "id": "luar-mataram-s04",
+   "keterangan": "VALIDASI LUAR, tidak dipakai menetapkan ambang: 13 bingkai nyata produksi pemilik (Babad Mataram ke Timur, gaya \"ilustrasi adegan\", bab s04, detik 3 sampai 235; folder produksi, tidak disalin ke repo)",
+   "perintah": "node scripts/nilai-visual.mjs s04 --json",
+   "kodeKeluar": 1,
+   "laporan": {
+    "alat": "nilai-visual",
+    "opsi": {
+     "sumber": [],
+     "subjek": null
+    },
+    "bingkai": [
+     {
+      "berkas": "s04/t3_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 29.3,
+       "p50": 29.3,
+       "p95": 55,
+       "rentang": 25.7,
+       "status": "peringatan"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 46.6,
+       "b": 29.3,
+       "dL": 17.3,
+       "nilai": 17.3,
+       "status": "ok"
+      },
+      "sumber": [],
+      "warna": {
+       "jumlah": 2,
+       "dominan": [
+        {
+         "hex": "#2b2c2e",
+         "persen": 65.7
+        },
+        {
+         "hex": "#6c7074",
+         "persen": 34.2
+        }
+       ],
+       "status": "ok"
+      },
+      "status": "peringatan"
+     },
+     {
+      "berkas": "s04/t12_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 56.8,
+       "p50": 73.8,
+       "p95": 88.6,
+       "rentang": 31.8,
+       "status": "ok"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 73.7,
+       "b": 71.8,
+       "dL": 1.9,
+       "nilai": 1.9,
+       "status": "peringatan"
+      },
+      "sumber": [],
+      "warna": {
+       "jumlah": 3,
+       "dominan": [
+        {
+         "hex": "#e2c79f",
+         "persen": 46.9
+        },
+        {
+         "hex": "#798b5b",
+         "persen": 36.4
+        },
+        {
+         "hex": "#9fa8a1",
+         "persen": 12.9
+        }
+       ],
+       "status": "ok"
+      },
+      "status": "peringatan"
+     },
+     {
+      "berkas": "s04/t32_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 55.3,
+       "p50": 71.1,
+       "p95": 89.2,
+       "rentang": 33.9,
+       "status": "ok"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 73.4,
+       "b": 69.7,
+       "dL": 3.6,
+       "nilai": 3.6,
+       "status": "peringatan"
+      },
+      "sumber": [],
+      "warna": {
+       "jumlah": 2,
+       "dominan": [
+        {
+         "hex": "#899577",
+         "persen": 56.1
+        },
+        {
+         "hex": "#e2caa3",
+         "persen": 38.3
+        }
+       ],
+       "status": "ok"
+      },
+      "status": "peringatan"
+     },
+     {
+      "berkas": "s04/t50_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 76.8,
+       "p50": 83.9,
+       "p95": 83.9,
+       "rentang": 7.1,
+       "status": "peringatan"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 83.3,
+       "b": 81.6,
+       "dL": 1.7,
+       "nilai": 1.7,
+       "status": "peringatan"
+      },
+      "sumber": [],
+      "warna": {
+       "jumlah": 1,
+       "dominan": [
+        {
+         "hex": "#d5c9a4",
+         "persen": 97
+        }
+       ],
+       "status": "peringatan"
+      },
+      "status": "peringatan"
+     },
+     {
+      "berkas": "s04/t72_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 39.5,
+       "p50": 47.6,
+       "p95": 93.5,
+       "rentang": 54,
+       "status": "ok"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 57.5,
+       "b": 62.5,
+       "dL": 5,
+       "nilai": 5,
+       "status": "peringatan"
+      },
+      "sumber": [],
+      "warna": {
+       "jumlah": 3,
+       "dominan": [
+        {
+         "hex": "#465539",
+         "persen": 60.9
+        },
+        {
+         "hex": "#d0dfdd",
+         "persen": 27.9
+        },
+        {
+         "hex": "#9c8967",
+         "persen": 10.7
+        }
+       ],
+       "status": "ok"
+      },
+      "status": "peringatan"
+     },
+     {
+      "berkas": "s04/t95_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 55,
+       "p50": 64.9,
+       "p95": 91.2,
+       "rentang": 36.2,
+       "status": "ok"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 72,
+       "b": 70.7,
+       "dL": 1.3,
+       "nilai": 1.3,
+       "status": "peringatan"
+      },
+      "sumber": [],
+      "warna": {
+       "jumlah": 3,
+       "dominan": [
+        {
+         "hex": "#758760",
+         "persen": 44.9
+        },
+        {
+         "hex": "#d3e0dc",
+         "persen": 35.7
+        },
+        {
+         "hex": "#81a5ad",
+         "persen": 13
+        }
+       ],
+       "status": "ok"
+      },
+      "status": "peringatan"
+     },
+     {
+      "berkas": "s04/t125_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 55,
+       "p50": 70,
+       "p95": 91.4,
+       "rentang": 36.4,
+       "status": "ok"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 71.7,
+       "b": 77.4,
+       "dL": 5.7,
+       "nilai": 5.7,
+       "status": "peringatan"
+      },
+      "sumber": [],
+      "warna": {
+       "jumlah": 3,
+       "dominan": [
+        {
+         "hex": "#d1dfdb",
+         "persen": 47.6
+        },
+        {
+         "hex": "#7d927c",
+         "persen": 44.2
+        },
+        {
+         "hex": "#6a6d70",
+         "persen": 7.1
+        }
+       ],
+       "status": "ok"
+      },
+      "status": "peringatan"
+     },
+     {
+      "berkas": "s04/t140_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 55,
+       "p50": 80.3,
+       "p95": 95.6,
+       "rentang": 40.6,
+       "status": "ok"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 74.1,
+       "b": 76.1,
+       "dL": 2,
+       "nilai": 2,
+       "status": "peringatan"
+      },
+      "sumber": [],
+      "warna": {
+       "jumlah": 3,
+       "dominan": [
+        {
+         "hex": "#d0dfdc",
+         "persen": 50.5
+        },
+        {
+         "hex": "#7c9071",
+         "persen": 41.9
+        },
+        {
+         "hex": "#6d6c6b",
+         "persen": 5.7
+        }
+       ],
+       "status": "ok"
+      },
+      "status": "peringatan"
+     },
+     {
+      "berkas": "s04/t160_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 49.1,
+       "p50": 81.2,
+       "p95": 89.2,
+       "rentang": 40.1,
+       "status": "ok"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 73.3,
+       "b": 75.5,
+       "dL": 2.2,
+       "nilai": 2.2,
+       "status": "peringatan"
+      },
+      "sumber": [],
+      "warna": {
+       "jumlah": 3,
+       "dominan": [
+        {
+         "hex": "#d9c39f",
+         "persen": 70
+        },
+        {
+         "hex": "#6a6c6e",
+         "persen": 18.5
+        },
+        {
+         "hex": "#9ba3a0",
+         "persen": 5.7
+        }
+       ],
+       "status": "ok"
+      },
+      "status": "peringatan"
+     },
+     {
+      "berkas": "s04/t185_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 23.3,
+       "p50": 28.3,
+       "p95": 30.5,
+       "rentang": 7.2,
+       "status": "peringatan"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 28.5,
+       "b": 28.9,
+       "dL": 0.4,
+       "nilai": 0.4,
+       "status": "peringatan"
+      },
+      "sumber": [],
+      "warna": {
+       "jumlah": 1,
+       "dominan": [
+        {
+         "hex": "#312526",
+         "persen": 93.6
+        }
+       ],
+       "status": "peringatan"
+      },
+      "status": "peringatan"
+     },
+     {
+      "berkas": "s04/t196_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 22.9,
+       "p50": 28.3,
+       "p95": 30.5,
+       "rentang": 7.5,
+       "status": "peringatan"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 28.5,
+       "b": 28.6,
+       "dL": 0.1,
+       "nilai": 0.1,
+       "status": "peringatan"
+      },
+      "sumber": [],
+      "warna": {
+       "jumlah": 1,
+       "dominan": [
+        {
+         "hex": "#312526",
+         "persen": 93.9
+        }
+       ],
+       "status": "peringatan"
+      },
+      "status": "peringatan"
+     },
+     {
+      "berkas": "s04/t212_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 49.3,
+       "p50": 71.5,
+       "p95": 85.5,
+       "rentang": 36.2,
+       "status": "ok"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 68.2,
+       "b": 68.1,
+       "dL": 0.1,
+       "nilai": 0.1,
+       "status": "peringatan"
+      },
+      "sumber": [],
+      "warna": {
+       "jumlah": 2,
+       "dominan": [
+        {
+         "hex": "#b9c4bf",
+         "persen": 50.9
+        },
+        {
+         "hex": "#5e7755",
+         "persen": 44.2
+        }
+       ],
+       "status": "ok"
+      },
+      "status": "peringatan"
+     },
+     {
+      "berkas": "s04/t235_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 49.3,
+       "p50": 64.4,
+       "p95": 86,
+       "rentang": 36.7,
+       "status": "ok"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 67.1,
+       "b": 68.4,
+       "dL": 1.3,
+       "nilai": 1.3,
+       "status": "peringatan"
+      },
+      "sumber": [],
+      "warna": {
+       "jumlah": 2,
+       "dominan": [
+        {
+         "hex": "#5e7756",
+         "persen": 49.4
+        },
+        {
+         "hex": "#bcc6c0",
+         "persen": 46.6
+        }
+       ],
+       "status": "ok"
+      },
+      "status": "peringatan"
+     }
+    ],
+    "ringkas": {
+     "bingkai": 13,
+     "ok": 0,
+     "peringatan": 13
+    }
+   }
+  },
+  {
+   "id": "tambahan-datar-lain",
+   "keterangan": "BUKAN acuan kalibrasi: starter lain jalur bawaan (panggung t 2, 6, 10; 3D t 1, 4, 7), untuk catatan batas alat",
+   "perintah": "node scripts/nilai-visual.mjs panggung tiga-d --json",
+   "kodeKeluar": 1,
+   "laporan": {
+    "alat": "nilai-visual",
+    "opsi": {
+     "sumber": [],
+     "subjek": null
+    },
+    "bingkai": [
+     {
+      "berkas": "panggung/t2_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 44,
+       "p50": 88.8,
+       "p95": 93.7,
+       "rentang": 49.8,
+       "status": "ok"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 81.1,
+       "b": 84.1,
+       "dL": 3,
+       "nilai": 3,
+       "status": "peringatan"
+      },
+      "sumber": [],
+      "warna": {
+       "jumlah": 3,
+       "dominan": [
+        {
+         "hex": "#e2e6d5",
+         "persen": 73
+        },
+        {
+         "hex": "#315c69",
+         "persen": 11.2
+        },
+        {
+         "hex": "#dc7653",
+         "persen": 9.9
+        }
+       ],
+       "status": "ok"
+      },
+      "status": "peringatan"
+     },
+     {
+      "berkas": "panggung/t6_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 44,
+       "p50": 92.5,
+       "p95": 93.6,
+       "rentang": 49.7,
+       "status": "ok"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 81.1,
+       "b": 83.7,
+       "dL": 2.5,
+       "nilai": 2.5,
+       "status": "peringatan"
+      },
+      "sumber": [],
+      "warna": {
+       "jumlah": 3,
+       "dominan": [
+        {
+         "hex": "#e3e5d5",
+         "persen": 71.1
+        },
+        {
+         "hex": "#db7755",
+         "persen": 10.1
+        },
+        {
+         "hex": "#325c69",
+         "persen": 10
+        }
+       ],
+       "status": "ok"
+      },
+      "status": "peringatan"
+     },
+     {
+      "berkas": "panggung/t10_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 28.9,
+       "p50": 87.7,
+       "p95": 92.5,
+       "rentang": 63.6,
+       "status": "ok"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 53.6,
+       "b": 87.1,
+       "dL": 33.6,
+       "nilai": 33.6,
+       "status": "ok"
+      },
+      "sumber": [],
+      "warna": {
+       "jumlah": 4,
+       "dominan": [
+        {
+         "hex": "#e1e0cf",
+         "persen": 55.4
+        },
+        {
+         "hex": "#182f3d",
+         "persen": 27.1
+        },
+        {
+         "hex": "#375a67",
+         "persen": 10.2
+        },
+        {
+         "hex": "#9cb387",
+         "persen": 5.7
+        }
+       ],
+       "status": "ok"
+      },
+      "status": "ok"
+     },
+     {
+      "berkas": "tiga-d/t1_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 17,
+       "p50": 30,
+       "p95": 32.6,
+       "rentang": 15.6,
+       "status": "peringatan"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 33.3,
+       "b": 23.8,
+       "dL": 9.5,
+       "nilai": 9.5,
+       "status": "peringatan"
+      },
+      "sumber": [],
+      "warna": {
+       "jumlah": 2,
+       "dominan": [
+        {
+         "hex": "#2d2f35",
+         "persen": 70.2
+        },
+        {
+         "hex": "#0f1116",
+         "persen": 26.5
+        }
+       ],
+       "status": "ok"
+      },
+      "status": "peringatan"
+     },
+     {
+      "berkas": "tiga-d/t4_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 17,
+       "p50": 30.5,
+       "p95": 67.2,
+       "rentang": 50.2,
+       "status": "ok"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 41.9,
+       "b": 24.1,
+       "dL": 17.8,
+       "nilai": 17.8,
+       "status": "ok"
+      },
+      "sumber": [],
+      "warna": {
+       "jumlah": 3,
+       "dominan": [
+        {
+         "hex": "#2c2e35",
+         "persen": 64.3
+        },
+        {
+         "hex": "#0f1115",
+         "persen": 22.2
+        },
+        {
+         "hex": "#949698",
+         "persen": 11.7
+        }
+       ],
+       "status": "ok"
+      },
+      "status": "ok"
+     },
+     {
+      "berkas": "tiga-d/t7_00.png",
+      "lebar": 1920,
+      "tinggi": 1080,
+      "luminans": {
+       "p5": 17,
+       "p50": 30.5,
+       "p95": 67.2,
+       "rentang": 50.2,
+       "status": "ok"
+      },
+      "kontras": {
+       "mode": "tengah",
+       "a": 41.9,
+       "b": 24.1,
+       "dL": 17.8,
+       "nilai": 17.8,
+       "status": "ok"
+      },
+      "sumber": [],
+      "warna": {
+       "jumlah": 3,
+       "dominan": [
+        {
+         "hex": "#2c2e35",
+         "persen": 64.3
+        },
+        {
+         "hex": "#0f1115",
+         "persen": 22.2
+        },
+        {
+         "hex": "#949698",
+         "persen": 11.7
+        }
+       ],
+       "status": "ok"
+      },
+      "status": "ok"
+     }
+    ],
+    "ringkas": {
+     "bingkai": 6,
+     "ok": 3,
+     "peringatan": 3
+    }
+   }
+  }
+ ]
+}

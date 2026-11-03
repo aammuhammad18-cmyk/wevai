@@ -193,6 +193,7 @@ MP4 terdekode ffmpeg tanpa galat, 90 frame dan durasi 6,000000 dtk persis, nomor
 video dan audio sama. Pemeriksa: `evals/bukti/2026-11-03-ekspor/periksa-kanvas.mjs`.
 
 Belum diukur: kecepatan di 1080p dan efek `WORKERS=2` (encoder OpenH264 memakan CPU juga; coba `WORKERS=1` dan `2` pada satu babak pendek).
+Belum dipicu sungguhan: jalur macet dan ulang-blok (memakai pemulihan yang sama dengan jalur biasa), serta halaman WebGL/three.js sungguhan (yang diuji kanvas 2D kecil).
 Riset awal: 81 ms/frame di HD 4000 pada satu worker (60 mnt ±2,4 jam). Kualitas dibatasi bitrate; untuk master kritis tetap jalur biasa.
 
 ## Alat untuk mengembangkan SKILL ini (dari akar repo skill)

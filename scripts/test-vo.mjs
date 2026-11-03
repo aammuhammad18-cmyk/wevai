@@ -411,14 +411,28 @@ test('retryDelay menyesatkan ("1s") tapi kena lagi: kena kedua kali berturut-tur
   assert.equal(jumlah(w.tidur), 1000 + 60000);
 });
 
-test('429 "limit: 0" (model tak termasuk paket kunci): TIDAK menunggu reset; galat jelas menyebut sebabnya dan sarannya', async () => {
-  const w = dunia({ kunci: [K(1), K(2)], jawaban: () => galat(429, rpc(HARI_PER, '5h', 'Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-3.8-flash-tts')) });
+test('429 "limit: 0" (model tak termasuk paket kunci): TIDAK menunggu reset; galat jelas menyebut sebabnya dan sarannya; TIDAK disimpan (bergantung pada model)', async () => {
+  const w = dunia({ kunci: [K(1), K(2)], jawaban: p => p.body.model === 'gemini-3.8-flash-lite-tts' ? ok() :
+    galat(429, rpc(HARI_PER, '5h', 'Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-3.8-flash-tts')) });
   assert.equal(await w.jalankan(), 1);
   assert.deepEqual(w.tidur, []);
   assert.deepEqual(w.panggilan.map(p => p.kunci), [K(1), K(2)]);
   const pesan = w.err.join('\n');
   assert.match(pesan, /tidak ada kunci yang bisa dipakai/i); assert.match(pesan, /limit: 0/); assert.match(pesan, /--model/);
-  assert.equal(w.status()[vo.idKunci(K(1))].alasan, 'nol');
+  assert.deepEqual(w.status(), {}, 'limit: 0 hanya berlaku untuk model itu: tak boleh membuat kunci "mati" di jalan berikutnya');
+  assert.equal(await w.jalankan(['--model', 'gemini-3.8-flash-lite-tts']), 0, 'ganti model → kunci yang sama langsung bisa dipakai');
+  assert.equal(w.panggilan.at(-1).kunci, K(1));
+});
+
+test('berkas status yang rusak atau janggal dibersihkan: entri bukan objek diabaikan, istirahat absurd (> 48 jam ke depan) tak menahan kunci selamanya, yang wajar tetap dihormati', async () => {
+  const w = dunia({ kunci: [K(1), K(2), K(3)], jawaban: () => ok() });
+  mkdirSync(join(w.rumah, '.wevai'));
+  writeFileSync(w.statusBerkas, JSON.stringify({
+    [vo.idKunci(K(1))]: { sampai: MULAI_PST + 3600e3, alasan: 'menit' },             // wajar: dihormati
+    [vo.idKunci(K(2))]: { sampai: MULAI_PST + 10 * 24 * 3600e3, alasan: 'harian' },  // jam komputer pernah salah / berkas disunting: diabaikan
+    [vo.idKunci(K(3))]: null, aneh: 'abc', lain: { sampai: 'besok' } }));
+  assert.equal(await w.jalankan(), 0);
+  assert.deepEqual(w.panggilan.map(p => p.kunci), [K(2)], 'K1 istirahat (wajar) → dilewati; K2 (absurd) dipakai');
 });
 
 test('campuran: satu kunci tidak sah + satu kunci habis harian → menunggu reset kunci yang sah (bukan galat fatal)', async () => {

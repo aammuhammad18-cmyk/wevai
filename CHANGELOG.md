@@ -56,7 +56,7 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
   `GEMINI_API_KEY`, atau `~/.wevai/gemini-kunci.txt`), tak pernah tercetak atau tertulis utuh; status istirahat di
   `~/.wevai/gemini-kunci-status.json` berkunci hash sha256. Pindah kunci otomatis: 429 per menit (istirahat sebesar `retryDelay`),
   429 per hari (sampai tengah malam Pasifik, dihitung dengan Intl, benar untuk PST dan PDT; `retryDelay` diabaikan karena Google
-  pernah mengirim "1s" untuk kuota harian), kunci tidak sah (24 jam), 5xx atau jaringan (ulang 1, 2, 4 dtk, lalu kunci berikutnya);
+  pernah mengirim "1s" untuk kuota harian), 429 `limit: 0` (model di luar paket kunci: tidak ditunggu, tidak disimpan), kunci tidak sah (24 jam), 5xx atau jaringan (ulang 1, 2, 4 dtk, lalu kunci berikutnya);
   gagal konten atau `status: incomplete` = gagal segmen, bukan salah kunci. Semua kunci istirahat: ≤ 15 mnt tidur, selebihnya
   menunggu reset harian dan lanjut sendiri (`--jangan-tunggu` = kode keluar 2 + perintah ulang). `--cek-kunci` (GET `/models`, tanpa
   kuota TTS) dan `--daftar-suara` (GET `/voices`, tempat suara beraksen regional dicari).

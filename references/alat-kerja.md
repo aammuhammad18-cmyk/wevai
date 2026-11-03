@@ -132,7 +132,7 @@ layar `AIza…k3Xy`, dan status istirahat di `~/.wevai/gemini-kunci-status.json`
 |---|---|
 | 429 per menit | kunci istirahat selama `retryDelay` (bawaan 60 dtk), langsung pindah. Kena lagi sesudah istirahat → minimal 1 menit |
 | 429 per hari | kunci istirahat sampai tengah malam Pasifik berikutnya (+1 menit; DST dihitung benar), pindah. `retryDelay` diabaikan: untuk kuota harian Google pernah mengirim "1s" |
-| 429 `limit: 0` | model ini tidak termasuk paket kunci itu: dilewati 24 jam, tidak ditunggu. Coba `--model` lain atau kunci berbayar |
+| 429 `limit: 0` | model ini tidak termasuk paket kunci itu: kunci dilewati di jalan ini saja (tidak disimpan, karena bergantung pada model), tidak ditunggu. Coba `--model` lain atau kunci berbayar |
 | 400/401/403 kunci tidak sah (juga "leaked", ditolak penagihan) | dilewati 24 jam, dilaporkan tersamar; kunci lain meneruskan |
 | 5xx atau jaringan putus | ulang pada kunci yang sama setelah 1, 2, 4 dtk, lalu kunci berikutnya. Gagal di semua kunci → segmen itu gagal |
 | 200 tanpa audio, ditolak filter konten, atau `status: incomplete` (bisa terpotong) | **gagal segmen**, bukan salah kunci: dicatat, dikerjakan terus, didaftar di akhir |

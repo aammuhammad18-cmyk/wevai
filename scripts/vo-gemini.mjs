@@ -23,6 +23,8 @@
    Pindah kunci otomatis (kunci pertama dipakai sampai gagal; bukan bergilir):
      429 per menit      → kunci istirahat selama retryDelay (bawaan 60 dtk), langsung pindah
      429 per hari       → istirahat sampai tengah malam waktu Pasifik (reset kuota harian Google), pindah
+     429 "limit: 0"     → model di luar paket kunci itu: dilewati di jalan ini saja (tidak disimpan, tergantung model);
+                          bila semua kunci begitu, berhenti dengan saran --model lain (tidak menunggu)
      400/401/403 kunci  → dilewati 24 jam (tidak-sah), dilaporkan tersamar
      5xx / jaringan     → ulang pada kunci yang sama 1, 2, 4 dtk, lalu kunci berikutnya
    Semua kunci istirahat: ≤ 15 menit → tidur lalu lanjut; lebih lama → tunggu reset harian dan lanjut sendiri (jam
@@ -150,7 +152,10 @@ export function bacaAudio(b, laju = 24000, kanal = 1) {   // WAV (bawaan unary) 
 }
 
 /* ---------- status istirahat kunci di disk: { <12 heks sha256 kunci>: { sampai (ms epoch), alasan } } ---------- */
-export const muatStatus = berkas => { try { return JSON.parse(readFileSync(berkas, 'utf8')) ?? {}; } catch { return {}; } };
+export function muatStatus(berkas, sekarang = Date.now()) {      // tahan berkas rusak atau disunting: entri janggal dibuang; istirahat > 48 jam ke depan (jam komputer pernah salah) diabaikan
+  let s; try { s = JSON.parse(readFileSync(berkas, 'utf8')); } catch { return {}; }
+  return Object.fromEntries(Object.entries(s && typeof s === 'object' ? s : {}).filter(([, v]) => v && typeof v === 'object' && Number.isFinite(v.sampai) && typeof v.alasan === 'string' && v.sampai <= sekarang + 48 * JAM));
+}
 const tulisAtomik = (berkas, isi) => { writeFileSync(berkas + '.tmp', isi); renameSync(berkas + '.tmp', berkas); };
 export function simpanStatus(berkas, status, sekarang) {
   for (const id of Object.keys(status)) if (!(status[id].sampai > sekarang)) delete status[id];     // yang sudah lewat tak berguna
@@ -160,10 +165,10 @@ export function simpanStatus(berkas, status, sekarang) {
 
 /* ---------- kolam kunci: siapa boleh dipakai sekarang, siapa istirahat sampai kapan ---------- */
 function buatKolam({ kunci, status, d, catat, simpan, jangantunggu }) {
-  const catatan = new Map(), beruntun = new Map(), sampai = k => status[idKunci(k)]?.sampai ?? 0, alasan = k => status[idKunci(k)]?.alasan;
-  const aktif = k => sampai(k) > d.now(), mati = k => aktif(k) && (alasan(k) === 'tidak-sah' || alasan(k) === 'nol');   // mati = menunggu pun tak menolong
-  const pesanMati = () => `Tidak ada kunci yang bisa dipakai:\n${kunci.map(k => `  ${samarkan(k)}  ${alasan(k) ?? '-'}${catatan.get(k) ? ` — ${catatan.get(k)}` : ''}`).join('\n')}\n` +
-    (kunci.some(k => alasan(k) === 'nol') ? 'limit: 0 = model ini tidak termasuk paket kunci tersebut: coba --model lain (mis. gemini-3.8-flash-lite-tts) atau pakai kunci berbayar.\n' : '') +
+  const catatan = new Map(), beruntun = new Map(), nol = new Set(), sampai = k => status[idKunci(k)]?.sampai ?? 0, alasan = k => status[idKunci(k)]?.alasan;
+  const aktif = k => sampai(k) > d.now(), mati = k => nol.has(k) || (aktif(k) && alasan(k) === 'tidak-sah');   // mati = menunggu pun tak menolong. 'nol' (limit: 0) bergantung pada model, jadi hanya di memori jalan ini
+  const pesanMati = () => `Tidak ada kunci yang bisa dipakai:\n${kunci.map(k => `  ${samarkan(k)}  ${nol.has(k) ? 'nol' : alasan(k) ?? '-'}${catatan.get(k) ? ` — ${catatan.get(k)}` : ''}`).join('\n')}\n` +
+    (nol.size ? 'limit: 0 = model ini tidak termasuk paket kunci tersebut: coba --model lain (mis. gemini-3.8-flash-lite-tts) atau pakai kunci berbayar.\n' : '') +
     'Periksa kuncinya dengan --cek-kunci, atau tambah kunci lain. Bila sudah diperbaiki, hapus ~/.wevai/gemini-kunci-status.json.';
   let dilaporkan = 0;
   async function tunggu(s) {              // tidur dipotong 30 dtk dan jam dinding dicek ulang: tahan laptop tidur dan jam yang digeser
@@ -176,15 +181,18 @@ function buatKolam({ kunci, status, d, catat, simpan, jangantunggu }) {
     berhasil: k => beruntun.delete(k),
     istirahatkan(k, { jenis, tunda, pesan }) {
       const t = d.now(); let s;
-      if (jenis === 'harian') s = tengahMalamLA(t) + JEDA_RESET;
-      else if (jenis === 'menit') {       // retryDelay kadang terlalu pendek: kena lagi SESUDAH istirahat (bukan 429 serentak dari --paralel) → minimal semenit
-        const n = aktif(k) ? beruntun.get(k) ?? 1 : (beruntun.get(k) ?? 0) + 1; beruntun.set(k, n); s = t + Math.max(tunda, n > 1 ? 60 : 0) * 1e3;
+      if (jenis === 'nol') nol.add(k);
+      else {
+        if (jenis === 'harian') s = tengahMalamLA(t) + JEDA_RESET;
+        else if (jenis === 'menit') {     // retryDelay kadang terlalu pendek: kena lagi SESUDAH istirahat (bukan 429 serentak dari --paralel) → minimal semenit
+          const n = aktif(k) ? beruntun.get(k) ?? 1 : (beruntun.get(k) ?? 0) + 1; beruntun.set(k, n); s = t + Math.max(tunda, n > 1 ? 60 : 0) * 1e3;
+        } else s = t + 24 * JAM;          // tidak-sah
+        if (sampai(k) < s) { status[idKunci(k)] = { sampai: s, alasan: jenis }; simpan(); }
       }
-      else s = t + 24 * JAM;
-      if (sampai(k) < s) { status[idKunci(k)] = { sampai: s, alasan: jenis }; simpan(); }
       catatan.set(k, pesan);
-      catat(`  ${samarkan(k)} ` + { menit: `kena batas per menit; istirahat ${lamaManusia(s - t)}`, harian: `kuota harian habis; istirahat sampai ${waktuLokal(s)} (reset tengah malam Pasifik)`,
-        'tidak-sah': `tidak sah (${pesan}); dilewati 24 jam`, nol: `tanpa kuota untuk model ini (${pesan}); dilewati 24 jam` }[jenis] + (kunci.some(x => x !== k && !aktif(x)) ? '; pindah kunci.' : '.'));
+      const ket = { menit: () => `kena batas per menit; istirahat ${lamaManusia(s - t)}`, harian: () => `kuota harian habis; istirahat sampai ${waktuLokal(s)} (reset tengah malam Pasifik)`,
+        'tidak-sah': () => `tidak sah (${pesan}); dilewati 24 jam`, nol: () => `tanpa kuota untuk model ini (${pesan}); dilewati di jalan ini` }[jenis]();
+      catat(`  ${samarkan(k)} ${ket}${kunci.some(x => x !== k && !aktif(x)) ? '; pindah kunci.' : '.'}`);
     },
     async ambil(dicoba = new Set()) {         // kunci siap berikutnya (urutan konfigurasi) | null bila semua sisanya sudah dicoba untuk segmen ini
       for (;;) {
@@ -304,7 +312,7 @@ async function utama(argv, d) {
     d.rahasia.push(...kunci); return kunci;
   };
   if (o['cek-kunci'] || o['daftar-suara']) {
-    const kunci = ambilKunci(), catat = s => d.log(tutup(s, kunci)), status = muatStatus(berkasStatus);
+    const kunci = ambilKunci(), catat = s => d.log(tutup(s, kunci)), status = muatStatus(berkasStatus, d.now());
     return o['cek-kunci'] ? cekKunci(kunci, status, d, catat, () => simpanStatus(berkasStatus, status, d.now())) : daftarSuara(kunci, o, d, catat);
   }
   if (posisi.length !== 1) throw new GalatPakai(posisi.length ? 'Beri tepat satu berkas naskah.\n' + PEMAKAIAN : PEMAKAIAN);
@@ -319,7 +327,7 @@ async function utama(argv, d) {
     if (hasil.gagal.length) d.log(`Gagal (jalankan ulang untuk mencoba lagi):\n${hasil.gagal.map(([id, a]) => `  ${id}  ${tutup(a, d.rahasia)}`).join('\n')}`);
   };
   if (sisa.length) {
-    const kunci = ambilKunci(), catat = s => d.log(tutup(s, kunci)), status = muatStatus(berkasStatus);
+    const kunci = ambilKunci(), catat = s => d.log(tutup(s, kunci)), status = muatStatus(berkasStatus, d.now());
     const kolam = buatKolam({ kunci, status, d, catat, jangantunggu: o['jangan-tunggu'], simpan: () => simpanStatus(berkasStatus, status, d.now()) }), ctx = { d, kolam, catat };
     let selesai = 0;
     try {

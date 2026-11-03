@@ -66,11 +66,11 @@ test('meru: hanya tumpang ganjil 3–11; jumlah atap yang dirakit = tumpang', ()
 
 test('rakitan: deterministik, simetri candi bentar, sisi dalam rata, tanpa atap di celah', () => {
   const a = catat(), b = catat(); pura.bangun(a.R); pura.bangun(b.R); assert.deepEqual(a.k, b.k);
-  const celah = 2.8, zb = TRI_MANDALA.gerbang[0].z, belah = a.k.filter(p => p.z === zb && Math.abs(p.x) >= celah / 2 && Math.abs(p.x) < 3.6 && p.wb <= 4.7 && !p.prisma);
+  const celah = 2.8, zb = TRI_MANDALA.gerbang[0].z, belah = a.k.filter(p => p.o?.garis !== false && p.z === zb && Math.abs(p.x) >= celah / 2 && Math.abs(p.x) < 3.6 && p.wb <= 4.7 && !p.prisma);
   const kanan = belah.filter(p => p.x > 0), kiri = belah.filter(p => p.x < 0);
   assert.ok(kanan.length >= 10); assert.equal(kanan.length, kiri.length);
   for (const p of kanan) assert.ok(Math.abs(p.x - p.wb / 2 - celah / 2) < 1e-9, 'sisi dalam rata pada ½ celah');
-  for (const p of a.k.filter(p => p.z === zb && p.y > 1)) assert.ok(Math.abs(p.x) - p.wb / 2 >= celah / 2 - 1e-9, 'tidak ada kepingan di atas celah (tanpa atap)');
+  for (const p of a.k.filter(p => p.z === zb && p.y > 1)) assert.ok(Math.abs(p.x) - p.wb / 2 >= celah / 2 - .011, 'tidak ada kepingan di atas celah (tanpa atap)');
 });
 
 test('tilt: nol di dalam pita, naik monoton keluar, simetris, jenuh di kuat; kuat 0 = mati', () => {

@@ -551,8 +551,8 @@ melompat 12× per detik dari `tl.time()` — deterministik, tile dirasterisasi s
 
 ### Sinematik 2D: atmosfer, cahaya bersumber, grade (`atmosfer` + `cahaya-2d` + `pasca`)
 
-Tiga blok runtime di `starter-explainer.html` dan `-panggung.html` (sumber `src/runtime/`; kontrak = komentar kepala tiap berkas).
-Bukti jalan: `starter-explainer.html?demo=sinematik` (gapura malam 12 dtk; `bidang()`/`svgDi()` = helper lokal `demoSinematik()`: salin, bukan API modul). Urutan panggilan, sesudah `const tl=`:
+Tiga blok runtime di `starter-explainer.html`, `-panggung.html`, `starter-sinematik.html` (sumber `src/runtime/`; kontrak = komentar kepala tiap berkas).
+Bukti jalan: `starter-sinematik.html` (gapura malam 12 dtk; `bidang()`/`svgDi()` = helper lokal `gapuraMalam()`: salin, bukan API modul). Urutan panggilan, sesudah `const tl=`:
 ```js
 langit({tengah:'#241b44',horizon:'#b4606e'});   // 1. kanvas WebGL di belakang dunia; SEKALI per halaman (panggilan ke-2 mengganti): langit per adegan = tween LANGIT
 const B=bidang(-500);   // 2. <div data-z> di rig + BIDANG.push({el,z}); isinya <svg style="will-change:transform">
@@ -562,7 +562,7 @@ redup(svg,['obor1'],{klip:'arsi'}); relief(el,{sumber:'obor1'}); rim(siluet,'obo
 partikel('depan',{jenis:'debu',n:80,seed:6}); grade(0,0,'malam-api');   // 6. grade hanya menutup lapisan di BAWAHNYA: lapisan depan dipasang sebelumnya
 ```
 Aturan yang dibayar mahal (dilanggar = gagal diam-diam, atau piksel bergantung jalur seek):
-- **Latar opak menutup `langit()`**: `.paper` kolase, rect `var(--sky)` di `#side`, rect `skyOf()` panggung — sembunyikan/lepas (demo: `.paper`). Modul bekerja di rig `#collage` (MODE KOLASE), bukan MODE ALIRAN.
+- **Latar opak menutup `langit()`**: `.paper` kolase, rect `var(--sky)` di `#side`, rect `skyOf()` panggung — sembunyikan/lepas. Modul bekerja di rig `#collage` (MODE KOLASE), bukan MODE ALIRAN.
 - **Nama modul = global halaman** (`langit kabut partikel sumber redup rim bayangan relief grade GRADE LANGIT SUMBER acak` dkk; daftar penuh: `src/runtime/`): `const`/`let` bernama sama di adegan = SyntaxError (halaman kosong); `function` bernama sama menimpa API diam-diam.
 - **Dipanggang sekali saat setup**: `rim`/`relief`/`redup`/`bayangan` tidak pernah di dalam `tl.call`/`onUpdate`; tanpa CSS `filter` inline pada elemen itu — `fly()` meninggalkan `filter:blur(0px)` yang menimpa atribut filter SVG.
 - **`will-change:transform` pada setiap `<svg>` di dalam `[data-z]`**: tanpa itu dolly men-skala bidang, Chrome me-raster ulang svg dan filter yang dipanggang ikut dihitung ulang (+125–170 ms/frame). Harganya: bitmap diskalakan, bukan di-raster ulang — tak lunak hanya terbukti sampai zoom 1,25; zoom lebih besar (MCU/CU, panggung 1,08–1,95) lunak (kebijakan raster shot dekat = sub-proyek 3).

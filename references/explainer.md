@@ -33,7 +33,7 @@ Lewati bagian yang sudah disebut user; bila ada video referensi, gaya
 diambil dari sana (ritmenya — lihat SKILL.md Hukum #3).
 
 **Gaya** (sertakan satu baris rekomendasi: sejarah → 6 kulit ilustrasi sinematik
-atau 5 (modul sinematik 2D: `techniques.md` §7d), dan 4/1 hanya bila gambar generate diizinkan; berita → 2; produk → 3;
+atau `starter-sinematik.html` (siluet 100 % kode: `techniques.md` §7d), dan 4/1 hanya bila gambar generate diizinkan; berita → 2; produk → 3;
 gerak/rute → 5; sains/edukasi berkarakter → 6; topik ringan → 1). Gaya 1–4 butuh
 gambar generate atau foto; untuk proyek 100 % kode pilih 5 atau 6:
 
@@ -43,7 +43,7 @@ gambar generate atau foto; untuk proyek 100 % kode pilih 5 atau 6:
 | 2 | Jurnalisme visual | hitam, foto asli, highlighter kuning, tag sumber | berita, isu viral, geopolitik | foto berlisensi bebas (Wikimedia/NASA) |
 | 3 | Katalog putih | putih bergrid, cutout foto, tipografi campur, coretan | produk, brand, profil perusahaan | foto produk/orang, latar dihapus |
 | 4 | Sketsa vintage | kertas sepia, ukiran/etsa, serif klasik, anotasi karat | sejarah, biografi, penemuan | ilustrasi gaya ukiran digenerate |
-| 5 | Aksi kontinu (vektor) | dunia mengalir, satu subjek, angka di dalam dunia, ganti sudut | kecepatan, rute, transportasi, olahraga, proses | 100 % SVG digambar, tanpa generate; modul sinematik: `techniques.md` §7d |
+| 5 | Aksi kontinu (vektor) | dunia mengalir, satu subjek, angka di dalam dunia, ganti sudut | kecepatan, rute, transportasi, olahraga, proses | 100 % SVG digambar, tanpa generate; siluet sinematik: `starter-sinematik.html` (`techniques.md` §7d) |
 | 6 | Kartun panggung | flat cerah atau ilustrasi sinematik (siluet ber-rim, cahaya bersumber, kabut), satu panggung per adegan, tokoh bersendi beraksi, mesin/air/tanaman hidup, tanpa caption | edukasi sains/sosial berkarakter, proses & dampak, cerita; sejarah & budaya (kulit sinematik) | tubuh & dunia vektor; kepala digenerate → ekspresi lokal, atau kepala vektor (100 % kode) |
 
 **Tiga hal lain dalam pertanyaan yang sama:**
@@ -91,7 +91,7 @@ Naskah yang sama disimpan sebagai `vo-script.md`. Jangan hanya menulis
 Explainer SELALU dimulai dari starter gayanya (folder `assets/`):
 `starter-explainer-kartun.html`, `starter-explainer-jurnalisme.html`,
 `starter-explainer-katalog.html`, `starter-explainer-sketsa.html`, atau
-`starter-explainer.html` untuk aksi kontinu (+ modul sinematik 2D, `?demo=sinematik`) — atau `starter-explainer-panggung.html`
+`starter-explainer.html` untuk aksi kontinu — atau `starter-sinematik.html` untuk siluet sinematik 100 % kode (`techniques.md` §7d) — atau `starter-explainer-panggung.html`
 untuk kartun panggung (rig berbeda, lihat `kartun-panggung.md`) — atau
 `starter-explainer-3d.html` bila dunianya butuh volume, sudut sungguhan, dan cahaya
 (`sinematografi.md` §1). Lima starter

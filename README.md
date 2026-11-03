@@ -43,11 +43,11 @@ Every deliverable is one `index.html`: double-click to play, autoplay + loop, `?
 
 ## Style gallery
 
-> Each frame below is a **single static scene** built for this README with **fictional brands and data**. The portrait, product photos, port photo, engraving, and cartoon cutouts were generated with GPT Image 2.5; everything else is HTML, CSS, and SVG. Real projects take their palette, type, and imagery from your brand. The exception is the cinematic night scene: a frame rendered straight from `assets/starter-explainer.html?demo=sinematik`, 100% code (SVG, Canvas, WebGL) with no images at all.
+> Each frame below is a **single static scene** built for this README with **fictional brands and data**. The portrait, product photos, port photo, engraving, and cartoon cutouts were generated with GPT Image 2.5; everything else is HTML, CSS, and SVG. Real projects take their palette, type, and imagery from your brand. The exception is the cinematic night scene: a frame rendered straight from the default scene of `assets/starter-sinematik.html`, 100% code (SVG, Canvas, WebGL) with no images at all.
 
 <table>
 <tr>
-<td colspan="2"><img src="docs/gallery/13-cinematic-silhouette.jpg" alt="Cinematic night scene: a temple gate lit by two flickering torches, a rim-lit guard silhouette, layered fog and embers under a moonlit sky"><br><b>Cinematic silhouette</b> · history explainer, 100% code<br><sub>Torches that flicker and light what is near them, rim-lit silhouettes, layered fog, embers, one color grade. Built from the <code>atmosfer</code>, <code>cahaya-2d</code>, and <code>pasca</code> modules (1.3.0). History, culture, documentaries.</sub></td>
+<td colspan="2"><img src="docs/gallery/13-cinematic-silhouette.jpg" alt="Cinematic night scene: a temple gate lit by two flickering torches, a rim-lit guard silhouette, layered fog and embers under a moonlit sky"><br><b>Cinematic silhouette</b> · history explainer, 100% code<br><sub>Torches that flicker and light what is near them, rim-lit silhouettes, layered fog, embers, one color grade. Built from the <code>atmosfer</code>, <code>cahaya-2d</code>, and <code>pasca</code> modules (1.3.0). Default scene of the <code>starter-sinematik.html</code> starter. History, culture, documentaries.</sub></td>
 </tr>
 <tr>
 <td width="50%"><img src="docs/gallery/01-grainy-gradient.jpg" alt="Grainy gradient opener"><br><b>Grainy gradient</b> · opener<br><sub>Glowing layered shapes, soft grain, a camera that travels through them. Tech, AI, music, premium launches.</sub></td>
@@ -272,6 +272,7 @@ assets/
   starter-opener.html            opener / promo architecture (GSAP + Three.js)
   starter-explainer*.html        one starter per explainer style
   starter-explainer-3d.html      3D world explainer (Three.js + shared cinematic camera)
+  starter-sinematik.html         cinematic silhouette scene, 100% code (torchlight, fog, embers, one grade)
 scripts/
   lint-motion.mjs                check the mechanical rules on a deliverable
   snap.mjs                       verify: capture key seconds

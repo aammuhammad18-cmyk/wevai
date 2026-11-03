@@ -15,7 +15,7 @@
 
    Pakai (dari akar repo skill; berkas dibuka lewat file://):
      node scripts/bench-frame.mjs <berkas.html> [query] [frames=20]
-     node scripts/bench-frame.mjs assets/starter-explainer.html "demo=sinematik&clean=1" 20
+     node scripts/bench-frame.mjs assets/starter-sinematik.html "clean=1" 20
    Beri clean=1 di query seperti jalur ekspor (tanpa itu halaman autoplay sampai seek pertama).
    Env: BATAS = anggaran ms (350).
    Derau antar-run besar bila mesin tidak senggang: starter-explainer.html?clean=1 terukur 201–321 ms

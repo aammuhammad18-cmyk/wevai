@@ -57,7 +57,7 @@ Salah opsi = `Error('wayang.…')` yang menyebut pilihan sah. `jenis:'panakawan'
 
 Setup: rancang + panggang sprite ±1–2 dtk saat muat. Tiap frame: satu `drawImage` kelir, per figur 2–6 sprite + kotak kerja + satu blur bila z besar, dua gradien penuh.
 Terukur di halaman (`performance.now()` + flush, mesin acuan, Idle): sisi bayang median 143–202 ms, sisi dalang 173–240 ms; tanpa capture. Rinci:
-`evals/bukti/2026-11-03-wayang/README.md`. `bench-frame` dijalankan sesudah merge; dengan capture (±170–200 ms) sasaran ≤ 350 ms/frame bisa terlewati. Bila lewat: turunkan `res`, kurangi
+`evals/bukti/2026-11-03-wayang/README.md`. `bench-frame` (dengan capture, 3 putaran): sisi bayang 234 ms, sisi dalang 293 ms (satu putaran 356); ekspor penuh rata-rata 271 dan 314 ms/frame. Batas 350 ms. Bila lewat: turunkan `res`, kurangi
 jumlah figur bergerak, atau `simping:false`.
 
 ## Determinisme

@@ -33,7 +33,7 @@ menurunkan kepatuhan pada aturan yang penting.
 | Explainer 3D & kamera sinematik | + `references/sinematografi.md`, `assets/starter-explainer-3d.html` (opener 3D: jalur opener + `sinematografi.md`) | kosakata shot/sudut/gerak/lensa/cahaya, resep 2.5D & 3D, jebakan |
 | 3D sejarah: mata elang · peta relief | + `references/sinematografi.md`, lalu `references/mata-elang.md` + `assets/starter-elang.html` atau `references/peta-relief.md` + `assets/starter-peta-relief.html` | terbang(), lanskap, peta Jawa, tone mapping film |
 | Explainer kartun panggung | + `references/kartun-panggung.md`, `assets/starter-explainer-panggung.html` | satu panggung per adegan, rig sendi, kulit flat cerah atau ilustrasi sinematik |
-| Gaya lanjutan sejarah | + jalur Explainer, lalu satu gaya: relief candi (`references/relief-candi.md`, `assets/starter-relief.html`) · painterly, legenda/kilas balik (`references/lukis.md`, `assets/starter-lukis.html`) | dokumen gaya + starter contoh |
+| Gaya lanjutan sejarah | + jalur Explainer, lalu satu gaya: relief candi (`references/relief-candi.md`, `assets/starter-relief.html`) · painterly, legenda/kilas balik (`references/lukis.md`, `assets/starter-lukis.html`) · wayang kulit (`references/wayang.md`, `assets/starter-wayang.html`) | dokumen gaya + starter contoh |
 | Build di After Effects | + `references/ae-bridge-higgsfield.md` | batas bridge, arsitektur CAM, rig native, penyerahan |
 | Scaffold multi-file / alasan struktur | + `references/architecture.md` | panggung, rig kamera, determinisme, export |
 | Memasang alat (snap, lint, export, tanpa ffmpeg) | + `references/alat-kerja.md` | perintah dan jalan pintasnya |

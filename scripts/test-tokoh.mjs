@@ -24,6 +24,7 @@ function muat() {
       for (const m of ['setTransform', 'clearRect', 'fill', 'stroke', 'fillRect', 'drawImage', 'addColorStop'])
         k[m] = (...a) => l.push([m, ...a.map(v => v instanceof Path2D ? v.d.length : v instanceof Kanvas ? 'kanvas' : typeof v === 'number' ? +v.toFixed(3) : v)]);
       k.createLinearGradient = (...a) => (l.push(['grad', ...a.map(v => +v.toFixed(2))]), { addColorStop: (...b) => l.push(['stop', ...b]) });
+      k.createRadialGradient = k.createLinearGradient;   // pendar sumber() = kanvas bergradien radial
       k.createPattern = () => ({ setTransform: () => l.push(['pola']) });
       k.scale = () => {};
       for (const p of ['globalAlpha', 'fillStyle', 'strokeStyle', 'lineWidth', 'lineCap', 'filter', 'globalCompositeOperation'])

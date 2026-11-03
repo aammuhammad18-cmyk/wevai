@@ -40,7 +40,7 @@ const JALUR = [
   ['Mata elang 3D', ['references/sinematografi.md', 'references/mata-elang.md', 'assets/starter-elang.html'], 155],   // pelacak: ukuran saat masuk (149 KB) + ruang
   ['Peta relief 3D', ['references/sinematografi.md', 'references/peta-relief.md', 'assets/starter-peta-relief.html'], 176],   // pelacak: ukuran saat masuk (171 KB) + ruang
   ['Diorama cel-shaded', ['references/sinematografi.md', 'references/diorama.md', 'assets/starter-diorama.html'], 215],   // pelacak: ukuran saat masuk + ruang
-  ['Explainer kartun panggung', ['references/explainer.md', 'references/kartun-panggung.md', 'assets/starter-explainer-panggung.html'], 170],   // +40: perkakas, bukan aturan: blok atmosfer/cahaya-2d/pasca + demo sinematik (122,1 → 167,8 KB: +44,8 blok di starter, +0,9 contoh kulit B; demo kini di starter-sinematik.html, diukur jalur "Siluet sinematik")
+  ['Explainer kartun panggung', ['references/explainer.md', 'references/kartun-panggung.md', 'assets/starter-explainer-panggung.html'], 190],   // +20 (4 Nov): blok kamera.js + kamera-dom.js di starter (CAM bersama, ±15 KB), bukan aturan. +40 sebelumnya: perkakas, bukan aturan: blok atmosfer/cahaya-2d/pasca + demo sinematik (122,1 → 167,8 KB: +44,8 blok di starter, +0,9 contoh kulit B; demo kini di starter-sinematik.html, diukur jalur "Siluet sinematik")
   ['Build di After Effects', ['references/kartun-panggung.md', 'references/ae-bridge-higgsfield.md'], 95],
   ['Scaffold multi-file', ['references/architecture.md'], 70],
 ];

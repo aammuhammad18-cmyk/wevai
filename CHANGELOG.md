@@ -455,6 +455,17 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
     - legenda "makin dekat ke gunung, makin suci" adalah ringkasan, perlu dinilai pemilik;
     - lipatan di dalam siluet tanpa garis (`garis.jpg`).
   - **Status penerimaan**: menunggu tinjauan arsitektur pura dan vonis visual pemilik.
+- **Kartun panggung memakai `CAM`** (sisa E di `docs/rencana-1.4.0.md`): `starter-explainer-panggung.html` kini memuat `kamera.js` + `kamera-dom.js`, jadi dolly, truck, angle, handheld, `shot()`, dan bidang `[data-z]` berparalaks tersedia di panggung.
+  - `cam(at, x, y, z)` = `camTo` (parameter panggung pertama dihapus); `cut()` dan `slide()` menaruh `CAM` di pose awal adegan; `?demo=1` ditambahkan; `#world` tanpa `will-change:filter` (meratakan 3D).
+  - Tampilan bawaan praktis sama: 0,00–0,04 % piksel berbeda > 24 level di 9 waktu. Bench 208 → 211 ms sebelum perbaikan seek, 183 ms sesudahnya (sekali ukur, mesin tak sepenuhnya senggang). Bukti: `evals/bukti/2026-11-04-panggung-cam/`.
+  - `test-starters` menjalankan `CAM_UJI` dan cek kabut berparalaks di panggung. Pelacak jalur kartun panggung 170 → 190 KB (terukur 185, blok kamera).
+- **Perbaikan `makeSeek`: lompatan seek memberi frame salah** (`src/runtime/seek.js`, semua starter).
+  - **Gejala**: frame pertama worker ekspor kedua, dan frame sesudah Chrome dibuka ulang, menggambar pose lama. Di panggung f00180 berbeda 3,2 % piksel, maks. 191 level; `bench-frame` melaporkan `deterministik:false`. Bug ini lebih tua dari 1.4.0, tetapi baru sering terpicu sejak `WORKERS=2` jadi bawaan.
+  - **Akar**: `onUpdate` tween berjalan sebelum nilai tulis-tunda GSAP masuk. Berurutan tidak kena karena selisih waktunya kecil.
+  - **Obat**: sesudah lompat > 0,1 dtk, berhenti sesaat sebelum `t` lalu maju ke `t`. Maju, bukan mundur: mundur dari sesudah `t` membatalkan `set()` yang tepat di `t` (tertangkap `PETA_UJI` pada percobaan pertama).
+  - **Uji**: `test-starters` kini membandingkan lompat dengan tiba berurutan di semua starter (gagal pada kode lama: 1,88 % piksel). 18 dari 18 lolos; panggung `WORKERS` 1 vs 2 kini 360/360 frame identik, 1,81× lebih cepat; `deterministik:true`.
+  - **Tidak terdampak**: mesin Babad pemilik memakai seek sendiri. MP4 Bali babak 07–09 dan Nabi babak 00–01 diperiksa di titik belah: tak ada frame salah.
+  - **Belum diukur ulang**: WORKERS 1 vs 2 pada babak dan halaman lain sesudah perbaikan ini (angka di `bukti.txt` §5 dan §7 dari sebelumnya).
 - **Galeri gaya sinematik** (sub-proyek 8, K2): `docs/gallery/14`–`20` dan tabel baru di README, satu still per gaya dari adegan bawaan starternya (babak, mata elang, relief candi, painterly, peta relief, wayang, diorama). Rekomendasi "sejarah → 4 atau 1" di `explainer.md` sudah bersyarat izin raster.
 
 ## 1.3.0 — 2026-11-02

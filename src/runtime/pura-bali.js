@@ -79,12 +79,12 @@ const pura=(()=>{
   function lukisTanah(g,[x0,x1,z0,z1],T,px,seed){const X=x=>(x-x0)*px,Z=z=>(z-z0)*px,L=T.lebar/2,flok=(a,b,c,e,warna,rapat,uk=2)=>{const[w0,w1,w2]=warna;g.fillStyle=w0;g.fillRect(X(a),Z(c),(b-a)*px,(e-c)*px);
       const n=Math.round((b-a)*(e-c)*rapat);for(let i=0;i<n;i++){const u=hash(3*i+1,seed),v=hash(3*i+2,seed),w=hash(3*i+3,seed),s=uk+(uk*1.5*w|0);g.fillStyle=w<.55?w1:w2;g.fillRect(Math.round(X(a+(b-a)*u)),Math.round(Z(c+(e-c)*v)),s,s);}seed++;},
       [N,M,U]=T.zona;
-    flok(x0,x1,z0,z1,['#566333','#65733c','#49552c'],260);
-    flok(-L,L,N.z[1],N.z[0]+6,['#8c7a56','#7c6b49','#9b8a65'],240);
-    flok(-L,L,M.z[1],M.z[0],['#6c7842','#7a8650','#5e6a38'],300);
-    flok(-L,L,U.z[1],U.z[0],['#a2977f','#93886f','#b0a58d'],300);
+    flok(x0,x1,z0,z1,['#566333','#65733c','#49552c'],150);
+    flok(-L,L,N.z[1],N.z[0]+6,['#8c7a56','#7c6b49','#9b8a65'],160);
+    flok(-L,L,M.z[1],M.z[0],['#6c7842','#7a8650','#5e6a38'],170);
+    flok(-L,L,U.z[1],U.z[0],['#a2977f','#93886f','#b0a58d'],170);
     /* jalan batu di sumbu kelod → kaja */
-    for(const[a,b]of[[N.z[0]+6,N.z[1]],[M.z[0],M.z[1]],[U.z[0],U.z[1]+18]]){const hi=Math.min(a,b),lo=Math.max(a,b);flok(-1.25,1.25,hi,lo,['#b5ab94','#a59b84','#c2b8a1'],500);
+    for(const[a,b]of[[N.z[0]+6,N.z[1]],[M.z[0],M.z[1]],[U.z[0],U.z[1]+18]]){const hi=Math.min(a,b),lo=Math.max(a,b);flok(-1.25,1.25,hi,lo,['#b5ab94','#a59b84','#c2b8a1'],260);
       g.fillStyle='rgba(58,44,30,.55)';for(let z=hi;z<lo;z+=.62)g.fillRect(X(-1.25),Z(z),2.5*px,Math.max(1,.045*px));g.fillRect(X(-1.32),Z(hi),.08*px,(lo-hi)*px);g.fillRect(X(1.25),Z(hi),.08*px,(lo-hi)*px);}}
   function tanah(T=TRI_MANDALA,batas,{px=36,seed=21}={}){const[x0,x1,z0,z1]=batas,c=document.createElement('canvas');c.width=Math.round((x1-x0)*px);c.height=Math.round((z1-z0)*px);lukisTanah(c.getContext('2d'),batas,T,px,seed);
     const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;const m=new THREE.MeshToonMaterial({map:t,gradientMap:null}),L=T.lebar/2,

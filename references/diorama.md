@@ -1,7 +1,7 @@
 # Diorama cel-shaded — miniatur museum untuk menjelaskan struktur tempat
 
 Dibaca HANYA untuk gaya ini. Gunanya menjelaskan **struktur** sebuah tempat (kota, keraton, kompleks pura): apa di mana, urutan masuknya,
-arahnya. Bukan untuk adegan bertokoh. Contoh hidup: `assets/starter-diorama.html` (18 dtk, pura Bali generik, tri mandala). Dasar kamera:
+arahnya. Bukan untuk adegan bertokoh. Contoh hidup: `assets/starter-diorama.html` (19 dtk, pura Bali generik, tri mandala). Dasar kamera:
 `sinematografi.md`. Bukti dan angka: `evals/bukti/2026-11-03-diorama/`.
 
 ## Isi

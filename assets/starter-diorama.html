@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <title>WeVai — Starter Diorama cel-shaded (pura tri mandala, miniatur museum)</title>
 <!--
-  STARTER DIORAMA CEL-SHADED satu-berkas, 16:9, 18 dtk, 100 % KODE (Three.js r161, tanpa gambar atau aset luar): pura Bali GENERIK sebagai maket
+  STARTER DIORAMA CEL-SHADED satu-berkas, 16:9, 19 dtk, 100 % KODE (Three.js r161, tanpa gambar atau aset luar): pura Bali GENERIK sebagai maket
   museum di atas alas, kamera turun sepanjang sumbu kelod → kaja dan mendarat di utama mandala. Gunanya menjelaskan STRUKTUR sebuah tempat.
   Resep, kenop, biaya, akurasi + sumber, batas: references/diorama.md. Yang penting di sini adalah POLANYA:
     - diorama.rakit(): kepingan kotak/prisma → satu mesh toon + satu mesh lambung (garis), dibangun sekali
@@ -71,7 +71,7 @@ import { SVGLoader }      from 'three/addons/loaders/SVGLoader.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 const $=(s,r=document)=>r.querySelector(s);
-const q=new URLSearchParams(location.search),W=1920,H=1080,DUR=18;
+const q=new URLSearchParams(location.search),W=1920,H=1080,DUR=19;
 function fit(){const s=Math.min(innerWidth/W,innerHeight/H);$('#stage').style.transform=`translate(-50%,-50%) scale(${s})`;}
 addEventListener('resize',fit);fit();
 /* pengganti ringkas blok atmosfer untuk generator pustaka (blok penuh ±18 KB memuat langit WebGL yang tak dipakai di sini) */
@@ -995,7 +995,7 @@ gl_FragColor=vec4(s/b,1.);}`;
   for(const p of passTilt)composer.insertPass(p,composer.passes.length-1);
 
   /* ---------- alas: lempeng kayu + potongan tanah berstrata (potong:true) dengan bibir rumput tak rata. Muka atas y = y ---------- */
-  function alas(R,{x0,x1,z0,z1,y=0,tebal=2.6,kayu=3,seed=3,warna=['#3b2c20','#5c4630','#7a5f40'],bibir='#5d6a39',kaki='#2a1c13',potong=true}){
+  function alas(R,{x0,x1,z0,z1,y=0,tebal=3,kayu=2.6,seed=3,warna=['#54402f','#775c43','#957957'],bibir='#5d6a39',kaki='#38261a',potong=true}){
     const w=x1-x0,d=z1-z0,cx=(x0+x1)/2,cz=(z0+z1)/2,h=tebal/warna.length;
     warna.forEach((c,i)=>R.kotak(cx,y-tebal+i*h,cz,w,h,d,c,{kotor:.92,garis:i===0}));
     R.kotak(cx,y-tebal-.5,cz,w+2.2,.5,d+2.2,kaki);R.prisma(cx,y-tebal-.5-kayu,cz,w+5,d+5,w+2.2,d+2.2,kayu,kaki,{kotor:.7});
@@ -1003,7 +1003,7 @@ gl_FragColor=vec4(s/b,1.);}`;
       for(const[a,b,c,e]of sisi){const n=Math.ceil(Math.hypot(c-a,e-b)/m);for(let i=0;i<n;i++){k++;const u=(i+.5)/n,hh=.18+.5*hash(k,seed),t=.07,x=a+(c-a)*u,z=b+(e-b)*u;
         R.kotak(x+(a===c?(a===x0?-1:1)*t/2:0),y-hh,z+(b===e?(b===z0?-1:1)*t/2:0),a===c?t:m,hh,b===e?t:m,bibir,{garis:false,kotor:.75});}}}}
   /* meja & ruang: lantai gelap dengan kolam cahaya (kanvas, tanpa aset) */
-  function meja({y=-6.1,r=420,warna='#2b241d',gelap='#0c0907',jari=.28}={}){const c=document.createElement('canvas');c.width=c.height=512;const g=c.getContext('2d'),a=g.createRadialGradient(256,256,0,256,256,256);
+  function meja({y=-6.1,r=420,warna='#3a3026',gelap='#0c0907',jari=.3}={}){const c=document.createElement('canvas');c.width=c.height=512;const g=c.getContext('2d'),a=g.createRadialGradient(256,256,0,256,256,256);
     a.addColorStop(0,warna);a.addColorStop(jari,warna);a.addColorStop(1,gelap);g.fillStyle=a;g.fillRect(0,0,512,512);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;
     const m=new THREE.Mesh(new THREE.PlaneGeometry(2*r,2*r).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({map:t}));m.position.y=y;m.name='meja';scene.add(m);return m;}
 
@@ -1136,12 +1136,12 @@ const pura=(()=>{
   function lukisTanah(g,[x0,x1,z0,z1],T,px,seed){const X=x=>(x-x0)*px,Z=z=>(z-z0)*px,L=T.lebar/2,flok=(a,b,c,e,warna,rapat,uk=2)=>{const[w0,w1,w2]=warna;g.fillStyle=w0;g.fillRect(X(a),Z(c),(b-a)*px,(e-c)*px);
       const n=Math.round((b-a)*(e-c)*rapat);for(let i=0;i<n;i++){const u=hash(3*i+1,seed),v=hash(3*i+2,seed),w=hash(3*i+3,seed),s=uk+(uk*1.5*w|0);g.fillStyle=w<.55?w1:w2;g.fillRect(Math.round(X(a+(b-a)*u)),Math.round(Z(c+(e-c)*v)),s,s);}seed++;},
       [N,M,U]=T.zona;
-    flok(x0,x1,z0,z1,['#566333','#65733c','#49552c'],260);
-    flok(-L,L,N.z[1],N.z[0]+6,['#8c7a56','#7c6b49','#9b8a65'],240);
-    flok(-L,L,M.z[1],M.z[0],['#6c7842','#7a8650','#5e6a38'],300);
-    flok(-L,L,U.z[1],U.z[0],['#a2977f','#93886f','#b0a58d'],300);
+    flok(x0,x1,z0,z1,['#566333','#65733c','#49552c'],150);
+    flok(-L,L,N.z[1],N.z[0]+6,['#8c7a56','#7c6b49','#9b8a65'],160);
+    flok(-L,L,M.z[1],M.z[0],['#6c7842','#7a8650','#5e6a38'],170);
+    flok(-L,L,U.z[1],U.z[0],['#a2977f','#93886f','#b0a58d'],170);
     /* jalan batu di sumbu kelod → kaja */
-    for(const[a,b]of[[N.z[0]+6,N.z[1]],[M.z[0],M.z[1]],[U.z[0],U.z[1]+18]]){const hi=Math.min(a,b),lo=Math.max(a,b);flok(-1.25,1.25,hi,lo,['#b5ab94','#a59b84','#c2b8a1'],500);
+    for(const[a,b]of[[N.z[0]+6,N.z[1]],[M.z[0],M.z[1]],[U.z[0],U.z[1]+18]]){const hi=Math.min(a,b),lo=Math.max(a,b);flok(-1.25,1.25,hi,lo,['#b5ab94','#a59b84','#c2b8a1'],260);
       g.fillStyle='rgba(58,44,30,.55)';for(let z=hi;z<lo;z+=.62)g.fillRect(X(-1.25),Z(z),2.5*px,Math.max(1,.045*px));g.fillRect(X(-1.32),Z(hi),.08*px,(lo-hi)*px);g.fillRect(X(1.25),Z(hi),.08*px,(lo-hi)*px);}}
   function tanah(T=TRI_MANDALA,batas,{px=36,seed=21}={}){const[x0,x1,z0,z1]=batas,c=document.createElement('canvas');c.width=Math.round((x1-x0)*px);c.height=Math.round((z1-z0)*px);lukisTanah(c.getContext('2d'),batas,T,px,seed);
     const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;const m=new THREE.MeshToonMaterial({map:t,gradientMap:null}),L=T.lebar/2,
@@ -1171,9 +1171,9 @@ diorama.meja();
 diorama.matahari({pusat:[0,0,3],r:62});
 /* latar lukis di sisi kaja: langit + gunung berlapis (pustaka), dinding melengkung seperti diorama museum */
 const LUKIS=5250,SUDUT=200,PUNCAK=(.5-26/SUDUT)*LUKIS;   // gunung di az +26° (sedikit ke kangin), masuk bingkai akhir; kanvas terbalik: kangin = kiri tekstur
-const LATAR=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${LUKIS} 720"><defs><linearGradient id="l" x2="0" y2="1"><stop offset="0" stop-color="#6f8b9c"/><stop offset=".6" stop-color="#b9bcab"/><stop offset=".86" stop-color="#d9caa8"/></linearGradient><linearGradient id="k" x2="0" y2="1"><stop offset="0" stop-color="#2b241d" stop-opacity="0"/><stop offset="1" stop-color="#17120d"/></linearGradient></defs><rect width="${LUKIS}" height="720" fill="url(#l)"/>
+const LATAR=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${LUKIS} 720"><defs><linearGradient id="l" x2="0" y2="1"><stop offset="0" stop-color="#6f8b9c"/><stop offset=".6" stop-color="#b9bcab"/><stop offset=".86" stop-color="#d9caa8"/></linearGradient><linearGradient id="k" x2="0" y2="1"><stop offset="0" stop-color="#5a6449"/><stop offset=".7" stop-color="#454a35"/><stop offset="1" stop-color="#2a261d"/></linearGradient></defs><rect width="${LUKIS}" height="720" fill="url(#l)"/>
 ${[[900,190,620,30],[1900,120,700,34],[2900,210,560,26],[4200,140,640,32]].map(([x,y,a,b])=>`<ellipse cx="${x}" cy="${y}" rx="${a}" ry="${b}" fill="#ece3cf" opacity=".5"/>`).join('')}
-${pustaka.gunungBerlapis({x:PUNCAK,y:560,lebar:LUKIS*1.3,tinggi:430,lapis:3,puncak:2,seed:5,warna:'#4f6058',cahaya:{arah:215,warna:'#fff0cf',kuat:.5},detail:1,id:'gn'})}<rect y="520" width="${LUKIS}" height="200" fill="url(#k)"/></svg>`;
+${pustaka.gunungBerlapis({x:PUNCAK,y:560,lebar:LUKIS*1.3,tinggi:350,lapis:3,puncak:2,seed:5,warna:'#4f6058',cahaya:{arah:215,warna:'#fff0cf',kuat:.5},detail:1,id:'gn'})}<rect y="540" width="${LUKIS}" height="180" fill="url(#k)"/></svg>`;
 diorama.latar(LATAR,{r:92,sudut:SUDUT,tinggi:44,z:2});
 /* kartu: beringin di nista, lontar di luar tembok (penghias, bukan unsur denah); pemedek kecil di nista dan madya */
 const pohon=(gen,o,lebar=1200,tg=1000)=>`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${lebar} ${tg}">${pustaka[gen]({x:lebar/2,y:tg-8,tinggi:tg-40,detail:2,cahaya:{arah:235,warna:'#ffeec8',kuat:.85},...o})}</svg>`;
@@ -1186,8 +1186,8 @@ for(const k of diorama.tataKartu({seed:9,n:8,area:[-18,-29,18,35],jarak:7,hindar
 
 /* kamera: terbang lambat dari EWS tinggi (kelod-kauh) turun ke sumbu, melewati dua gerbang, mendarat menatap padmasana + meru.
    Laju sangat rendah: roll praktis nol, guncangan dimatikan: lensa di atas tiang, bukan drone. */
-const TITIK=[[-46,44,82],[-30,30,66],[-14,18,50],[-9,11.5,34],[-9,12,18],[-10,11,6],[-10.5,12.5,-2],[-8,8.2,-4]],
-  LOOK=[[0,0,6],[0,0,12],[0,2,20],[0,3,13],[0,3,4],[0,5,-1],[3,5,-13],[7,6,-19]];
+const TITIK=[[-46,44,82],[-30,30,66],[-14,18,50],[-9,11.5,34],[-9,12,18],[-10,11,6],[-10.5,12.5,-2],[-10,9,-2.5]],
+  LOOK=[[0,0,6],[0,0,12],[0,2,20],[0,3,13],[0,3,4],[0,5,-1],[3,5,-13],[7,7,-20]];
 cutTo(0,{mm:40});
 const JALAN=terbang(0,DUR-.3,TITIK,{look:LOOK,ease:p=>.5*Math.sin(Math.PI*p/2)+.25*(1-Math.cos(Math.PI*p)),guncang:0,trauma0:0,rollMaks:1.5,ahead:.03});
 const D=JALAN.detik;
@@ -1198,12 +1198,12 @@ tl.to(TILT,{pusat:.46,lebar:.24,lunak:.3,kuat:12,duration:3,ease:'sine.inOut'},D
 tl.to(LUX,{kI:3.5,kG:.86,kB:.68,fI:.9,duration:3,ease:'sine.inOut'},D[6]-.6);
 /* label masuk saat kamera melintas; keluar cepat. Satu label per ketukan. */
 const papan=(s,xyz,a,b)=>{diorama.label($(s),xyz);tl.fromTo(s,{opacity:0},{opacity:1,duration:.5,ease:'power2.out',immediateRender:false},a);tl.to(s,{opacity:0,duration:.3,ease:'power2.in'},b);};
-papan('#lKaja',[0,10,-27],1,3.6);
-papan('#lNista',[-1.6,.1,25],D[2]+.2,D[3]+.5);
-papan('#lMadya',[0,.6,8],D[4]-.5,D[5]+.6);
-papan('#lUtama',[1.5,1.1,-12],D[6]-.1,DUR-.15);
-tl.fromTo('#kantong',{opacity:0},{opacity:1,duration:1,ease:'sine.out',immediateRender:false},DUR-4.4);
-tl.fromTo('#cap',{opacity:0,y:18,filter:'blur(8px)'},{opacity:1,y:0,filter:'blur(0px)',duration:1,ease:'power3.out',immediateRender:false},DUR-4.2);
+papan('#lKaja',[-1,1.1,-22],.7,3.4);
+papan('#lNista',[-1.6,.1,25],5.3,8.4);
+papan('#lMadya',[0,.6,8],9,11.6);
+papan('#lUtama',[2,1.1,-15],14.2,16.5);
+tl.fromTo('#kantong',{opacity:0},{opacity:1,duration:1,ease:'sine.out',immediateRender:false},DUR-2.9);
+tl.fromTo('#cap',{opacity:0,y:18,filter:'blur(8px)'},{opacity:1,y:0,filter:'blur(0px)',duration:1,ease:'power3.out',immediateRender:false},DUR-2.7);
 tl.to({},{duration:.01},DUR);
 
 /* ---------- render: satu frame = fungsi murni tl.time() ---------- */
@@ -1265,7 +1265,7 @@ window.DIORAMA_UJI=(mutasi='')=>{const gl=renderer.getContext(),t0=tl.time(),lb=
     tajam=(a,y0,y1)=>{let s=0,n=0;for(let y=Math.max(1,y0);y<Math.min(H-1,y1);y+=2)for(let x=1;x<W-1;x+=2){s+=Math.abs(4*L(a,x,y)-L(a,x-1,y)-L(a,x+1,y)-L(a,x,y-1)-L(a,x,y+1));n++;}return s/Math.max(1,n);},   // rata-rata |Laplacian|
     tanpaTilt=fn=>{const lama=diorama.perFrame;diorama.perFrame=()=>{lama();for(const p of diorama.passTilt)p.enabled=false;};const h=fn();diorama.perFrame=lama;return h;};
   /* mutasi: satu per pemeriksaan; test-starters menuntut pemeriksaannya gagal */
-  let n=0;if(mutasi==='jam')diorama.perFrame=()=>{GARIS.tebal=tGaris+.8*(n++%3);pf();};
+  let n=0;if(mutasi==='jam')diorama.perFrame=()=>{GARIS.tebal=tGaris+.8*(n++%2);pf();};
   if(mutasi==='garis')lb.visible=false;
   if(mutasi==='tilt')diorama.perFrame=()=>{pf();for(const p of diorama.passTilt)p.enabled=false;};
   if(mutasi==='tone')renderer.toneMapping=THREE.NoToneMapping;

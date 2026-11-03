@@ -60,7 +60,7 @@ Mengembalikan `{tinggi(x,z), darat, laut, gunung, sungai, kerucut}`, murni dan d
   lembah sungai diukir (lebar 1,2 km di hulu → 4,5 km di hilir, jadi tak memangkas puncak; paling dalam 80 m di bawah tanah asli,
   jadi lembah, bukan ngarai); laut = parameter kedalaman negatif.
   `alur` 0 = kerucut tanpa jurang (kisi kasar; jurangnya digambar shader).
-- `darat.sdf`, `laut.sdf`: jarak bertanda ke pantai / garis 200 m. Tepat ≤ 8 km (ember 8 km), lebih jauh dari kisi pembantu 6 km.
+- `darat.sdf`, `laut.sdf`: jarak bertanda ke pantai / garis 200 m. Tepat ≤ 8 km (ember 8 km); lebih jauh dari kisi pembantu 8 km atas ruas yang dijarangkan 3× (galat ±1–2 km, dilebur 6–8 km).
 - `gunung[i]`: `{nama, x, z, E, R, k, kawah, cekung, alur, jurang, fase, kaldera}`. Puncak = bibir kawah = data GVP. Kaki tak bulat
   (R ± 18 % menurut arah). Jurang radial: 8–14 per gunung, berliuk ke kaki, dalamnya beda-beda (barranco di antara alur dangkal),
   hingga `alur` (,22 Holosen; ,32 Pleistosen: tererosi, tanpa kawah, puncak membulat) di tengah lereng. Rumus jurang ditulis dua

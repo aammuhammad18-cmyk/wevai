@@ -177,7 +177,8 @@ ffmpeg -framerate 60 -i frames/f%05d.png -i vo.wav -c:a aac -b:a 192k -shortest 
 ```
 
 Ekspos `window.OPENER = { W, H, tl, DURATION, seek, ready }` supaya skrip
-snap/export (dan debugging konsol) bisa mengendalikan timeline.
+snap/export (dan debugging konsol) bisa mengendalikan timeline. Opsional `canvas`
+(elemen kanvas yang memuat seluruh frame) untuk `MODE=webcodecs`: `references/alat-kerja.md` › "Mode WebCodecs".
 
 ## Panel kontrol developer — tersembunyi
 

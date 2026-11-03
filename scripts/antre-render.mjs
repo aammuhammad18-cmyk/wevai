@@ -242,7 +242,7 @@ export async function jalankanAntrean(items, o, d) {
     const u = d.ukur(o.gabung);
     if (!u) { lepas(); catat('[GAGAL] gabungan tidak terbaca ffprobe.'); return 1; }
     catat(`[gabung] durasi ${u.dur.toFixed(2)} dtk (${lama(u.dur)}), ukuran ${mb(u.size)}` +
-      (Number.isNaN(jumlah) ? '' : Math.abs(u.dur - jumlah) <= 0.5 ? `; cocok dengan jumlah butir (${jumlah.toFixed(2)} dtk)` : `; [peringatan] jumlah durasi butir ${jumlah.toFixed(2)} dtk berbeda`));
+      (Number.isNaN(jumlah) ? '' : Math.abs(u.dur - jumlah) <= 0.5 + 0.1 * bagian.length ? `; cocok dengan jumlah butir (${jumlah.toFixed(2)} dtk)` : `; [peringatan] jumlah durasi butir ${jumlah.toFixed(2)} dtk berbeda`));   // AAC menambah <= ±1 frame (±43 ms) per sambungan
   }
   lepas();
   catat(`[selesai] ${ringkas}`);
@@ -317,7 +317,7 @@ async function utama(argv) {
   mkdirSync(dirname(log), { recursive: true });
   const catat = baris => { const s = `${stempel(Date.now())} ${baris}`; console.log(s); try { appendFileSync(log, s + '\n'); } catch {} };
   const d = nyata(o, catat);
-  catat(`[antre-render] ${new Date().toLocaleString('sv-SE')} · log: ${relative(cwd, log) || log}`);
+  catat(`[antre-render] ${new Date().toLocaleString('sv-SE')} · pid ${process.pid} · log: ${relative(cwd, log) || log}`);
 
   // bersih-bersih di SEMUA jalan keluar: normal, galat, Ctrl+C (SIGINT), ditutup (SIGHUP/SIGBREAK), dihentikan (SIGTERM)
   process.on('exit', () => {

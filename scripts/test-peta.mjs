@@ -57,7 +57,7 @@ test('gunung: puncak = elevasi GVP (≤ 20 m) di koordinat GVP, kawah cekung di 
   assert.ok(M.tinggi(kelud.x, kelud.z) < kelud.E - .15, 'Kelud: dasar kawah harus di bawah bibir');
   const t = M.gunung.find(g => g.nama === 'Tengger'), [rb, hb] = t.kaldera;
   assert.ok(Math.abs(M.tinggi(t.x + rb, t.z) - hb) < .15 && M.tinggi(t.x + 2.6, t.z) < hb - .3, 'Tengger: bibir kaldera tinggi, lantai pasir rendah');
-  for (const g of M.gunung) { const d = g.R * 1.02;   // di luar kaki: tinggi ditentukan dataran, bukan kerucut
+  for (const g of M.gunung) { const d = g.R * 1.19;   // di luar kaki (R tak bulat ≤ +18 %): tinggi ditentukan dataran, bukan kerucut
     assert.ok(M.kerucut(g, g.x + d, g.z) === 0 && M.kerucut(g, g.x, g.z - d) === 0, `${g.nama}: kerucut bocor di luar jari kaki`); }
 });
 

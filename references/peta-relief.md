@@ -25,7 +25,7 @@ baca lain tidak bertambah satu bita pun.
 |---|---|---|---|
 | Garis pantai | Natural Earth 10m `ne_10m_land` | klip 104–116,8 BT × 9,5–5 LS; Douglas–Peucker **0,5 km**; pulau < 0,003 deg² dibuang; kuantum 0,002° (≈ 220 m). 18 cincin, 927 titik | domain publik |
 | Garis 200 m (paparan) | Natural Earth 10m `ne_10m_bathymetry_K_200` | klip 103,6–117,4 × 12–4 LS (lebih lebar: tepi klip palsu jauh dari jaring); fitur yang berbagi tepi disatukan; DP **1,5 km**. 5 cincin, 226 titik | domain publik |
-| Gunung api | Global Volcanism Program, 2026. *Volcanoes of the World* (v. 5.4.0; 7 Aug 2026). Smithsonian Institution, compiled by Venzke, E. https://doi.org/10.5479/si.GVP.VOTW5-2026.5.4 | lapisan WFS `Smithsonian_VOTW_Holocene_Volcanoes` (34 gunung, tanpa Krakatau) dan `…_Pleistocene_Volcanoes` (34, yang ≥ ±0,8 km), diambil 3 Nov 2026. Dipakai: lon, lat, elevasi puncak | kutip GVP |
+| Gunung api | Global Volcanism Program, 2026. *Volcanoes of the World* (v. 5.4.0; 7 Aug 2026). Smithsonian Institution, compiled by Venzke, E. https://doi.org/10.5479/si.GVP.VOTW5-2026.5.4 | lapisan WFS `Smithsonian_VOTW_Holocene_Volcanoes` (34 gunung, tanpa Krakatau) dan `…_Pleistocene_Volcanoes` (34 dari 42: tanpa kubah lava kecil, medan maar, dan yang < 0,8 km), diambil 3 Nov 2026. Dipakai: lon, lat, elevasi puncak | kutip GVP |
 | Sungai | **SKEMATIS** — Natural Earth 10m tidak memuat satu pun sungai Jawa (0 fitur di kotak 104,5–116 BT; diperiksa) | titik kota/muara yang dilalui, hulu → muara, dihaluskan Catmull-Rom | karya sendiri |
 | Wilayah (dataran tinggi, pegunungan selatan, Kendeng, Rembang, Ijen) | bentuk tangan | gaussian `[lon, lat, jari x, jari z, tinggi]` | karya sendiri |
 

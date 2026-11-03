@@ -5,7 +5,7 @@
    peta baru (pulau lain, toleransi lain); deliverable tidak membacanya.
 
    Pakai (folder berisi ne_10m_land.geojson + ne_10m_bathymetry_K_200.geojson, unduhan naturalearthdata.com):
-     node scripts/peta-data.mjs <folder-ne> [--darat 104,-9.5,116.8,-5] [--laut 103.6,-12,117.4,-4] [--toleransi .5] [--luas .003]
+     node scripts/peta-data.mjs <folder-ne> [--darat 103,-9.5,117,-3] [--laut 103.6,-12,117.4,-4] [--toleransi .5] [--luas .003]
    --darat/--laut  kotak klip lon0,lat0,lon1,lat1 (laut dibuat lebih lebar: tepi klip palsu jauh dari jaring)
    --toleransi     Douglas–Peucker dalam km (lon diskalakan cos lintang tengah)
    --luas          pulau di bawah ini (derajat²) dibuang
@@ -23,7 +23,7 @@ const argv = process.argv.slice(2), opsi = k => { const i = argv.indexOf('--' + 
 const folder = argv.find((a, i) => !a.startsWith('--') && !(i && argv[i - 1].startsWith('--')));
 if (!folder) { console.log('pakai: node scripts/peta-data.mjs <folder-ne> [--darat …] [--laut …] [--toleransi .5] [--luas .003]'); process.exit(1); }
 const kotak = (s, d) => (s || d).split(',').map(Number);
-const DARAT = kotak(opsi('darat'), '104,-9.5,116.8,-5'), LAUT = kotak(opsi('laut'), '103.6,-12,117.4,-4'),
+const DARAT = kotak(opsi('darat'), '103,-9.5,117,-3'), LAUT = kotak(opsi('laut'), '103.6,-12,117.4,-4'),
   EPS = +(opsi('toleransi') || .5), LUAS = +(opsi('luas') || .003), Q = .002;
 const lat0 = (DARAT[1] + DARAT[3]) / 2, KX = 111.32 * Math.cos(lat0 * Math.PI / 180), KZ = 110.58;
 

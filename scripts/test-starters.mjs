@@ -297,7 +297,7 @@ for (const file of files) {
       if (!(elang.celah.bebas >= .5 && elang.celah.lintas && elang.celah.lintas[1] > 1)) masalah.push(`elang: kamera tidak menembus celah gapura dengan jarak bebas ≥ 0,5 m (${JSON.stringify(elang.celah)})`);
       if (elang.subLuar !== 1 || !(elang.subDalam > 1)) masalah.push(`elang: motion blur harus hanya di segmen KABUR (luar ${elang.subLuar}, dalam ${elang.subDalam} sub-frame)`);
     }
-    // peta relief (starter-peta-relief.html): label yang tampil (opacity > ,5) di dalam bingkai pada 5 detik uji; rute tergambar sebagai
+    // peta relief (starter-peta-relief.html): label yang tampil (opacity > ,5) di dalam bingkai pada 6 detik uji; rute tergambar sebagai
     // fungsi waktu (0 sampai 7 dtk, sebagian di 10, utuh sesudah tiba). Di halaman bawaan, sebelum kait kamera 3D (CAM3_UJI menyetel CAM)
     const peta = await page.evaluate(() => window.PETA_UJI ? window.PETA_UJI() : null);
     if (name === 'starter-peta-relief.html' && !peta) masalah.push('peta: PETA_UJI tidak ada');

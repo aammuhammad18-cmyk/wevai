@@ -90,7 +90,16 @@ Kilas balik: bangun adegan seperti biasa, lalu `palet:'kenang', nada:.7` di seti
 
 ## Biaya
 
-Isi diukur di mesin acuan (i3-3217U, HD 4000) SAAT render pemilik berjalan, jadi batas atas — angka di `evals/bukti/2026-11-03-lukis/`.
+Diukur di mesin acuan (i3-3217U, HD 4000) SAAT render pemilik berjalan, jadi batas atas (rincian: `evals/bukti/2026-11-03-lukis/`).
+
+| Ukuran | Nilai |
+|---|---|
+| per frame (seek + 2 rAF + screenshot JPEG, median 10 frame) | **197 ms**; `starter-sinematik` di sesi yang sama 257 ms. Bidang lukisan = bitmap diam, tak ada shader/filter per frame |
+| siap (muat + lukis 5 bidang + 20 kanvas sprite) | 15,5 dtk, sekali per muat (tiap worker ekspor); sinematik 1,5 dtk |
+| satu bidang 2240×1400 terpisah | 1,8–2,1 dtk, ±1,6 dtk di antaranya kompilasi shader (konteks dilepas tiap `siap()`); `kuas` 0/3/6/9 tak terbedakan |
+| SwiftShader (CI tanpa GPU), satu bidang | 81,7 dtk → starter masuk `BERAT` |
+
+Hemat siap: satu `lukis.bidang()` per bidang (gabungkan markup), sprite sedikit dan kecil, satu `siap()` di akhir (kompilasi sekali).
 
 ## Batas dan jebakan
 

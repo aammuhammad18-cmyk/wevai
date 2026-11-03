@@ -52,6 +52,7 @@ terang/bayang di bawah tonjolan.
 | `obor(o)` | `jenis` `'tiang'`/`'dinding'`, `kolam` 0 | badan saja; nyala di `(x, y − tinggi)` lewat `api`. Cahaya bawaan dari atas (nyalanya sendiri) |
 | `asap(o)` | `angin` .35 | kepulan statis (gumpal bergradien); untuk kejauhan/still |
 | `relief(o)` | `lebar` 900, `isi` `'prosesi'`/`'kalpataru'`/`'perahu'` | panel batu berbingkai, pahatan timbul dengan bevel dipanggang (detail 0 = panel polos); `(x, y)` = tengah bawah. BUKAN `relief()` cahaya-2d (filter) — keduanya bisa ditumpuk |
+| `dindingRelief(o)` | `lebar` 4300, `tinggi` 1000, `lebarPanel` 1000, `isi` `['kalpataru','perahu','prosesi']`, `arah` −1 | DATA pahatan (lapis + bagian hidup), bukan SVG: masukan `reliefHidup()` — `references/relief-candi.md` |
 | `kain(o)` | `motif` `'kawung'`/`'parang'`/`'ceplok'`/`'truntum'`, `skala` 1, `sudut` 0, `warna` [latar, motif, aksen] | mengembalikan `<pattern id>` (ubin 40 px): taruh di `<defs>`, pakai `fill="url(#id)"` (kostum 4b) |
 
 **Kait kanvas** (sekali saat setup; menggambar ulang dari `tl.time()`, kanvas dihapus penuh tiap frame — deterministik):

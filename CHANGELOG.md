@@ -218,6 +218,133 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
     - sawah lembah dekat tampak kotak-kotak pada grid kasar (±14 m) di frame akhir;
     - `terbang()` 2.5D belum dipasang di starter 2.5D mana pun; shot mata elang brief 10 menyusul bersama babak multi-adegan (E).
   - **Status penerimaan**: menunggu bench di mesin senggang dan vonis visual pemilik.
+- **Relief candi hidup** (sub-proyek 7, gaya lanjutan pertama; J di `docs/rencana-1.4.0.md`).
+  - **Berkas**: `assets/starter-relief.html`, `src/runtime/relief-hidup.js` (blok baru `<wv:relief-hidup>`: `reliefHidup()`,
+    `SINAR`), `references/relief-candi.md`, dan `scripts/test-relief.mjs` (baru); `pustaka.dindingRelief` di `pustaka.js`.
+  - **Demo** (20 dtk): galeri tiga panel ala Borobudur dibaca searah pradaksina (prosesi → kapal bercadik → kalpataru). Obor
+    `SINAR` menyapu dinding, kamera berjalan lalu berhenti di tiap panel, legenda "Kapal Bercadik". 17 bagian pahatan bergerak
+    pelan (lengan, dayung, layar, ombak, untaian, payung).
+  - **Teknik cahaya**:
+    - sekali saat setup: peta tinggi pahatan (764 lapis Path2D, profil membulat dari jarak-ke-tepi, erosi, lubang, butir batu)
+      dipanggang jadi normal + AO, dan warna andesit (belang, nada per blok, lumut, jejak hujan) dipanggang di GPU;
+    - tiap frame, WebGL2 dua pass: bagian hidup sebagai sprite peta tinggi, lalu lampu titik `SINAR` (Lambert, redaman
+      1/(1+d²/J²), bayangan pahatan lunak 24 langkah, ambien langit × AO). `SINAR` di-tween seperti `CAM`.
+  - **Biaya terukur** (di bawah beban render pemilik): 29–32 ms/frame untuk dinding 4300×1000, bayangan ikut bergerak. Pembanding:
+    Canvas 2D per piksel 737 ms tanpa bayangan; filter SVG dinamis 358 ms tanpa bayangan jatuh. Setup 4,1–5,1 dtk per muat halaman.
+  - **Deterministik**: kanvas di t 9,2 byte-identik lewat tiga jalur seek (langsung, lompat, putar berurutan).
+  - **Uji**: `test-relief` (11 uji; lima mutasi sengaja semuanya tertangkap) masuk `rilis.mjs` dan CI; `RELIEF_UJI` dan
+    `SINEMA_UJI` di `test-starters`.
+  - **Anggaran konteks**: jalur baru **Relief candi hidup** (`explainer.md` + `techniques.md` + `relief-candi.md` +
+    `starter-relief.html`) 293 KB, batas pelacak 295 KB; ±4/5 starter adalah blok runtime.
+  - **Bukti**: `evals/bukti/2026-11-03-relief-candi/` (`kontak.jpg`, `nilai.txt`). `nilai-visual` 9 dari 9 ok: rentang 39–46,
+    kontras subjek 18–33, titik terang dekat lampu +31…+39, 3–4 warna.
+  - **Celah yang diketahui**:
+    - ms/frame ekspor penuh dan setup di mesin senggang belum diukur;
+    - kanvas relief 1:1 di bidang z = 0, jadi melunak di atas zoom ±1,25; close-up butuh dinding kedua yang lebih kecil;
+    - satu konteks WebGL2 per dinding, jadi 1–2 dinding per halaman;
+    - sosok dan panel adalah kosakata bergaya, bukan salinan panel nyata, sedangkan legendanya "BOROBUDUR · ABAD IX".
+  - **Status penerimaan**: menunggu bench di mesin senggang dan vonis visual pemilik.
+- **Rig tokoh v2** (sub-proyek 4b, G di `docs/rencana-1.4.0.md`).
+  - **Berkas**: `src/runtime/tokoh.js` (blok baru `<wv:tokoh>`, satu global `tokoh`), `assets/katalog-tokoh.html`,
+    `references/tokoh.md`, dan `scripts/test-tokoh.mjs` (baru); penunjuk di `kartun-panggung.md`.
+  - **Rig**: rangka 19 tulang dengan arah 3D yang diproyeksikan ke tiga pandang (depan, tiga perempat, samping), jadi satu pose
+    terbaca di ketiganya; slot dan lampiran ala Spine dengan urutan gambar per pandang; IK dua tulang analitik (dijepit; sisi siku
+    dan lutut menurut tanda).
+  - **Bentuk dan cahaya**: bagian tubuh bezier dari profil lebar, bukan kapsul. Warna rata bernada malam + satu gradien cahaya per
+    tokoh (gradien per segmen membuat tokoh tampak seperti manekin kayu). Rim = siluet dikurangi salinan yang digeser menjauhi cahaya;
+    arah cahaya dihitung ulang tiap frame dari obor terdekat.
+  - **Pose bernama**: berdiri (kontraposto), menunjuk, sembah, tombak, bawa, bersila, silasembah, meraih (IK), dan jalan prosedural
+    yang fasenya diambil dari jarak tempuh dengan telapak tumpu dikunci IK, jadi kaki tidak selip.
+  - **Kostum dan atribut Jawa kuno**: kain bermotif `pustaka.kain`, wiron, sabuk, sampur, keris, ikat/jamang/mahkota/jata, kelat bahu,
+    gelang, kalung, upawita, kemben; properti tombak, perisai, payung, tongkat, cangkul, sesaji. Enam arketipe (rakyat, raja,
+    prajurit, resi, petani, putri) dan `kerumunan({seed, n, area, ragam})` ber-seed.
+  - **Determinisme**: tokoh bergerak = satu kanvas per bidang yang dihapus penuh dan digambar ulang dari `tl.time()` tiap frame.
+    Transform `<g>` di svg bidang ber-`will-change` terukur tidak deterministik (tepi ±1–2, dengan rim ±12). Semua kanvas tokoh
+    identik lintas jalur seek; di dalam siluet tokoh paling banyak 8 piksel berbeda dari ≥ 105 ribu.
+  - **Etalase** `assets/katalog-tokoh.html` (28 dtk, 35 tokoh): enam arketipe saat senja di depan candi; dua prajurit ronda di
+    sepanjang tembok berobor; putri meraih altar lewat IK lalu menyembah; kerumunan 24 tokoh di depan gapura berobor.
+  - **Uji**: `test-tokoh` (10 uji: IK, determinisme dan campuran pose, telapak tanpa selip, kerumunan, SVG well-formed, log gambar
+    kanvas identik lintas jalur seek, galat berbahasa Indonesia) masuk `rilis.mjs` dan CI. `SINEMA_UJI` katalog tokoh di
+    `test-starters`: 4 kanvas tokoh, ≥ 30 tokoh, 6 arketipe.
+  - **Anggaran konteks**: tidak berubah (katalog dan `tokoh.md` di luar jalur); `tokoh.js` 41,5 KB.
+  - **Bukti**: `evals/bukti/2026-11-03-tokoh-v2/kontak.jpg`. `nilai-visual` 6 dari 6 ok: rentang 28–35, kontras subjek 18–31, titik
+    terang +58…+72 di sumber yang dideklarasikan, 2–3 warna.
+  - **Catatan budaya** (di `tokoh.md`): kemben pada putri adalah konvensi ilustrasi modern; keris di punggung bersarung ladrang cocok
+    untuk Majapahit ke atas, diragukan untuk Mataram Kuno; payung bertingkat berumbai adalah bentuk kemudian; mahkota, jamang, dan
+    jata adalah bentuk ikonik, bukan salinan arca tertentu.
+  - **Celah yang diketahui**:
+    - selisih latar (bukan tokoh) ±1 px, maks. 76–84, sesudah lompat mundur ke tableau yang tampil sejak halaman dimuat; terjadi juga
+      di `katalog-pustaka` tanpa tokoh. Ekspor maju tidak menampilkan ulang tableau, jadi kemungkinan tidak terdampak;
+    - cincin samar ±4 di pendar obor `cahaya-2d` antara jalur berurutan dan jalur lompat;
+    - ms/frame belum diukur (mesin sedang merender);
+    - pose mendayung dan menunggang belum ada; tokoh statis `buat()` hanya berwarna rata (cahaya lewat `rim()`/`bayangan()`);
+    - blok `<wv:tokoh>` baru ada di katalog; pemasangannya di starter sinematik menyusul bersama babak multi-adegan (E).
+  - **Status penerimaan**: menunggu bench di mesin senggang dan vonis visual pemilik.
+- **Ekspor panjang** (sub-proyek 6).
+  - **Berkas baru**: `scripts/antre-render.mjs`, `scripts/ekspor-inti.mjs`, `scripts/test-ekspor.mjs`.
+  - **`export-frames.mjs`**:
+    - `WORKERS` bawaan kini **2** bila `os.availableParallelism() >= 2`, selain itu 1; env tetap menimpa.
+    - Frame sama dengan `WORKERS=1`: di halaman mini 30 dari 30 hash PNG sama; di halaman nyata 1080p (`starter-sinematik`,
+      `katalog-tokoh`) 344/360 dan 834/840 hash sama, sisanya selisih maks. 1 level (PSNR 110–116 dB, tak terlihat)
+      (`evals/bukti/2026-11-03-ekspor/bukti.txt` §5).
+    - Kecepatan terukur di laptop 2 core: 1,20× (`starter-sinematik`) dan 1,47× (`katalog-tokoh`), bukan ±2× seperti perkiraan peta §7
+      (mesin sambil dipakai tiga agen ber-Chrome Idle).
+    - Antrean render pemilik (Bali, lalu Nabi) ikut memakai 2 worker begitu ini masuk `main` (3 Nov, dengan izin pemilik);
+      `WORKERS=1` di env mengembalikan perilaku lama.
+  - **`antre-render.mjs`** (generalisasi `alat/antre-render.sh`):
+    - Masukan `antrean.json` `[{html|url, mp4, siap?, audio?, env?}]`.
+    - Butir dilewati bila mp4-nya terbaca ffprobe dan lebih baru dari html dan audio.
+    - Hasil ditulis ke `.sementara.mp4` dulu lalu diganti nama, jadi mp4 setengah jadi tidak pernah dianggap selesai.
+    - Butir yang gagal dicatat dan antrean jalan terus; menjalankan ulang berarti melanjutkan.
+    - Log mencatat fps, sisa butir/antrean, dan jam selesai.
+    - `--gabung` menggabung semua babak lalu mencocokkan durasi gabungan dengan jumlah durasi butir.
+  - **Penahan sleep bawaan** hidup selama antrean berjalan dan mati di semua jalan keluar:
+    - Windows: `SetThreadExecutionState(0x80000001)` lewat PowerShell tersembunyi;
+    - macOS: `caffeinate`;
+    - Linux: `systemd-inhibit`;
+    - setelan daya tidak disentuh;
+    - terbukti di proses nyata: galat di tengah render mematikan 22/22 proses turunan.
+  - **`MODE=webcodecs`** (eksperimental), untuk halaman yang seluruh framenya satu kanvas (`window.OPENER.canvas`):
+    - `VideoEncoder` H.264 Annex B dialirkan ke ffmpeg (`-r <fps> -f h264 -c copy`);
+    - uji: 90 frame, 6,000000 dtk, urutan frame benar, selisih rata-rata 1,0–1,7 level dibanding jalur PNG;
+    - tanpa kait kanvas: pesan jelas, lalu jalur biasa.
+  - **Uji**: `test-ekspor` (40 uji tanpa Chrome dan ffmpeg; 10 dari 11 mutasi tertangkap) masuk `rilis.mjs`, CI, dan `aturan-rilis.md`.
+  - **Dokumen**: `alat-kerja.md` › "Render panjang" dan "Mode WebCodecs"; kait `canvas` di kontrak `OPENER` (`architecture.md`);
+    README; satu penunjuk di langkah 6 `SKILL.md`.
+  - **Belum diukur / celah**:
+    - kecepatan WebCodecs di 1080p, dan halaman WebGL nyata;
+    - jalur macOS/Linux dan Ctrl+C asli di Windows (baru lewat uji unit);
+    - ETA belum menghitung waktu peluncuran Chrome.
+- **Painterly `lukis`** (sub-proyek 7, gaya lanjutan kedua; J di `docs/rencana-1.4.0.md`).
+  - **Berkas**: `src/runtime/lukis.js` (blok baru `<wv:lukis>`, butuh `atmosfer`), `assets/starter-lukis.html`, `references/lukis.md`,
+    dan `scripts/test-lukis.mjs` (baru); penunjuk di `explainer.md`, `techniques.md`, `isi-paket.md`, dan README.
+  - **Teknik**: Kuwahara anisotropik + cat air (gelap tepi, granulasi pigmen, mekar basah) di WebGL2, di atas kertas yang
+    dibangkitkan. Tiap bidang `[data-z]` dilukis SEKALI saat setup ke kanvasnya sendiri, lalu kamera 2.5D hanya menggesernya.
+    Sapuan menempel pada lukisan seperti latar film animasi lukis tangan di kamera multiplane, jadi tidak "mendidih"; derau diikat
+    ke ruang objek, bukan layar. Teks tetap DOM tajam di atas lukisan.
+  - **Demo** (16 dtk): legenda senja "Desa di kaki gunung": gunung api berasap, rumah panggung berjendela menyala, petani di sawah
+    berundak, pemikul di pematang, burung pulang, dan legenda "Kisah dari masa lampau" di kantong gelap tebing. `?kenang=1` =
+    kilas balik sepia.
+  - **Bukti tidak mendidih** (`potong.jpg`: potongan 1:1, 4 bingkai berurutan): kamera ditahan → 0 % piksel berubah; putar biasa
+    (kamera bergeser sub-piksel) → 0,5 % piksel berubah > 8 level; pembanding filter layar naif ber-seed per frame → 30 % > 8 level.
+    Bingkai dari dua peluncuran Chrome terpisah identik byte demi byte.
+  - **Biaya** (diukur saat render pemilik berjalan, jadi batas atas): 197 ms/frame (sinematik di sesi yang sama 257 ms), karena
+    bidang lukisan adalah bitmap diam; siap 15,5 dtk per muat halaman (melukis 5 bidang + 22 kanvas sprite), sekali per worker.
+  - **Uji**: `test-lukis` (kenop, antrean lukis, siklus pose) masuk `rilis.mjs` dan CI. `test-starters`: kait `LUKIS_UJI` (lukis
+    ulang = byte sama, seed lain = sapuan lain, derau ikut objek, tanpa WebGL2 = raster mentah, kenop salah ditolak) dan blok lukis
+    berbasis screenshot (sidik dua muat, seek dua jalur, diam, tepi, geser) dengan dua mutasi wajib tertangkap: filter layar ber-seed
+    per frame dan tekstur layar diam. Halaman dilewati di WebGL perangkat lunak (satu bidang 81,7 dtk di SwiftShader).
+  - **Anggaran konteks**: jalur baru **Painterly (legenda)** (`explainer.md` + `techniques.md` + `lukis.md` + `starter-lukis.html`)
+    264 KB, batas pelacak 266 KB.
+  - **Bukti**: `evals/bukti/2026-11-03-lukis/` (`kontak.jpg`, `potong.jpg`, `kenang.jpg`, `nilai.json`). `nilai-visual` 6 dari 6 ok:
+    rentang 47,7–48,5, kontras subjek 14,8–15,9, matahari +51,6…+54,6, 4 warna.
+  - **Celah yang diketahui**:
+    - butuh WebGL2 + `EXT_color_buffer_float`; tanpa itu raster mentah tanpa sapuan;
+    - dolly > 1,1 melunakkan kertas dan sapuan (kanvas = bitmap); garis yang lebih tipis dari `kuas` hilang;
+    - memori GPU sementara ±112 MB per bidang 2240×1400 saat dilukis;
+    - ms/frame ekspor penuh belum diukur di mesin senggang;
+    - agen pembuatnya macet sesudah bukti di-commit, jadi laporan akhirnya tidak ada; gerbang dan uji penggabungan dijalankan controller.
+  - **Status penerimaan**: menunggu bench di mesin senggang dan vonis visual pemilik.
 
 ## 1.3.0 — 2026-11-02
 

@@ -143,7 +143,7 @@ menggambar frame itu. Hanya yang kedua bisa ditekan:
   menggeser bitmap jadi, filternya tidak dihitung ulang.
 - Cahaya yang berubah (obor berkedip, matahari turun) = opacity/transform lapisan
   pendar di atas gambar yang dipanggang, bukan tween atribut filter.
-- Video panjang diekspor dengan `WORKERS=2` (`alat-kerja.md`).
+- Video panjang diekspor per babak lewat `scripts/antre-render.mjs` (`WORKERS=2` sudah standar; `alat-kerja.md` › Render panjang).
 
 ## Dev server wajib no-cache
 
@@ -177,7 +177,8 @@ ffmpeg -framerate 60 -i frames/f%05d.png -i vo.wav -c:a aac -b:a 192k -shortest 
 ```
 
 Ekspos `window.OPENER = { W, H, tl, DURATION, seek, ready }` supaya skrip
-snap/export (dan debugging konsol) bisa mengendalikan timeline.
+snap/export (dan debugging konsol) bisa mengendalikan timeline. Opsional `canvas`
+(elemen kanvas yang memuat seluruh frame) untuk `MODE=webcodecs`: `references/alat-kerja.md` › "Mode WebCodecs".
 
 ## Panel kontrol developer — tersembunyi
 

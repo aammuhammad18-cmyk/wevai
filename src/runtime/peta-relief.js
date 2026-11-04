@@ -92,11 +92,10 @@ function medan(D=JAWA,{seed=3}={}){
       return{dalam,jarak,sdf:(x,z)=>dalam(x,z)?jarak(x,z):-jarak(x,z)};},
     darat=bidang(D.pantai),laut=bidang(D.dalam),
     G=[...D.gunung.map(g=>[g,0]),...D.gunungTua.map(g=>[g,1])].map(([[nama,lon,lat,m,R,o={}],tua],i)=>{const[x,z]=proyeksi(lon,lat);
-      const h=j=>hash(i,seed+j),fase=h(6)*6.283;   // ragam bentuk, ber-seed: profil dua lengkung (apron), bahu, jumlah jurang. Puncak tetap GVP
+      const h=j=>hash(i,seed+j),fase=h(6)*6.283;   // bentuk ber-seed; puncak tetap GVP
       return{nama,lon,lat,x,z,E:m/1e3,R,tua,k:tua?1.05+.6*h(7):1.3+.9*h(7),apron:.1+.42*h(8),kawah:tua?0:.45,cekung:.12,alur:tua?.26+.14*h(9):.15+.13*h(9),lancip:tua?.06+.12*h(10):.02+.03*h(10),
         jurang:tua?5+Math.floor(h(5)*5):9+Math.floor(h(5)*7),fase,bahu:Array.from({length:1+Math.floor(h(11)*3)},(_,b)=>[hash(b,i+seed+40)*6.283,.3+.3*hash(b,i+seed+41),.07+.13*hash(b,i+seed+42)]),...o};}),
-    /* jurang radial: 5–15 per gunung, jarak tak rata dan berliuk ke kaki, sempit, dalamnya beda-beda, mulai di ketinggian berbeda (bukan sisir dari puncak).
-       Rumus SAMA dengan jurang() di shader petaRelief; alur halus lereng bawah hanya di shader */
+    /* jurang radial, mulai di ketinggian berbeda (bukan sisir dari puncak). Rumus SAMA dengan jurang() shader; alur halus hanya di shader */
     jurang=(g,r,a)=>{const w=g.fase,q=g.jurang*a/2+.9*Math.sin(3*a+w)+.45*Math.sin(7*a+2*w+2.3*r)+.5*r*Math.sin(5*a+w),s=.06+.3*(.5+.25*Math.sin(4*a+1.7*w)+.25*Math.sin(9*a+w));
       return g.alur*ss(s,s+.3,r)*(1-ss(.82,1,r))*(1-Math.abs(Math.sin(q)))**2.5*(.3+.7*(.5+.25*Math.sin(5*a+2.1*w)+.25*Math.sin(11*a+w)));},
     /* kaki tak bulat: R(a) = R·(1 + A sin(2a+w) + B sin(3a+2w)), A+B ≤ ,18, beda per gunung; sama dengan shader */
@@ -150,14 +149,14 @@ function petaRelief(M,{kotak=[105,-9.1,115.9,-5.5],langkah=1.8,halus=null,tegak=
           gx=(Y(j*nx+ir)-Y(j*nx+il))/(X[ir]-X[il]),gz=(Y(jr*nx+i)-Y(jl*nx+i))/(Z[jr]-Z[jl]),l=Math.hypot(gx,1,gz),h=H[k],
           lereng=Math.hypot(gx,gz)/tegak,ao=Math.max(-1,Math.min(1,((at(i-r,j)+at(i+r,j)+at(i,j-r)+at(i,j+r))/4-h)/.12));   // cekung (lembah) + / cembung (punggung) −
         pos.set([X[i],Y(k),Z[j]],k*3);nor.set([-gx/l,1/l,-gz/l],k*3);gun[k]=dominan(X[i],Z[j]);
-        const gm=GN[gun[k]],rel=gm?h/gm.E:0;   // puncak menurut gunungnya: Holosen berkepala tanah + abu, Pleistosen berhutan sampai dekat puncak
+        const gm=GN[gun[k]],rel=gm?h/gm.E:0;   // Holosen berkepala tanah + abu, Pleistosen berhutan
         c.copy(P.sawah).lerp(P.tegal,ss(.05,.4,h)).lerp(P.hutan,ss(.3,1,h)).lerp(P.tanah,gm?(gm.tua?.45*ss(.88,1,rel):ss(.58,.84,rel)):0).lerp(P.abu,gm&&!gm.tua?ss(.82,.97,rel):0).lerp(P.cadas,.45*ss(.3,.65,lereng))
           .multiplyScalar(ao>0?1-.4*ao:1-.18*ao);col.set([c.r,c.g,c.b],k*3);
         if(luar)luar(i,j,nor,k*3);}
       for(let j=0;j<nz-1;j++)for(let i=0;i<nx-1;i++){if(lubang&&i>=lubang[0]&&i<lubang[1]&&j>=lubang[2]&&j<lubang[3])continue;const a=j*nx+i,b=a+1,d=a+nx;idx.push(a,d,b,b,d,d+1);}
       const g=new THREE.BufferGeometry();g.setIndex(idx);g.setAttribute('position',new THREE.BufferAttribute(pos,3));g.setAttribute('normal',new THREE.BufferAttribute(nor,3));
       g.setAttribute('color',new THREE.BufferAttribute(col,3));g.setAttribute('tinggi',new THREE.BufferAttribute(H,1));g.setAttribute('gunung',new THREE.BufferAttribute(gun,1));return g;},
-    /* ubin noise 256² berulang, mipmap (menjauh → rata-rata): R fBm kasar, G butir, B fBm sedang. Pengganti noise per piksel: lebih murah, tanpa kilau */
+    /* ubin noise 256² berulang + mipmap: R fBm kasar, G butir, B fBm sedang */
     ubin=(()=>{const n=256,a=new Uint8Array(n*n*4),v=(p,s,x,y)=>{const u=x/n*p,w=y/n*p,i=Math.floor(u),j=Math.floor(w),f=u-i,g=w-j,F=f*f*(3-2*f),G=g*g*(3-2*g),h=(a,b)=>hash((b%p)*p+a%p,s);
         return(h(i,j)*(1-F)+h(i+1,j)*F)*(1-G)+(h(i,j+1)*(1-F)+h(i+1,j+1)*F)*G;},fb=(P,s,x,y)=>P.reduce((o,p,k)=>o+v(p,s+k,x,y)/2**(k+1),0)/(1-.5**P.length);
       for(let y=0;y<n;y++)for(let x=0;x<n;x++)a.set([fb([8,16,32,64],21,x,y)*255,fb([64,128],27,x,y)*255,fb([32,64],31,x,y)*255,255],(y*n+x)*4);
@@ -165,7 +164,7 @@ function petaRelief(M,{kotak=[105,-9.1,115.9,-5.5],langkah=1.8,halus=null,tegak=
     U={uUbin:{value:ubin},uWaktu:{value:0},uAwan:{value:.1},uKontur:{value:1},uCetak:{value:0},uTerang:{value:.9},uNaik:{value:1},uTegak:{value:tegak},uTinta:{value:C('#5a5244')},
       uPantai:{value:C(warnaLaut.pantai||'#dfe2d6')},uDangkal:{value:C(warnaLaut.dangkal||'#c3cfcb')},uLaut:{value:C(warnaLaut.laut||'#88a0ad')},uLautDalam:{value:C(warnaLaut.dalam||'#5d7889')}},
     uG=GN.map(g=>new THREE.Vector4(g.x,g.z,g.R,g.kawah)),uG2=GN.map(g=>new THREE.Vector4(g.lancip,g.alur,g.jurang,g.fase)),
-    bahan=jk=>{const m=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.93,metalness:0});   // jk: kuat jurang shader (kisi kasar 1, tambalan 0: jurangnya sudah geometri; alur halus di keduanya)
+    bahan=jk=>{const m=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.93,metalness:0});   // jk: kuat jurang shader (tambalan 0: jurangnya sudah geometri)
       m.onBeforeCompile=s=>{Object.assign(s.uniforms,U,{uJurang:{value:jk*.7},uG:{value:uG},uG2:{value:uG2}});
     s.vertexShader=s.vertexShader.replace('#include <common>','#include <common>\nattribute float tinggi,gunung;varying float vH;varying vec3 vDunia;flat varying float vG;')
       .replace('#include <begin_vertex>','#include <begin_vertex>\nvH=tinggi;vG=gunung;vDunia=(modelMatrix*vec4(transformed,1.)).xyz;');
@@ -179,7 +178,7 @@ float jurang(vec2 p,int i){vec4 g=uG[i],h=uG2[i];float w=h.w;vec2 d=p-g.xy;float
       .replace('#include <color_fragment>',`#include <color_fragment>
 float fh=max(fwidth(vH),1e-6),darat=smoothstep(-fh,fh,vH),paparan=smoothstep(-.2-fh,-.2+fh,vH);
 vec2 pw=vDunia.xz;vec4 n1=texture2D(uUbin,pw/163.),n2=texture2D(uUbin,pw/23.+.31),n3=texture2D(uUbin,pw/5.1+.7);
-{float hl=clamp(vH,0.,3.);   // tata lahan (nada, bukan data): sawah bertambal, tegal, bercak permukiman, hutan makin rapat ke atas. Tanpa nama, tanpa batas sungguhan
+{float hl=clamp(vH,0.,3.);   // tata lahan: nada, bukan data
  vec3 lu=mix(mix(vec3(.26,.34,.09),vec3(.2,.31,.1),smoothstep(.36,.64,n2.b)),vec3(.36,.35,.12),.7*smoothstep(.5,.7,.6*n1.b+.4*n2.r));lu=mix(lu,vec3(.4,.33,.27),.55*smoothstep(.6,.68,.7*n2.g+.3*n3.g)*smoothstep(.5,.62,n1.r)*(1.-smoothstep(.15,.45,hl)));
  lu=mix(lu,vec3(.09,.16,.06)*(.75+.5*n3.r),smoothstep(.54,.72,.3*n1.r+.32*n2.r+.18*n3.b+.45*smoothstep(.08,1.1,hl)));
  diffuseColor.rgb=mix(diffuseColor.rgb,lu*(.82+.36*n3.g),(1.-smoothstep(.95,1.9,hl))*(1.-.65*uCetak));}

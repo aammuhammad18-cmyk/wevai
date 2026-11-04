@@ -124,17 +124,12 @@ Urutan per frame (starter `siapkan()`): `applyCam()` → near/far dan kabut dari
 ## Jebakan
 
 - **NE 10m tanpa sungai Jawa.** Jangan menunggu data; titik skematis + catatan akurasi.
-- **Bidang 200 m terbelah.** NE memotong samudra jadi beberapa fitur yang berbagi tepi; tanpa penyatuan, tepi potong jadi garis
-  200 m palsu di tengah laut dalam (selatan Jawa Timur). `peta-data.mjs` membuang ruas kembar, dan ruas nol: klip Sutherland–Hodgman
-  bisa menggandakan titik pojok kotak, rangkaian ulang lalu putus dan cincin menutup dengan tali busur melintang samudra (pernah
-  terjadi: garis 200 m palsu dari 117,4 BT 4 LS ke 112,7 BT 12 LS). `test-peta` memeriksa laut lepas tetap dalam.
+- **Bidang 200 m terbelah.** NE memotong samudra jadi fitur berbagi tepi; tanpa penyatuan, tepi potong jadi garis 200 m palsu. `peta-data.mjs` membuang ruas kembar dan ruas nol; `test-peta` memeriksa laut lepas tetap dalam.
 - **Lembah sungai memangkas gunung.** Lebar lembah tumbuh dari 1,2 km (hulu) ke 4,5 km (hilir); `test-peta` memeriksa semua puncak.
 - **Ngarai dan tanggul.** Muka air = minimum berjalan: satu cekungan di hulu menahan muka air sepanjang puluhan km. Kini ukiran dibatasi 80 m, `test-peta`: alur tak pernah di atas kedua tebing.
 - **Kamera sebelum terbang pertama** ada di pose bawaan (10 km dari asal = Dieng). `cutTo(0, pose awal)` dulu.
-- **Data pantai harus menutup semua yang terlihat.** Kotak klip yang lebih sempit dari bingkai membuat daratan di luar kotak
-  memanjang lurus (uji dalam/luar menjepit titik ke tepi kotak): Sumatra pernah berpantai lurus di sudut kiri atas.
-- **Label vs busur yang melayang**: busur setinggi 9 km tampak di layar ±18 km lebih jauh dari jejak tanahnya (pitch −27°). Label
-  di bawah busur bertabrakan dengan kepala rute; pindahkan ke sisi lain atau ke detik sebelum/sesudah kepala lewat.
+- **Data pantai harus menutup semua yang terlihat.** Kotak klip yang lebih sempit dari bingkai membuat daratan di luar kotak memanjang lurus.
+- **Label vs busur yang melayang**: busur 9 km tampak ±18 km lebih jauh dari jejak tanahnya. Pindahkan label ke sisi lain atau ke detik lain.
 - **Kabut berbasis jarak** menenggelamkan seluruh pulau saat kamera 1 500 km jauhnya. `fog.near/far` dan `camera.near/far` disetel tiap
   frame dari jarak ke titik tatap.
 - **Label tanpa oklusi**: label di balik punggung gunung tetap tampak. Pilih detik atau sudut yang tidak menyembunyikan titiknya.

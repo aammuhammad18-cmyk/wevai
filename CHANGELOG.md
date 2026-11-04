@@ -468,6 +468,13 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
   - **Diukur ulang pada babak** (PNG, FPS=10): 560/600 frame identik, 1,59× lebih cepat; sisanya t 30–34, maks. 3 level di 6 frame terburuk, ≤ 0,2 % piksel (`bukti.txt` §8). Halaman lain belum diukur ulang.
 - **Rig tokoh lebih hemat**: blur rim dan pendar diklip ke kotak tokoh, sebelumnya memproses selebar kanvas. Tableau 6 tokoh detail 2 turun dari ±371 ke ±288 ms/frame di HD 4000 (batas 350; mesin senggang, belum diukur saat render berjalan), biaya per tokoh ±27 → ±14 ms, babak ±231 → ±222 ms. Rupa tetap: 0 % piksel beda > 16 level, maks. 7. Bukti: `evals/bukti/2026-11-04-tokoh-hemat/`. Angka 437 ms di catatan bench di atas berasal dari sebelum perbaikan ini.
 - **Segmen motion blur mata elang**: terukur 1294 ms/frame (maks. 1646), di luar segmen itu 299 ms. Pengecualian yang disengaja terhadap batas 350 ms: 27 dari 345 frame, tambahan ±30 dtk per shot saat render, gambar tidak terdampak.
+- **Rupa babak, tokoh, pustaka ditingkatkan** sesudah tinjauan pemilik (bukti `evals/bukti/2026-11-04-rupa-babak/`).
+  - **Tokoh**: berwajah di tiga pandang, tangan berjari, bayang bentuk, bahu baru. **Bug**: kain bermotif tak pernah tampil karena `'pola'` dianggap warna tak sah; kini kawung dan ceplok tampil, dengan uji regresi di `test-tokoh`.
+  - **Penjaga**: kuda-kuda, kain merah, perhiasan, perisai daun, tanpa zirah rekaan. Sebagian perhiasan dan warna adalah konvensi ilustrasi atau perkiraan (`tokoh.md`).
+  - **Babak**: t 33,6 tanpa bercak langit dan nyala utuh. Kontras subjek t 38 naik 13,1 → 14,6 dan t 43 12,9 → 17,3.
+  - **Pustaka**: sawah air + hijau (opsi `air`), candi senja kontras 3,6 → 11,5–12,1, tajuk beringin dan lontar dirombak.
+  - **Bench** (3 putaran): babak 232–257, katalog tokoh 316–318 (6 tokoh detail 2 kini batas praktis), pustaka 204–223 ms/frame. Anggaran tidak dinaikkan; Babak sinematik 366/366.
+  - **Celah**: dada MCU t 38 lebar dan datar; pintu candi senja kotak rata; tajuk lontar masih membulat dengan serpihan di dalamnya (pengamatan controller); keris tampak samping seperti tongkat pendek; lengan tampak depan kaku.
 - **Rupa 3D ditingkatkan** sesudah tinjauan pemilik (bukti `evals/bukti/2026-11-04-rupa-3d/`).
   - **Mata elang** (±286 ms/frame, dari ±262): tiga ragam pohon dengan bahan daun tembus cahaya, sawah lembah per piksel, air beriak tanpa bercak putih, gapura berbata dan api bergradien, awan, gunung berpunggung.
   - **Peta relief** (±249 ms/frame, dari ±283): bentuk gunung beragam dengan puncak tetap GVP (±20 m), tata lahan lewat shader (nada acak, bukan data; `peta-relief.md` menyatakannya), kontur memudar saat relief naik.

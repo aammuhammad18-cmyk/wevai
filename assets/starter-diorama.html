@@ -975,7 +975,7 @@ const diorama=(()=>{
   const POLA_FS=`varying float vB;varying vec3 vP,vN;float hB(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 float natB(float v,float t){float d=min(fract(v),1.-fract(v));return 1.-smoothstep(t,t+fwidth(v),d);}
 float polaB(){if(vB<.5)return 1.;vec3 n=abs(normalize(vN));float u=n.x>n.z?vP.z:vP.x;
-if(vB>3.5){float b=vP.y/.2,a=u/(vB<4.5?.06:.1)+hB(vec2(floor(b),vB)),k=1.-smoothstep(.25,.7,fwidth(a));return mix(1.,(.8+.4*hB(vec2(floor(a),floor(b))))*(1.-.2*natB(b,.06)),k);}
+if(vB>3.5){float b=vP.y/.2,a=u/.055+hB(vec2(floor(b),vB)),k=1.-smoothstep(.25,.7,fwidth(a));return mix(1.,(.86+.28*hB(vec2(floor(a),floor(b))))*(1.-.2*natB(b,.06)),k);}
 if(n.y>.6)return 1.;float c=vB<1.5?.12:.4,l=vB<1.5?.34:.9,b=vP.y/c,r=floor(b),a=u/l+.5*mod(r,2.),k=1.-smoothstep(.2,.55,max(fwidth(b),fwidth(a)));
 return mix(.97,(vB<1.5?.9+.2*hB(vec2(r,floor(a))):.95+.1*hB(vec2(r,floor(a))))*(1.-(vB<1.5?.3:.3)*max(natB(b,vB<1.5?.05:.025),natB(a,vB<1.5?.02:.012))),k);}`,
     pasangPola=sh=>{sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nattribute float bahan;varying float vB;varying vec3 vP,vN;').replace('#include <begin_vertex>','#include <begin_vertex>\nvB=bahan;vP=position;vN=normal;');

@@ -937,8 +937,8 @@ function lontar(o){o=opsi('lontar',{x:960,y:1000,tinggi:640,...OPS},o);
   const kipas=(a,p,rr,q,tn)=>{const F=[C[0]+cos(a)*p,C[1]+sin(a)*p+(tn?0:p*.2*(1+sin(a)))],ax=a+r(-.25,.25),sp=r(2.8,3.5),pts=[F];
     for(let j=0;j<=26;j++){const b=sp*(j/26-.5),rad=rr*(j%2?.86:1),u=cos(b)*rad,v=sin(b)*rad*q;pts.push([F[0]+cos(ax)*u-sin(ax)*v,F[1]+sin(ax)*u+cos(ax)*v]);}
     K.S+=ruas([C,F],9,5)+poly(pts);};
-  const n=[8,10,12][dt];for(let i=0;i<n;i++)kipas(-P/2+(i/n-.5)*2*P*.94+r(-.1,.1),r(46,84),r(46,66),r(.5,1));
-  if(dt)for(let i=0;i<3;i++)kipas(-P/2+r(-1.3,1.3),r(24,50),r(36,48),r(.4,.9));
+  const n=[8,10,12][dt];for(let i=0;i<n;i++)kipas(-P/2+(i/n-.5)*2*P*.94+r(-.1,.1),r(26,54),r(54,74),r(.6,1));
+  if(dt)for(let i=0;i<4;i++)kipas(-P/2+r(-1.6,1.6),r(8,24),r(40,52),r(.6,1));
   if(dt)for(let i=0;i<3;i++)kipas(P/2+r(-.7,.7),r(30,50),r(36,48),r(.3,.5),1);
   if(dt)for(let i=1;i<12;i++){const p=bt[i];K.G+=kotak(p[0]-21,p[1],42,2.5);}
   return rakit('lontar',o,A,K);}

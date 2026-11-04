@@ -46,7 +46,6 @@ Salah opsi = `Error('wayang.…')` yang menyebut pilihan sah. `panakawan` ditola
 | Bayangan kabur | `z` 150–300 (`jarak` 620: skala 1,3–1,9; blur 8–23 px) |
 | Bayangan lebih keras di semua jarak | `BLENCONG.nyala` kecil (lampu listrik ±8) |
 | Api tenang / gelisah | `BLENCONG.kedip` 0,15 / 0,85; `kuat` memadamkan |
-| Tatah lebih rapat | `dy` di `polaIsi` (per golongan) |
 | Warna sisi dalang | `muka` (`hitam` `merah` `prada` `putih`), warna kain mengikuti `seed` |
 
 ## Biaya
@@ -63,7 +62,7 @@ membandingkan piksel lewat dua jalur seek; mutasi: `evals/bukti/2026-11-03-wayan
 
 - Empat golongan + gunungan gapuran. Bukan tokoh bernama. Panakawan belum ada: bentuknya khas per tokoh.
 - Satu debog (bawah); dua debog pagelaran (`debog atas`) belum.
-- Satu gaya: terminologi Surakarta, sebagian gerak dari rekaman gaya Yogyakarta (lihat Akurasi). Bali, Cirebon, dsb. berbeda.
+- Satu gaya: terminologi Surakarta, sebagian gerak dari rekaman Yogyakarta. Bali, Cirebon, dsb. berbeda.
 - Sunggingan disederhanakan (lapis lukis dipanggang, sisi dalang saja): gradasi bertingkat pada perhiasan dan tepi kain, prada berbintik, drenjeman sedikit; tanpa `tlancap`, `bludiran`, dan `cawi` halus. Badan tetap polos: close-up masih lebih sederhana daripada wayang asli.
 - Sisi dalang: dalang sendiri, gamelan, dan sinden belum digambar.
 
@@ -105,7 +104,7 @@ Sumber: **[S]** Subagya, "Nilai-nilai Estetis Bentuk Wayang Kulit", *Gelar* 11(2
 
 ## Akurasi: pilihan dan penyederhanaan
 
-- **Golongan, bukan tokoh.** Alusan ≠ Arjuna, raksasa ≠ Rahwana. Bila narasi menyebut tokoh bernama: butuh ikonografi tertentu (sumping, wanda, praba), dan generator ini tidak memberinya.
+- **Golongan, bukan tokoh.** Alusan ≠ Arjuna, raksasa ≠ Rahwana; tokoh bernama butuh ikonografi tertentu yang tidak diberikan generator ini.
 - **Kepala raksasa rekaan bersumber.** Garis profil digambar dari bagan W gambar 2–3 dan foto W gambar 1(2) + Ro tabel 67 (Kumbakarna) sebagai acuan rupa, bukan salinan; proporsi hidung, mulut, jumlah gigi rekaan. Bukan wanda atau tokoh tertentu.
 - **Warna raksasa.** Merah sebagai bawaan dari Pb; Ro mencatat ragam (merah, merah muda, emas, cokelat muda, hijau, putih), `muka` tetap bisa diganti. Rambut hitam dari Pb (gimbalan); foto W menampakkan biru tua: sumber berbeda.
 - **Pakaian raksasa dan uncal disederhanakan.** Celana + uncal wastra dari daftar Ro, bentuk dari foto. Uncal berlekuk menggantikan rantai berukir. Motif serong pada kain rekaan, bukan motif batik bernama. Tiga bulu garuda mungkur rekaan.
@@ -116,6 +115,6 @@ Sumber: **[S]** Subagya, "Nilai-nilai Estetis Bentuk Wayang Kulit", *Gelar* 11(2
 - **Tuding vs cempurit.** I: gapit dan tuding batang terpisah; W menyebut cempurit penjepit. Sumber lain: cempurit terdiri dari tuding dan gapit. Dokumen ini mengikuti I. Gapit berhenti di dada: pilihan rupa supaya muka tidak tercoret.
 - **Dua sendi lengan** dari pengetahuan umum (UNESCO hanya "swivelling arms"); periksa dengan dalang.
 - **Tinggi relatif** dari S; angkanya rekaan.
-- **Prada tubuh** sisi dalang dari S (Sukasman via Ismunandar). Warna kain bukan pakem tokoh.
+- **Prada tubuh** dari S. Warna kain bukan pakem tokoh.
 - **Kedip** rekaan; museum menekankan api dijaga stabil, kedip kuat = pilihan dramatis.
 - Lembar kontak perlu vonis pemilik atau pedalang sebelum klaim "sesuai pakem" dibawa ke penonton. Belum terbaca: Sagio & Samsugi 1991; Soekatno 1992 (lewat kutipan saja).

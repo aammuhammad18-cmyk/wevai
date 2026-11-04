@@ -86,9 +86,7 @@ Dipilih **lambung**: nyaris gratis, tepi halus. Kekurangannya: lipatan di dalam 
 
 ## Akurasi: pura tri mandala
 
-Tempat suci. Pura di starter **generik**, bukan pura tertentu: tak ada denah pura nyata yang disalin. Tanpa klaim ritual: tidak ada arca, dewa, sesajen,
-upacara, atau keterangan pemakaian bangunan. Unsur dibuat sedikit; lebih baik sedikit dan benar. Sebelum dipakai untuk pura yang disebut namanya, ganti denahnya
-dari sumber pura itu.
+Tempat suci. Pura di starter **generik**, tak ada denah nyata yang disalin. Tanpa arca, dewa, sesajen, upacara, atau keterangan pemakaian bangunan. Lebih baik sedikit dan benar. Untuk pura bernama, ganti denah dari sumber pura itu.
 
 ### Keputusan denah
 

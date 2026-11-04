@@ -73,6 +73,17 @@ test('rakitan: deterministik, simetri candi bentar, sisi dalam rata, tanpa atap 
   for (const p of a.k.filter(p => p.z === zb && p.y > 1)) assert.ok(Math.abs(p.x) - p.wb / 2 >= celah / 2 - .011, 'tidak ada kepingan di atas celah (tanpa atap)');
 });
 
+test('padmasana: mengecil ke atas sampai badan dara, puncak bersandaran di belakang tanpa atap di atas rong; bahan terpetakan', () => {
+  const { k, R } = catat(); pura.bangun(R); const [pad] = TRI_MANDALA.bangunan.filter(b => b.jenis === 'padmasana'), bagian = k.filter(p => Math.abs(p.x - pad.x) < 3.3 && Math.abs(p.z - pad.z) < 3.3);
+  const tengah = bagian.filter(p => p.x === pad.x && p.z === pad.z);
+  assert.ok(tengah[0].wb > 6 && tengah.at(-1).wb < 2.2, 'tepas lebar, sari sempit');
+  assert.ok(tengah.length >= 15, 'pepalihan terlalu sedikit');
+  const tinggi = Math.max(...tengah.map(p => p.y + p.h)), atas = bagian.filter(p => p.y >= tinggi - 1e-9);
+  const dx = pad.hadap === 'kauh' ? -1 : 1;
+  for (const p of atas.filter(p => p.y > tinggi + .6)) assert.ok((p.x - pad.x) * dx < 0, 'di atas rong hanya sandaran di belakang: tanpa atap');
+  for (const w of ['bata', 'paras', 'ijuk', 'alang']) assert.ok(pura.BAHAN[pura.PALET[w]] > 0, `bahan ${w}`);
+});
+
 test('tilt: nol di dalam pita, naik monoton keluar, simetris, jenuh di kuat; kuat 0 = mati', () => {
   const o = { pusat: .5, lebar: .1, lunak: .2, kuat: 12 }, r = y => diorama.jariTilt(y, o);
   for (const y of [.4, .45, .5, .55, .6]) assert.equal(r(y), 0);

@@ -84,6 +84,16 @@ test('rancangan: seed sama = data sama, seed beda = motif beda, golongan tetap; 
   assert.match(jalur([[0, 0], [10, 0, 1], [10, 10]]), /^M0,0C/);
 });
 
+test('raksasa: profil pelokan menonjol, plelengan bercincin, rambut di belakang badan; lapis lukis hanya untuk sisi dalang', () => {
+  const G = rancang('raksasa', 1), angka = d => [...d.matchAll(/(-?[\d.]+),(-?[\d.]+)/g)].map(m => +m[1]);
+  assert.equal(G.bagian[0].n, 'rambut', 'gembel harus digambar di belakang badan');
+  const muka = G.bagian.find(p => p.n === 'muka'), kepalaX = Math.max(...angka(muka.d)), mulut = Math.max(...angka(G.atas.find(p => p.n === 'gusi').d));
+  assert.ok(kepalaX > mulut + 60, `hidung pelokan harus melewati mulut (${kepalaX} vs ${mulut})`);
+  assert.ok(G.atas.filter(p => p.n === 'gigi').length >= 8, 'gusen = deret gigi + taring');
+  assert.ok(G.lukis.length && G.lukisAtas.length && G.lukisT.length && G.lukisH.length, 'lapis lukis kosong');
+  for (const j in JENIS) assert.ok(rancang(j, 1).lukis.some(o => o.l && o.klip), `${j}: gradasi tepi hilang`);
+});
+
 test('gunungan: siluet simetris meruncing + isi pakem gapuran', () => {
   const K = rancangKayon(3), g = K.garis;
   const xs = g.map(p => p[0]); dekat(Math.min(...xs), -Math.max(...xs), 1e-9);

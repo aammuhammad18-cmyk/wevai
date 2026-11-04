@@ -187,10 +187,10 @@ function rancang(jn,seed=1){const J=JENIS[jn],R=mulberry32(seed*7919+jn.length),
   if(jn==='raksasa')BG.unshift({n:'rambut',d:jalur(T(Gl.isi)),w:'rambut'});else isi('rambut',T(Gl.isi),'rambut');isi('rambut',T(Gl.lungsen),'rambut');isi('muka',T(KEPALA[jn]),'muka');
   ubin('seritan',T(Gl.serit),2);if(jn==='raksasa'){ubin('bubukan',T([[-120,-50],[-104,-96],[-68,-150],[-14,-174],[34,-166]]),2.4);ubin('bubukan',T([[-132,60],[-128,0],[-112,-40]]),2.4);ubin('bubukan',T([[-100,84],[-96,20],[-82,-30]]),2.2);}
   if(J.gelung==='cupit urang'){/* jamang di dahi + garuda mungkur di belakang gelung */
-    isi('perhiasan',T([[20,-108],[30,-120],[-2,-146],[-46,-136],[-44,-120],[-6,-126]]),prada);ubin('bubukan',T([[14,-120],[-36,-132]]),1.7);
+    isi('perhiasan',T([[20,-108],[30,-120],[-2,-146],[-46,-136],[-44,-120],[-6,-126]]),prada);ubin('bubukan',T([[14,-120],[-36,-132]]),1.7);gradasi(T([[18,-118],[-4,-134],[-40,-128]]),'jingga',6);
     const Gm=T([[-96,-140],[-118,-152,1],[-124,-132],[-146,-120,1],[-134,-102],[-146,-80,1],[-120,-82],[-100,-84],[-82,-98]]);isi('perhiasan',Gm,prada);LB.push(polaTepi(Gm,'bubukan',1.7,.62));tepi(Gm,'merah',9);}
   if(J.gelung==='ukel keyongan'){const S=[];for(let a=0;a<4.4*PI;a+=.5)S.push([-84+cos(a)*(3+a*1.9),-84+sin(a)*(3+a*1.9)]);ubin('bubukan',T(S),1.6);
-    isi('perhiasan',T([[16,-106],[28,-118],[-4,-138],[-38,-130],[-36,-116],[-6,-122]]),prada);ubin('bubukan',T([[10,-118],[-30,-126]]),1.5);}
+    isi('perhiasan',T([[16,-106],[28,-118],[-4,-138],[-38,-130],[-36,-116],[-6,-122]]),prada);ubin('bubukan',T([[10,-118],[-30,-126]]),1.5);gradasi(T([[14,-116],[-4,-128],[-32,-122]]),'jingga',5);}
   /* sumping + gradasi hijau */{const Sm=T(jn==='raksasa'?[[-30,-84],[-46,-96],[-60,-74],[-58,-50],[-44,-22,1],[-34,-52]]:[[-26,-72],[-38,-86],[-52,-68],[-48,-42],[-34,-22,1],[-28,-46]]);isi('perhiasan',Sm,prada);ubin('bubukan',T(jn==='raksasa'?[[-44,-76],[-48,-52]]:[[-34,-68],[-40,-46]]),1.5);tepi(Sm,jn==='raksasa'?'hijau':'merah',6);}
   ubin('tratasan',T([[-40,-18],[-14,-2]]),1.5);   // garis trilaksana kanta di leher
   /* mata + mulut sebagai tatah: bentuk menentukan golongan */
@@ -204,7 +204,7 @@ function rancang(jn,seed=1){const J=JENIS[jn],R=mulberry32(seed*7919+jn.length),
     ATAS.push({n:'gusi',d:jalur(T([[58,-17,1],[38,-30],[6,-36],[-26,-26,1],[2,-26],[36,-23]])),w:'merahGusi'});
     for(const x of[44,35,26,17,8,-1])ATAS.push({n:'gigi',d:jalur(T([[x,-26,1],[x+7,-26,1],[x+6.5,-17,1],[x+.5,-17,1]])),w:'gading'});for(const x of[30,21,12,3])ATAS.push({n:'gigi',d:jalur(T([[x,1,1],[x+7,1,1],[x+6,-5,1],[x+1,-5,1]])),w:'gading'});
     ATAS.push({n:'gigi',d:jalur(T([[-14,-31,1],[-4,-32,1],[-2,-16],[-8,0,1],[-11,-16]])),w:'gading'});ATAS.push({n:'gigi',d:jalur(T([[42,0,1],[52,-4,1],[52,-18],[60,-33,1],[45,-18]])),w:'gading'});   // taring
-    {const Jm=T([[80,-126],[68,-146],[28,-156],[-20,-152],[-56,-128],[-50,-112],[-14,-128],[28,-136],[62,-128]]);isi('perhiasan',Jm,prada);ubin('bubukan',T([[66,-136],[28,-147],[-18,-142],[-48,-122]]),1.7);tepi(Jm,'merah',6);}ubin('bubukan',T([[-30,18],[12,26],[52,16]]),1.7);}
+    {const Jm=T([[80,-126],[68,-146],[28,-156],[-20,-152],[-56,-128],[-50,-112],[-14,-128],[28,-136],[62,-128]]);isi('perhiasan',Jm,prada);ubin('bubukan',T([[66,-136],[28,-147],[-18,-142],[-48,-122]]),1.7);tepi(Jm,'merah',6);gradasi(T([[66,-136],[28,-147],[-18,-142],[-48,-122]]),'jingga',8);}ubin('bubukan',T([[-30,18],[12,26],[52,16]]),1.7);}
   /* lengan */
   const[L1,L2,w]=LENGAN[jn],Pot=potongLengan(L1,L2,w,jn==='raksasa');Object.assign(G,{L:[L1,L2],bahuD,bahuB,Pot});
   gradasi([[-20*w,43],[20*w,43]],'merah',15,{},LT);drenjem([[-18*w,43],[18*w,43]],LT);gradasi([[-14*w,L2-100],[14*w,L2-100]],'hijau',12,{},LH);

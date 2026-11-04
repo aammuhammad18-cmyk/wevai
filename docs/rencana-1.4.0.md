@@ -19,8 +19,8 @@ Sumber rincian:
 | D | Alat VO Gemini (hingga 10 kunci, failover aman) | kode selesai; uji langsung pemilik menunggu | 73eb11f |
 | E | Sub-proyek 3, sisa: babak multi-adegan 60 dtk + `CAM` di kartun panggung | babak: kode selesai, vonis pemilik menunggu (`starter-babak.html`, keputusan pemilik 4 Nov); `CAM` panggung selesai | babak: fa45908..cac5ded; panggung: 50217ff..652c73a |
 | F | Sub-proyek 4a: pustaka aset prosedural Jawa kuno | kode selesai; vonis visual pemilik menunggu | 31172c7..0f1bef0 |
-| G | Sub-proyek 4b: rig tokoh v2 | kode selesai; bench katalog 437 ms MELEWATI 350 (6 tokoh detail 2): optimalkan atau batasi; vonis visual pemilik menunggu | 5c9a3b1..ca20078 |
-| H | Sub-proyek 5: mata elang 3D | kode selesai; bench 292 ms (segmen motion blur belum); vonis visual pemilik menunggu | 93e1629..087736e |
+| G | Sub-proyek 4b: rig tokoh v2 | kode selesai; bench katalog ±288 ms sesudah blur diklip (sebelumnya melewati 350); vonis visual pemilik menunggu | 5c9a3b1..ca20078 |
+| H | Sub-proyek 5: mata elang 3D | kode selesai; bench 292 ms, segmen motion blur 1294 ms (27 frame, pengecualian disengaja); vonis visual pemilik menunggu | 93e1629..087736e |
 | I | Sub-proyek 6: ekspor panjang | selesai (masuk `main` 3 Nov dengan izin pemilik); 2 worker 1,2–1,5× di halaman nyata 1080p, frame identik 98–99 %, sisanya ±1 level | 429c64f..7310d5a |
 | J | Sub-proyek 7: gaya lanjutan | relief candi (233 ms), painterly (219 ms), peta relief 3D (288 ms), wayang kulit (234/293 ms), diorama (240 ms): kode selesai, vonis pemilik menunggu (wayang: + tinjauan pakem; diorama: + tinjauan arsitektur pura) | relief: bfdac93..811ddca; painterly: 1f6d91f..d71c88c; peta: 40fa38f..f13d624; wayang: 611bbcf..e0e805f; diorama: 82bee1e..e2d8b8f |
 | K | Sub-proyek 8: penilaian visual otomatis + galeri | selesai (K2: 7 still di README, rekomendasi 4/1 sudah bersyarat izin raster di `explainer.md`) | K1: a3486a1..f114d7d |
@@ -56,7 +56,7 @@ Rilis 1.4.0 (L) mencakup:
 - Selisih latar sesudah lompat mundur ke tableau yang tampil sejak halaman dimuat (`katalog-pustaka` maks. 76, `katalog-tokoh`
   maks. 84) ditelusuri: selesai, akarnya raster lapisan `will-change` saat dibuat. Babak `WORKERS=1` vs `2`: 1678/1800 frame identik, sisanya
   PSNR ≥ 64,9 dB (bukan identik penuh; tak terlihat).
-- Tindak lanjut: selisih ±3 di t 27,5 (penyebab belum terbukti); `tokoh.*` melewati batas pada 6 tokoh detail 2; vonis pemilik atas penjaga rig v2 yang tanpa zirah.
+- Tindak lanjut: selisih ±3 di t 27,5 (penyebab belum terbukti); vonis pemilik atas penjaga rig v2 yang tanpa zirah.
 
 ### F. Pustaka aset Jawa kuno (`src/runtime/pustaka.js`, blok `<wv:pustaka>`; `build-starters` hanya membaca `src/runtime`)
 

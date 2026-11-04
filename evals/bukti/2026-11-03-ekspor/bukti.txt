@@ -64,3 +64,6 @@ mesin yang sama, semua Chrome uji berprioritas Idle dan memegang kunci Chrome be
    Beda: f00880, f00888, f00900–f01019 (titik belah 900 = t 30, di dalam shot mata elang, sampai sesudah mendarat).
    Sampel 25 frame beda: PSNR terendah 64,9 dB, selisih abu maks 9 (JPEG q95, jadi termasuk selisih enkoder).
    Kesimpulan: tak terlihat, tetapi bukan "maks. 1 level". Penyebab selisih di tengah terbang belum terbukti.
+8. Sesudah perbaikan makeSeek (controller, 4 Nov; dua proses lain aktif)
+   starter-explainer-panggung.html (360 frame, PNG, FPS=30): 87 dtk vs 48 dtk = 1,81×; 360/360 identik (sebelum perbaikan: f00180 beda 3,2 % piksel, maks. 191).
+   starter-babak.html (600 frame, PNG, FPS=10): 386 dtk vs 243 dtk = 1,59×; 560/600 identik; beda f00300–f00339 (t 30–34), 6 frame terburuk maks. 3 level, ≤ 0,2 % piksel.

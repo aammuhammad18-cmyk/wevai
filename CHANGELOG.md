@@ -465,7 +465,9 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
   - **Obat**: sesudah lompat > 0,1 dtk, berhenti sesaat sebelum `t` lalu maju ke `t`. Maju, bukan mundur: mundur dari sesudah `t` membatalkan `set()` yang tepat di `t` (tertangkap `PETA_UJI` pada percobaan pertama).
   - **Uji**: `test-starters` kini membandingkan lompat dengan tiba berurutan di semua starter (gagal pada kode lama: 1,88 % piksel). 18 dari 18 lolos; panggung `WORKERS` 1 vs 2 kini 360/360 frame identik, 1,81× lebih cepat; `deterministik:true`.
   - **Tidak terdampak**: mesin Babad pemilik memakai seek sendiri. MP4 Bali babak 07–09 dan Nabi babak 00–01 diperiksa di titik belah: tak ada frame salah.
-  - **Belum diukur ulang**: WORKERS 1 vs 2 pada babak dan halaman lain sesudah perbaikan ini (angka di `bukti.txt` §5 dan §7 dari sebelumnya).
+  - **Diukur ulang pada babak** (PNG, FPS=10): 560/600 frame identik, 1,59× lebih cepat; sisanya t 30–34, maks. 3 level di 6 frame terburuk, ≤ 0,2 % piksel (`bukti.txt` §8). Halaman lain belum diukur ulang.
+- **Rig tokoh lebih hemat**: blur rim dan pendar diklip ke kotak tokoh, sebelumnya memproses selebar kanvas. Tableau 6 tokoh detail 2 turun dari ±371 ke ±288 ms/frame di HD 4000 (batas 350; mesin senggang, belum diukur saat render berjalan), biaya per tokoh ±27 → ±14 ms, babak ±231 → ±222 ms. Rupa tetap: 0 % piksel beda > 16 level, maks. 7. Bukti: `evals/bukti/2026-11-04-tokoh-hemat/`. Angka 437 ms di catatan bench di atas berasal dari sebelum perbaikan ini.
+- **Segmen motion blur mata elang**: terukur 1294 ms/frame (maks. 1646), di luar segmen itu 299 ms. Pengecualian yang disengaja terhadap batas 350 ms: 27 dari 345 frame, tambahan ±30 dtk per shot saat render, gambar tidak terdampak.
 - **Galeri gaya sinematik** (sub-proyek 8, K2): `docs/gallery/14`–`20` dan tabel baru di README, satu still per gaya dari adegan bawaan starternya (babak, mata elang, relief candi, painterly, peta relief, wayang, diorama). Rekomendasi "sejarah → 4 atau 1" di `explainer.md` sudah bersyarat izin raster.
 
 ## 1.3.0 — 2026-11-02

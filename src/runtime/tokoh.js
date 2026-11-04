@@ -1,9 +1,5 @@
-/* TOKOH (sub-proyek 4b) — rig tokoh v2: kontrak, API, jebakan, catatan budaya: references/tokoh.md. Satu global `tokoh`.
-   Rangka 2,5D (konsep Spine/DragonBones): 19 tulang berarah 3D diproyeksikan menurut arah pandang (depan 0°, tigaperempat 45°,
-   samping 90°) → slot datar berurutan gambar sendiri; lampiran = path bezier yang dirancang per bagian (bukan kapsul). Pose =
-   fungsi murni waktu (IK dua tulang, jalan tanpa selip). buat() = string SVG diam; gerak() = kanvas yang dihapus dan digambar
-   ulang dari tl.time() tiap frame (transform <g> di svg ber-will-change tidak deterministik piksel — tokoh.md). Butuh atmosfer
-   (+ pustaka untuk kain bermotif, cahaya-2d untuk cahaya bernama). Diuji tanpa browser: scripts/test-tokoh.mjs. */
+/* TOKOH: rig tokoh v2 (rangka 2,5D + slot + IK; buat() = SVG diam, gerak() = kanvas dari tl.time()). Kontrak, API, jebakan, catatan
+   budaya: references/tokoh.md. Satu global `tokoh`. Butuh atmosfer (+ pustaka, cahaya-2d). Uji tanpa browser: scripts/test-tokoh.mjs. */
 const tokoh=(()=>{
 const{PI,sin,cos,atan2,hypot,acos,max,min,abs,round,sqrt,floor,ceil}=Math,RAD=PI/180,f=v=>round(v*10)/10,f4=v=>round(v*1e4)/1e4,
   tk=p=>f(p[0])+','+f(p[1]),lerp=(a,b,k)=>a+(b-a)*k,ss=x=>x<=0?0:x>=1?1:x*x*(3-2*x),
@@ -15,7 +11,7 @@ const{PI,sin,cos,atan2,hypot,acos,max,min,abs,round,sqrt,floor,ceil}=Math,RAD=PI
   halus=p=>{const n=p.length;let d='M'+tk(p[0]);for(let i=0;i<n;i++){const a=p[(i+n-1)%n],b=p[i],c=p[(i+1)%n],e=p[(i+2)%n];
     d+=`C${tk([b[0]+(c[0]-a[0])/6,b[1]+(c[1]-a[1])/6])} ${tk([c[0]-(e[0]-b[0])/6,c[1]-(e[1]-b[1])/6])} ${tk(c)}`;}return d+'Z';},
   campurTitik=(A,B,k)=>A.map((p,i)=>[lerp(p[0],B[i][0],k),lerp(p[1],B[i][1],k)]),
-  /* cincin depan simetris: [bawah, 6 titik +x naik, atas] → cincin penuh (sisi −x dicerminkan) */
+  /* cincin depan simetris → cincin penuh */
   cermin=d=>d.concat(d.slice(1,-1).reverse().map(([x,y])=>[-x,y])),
   kotakTitik=p=>{const X=p.map(q=>q[0]),Y=p.map(q=>q[1]);return[min(...X),min(...Y),max(...X),max(...Y)];};
 
@@ -37,8 +33,7 @@ function fk(T,th,la,ax,ay){const A=[],B=[],S=[],E=[];
     const o=p<0?[ox+ax,oy+ay,oz]:rot(A[p],B[p],[ox,oy,oz]),s=p<0?o:(uj?E[p]:S[p]).map((v,j)=>v+o[j]),d=rot(a,b,ARAH0[r]);
     S[i]=s;E[i]=s.map((v,j)=>v+d[j]*L);});
   return{A,B,S,E};}
-/* proyeksi ortografis (yaw ψ) → matriks slot 2D. Tulang menggantung/tegak: putar + pendekkan (foreshortening) sepanjang
-   tulang; kaki: kaku, hanya diputar sudut sagitalnya × sin ψ (tampak depan: telapak menghadap kamera tanpa dipipihkan) */
+/* proyeksi ortografis (yaw ψ) → matriks slot 2D; tulang: putar + pendekkan; kaki: kaku, hanya sudut sagital × sin ψ */
 function matriks(T,F,psi){const c=cos(psi),s=sin(psi),P=v=>[v[0]*c+v[2]*s,v[1]];
   return T.map(([,,,,,,L,r],i)=>{const a=P(F.S[i]),e=P(F.E[i]),vx=e[0]-a[0],vy=e[1]-a[1],m=hypot(vx,vy);
     if(r==='m'){const q=-F.A[i]*s;return[cos(q),sin(q),-sin(q),cos(q),a[0],a[1]];}
@@ -46,15 +41,13 @@ function matriks(T,F,psi){const c=cos(psi),s=sin(psi),P=v=>[v[0]*c+v[2]*s,v[1]];
     return[uy,-ux,ux*k,uy*k,a[0],a[1]];});}
 const kali=(M,[x,y])=>[M[0]*x+M[2]*y+M[4],M[1]*x+M[3]*y+M[5]];
 
-/* IK dua tulang analitik. Sudut diukur dari arah bawah (0,1) ke +x. Target di luar jangkauan dijepit (lurus menuju target),
-   terlalu dekat dijepit ke |L1−L2|. sisi 1: sendi tengah di sisi +x garis akar→target (lutut ke depan), −1 = sebaliknya.
-   → [a1, a2, sendi x, sendi y, ujung x, ujung y] */
+/* IK dua tulang analitik; sudut dari arah bawah (0,1) ke +x; target dijepit ke jangkauan. sisi 1: sendi di sisi +x garis akar→target.
+   → [a1, a2, sendi x, y, ujung x, y] */
 function ik(L1,L2,tx,ty,sisi=1){const d=hypot(tx,ty)||1e-9,dd=min(L1+L2-1e-6,max(abs(L1-L2)+1e-6,d)),
     a1=atan2(tx,ty)+sisi*acos(max(-1,min(1,(L1*L1+dd*dd-L2*L2)/(2*L1*dd)))),bx=L1*sin(a1),by=L1*cos(a1),ex=tx/d*dd,ey=ty/d*dd;
   return[a1,atan2(ex-bx,ey-by),bx,by,ex,ey];}
 
-/* POSE bernama (derajat, konvensi penulis: θ + = ayun/condong ke depan, λ + = menjauhi badan). tangan [D, J]; tanah 1 =
-   telapak dijaga di tanah; ik {tanganD:[maju, tinggi]} (px tokoh 1000, dari telapak); bawa 1 = gagang benda di tanah */
+/* POSE (derajat: θ + = ke depan, λ + = menjauhi badan). tangan [D, J]; tanah 1 = telapak di tanah; ik {tanganD:[maju, tinggi]}; bawa 1 = gagang di tanah */
 const TERBUKA=['terbuka','terbuka'],
   /* berdiri santai, kontrapposto: tumpu di kaki jauh, panggul miring, bahu berlawanan, lutut dekat sedikit menekuk */
   BERDIRI={th:{perut:-2,dada:-3,leher:5,kepala:-3,lenganD:6,hastaD:12,tanganD:4,lenganJ:-4,hastaJ:14,tanganJ:4,pahaD:7,betisD:-12,kakiD:5,pahaJ:-2,betisJ:1},
@@ -77,8 +70,7 @@ function rakitPose(p){const th=new Float64Array(N),la=new Float64Array(N);
   for(const k in p.th||{})th[IX[k]]=p.th[k]*RAD*SG[IX[k]];for(const k in p.la||{})la[IX[k]]=p.la[k]*RAD*SL[IX[k]];
   return{th,la,ax:(p.akar||[0,0])[0],ay:(p.akar||[0,0])[1],tangan:p.tangan||TERBUKA,tanah:p.tanah??1,bawa:p.bawa??0,duduk:p.duduk||0,ik:p.ik||null};}
 
-/* siklus jalan prosedural (Rosen, GDC 2014): telapak = IK ke titik pijak per fase (tumpu 0–.5, ayun .5–1), panggul setinggi
-   kaki tumpu sanggup (naik-turun 2× per siklus), lengan berlawanan kaki. φ = jarak tempuh / (2 · langkah): tanpa selip */
+/* jalan prosedural (Rosen, GDC 2014): telapak = IK ke titik pijak (tumpu 0–.5, ayun .5–1), panggul setinggi kaki tumpu, φ = jarak / (2·langkah) */
 function jalan(G,phi,o){const P=rakitPose({th:{dada:-3,leher:4,kepala:-2}}),S=o.langkah,T=G.T,L1=T[IX.pahaD][6],L2=T[IX.betisD][6],kaki=[],ay=-45;
   for(const off of[0,.5]){const p=(phi+off)%1;let z,y=ay,r;
     if(p<.5){z=S/2-S*p/.5;r=p<.08?lerp(12,0,p/.08):p<.3?0:-34*ss((p-.3)/.2);if(r<0){y-=110*sin(-r*RAD);z+=110*(1-cos(r*RAD));}}
@@ -92,8 +84,7 @@ function jalan(G,phi,o){const P=rakitPose({th:{dada:-3,leher:4,kepala:-2}}),S=o.
     else{P.th[IX['lengan'+s]]=(o.ayun*w+4)*RAD;P.th[IX['hasta'+s]]=(16+12*max(0,w))*RAD;}});
   P.th[IX.perut]=-3*RAD;P.tanah=0;return P;}
 
-/* kunci gerak [[t, pose, {durasi, laju, langkah, ik, …}], …] → fungsi murni waktu. Transisi kunci i dimulai di t_i selama
-   durasi (smoothstep). Jarak jalan X(t) = ∫ laju·bobot — analitik, jadi fase kaki tetap menempel di tanah saat mulai/berhenti */
+/* kunci [[t, pose, {durasi, laju, langkah, ik, …}], …] → fungsi murni waktu; transisi smoothstep dari t_i. Jarak X(t) = ∫ laju·bobot analitik: tanpa selip */
 const IS=s=>s*s*s-s*s*s*s/2;
 function siapkan(kunci){if(!Array.isArray(kunci)||!kunci.length)salah('gerak','kunci harus larik [[t, pose, {…}], …]');
   let t0=-Infinity;return kunci.map(([t,p,o={}],i)=>{if(!(typeof t==='number'&&t>=t0))salah('gerak',`kunci harus urut waktu (kunci ${i}: ${t})`);t0=t;
@@ -112,7 +103,7 @@ function sampel0(G,k,t,X){if(k.p==='jalan')return jalan(G,(X/(2*k.o.langkah))%1+
   return P;}
 function campurPose(A,B,w){const th=A.th.map((v,i)=>lerp(v,B.th[i],w)),la=A.la.map((v,i)=>lerp(v,B.la[i],w));
   return{th,la,ax:lerp(A.ax,B.ax,w),ay:lerp(A.ay,B.ay,w),tangan:w<.5?A.tangan:B.tangan,bawa:lerp(A.bawa,B.bawa,w),tanah:lerp(A.tanah,B.tanah,w),duduk:w<.5?A.duduk:B.duduk,benda:w<.5?A.benda:B.benda};}
-/* telapak terendah (tumit/jari, px tokoh) — tanah 1 menggeser akar supaya menapak di y 0 */
+/* telapak terendah: tanah 1 menggeser akar supaya menapak di y 0 */
 const telapak=(F,i)=>{const d=rot(F.A[i],F.B[i],[0,0,1]),b=rot(F.A[i],F.B[i],[0,1,0]),s=F.S[i];return max(s[1]-36*d[1]+45*b[1],s[1]+118*d[1]+45*b[1]);};
 /* pose(id, kunci, t) → {akar, m (string transform tiap slot), q (angka), tangan, duduk, F}: fungsi murni waktu */
 function pose(id,kunci,t){const G=RIG[id]||salah('pose',`tokoh tidak dikenal: ${id}`),K=kunci[0]&&kunci[0].o?kunci:siapkan(kunci),X=jarak(K,t);
@@ -124,8 +115,7 @@ function pose(id,kunci,t){const G=RIG[id]||salah('pose',`tokoh tidak dikenal: ${
   if(P.tanah>0){P.ay-=P.tanah*max(telapak(F,IX.kakiD),telapak(F,IX.kakiJ));F=fk(G.T,P.th,P.la,P.ax,P.ay);}
   return{...bentuk(G,{dx:X*sin(G.psi),M:matriks(G.T,F,G.psi),bawa:P.bawa}),tangan:P.tangan,duduk:P.duduk,benda:P.benda,F};}
 
-/* BENTUK. Anggota: profil setengah-lebar di t = 0 .2 .45 .7 .9 1 untuk tepi [maju, mundur, luar, dalam]; cincin depan ↔
-   samping dicampur menurut arah pandang. Ujung membulat menutupi sendi (sambungan tersembunyi, cara wayang) */
+/* BENTUK. Anggota: profil setengah-lebar di T6 untuk tepi [maju, mundur, luar, dalam]; cincin depan ↔ samping dicampur menurut pandang */
 const T6=[0,.2,.45,.7,.9,1],
   PROF={lengan:[[30,35,33,28,25,24],[34,35,31,27,25,24],[40,38,32,27,25,24],[24,27,27,26,25,24]],
     hasta:[[23,27,25,20,16,15],[24,28,25,20,16,15],[24,29,26,21,17,16],[23,27,24,19,15,15]],
@@ -150,8 +140,7 @@ const T6=[0,.2,.45,.7,.9,1],
   KAKI={s:[[-24,-8],[-36,24],[-38,42],[-20,47],[60,47],[112,47],[126,44],[128,34],[112,29],[80,22],[28,2]],
     d:[[-17,-10],[-21,20],[-30,40],[-26,47],[-6,49],[10,49],[26,47],[32,40],[22,20],[17,-10],[0,-14]]};
 
-/* KOSTUM (konvensi di catatan budaya references/tokoh.md). Panel kain menempel di paha (ikut ayun), wiron + kain pinggang +
-   sabuk menempel di panggul, sampur = tulang sekunder (ayun dari waktu) */
+/* KOSTUM (catatan budaya: tokoh.md). Panel kain di paha, wiron + pinggang + sabuk di panggul, sampur = tulang sekunder */
 const panel=(hem,k,sisi)=>{const s=[[-72,-64],[-80,-10],[-78,60],[-70,hem*.6],[-64,hem],[-20,hem+8],[30,hem+4],[62,hem],[66,hem*.6],[68,30],[62,-40],[30,-68]],
     d=[[-60,-66],[-66,-10],[-64,60],[-60,hem*.6],[-58,hem],[-20,hem+6],[20,hem+6],[52,hem],[54,hem*.6],[54,30],[52,-40],[30,-70]];
     return campurTitik(sisi>0?d:d.map(([x,y])=>[-x,y]).reverse(),sisi>0?s:s,k);},
@@ -184,7 +173,7 @@ function lampu(n,c,cx,cy){if(c==null)c={arah:235};
   const t=c.x!=null,a=t?atan2(c.y-cy,c.x-cx):(c.arah??235)*RAD,d=t?hypot(c.x-cx,c.y-cy):0;
   return{x:cos(a),y:sin(a),w:c.warna||LANGIT.warnaMatahari,k:(c.kuat??.75)*(c.jangkau?max(.3,min(1,1.6-d/(1.6*c.jangkau))):1),t:t?[c.x,c.y,c.jangkau]:null};}
 
-/* RAKIT: opsi → rig + bagian per slot. bagian = {d, f (warna | gradien | 'pola'), s/w (garis), m (matriks lokal), t (varian tangan), k (kotak)} */
+/* RAKIT: opsi → rig + bagian per slot {d, f, s/w, m, t, k, i, c} */
 const BUAT={x:960,y:900,tinggi:600,arketipe:['rakyat','raja','prajurit','resi','petani','putri'],arah:Object.keys(PANDANG),hadap:['kanan','kiri'],pose:'berdiri',
   seed:1,detail:2,cahaya:null,jarak:0,id:null,badan:null,kulit:null,kostum:null,fase:null};
 function rakit(o){o=opsi('buat',BUAT,o);if(!POSE[o.pose])salah('buat',`pose tidak dikenal: ${o.pose} (${Object.keys(POSE).join(' ')})`);
@@ -199,8 +188,7 @@ function rakit(o){o=opsi('buat',BUAT,o);if(!POSE[o.pose])salah('buat',`pose tida
     G=RIG[id]={id,o,T,psi,k,h,s:o.tinggi/1000,x:o.x,y:o.y,fase:o.fase??Rn(),slot:[],bawa:[],B,L,dt,
       rim:J(L.w),siluet:J('#150f12')},
     M=pose(id,[[0,o.pose]],0).M,
-    /* bahan = warna rata bernada malam. TANPA gradien per slot: tiap segmen berbayang sendiri = manekin kayu bersendi bola (terukur
-       di katalog). Volume = satu gradien layar per tokoh searah cahaya (kanvas gerak) */
+    /* warna rata bernada malam; volume = satu gradien layar per tokoh (kanvas), bukan per slot (manekin kayu) */
     bahan=c=>dt?J(campur(c,'#08060c',.32)):null,
     P=(n,pts,f,x={})=>(B[n]=B[n]||[]).push({d:typeof pts==='string'?pts:x.lurus?'M'+pts.map(tk).join('L')+'Z':halus(pts),f:dt?f:null,k:typeof pts==='string'?x.k:kotakTitik(pts),...x}),
     garis=(n,d,c,w,x)=>dt&&P(n,d,null,{s:c,w,...x}),
@@ -288,7 +276,7 @@ function rakit(o){o=opsi('buat',BUAT,o);if(!POSE[o.pose])salah('buat',`pose tida
   if(A.sabuk){const sb=pita([[-97,-68],[0,-62],[97,-68],[100,-30],[0,-22],[-100,-30]],[[-68,-68],[0,-64],[62,-68],[66,-30],[0,-26],[-72,-30]]),tm=campurTitik([[0,-46]],[[50,-46]],k)[0];
     P('sabuk',sb,bahan(A.sabuk),{lurus:1});if((A.emas||A.kalung)&&dt)P('sabuk',[[tm[0]-11,tm[1]-10],[tm[0]+11,tm[1]-10],[tm[0]+11,tm[1]+10],[tm[0]-11,tm[1]+10]],emas);}
   if(A.sampur)for(const sd of['D','J'])bagian('sampur'+sd,A.sampur,[[-14,-10],[14,-10],[20,120],[24,282],[10,300],[0,288],[-12,306],[-24,280],[-18,120]]);
-  /* keris di sabuk belakang: hulu condong, warangka (ladrang) melintang, gandar tersembunyi di balik kain pinggang (urutan gambar) */
+  /* keris di sabuk belakang: hulu condong, warangka melintang, gandar di balik kain */
   if(A.keris){const a=lerp(0,-28,k)*RAD,m=[f4(cos(a)),f4(sin(a)),f4(-sin(a)),f4(cos(a)),f(lerp(0,-72,k)),-58];
     P('keris',[[-5,2],[-9,-22],[-4,-44],[6,-50],[12,-38],[6,-20],[7,2]],J('#2e1c12'),{m});
     P('keris',[[-70,8],[-76,-4],[-56,-2],[0,4],[46,-2],[70,-10],[66,8],[20,18],[-24,18]],bahan(J('#5a3a22')),{m});
@@ -321,29 +309,25 @@ function bentuk(G,R){const{s,h,x,y,slot,bawa}=G,m=[],Q=[];
   return{akar:`translate(${f(x+R.dx*s*h)},${f(y)}) scale(${f4(s*h)},${f4(s)})`,W:[s*h,0,0,s,x+R.dx*s*h,y],m,q:Q,M:R.M};}
 const tampak=(G,n,R)=>(!(n in DUDUK)||DUDUK[n]===R.duduk)&&(R.benda!==0||!n.startsWith('bawa'));
 
-/* SVG statis (pose awal) — untuk still, thumbnail, tokoh diam; rim()/bayangan() cahaya-2d boleh dipasang padanya. Yang BERGERAK:
-   gerak() (kanvas). detail 0 = siluet satu isi + rim salinan bergeser (tanpa filter) */
+/* SVG statis (pose awal): still, thumbnail, tokoh diam. Yang BERGERAK: gerak(). detail 0 = siluet + rim salinan bergeser */
 function buat(o){const G=rakit(o),{id,dt,L,h}=G,R=pose(id,[[0,G.o.pose]],0),defs=new Map(),
     url=f=>{if(!f)return'';if(f==='pola')return` fill="url(#${id}-kain)"`;if(typeof f==='string')return` fill="${f}"`;defs.set(f.id,f);return` fill="url(#${f.id})"`;},
     jalur=(p,n)=>{if(p.c&&p.c!==(L.x*h<0?-1:1)||p.s&&p.t&&R.tangan[n.endsWith('D')?0:1]!==p.t)return'';const a=`<path d="${p.d}"${p.s?` fill="none" stroke="${p.s}" stroke-width="${p.w}" stroke-linecap="round"`:url(p.f)}${p.t&&!p.s?` data-tangan="${p.t}"${R.tangan[n.endsWith('D')?0:1]===p.t?'':' display="none"'}`:''}/>`;
       return p.m?`<g transform="matrix(${p.m})">${a}</g>`:a;},
     badan=G.slot.map((n,i)=>`<g id="${id}-${n}" transform="${R.m[i]}"${tampak(G,n,R)?'':' display="none"'}>${G.B[n].map(p=>jalur(p,n)).join('')}</g>`).join(''),
-    gr=[...defs.values()].map(g=>`<linearGradient id="${g.id}" x1="${g.x1}" y1="${g.y1}" x2="${g.x2}" y2="${g.y2}">${g.st.map(([o,c,a])=>`<stop offset="${o}" stop-color="${c}"${a!=null?` stop-opacity="${a}"`:''}/>`).join('')}</linearGradient>`).join(''),
-    v='';
-  return`<g id="${id}" class="wv-tokoh" data-tokoh="${G.o.arketipe}" transform="${R.akar}"><defs>${gr}${G.pola||''}${v}</defs>`+
+    gr=[...defs.values()].map(g=>`<linearGradient id="${g.id}" x1="${g.x1}" y1="${g.y1}" x2="${g.x2}" y2="${g.y2}">${g.st.map(([o,c,a])=>`<stop offset="${o}" stop-color="${c}"${a!=null?` stop-opacity="${a}"`:''}/>`).join('')}</linearGradient>`).join('');
+  return`<g id="${id}" class="wv-tokoh" data-tokoh="${G.o.arketipe}" transform="${R.akar}"><defs>${gr}${G.pola||''}</defs>`+
     (dt?badan:`<use href="#${id}-b" fill="${G.rim}" transform="translate(${f(L.x*h*4)},${f(L.y*4)})"/><g fill="${G.siluet}"><g id="${id}-b">${badan}</g></g>`)+'</g>';}
 
-/* GERAK: tokoh bergerak digambar di SATU <canvas class="wv-tokoh"> per bidang yang dihapus PENUH dan digambar ulang dari tl.time()
-   tiap frame. Bukan transform <g> di svg ber-will-change: raster dirty-rect + skala raster Chrome membuat piksel bergantung jalur
-   seek (terukur: tepi ±1–2, rim/bayangan berfilter sampai ±12 — references/tokoh.md). Cahaya = port kanvas rim()/bayangan()
-   cahaya-2d: pita tepi menghadap sumber (siluet dikurangi siluet bergeser), pendar buram di bawahnya, bayangan jatuh di lantai. */
+/* GERAK: SATU <canvas class="wv-tokoh"> per bidang, dihapus PENUH dan digambar ulang dari tl.time() (transform <g> tidak deterministik:
+   tokoh.md). Cahaya = port kanvas rim()/bayangan(): pita tepi ke sumber, pendar buram, bayangan jatuh. */
 const kanvas=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c;},
   kalikan=(a,b)=>[a[0]*b[0]+a[2]*b[1],a[1]*b[0]+a[3]*b[1],a[0]*b[2]+a[2]*b[3],a[1]*b[2]+a[3]*b[3],a[0]*b[4]+a[2]*b[5]+a[4],a[1]*b[4]+a[3]*b[5]+a[5]],
   rgba=(c,a)=>a==null?c:`rgba(${warnaRGB(c).join(',')},${a})`;
 function gerak(bidang,daftar,o={}){
   if(!(typeof HTMLElement!=='undefined'&&bidang instanceof HTMLElement))salah('gerak','bidang wajib elemen HTML (<div data-z> atau anaknya), bukan <g> SVG');
   if(!Array.isArray(daftar)||!daftar.length)salah('gerak','daftar harus larik tokoh [{…opsi buat, kunci:[[t, pose, {…}], …]}]');
-  o=opsi('gerak',{cahaya:null,lantai:null,rim:4,gelap:.55,panjang:.6,resolusi:1,sampai:30},o);
+  o=opsi('gerak',{cahaya:null,lantai:null,rim:4,gelap:.55,panjang:.6,resolusi:1,sampai:30,hangat:.5},o);
   const F=daftar.map((d,i)=>{if(!d||typeof d!=='object')salah('gerak',`daftar[${i}] harus objek opsi tokoh`);const{kunci,...b}=d,G=rakit({cahaya:o.cahaya,...b});
       return{G,K:siapkan(kunci||[[0,G.o.pose]])};}).sort((a,b)=>a.G.y-b.G.y),
     r=o.resolusi,ada=o.lantai!=null;
@@ -355,7 +339,7 @@ function gerak(bidang,daftar,o={}){
   const X=floor(b[0]-40),Y=floor(b[1]-40),Wc=ceil(b[2]-X+40),Hc=ceil(b[3]-Y+40),c=kanvas(round(Wc*r),round(Hc*r)),S=kanvas(c.width,c.height),Bd=kanvas(c.width,c.height),Fc=kanvas(c.width,c.height),
     x=c.getContext('2d'),xs=S.getContext('2d'),xb=Bd.getContext('2d'),xf=Fc.getContext('2d'),base=[r,0,0,r,-X*r,-Y*r];
   c.className='wv-tokoh';c.style.cssText=`position:absolute;left:${X}px;top:${Y}px;width:${Wc}px;height:${Hc}px;pointer-events:none`;bidang.appendChild(c);
-  /* gaya isi kanvas, sekali: gradien bbox per bagian (= objectBoundingBox SVG), pola kain dari ubin pustaka.kain */
+  /* gaya isi kanvas, sekali: gradien bbox per bagian, pola kain dari ubin pustaka.kain */
   const gaya=(G,p)=>{const f=p.f;if(!f)return null;if(f==='pola')return G.polaK||(G.polaK=pola(G.pola));if(typeof f==='string')return f;
     const[a,b2,c2,d]=p.k,g=x.createLinearGradient(a+f.x1*(c2-a),b2+f.y1*(d-b2),a+f.x2*(c2-a),b2+f.y2*(d-b2));f.st.forEach(([q,w,al])=>g.addColorStop(q,rgba(w,al)));return g;},
     pola=s=>{const u=kanvas(80,80),ux=u.getContext('2d'),tr=/rotate\(([-\d.]+)\) scale\(([-\d.]+)\)/.exec(s)||[0,0,1];ux.scale(2,2);
@@ -384,25 +368,23 @@ function gerak(bidang,daftar,o={}){
       /* pita rim: siluet − siluet bergeser menjauhi sumber, diwarnai warna sumber */
       nol(xs);xs.clearRect(kx,ky,kw,kh);isi(xs,G,R,'#000',M0);nol(xs);nol(xb);xb.clearRect(kx,ky,kw,kh);xb.drawImage(S,...k4);
       xb.globalCompositeOperation='destination-out';xb.drawImage(S,kx,ky,kw,kh,kx-L.x*v,ky-L.y*v,kw,kh);xb.globalCompositeOperation='source-in';xb.fillStyle=L.w;xb.fillRect(kx,ky,kw,kh);
-      /* volume: tokoh berwarna rata di lapisan sendiri, lalu SATU gradien layar searah cahaya (hangat → gelap) + oklusi tanah,
-         source-atop — bersambung di semua sendi */
+      /* volume: SATU gradien layar searah cahaya + oklusi tanah, source-atop */
       nol(xf);xf.clearRect(kx,ky,kw,kh);isi(xf,G,R,null,M0);nol(xf);xf.globalCompositeOperation='source-atop';
       const e=max(kw,kh)/2,cx=kx+kw/2,cy=ky+kh/2,g=xf.createLinearGradient(cx+L.x*e,cy+L.y*e,cx-L.x*e,cy-L.y*e),g2=xf.createLinearGradient(0,ky+kh*.5,0,ky+kh);
-      g.addColorStop(0,rgba(L.w,f4(.34*kuat)));g.addColorStop(.4,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(4,3,8,.62)');xf.fillStyle=g;xf.fillRect(kx,ky,kw,kh);
+      g.addColorStop(0,rgba(L.w,f4(o.hangat*kuat)));g.addColorStop(min(.95,o.hangat),'rgba(0,0,0,0)');g.addColorStop(1,'rgba(4,3,8,.62)');xf.fillStyle=g;xf.fillRect(kx,ky,kw,kh);
       g2.addColorStop(0,'rgba(4,3,8,0)');g2.addColorStop(1,'rgba(4,3,8,.4)');xf.fillStyle=g2;xf.fillRect(kx,ky,kw,kh);
       /* susun: pendar (pita buram) di bawah, tokoh, pita tajam di atas. Klip: blur selebar kanvas mahal (tokoh.md) */
       nol(x);x.save();x.beginPath();x.rect(kx,ky,kw,kh);x.clip();x.filter=`blur(${f(1.2*v)}px)`;x.globalAlpha=min(1,.5*kuat);x.drawImage(Bd,...k4);nol(x);x.drawImage(Fc,...k4);
       x.filter=`blur(${f(r)}px)`;x.globalAlpha=kuat;x.drawImage(Bd,...k4);x.restore();nol(x);});};
   gambar();rantaiUpdate(gambar);return c;}
-/* cahaya per frame untuk tokoh G pada pose R: arah dari pusat tokoh ke sumber (ikut tokoh yang berjalan), redup di luar jangkau */
+/* cahaya per frame: arah dari pusat tokoh ke sumber, redup di luar jangkau */
 function lampuT(G,R){const c=G.o.cahaya,cx=R.W[4],cy=G.y-G.o.tinggi/2;
   if(c==null||(!Array.isArray(c)&&typeof c!=='string'&&c.x==null))return{...G.L,t:null};
   let x=0,y=0,b=null,tx=0,ty=0,sw=0;for(const n of[].concat(c)){const L=lampu('gerak',n,cx,cy),w=L.k*L.k,s=typeof n==='string'?ambilSumber(n):null;
     x+=L.x*w;y+=L.y*w;tx+=L.t[0]*w;ty+=L.t[1]*w;sw+=w;if(!b||L.k>b.k)b={...L,kedip:s?s.kedip||0:0};}
   const q=hypot(x,y)||1;return{...b,x:x/q,y:y/q,t:[tx/sw,ty/sw,b.t[2]]};}
 
-/* kerumunan ber-seed → daftar opsi tokoh (untuk gerak() atau buat()): tinggi, badan, arketipe (dari ragam), pandang, hadap, pose,
-   dan fase napas berbeda tiap anggota; baris belakang lebih kecil. Seed sama = daftar sama */
+/* kerumunan ber-seed → daftar opsi tokoh: tinggi, badan, arketipe, pandang, hadap, pose, fase beragam; baris belakang lebih kecil */
 function kerumunan(o){o=opsi('kerumunan',{seed:1,n:12,area:null,ragam:null,arah:Object.keys(PANDANG),hadap:['kanan','kiri'],
     tinggi:320,detail:0,cahaya:null,jarak:0,id:null},o);
   o.area=o.area||[460,820,1000,160];if(!Array.isArray(o.area)||o.area.length!==4||!o.area.every(Number.isFinite))salah('kerumunan','area harus [x, y, lebar, tinggi] (angka, px bidang)');

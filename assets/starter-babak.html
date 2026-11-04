@@ -1623,9 +1623,9 @@ function gerak(bidang,daftar,o={}){
       const e=max(kw,kh)/2,cx=kx+kw/2,cy=ky+kh/2,g=xf.createLinearGradient(cx+L.x*e,cy+L.y*e,cx-L.x*e,cy-L.y*e),g2=xf.createLinearGradient(0,ky+kh*.5,0,ky+kh);
       g.addColorStop(0,rgba(L.w,f4(.34*kuat)));g.addColorStop(.4,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(4,3,8,.62)');xf.fillStyle=g;xf.fillRect(kx,ky,kw,kh);
       g2.addColorStop(0,'rgba(4,3,8,0)');g2.addColorStop(1,'rgba(4,3,8,.4)');xf.fillStyle=g2;xf.fillRect(kx,ky,kw,kh);
-      /* susun: pendar (pita buram) di bawah, tokoh, pita tajam di atas */
-      nol(x);x.filter=`blur(${f(1.6*v)}px)`;x.globalAlpha=min(1,.9*kuat);x.drawImage(Bd,...k4);nol(x);x.drawImage(Fc,...k4);
-      x.filter=`blur(${f(r)}px)`;x.globalAlpha=kuat;x.drawImage(Bd,...k4);nol(x);});};
+      /* susun: pendar (pita buram) di bawah, tokoh, pita tajam di atas. Klip kotak tokoh: tanpa itu tiap blur memproses selebar kanvas (terukur ±80 ms/frame, tokoh.md) */
+      nol(x);x.save();x.beginPath();x.rect(kx,ky,kw,kh);x.clip();x.filter=`blur(${f(1.6*v)}px)`;x.globalAlpha=min(1,.9*kuat);x.drawImage(Bd,...k4);nol(x);x.drawImage(Fc,...k4);
+      x.filter=`blur(${f(r)}px)`;x.globalAlpha=kuat;x.drawImage(Bd,...k4);x.restore();nol(x);});};
   gambar();rantaiUpdate(gambar);return c;}
 /* cahaya per frame untuk tokoh G pada pose R: arah dari pusat tokoh ke sumber (ikut tokoh yang berjalan), redup di luar jangkau */
 function lampuT(G,R){const c=G.o.cahaya,cx=R.W[4],cy=G.y-G.o.tinggi/2;

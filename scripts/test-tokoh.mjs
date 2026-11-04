@@ -21,7 +21,7 @@ function muat() {
   class Kanvas extends HTMLElement {
     constructor() { super(); this.log = []; }
     getContext() { const l = this.log, k = {};
-      for (const m of ['setTransform', 'clearRect', 'fill', 'stroke', 'fillRect', 'drawImage', 'addColorStop'])
+      for (const m of ['setTransform', 'clearRect', 'fill', 'stroke', 'fillRect', 'drawImage', 'addColorStop', 'save', 'beginPath', 'rect', 'clip', 'restore'])
         k[m] = (...a) => l.push([m, ...a.map(v => v instanceof Path2D ? v.d.length : v instanceof Kanvas ? 'kanvas' : typeof v === 'number' ? +v.toFixed(3) : v)]);
       k.createLinearGradient = (...a) => (l.push(['grad', ...a.map(v => +v.toFixed(2))]), { addColorStop: (...b) => l.push(['stop', ...b]) });
       k.createRadialGradient = k.createLinearGradient;   // pendar sumber() = kanvas bergradien radial
@@ -189,6 +189,7 @@ test('kanvas gerak(): t sama lewat jalur seek berbeda → panggilan gambar ident
   assert.notEqual(a, d, 'gambar beku antara t 2,2 dan 2,3');
   assert.match(a, /"clearRect",0,0,/, 'kanvas tidak dihapus penuh');
   assert.match(a, /"filter","blur/, 'rim/bayangan pakai blur kanvas');
+  assert.equal(a.match(/"clip"/g).length, 1, 'blur rim/pendar tokoh detail ≥ 1 harus diklip ke kotaknya (biaya blur ∝ luas kanvas; satu tokoh detail 2 di sini)');
   const nol = foto(0); foto(2.3); B.style.display = 'none';
   assert.equal(foto(2.4), nol, 'bidang tersembunyi harus menggambar pose t 0 sekali (isi kanvas = fungsi murni t dan tampil)');
   assert.ok(JSON.parse(foto(2.6)).every(l => !l.length), 'bidang tersembunyi menggambar ulang tiap frame (biaya sia-sia)');

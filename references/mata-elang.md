@@ -95,8 +95,7 @@ Hanya akumulasi sub-frame, hanya di segmen `KABUR = [[a, b], …]` (starter: det
 
 ## Jebakan
 
-- **Target tatap**: hindari dua target berlawanan arah di titik berurutan (`look` diinterpolasi sebagai arah).
-- **Kelengkungan Catmull-Rom patah di titik kontrol**: pada 30 m/dtk roll melonjak. Hann menahannya, tetapi busur panjang jawaban yang benar.
+- **Kelengkungan Catmull-Rom patah di titik kontrol**: roll melonjak; busur panjang jawaban yang benar.
 - **Profil roll tanpa browser**: muat `kamera.js` + `terbang.js` di Node seperti `test-elang.mjs`, cetak `R(t).roll` per 0,5 dtk.
 - **Pohon "lolipop"**: tajuk tunggal di batang terbuka terbaca game. Tanam berkelompok (`kelompok`); di petak ladang hanya 1,5 % yang lolos. Pohon di
   gunung jauh terbaca taburan: batasi `boleh` (starter `h<45`), gunung cukup nada dan alur `bentuk()`.

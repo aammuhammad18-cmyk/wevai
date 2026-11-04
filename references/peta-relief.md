@@ -134,7 +134,7 @@ Urutan per frame (starter `siapkan()`): `applyCam()` → near/far dan kabut dari
   frame dari jarak ke titik tatap.
 - **Label tanpa oklusi**: label di balik gunung tetap tampak. Pilih detik atau sudut lain.
 - **CI tanpa GPU**: `BERAT` di `test-starters`; matematika di `test-peta`.
-- **Biaya**: kisi 184 rb + tambalan 84 rb verteks, bayangan 2048 PCF, MSAA 4×. Terukur HD 4000: BIAYA_PETA. Kenop pertama bila lambat: `langkah` 2,2, tanpa `halus`, bayangan 1024.
+- **Biaya**: kisi 184 rb + tambalan 84 rb verteks, bayangan 2048 PCF, MSAA 4×. HD 4000: ±250 ms/frame, siap ±6–7 dtk. Kenop pertama bila lambat: `langkah` 2,2, tanpa `halus`, bayangan 1024.
 
 ## Nama global
 

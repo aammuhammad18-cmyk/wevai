@@ -636,7 +636,7 @@ function gapuraBentar(){const box=[],c=new THREE.Color(),lis=[2.4,3.4,4.4,5.4]; 
   /* bata per piksel (lapis .11 m, ±.34 m, spesi, lapuk dari ubin) */
   b.onBeforeCompile=s=>{s.uniforms.uUbin={value:D.ubin};s.vertexShader=sisip(s.vertexShader,'common','varying vec3 vB;','begin_vertex','vB=position;');
     s.fragmentShader=sisip(s.fragmentShader,'common','uniform sampler2D uUbin;varying vec3 vB;','color_fragment',`float by=vB.y/.11,br=floor(by),bx=(vB.x+vB.z)/.34+.5*mod(br,2.),px=max(fwidth(by),fwidth(bx)),sp=(1.-smoothstep(.04,.1+px,min(min(fract(by),1.-fract(by)),min(fract(bx),1.-fract(bx))*3.1)))*(1.-smoothstep(.25,.6,px));
-vec4 nb=texture2D(uUbin,vec2(vB.x+vB.z,vB.y)*.11);vec3 bh=fract(vec3(floor(bx),br,floor(bx)+br)*.1031);bh+=dot(bh,bh.yzx+33.33);diffuseColor.rgb*=(.9+.2*fract((bh.x+bh.y)*bh.z))*(.68+.64*nb.r)*(1.-.5*sp);diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.05,.055,.035),.35*smoothstep(.5,.75,nb.r)*smoothstep(3.5,0.,vB.y));`,
+vec4 nb=texture2D(uUbin,vec2(vB.x+vB.z,vB.y)*.11);vec3 bh=fract(vec3(floor(bx),br,floor(bx)+br)*.1031);bh+=dot(bh,bh.yzx+33.33);diffuseColor.rgb*=(.9+.2*fract((bh.x+bh.y)*bh.z))*(.82+.74*nb.r)*(1.-.5*sp);diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.05,.055,.035),.35*smoothstep(.5,.75,nb.r)*smoothstep(3.5,0.,vB.y));`,
       'normal_fragment_maps','normal=normalize(normal+.5*sp*normal.yzx+.25*vec3(nb.g-.5,nb.b-.5,0.));');};
   m.castShadow=m.receiveShadow=true;m.name='gapura';return m;}
 /* jalur: busur r≈300 m di atas sawah (9 → 3,6 m, roll ±12°), 36 m lurus menembus celah, lalu naik ke y 38; dua titik terakhir menatap gunung.

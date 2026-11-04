@@ -75,7 +75,7 @@ tetap jingga lalu kuning-putih, AgX memucat ke salem.
 
 Hanya akumulasi sub-frame, hanya di segmen `KABUR = [[a, b], …]` (starter: detik menembus celah ±0,45 dtk).
 - `render(t)` menggambar `SUB = 8` sub-frame pada `t + ((i+½)/8 − ½)·rana`, rata-rata dalam HDR linear, lalu tone mapping sekali.
-- Rana 1/60 dtk = 180° pada 30 fps, membuka/menutup 0,15 dtk di tepi segmen. Deterministik: pikselnya diuji dua jalur seek.
+- Rana 1/60 dtk = 180° pada 30 fps, membuka/menutup 0,15 dtk di tepi segmen.
 - Tween yang MULAI di dalam segmen dirender malas satu sub-frame terlambat: mulai sebelum segmen, atau `lazy:false`.
 - Biaya: render ±4,6× di segmen itu. Jangan memasang segmen di seluruh shot.
 
@@ -89,7 +89,7 @@ Hanya akumulasi sub-frame, hanya di segmen `KABUR = [[a, b], …]` (starter: det
    ½ diagonal near plane. Celah 3,4 m + near .25: kamera tepat di tengah.
 4. **Sumber cahaya di celah**: di antara dinding semua sisi teduh (frame hitam ±0,4 dtk). Obor `practical()` di muka gapura (`OBOR`, kedip = `noise(tl.time())`).
 5. **Reveal**: sesudah celah, naik sambil menatap DATAR ke lembah; dua titik terakhir menatap gunung. Melambat lalu mendarat. Legenda masuk saat kamera hampir diam.
-6. **Lensa** 24 mm. 3–9 m di atas sawah sudah terasa rendah.
+6. **Lensa** 24 mm; 3–9 m di atas sawah.
 7. **Potret** detik kunci dengan `snap.mjs`, lalu `nilai-visual` tanpa `--sumber`; bingkai gapura: `--subjek` kotak gapura, `--sumber` piksel api yang DIUKUR.
    Bingkai di dalam celah dan lanskap tanpa subjek memang memicu peringatan; tulis alasannya.
 
@@ -106,7 +106,7 @@ Hanya akumulasi sub-frame, hanya di segmen `KABUR = [[a, b], …]` (starter: det
 - **`CAM.rail` aktif sejak t = 0**: kait yang menyetel pose bola harus menyetel `rail:-1` lalu MEMULIHKANNYA. GSAP mencatat nilai awal tween saat render
   pertamanya; `rail` asing yang tertinggal membuat kamera diam di setiap seek balik. `ELANG_UJI` mengukur jarak tempuh.
 - **CI tanpa GPU**: `test-starters` melewatinya di perangkat lunak (`BERAT`, baris `lewat`); matematika tetap di `test-elang`.
-- **Biaya**: tanah ±190 rb verteks, 5,2 rb pohon, 1,4 rb berbayang (detail penuh), bayangan 2048, MSAA 4×. HD 4000: BIAYA_ELANG. Segmen MB ±4,6× render.
+- **Biaya**: tanah ±190 rb verteks, 5,2 rb pohon, 1,4 rb berbayang (detail penuh), bayangan 2048, MSAA 4×. HD 4000: ±286 ms/frame di sawah, ±310 saat reveal.
 
 ## Nama global
 

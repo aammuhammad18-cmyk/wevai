@@ -28,6 +28,8 @@ Bingkai PNG tidak disimpan. Potret ulang: `URL="file:///<repo>/assets/starter-ba
 - **Tombak memotong wajah saat berjalan.** Lengan pembawa benda tak lagi mengayun.
 - **Kain panjang terbaca celana.** Bidang tengah menutup sela kaki.
 
+Efek samping generator bersama, diperiksa dengan potret sebelum/sesudah: `starter-lukis` (sawah, lontar, beringin) dan `starter-diorama` (kartu beringin + lontar, t 3 dan 10) ikut berubah, tanpa kerusakan. `starter-relief` tidak memanggil ketiganya.
+
 ## Angka
 
 `nilai-visual`: semua bingkai keluar 0 (`nilai.json`). Kotak penjaga dilebarkan untuk perisai, jadi lebih ketat dari kotak lama.

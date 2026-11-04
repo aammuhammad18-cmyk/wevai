@@ -100,9 +100,9 @@ function medan(D=JAWA,{seed=3}={}){
       return g.alur*ss(s,s+.3,r)*(1-ss(.82,1,r))*(1-Math.abs(Math.sin(q)))**2.5*(.3+.7*(.5+.25*Math.sin(5*a+2.1*w)+.25*Math.sin(11*a+w)));},
     /* kaki tak bulat: R(a) = R·(1 + A sin(2a+w) + B sin(3a+2w)), A+B ≤ ,18, beda per gunung; sama dengan shader */
     kerucut=(g,x,z,alur=1)=>{const dx=x-g.x,dz=z-g.z,q=dx*dx+dz*dz;if(q>=g.R*g.R*1.4)return 0;const a=Math.atan2(dz,dx),w=g.fase,R=g.R*(1+(.09+.035*Math.sin(3*w))*Math.sin(2*a+w)+(.04+.015*Math.cos(5*w))*Math.sin(3*a+2*w)),d=Math.sqrt(q);
-      if(d>=R)return 0;const r0=(d-g.kawah)/(R-g.kawah),c=g.lancip,r=(Math.sqrt(r0*r0+c*c)-c)/(Math.sqrt(1+c*c)-c),f=alur?jurang(g,r,a):0;   // puncak sedikit membulat
+      if(d>=R)return 0;const r0=(d-g.kawah)/(R-g.kawah),c=g.lancip,r=(Math.sqrt(r0*r0+c*c)-c)/(Math.sqrt(1+c*c)-c),f=alur?jurang(g,r,a):0;
       if(g.kaldera){const[rb,hb,lt,rk]=g.kaldera,luar=d<rb?lt+(hb-lt)*ss(rb-1.4,rb,d):hb*Math.pow(1-(d-rb)/(R-rb),g.k)*(1-f);
-        return Math.max(luar,d<rk?lt+(g.E-lt)*Math.pow(1-d/rk,1.2):0);}   // dinding kaldera, lantai pasir, kerucut tengah = puncak GVP
+        return Math.max(luar,d<rk?lt+(g.E-lt)*Math.pow(1-d/rk,1.2):0);}
       if(d<g.kawah)return g.E-g.cekung*(1-(d/g.kawah)**2);   // kawah: bibir = puncak GVP
       let b=0;for(const[a0,r1,t]of g.bahu){const e=Math.atan2(Math.sin(a-a0),Math.cos(a-a0))/.38,u=(r-r1)/.15;b+=t*Math.exp(-e*e-u*u);}   // bahu: tonjolan di lereng, selalu di bawah puncak
       return g.E*(((1-g.apron)*Math.pow(1-r,g.k)+g.apron*Math.pow(1-r,g.k*2.2))*(1+.24*ss(.1,.5,r)*(.5*Math.sin(3*a+2*w)+.35*Math.sin(5*a+3*w)+.15*Math.sin(9*a+w)))+b*(1-ss(.75,1,r)))*(1-f);},
@@ -121,8 +121,8 @@ function medan(D=JAWA,{seed=3}={}){
       return{nama,p,air};}),
     ruasS=S.flatMap((s,k)=>s.p.slice(1).map((b,i)=>[s.p[i],b,k,i])),dekatS=ember(ruasS,5,-1e3,-600,1e3,600),
     tinggi=(x,z,alur=1)=>{const dc=darat.sdf(x,z);if(dc<=0)return kedalaman(x,z,dc);let h=kasar(x,z,dc,alur);   // alur 0: kerucut halus (kisi kasar; jurang di shader)
-      const[d,m,t]=dekatS(x,z);if(m>=0&&d<4.5){const[,,k,i]=ruasS[m],a=S[k].air,hr=a[i]+(a[i+1]-a[i])*t,u=(i+t)/(a.length-1);   // lembah melebar ke hilir: hulu sempit (tak memangkas puncak gunung)
-        if(h>hr){const dasar=Math.max(hr,h-.08);h=dasar+(h-dasar)*ss(.25+.45*u,1.2+3.3*u,d);}}   // ukiran ≤ 80 m di bawah tanah asli: lembah, bukan ngarai
+      const[d,m,t]=dekatS(x,z);if(m>=0&&d<4.5){const[,,k,i]=ruasS[m],a=S[k].air,hr=a[i]+(a[i+1]-a[i])*t,u=(i+t)/(a.length-1);
+        if(h>hr){const dasar=Math.max(hr,h-.08);h=dasar+(h-dasar)*ss(.25+.45*u,1.2+3.3*u,d);}}
       return h;};
   return{tinggi,darat,laut,gunung:G,sungai:S,kerucut};}
 /* RUTE: lengkung skematis di atas peta, berparameter panjang busur 3D (jalurElang): jejak tanah Catmull-Rom lewat titik [lon,lat],

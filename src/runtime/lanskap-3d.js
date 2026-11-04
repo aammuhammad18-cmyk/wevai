@@ -1,16 +1,12 @@
-/* LANSKAP 3D — dunia prosedural ber-seed untuk shot mata elang (resep: mata-elang.md): tanah fBm dari bentuk() starter,
-   sawah berundak berair, sungai berlembah, hutan dan kelapa InstancedMesh, langit Sky (Preetham) + env PMREM,
-   kabut eksponensial + kabut lembah. Deterministik: seed sama → geometri sama. Statis: dibangun sekali saat setup; per frame
-   hanya bayangan matahari yang ikut kamera (ikutMatahari). Butuh: THREE, scene, renderer, Sky, ImprovedNoise, mergeGeometries,
-   blok kamera-three (key, LUX, kotak3, objek3) dan terbang (jalurElang). Satuan meter, y ke atas, terbang ke −z. */
+/* LANSKAP 3D — dunia prosedural ber-seed untuk shot mata elang (resep: mata-elang.md). Statis: dibangun sekali; per frame hanya bayangan matahari
+   ikut kamera. Butuh: THREE, scene, renderer, Sky, ImprovedNoise, mergeGeometries, blok kamera-three dan terbang. Meter, y ke atas, terbang ke −z. */
 const ss=(a,b,x)=>{const t=Math.min(1,Math.max(0,(x-a)/(b-a)));return t*t*(3-2*t);},
   sisip=(s,...p)=>{for(let i=0;i<p.length;i+=2)s=s.replace(`#include <${p[i]}>`,`#include <${p[i]}>\n${p[i+1]}`);return s;};   // tambah GLSL sesudah chunk three
 function lanskap({seed=1,bentuk=()=>0,detail=2.5,sawah=null,ladang=null,sungai=null,luas=6000,
   matahari={az:150,el:4},langit={turbidity:8,rayleigh:2,mie:.005,mieG:.8},kabut={warna:'#b08a80',padat:.00045},lembah=null}={}){
   const N=new ImprovedNoise(),s0=seed*7.31,C=h=>new THREE.Color(h),
     fbm=(x,z,o=5)=>{let s=0,a=1,f=1;for(let k=0;k<o;k++){s+=a*N.noise(x*f,z*f,s0+k*1.7);a*=.5;f*=2.03;}return s;},
-    dasar=(x,z)=>{const b=bentuk(x,z);return b+detail*(1+Math.min(300,Math.max(0,b))/60)*fbm(x/140,z/140);},   // pegunungan lebih kasar (dibatasi: puncak tanpa duri)
-    /* sungai: Catmull-Rom (jalurElang) jadi garis 400 ruas; muka air turun lurus dari [awal, akhir] */
+    dasar=(x,z)=>{const b=bentuk(x,z);return b+detail*(1+Math.min(300,Math.max(0,b))/60)*fbm(x/140,z/140);},
     S=sungai&&(()=>{const J=jalurElang(sungai.titik.map(([x,z])=>[x,0,z])),p=Array.from({length:401},(_,i)=>J.pos(i/400));
       return{p,lebar:sungai.lebar||14,dalam:sungai.dalam||3,muka:sungai.muka,x0:Math.min(...p.map(q=>q[0])),x1:Math.max(...p.map(q=>q[0])),
         z0:Math.min(...p.map(q=>q[2])),z1:Math.max(...p.map(q=>q[2]))};})(),
@@ -72,18 +68,16 @@ diffuseColor.rgb*=.78+.44*n2.r;`,
       'roughnessmap_fragment','roughnessFactor=mix(roughnessFactor,.07,wet);',
       'normal_fragment_maps','normal=normalize(normal+mat3(viewMatrix)*vec3(n0.b-.5,0.,n1.g-.5)*mix(.45,.035,wet));',
       'aomap_fragment','{vec3 t=reflectedLight.directSpecular+reflectedLight.indirectSpecular,Rw=reflect(-inverseTransformDirection(normalize(vViewPosition),viewMatrix),inverseTransformDirection(normal,viewMatrix));float k=mix(1.,1./(1.+dot(t,vec3(.3,.6,.1))/mix(.3,1.,smoothstep(1.05,1.15,vBasah))),wet),u=mix(mix(.2,1.,smoothstep(.01,.16,Rw.y)),1.,1.-wet);reflectedLight.directSpecular*=k;reflectedLight.indirectSpecular*=k*u*mix(vec3(1.),vec3(1.,.9,.74),wet);}');};
-  /* tanah kasar: grid tensor, rapat di tengah (±2 m) dan jarang di tepi (±70 m), dengan lubang tepat di petak sawah halus */
+  /* tanah kasar: rapat di tengah (±2 m), jarang di tepi (±70 m), berlubang di petak sawah halus */
   const sumbu=(a,b)=>[...new Set([...Array.from({length:180},(_,i)=>2*i+.16*i*i).filter(c=>c<luas/2).flatMap(c=>[c,-c]),...(sawah?[a,b]:[])])].sort((p,q)=>p-q);
   tambah(grid(sumbu(sawah&&sawah.x0,sawah&&sawah.x1),sumbu(sawah&&sawah.z0,sawah&&sawah.z1),sawah&&[sawah.x0,sawah.x1,sawah.z0,sawah.z1]),matTanah);
   if(sawah){const l=sawah.langkah||.75,rentang=(a,b)=>{const n=Math.round((b-a)/l),v=Array.from({length:n+1},(_,i)=>a+(b-a)*i/n);return[a,...v,b];};
     tambah(grid(rentang(sawah.x0,sawah.x1),rentang(sawah.z0,sawah.z1),null,true),matTanah);}
-  /* sungai: pita air mengikuti garis tengah, muka miring sesuai muka[0..1] */
   if(S){const v=[],ix=[];S.p.forEach((q,i)=>{const a=S.p[Math.max(0,i-1)],b=S.p[Math.min(400,i+1)],dx=b[0]-a[0],dz=b[2]-a[2],l=Math.hypot(dx,dz)||1,y=mukaAir(i/400);
       v.push(q[0]-dz/l*S.lebar*1.6,y,q[2]+dx/l*S.lebar*1.6,q[0]+dz/l*S.lebar*1.6,y,q[2]-dx/l*S.lebar*1.6);if(i)ix.push(2*i-2,2*i,2*i-1,2*i-1,2*i,2*i+1);});   // berlawanan jarum jam dari atas (normal +y)
     const g=new THREE.BufferGeometry();g.setIndex(ix);g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.computeVertexNormals();
     const n=v.length/3,isi=k=>new THREE.BufferAttribute(new Float32Array(n).fill(k),1);g.setAttribute('color',new THREE.Float32BufferAttribute(Array(n).fill([.004,.006,.005]).flat(),3));g.setAttribute('basah',isi(1.2));g.setAttribute('petak',isi(0));g.setAttribute('undak',isi(0));
     tambah(g,matTanah);}
-  /* vegetasi: tanam(n, geometri, …) — PRNG ber-seed, ditolak di sawah basah/sungai/jalur (hindari), dikelompokkan noise */
   let hindari=()=>false;const KUNING=C('#6e6a30');
   const tanam=(n,geo,mat,{tinggi:[h0,h1],kelompok=-1,boleh=()=>true,warna:[w0,w1],pusat:[px,pz]=[0,0],jari=luas*.35,bayang=true})=>{const im=new THREE.InstancedMesh(geo,mat,n),m=new THREE.Matrix4(),
       q=new THREE.Quaternion(),e=new THREE.Euler(),c=new THREE.Color();let k=0;
@@ -117,7 +111,6 @@ ${tepi?`if(vL.y>.2&&gg.b<.56*pow(1.-abs(dot(normalize(vNormal),normalize(vViewPo
 diffuseColor.rgb*=(.5+.85*gum)*(.7+.6*gd)*mix(.5,1.1,smoothstep(.25,.8,vL.y));`,'normal_fragment_maps','normal=normalize(normal+1.6*(gg.rbg-.5)+.8*(gd-.5));','aomap_fragment',`{vec3 Nw=inverseTransformDirection(normal,viewMatrix),Vw=inverseTransformDirection(normalize(vViewPosition),viewMatrix);float nl=max(dot(Nw,uSun)*.6+.4,0.),bl=clamp(dot(-Vw,uSun),0.,1.),tp=1.-abs(dot(Nw,Vw));
 reflectedLight.indirectDiffuse*=.65+.6*max(Nw.y,0.);reflectedLight.directDiffuse+=diffuseColor.rgb*vec3(1.5,1.05,.5)*(.55*nl*nl*nl+bl*bl*(.12+1.5*tp*tp)*(.3+gum));}`);};return m;},
     matV=daun(new THREE.MeshStandardMaterial({vertexColors:true,roughness:.9,envMapIntensity:.9}),true);
-  /* langit + env: Sky (Preetham) di-bake ke PMREM sekali (statis) → ambien & pantulan air dari langit yang sama */
   const sky=new Sky(),u=sky.material.uniforms,arah=new THREE.Vector3().setFromSphericalCoords(1,(90-matahari.el)*Math.PI/180,matahari.az*Math.PI/180);
   Object.assign(sky.scale,{x:1e4,y:1e4,z:1e4});u.turbidity.value=langit.turbidity;u.rayleigh.value=langit.rayleigh;u.mieCoefficient.value=langit.mie;
   u.mieDirectionalG.value=langit.mieG;u.sunPosition.value.copy(arah);
@@ -126,29 +119,26 @@ reflectedLight.indirectDiffuse*=.65+.6*max(Nw.y,0.);reflectedLight.directDiffuse
 retColor=mix(retColor,mix(retColor*vec3(.62,.58,.64),vec3(1.55,1.12,.8),cs),cv);gl_FragColor=vec4(retColor,1.);`);
   {const es=new THREE.Scene(),pm=new THREE.PMREMGenerator(renderer);es.add(sky);scene.environment=pm.fromScene(es).texture;pm.dispose();scene.add(sky);}
   scene.fog=new THREE.FogExp2(kabut.warna,kabut.padat);
-  /* kabut lembah: bidang datar tembus pandang, alfa dari fBm (DataTexture ber-seed); dibaca berlapis dari sudut rendah */
+  /* kabut lembah: bidang tembus pandang, alfa fBm */
   if(lembah){const n=256,a=new Uint8Array(n*n*4);for(let j=0;j<n;j++)for(let i=0;i<n;i++){const v=ss(-.15,.55,fbm(i/40,j/40,4))*ss(0,24,Math.min(i,j,n-1-i,n-1-j));
       a.set([255,255,255,255*v],(j*n+i)*4);}
     const tx=new THREE.DataTexture(a,n,n);tx.needsUpdate=true;tx.magFilter=tx.minFilter=THREE.LinearFilter;
     for(const y of lembah.y){const m=new THREE.Mesh(new THREE.PlaneGeometry(lembah.ukuran||luas*.6,lembah.ukuran||luas*.6).rotateX(-Math.PI/2),
       new THREE.MeshBasicMaterial({color:lembah.warna||kabut.warna,map:tx,transparent:true,opacity:lembah.opasitas||.35,depthWrite:false}));
       m.position.set(lembah.x||0,y,lembah.z||0);m.renderOrder=1;scene.add(m);}}
-  /* tahap 2, sesudah gapura & jalur diketahui: tumbuh({hutan, kelapa, hindari(x,z,yPuncak,jariTajuk)}); hutan/kelapa = satu lapis
-     {n,pusat,jari,kelompok,boleh,bayang} atau larik lapis (mis. dekat berbayang + jauh tanpa bayang) */
+  /* tahap 2: tumbuh({hutan, kelapa, hindari(x,z,yPuncak,jariTajuk)}); hutan/kelapa = lapis {n,pusat,jari,kelompok,boleh,bayang} atau larik lapis */
   const matK=daun(new THREE.MeshStandardMaterial({vertexColors:true,roughness:.85,side:THREE.DoubleSide,envMapIntensity:.9}),false),
     tumbuh=({hutan={n:5000},kelapa={n:200},hindari:h=()=>false}={})=>{hindari=h;
     for(const o of [].concat(hutan||[]))if(o.n)for(const[L,y,p,bagi]of RAGAM)tanam(Math.round(o.n*bagi),geoPohon(L,y,p,o.bayang!==false),matV,{tinggi:[9,19],kelompok:-.15,warna:[C('#293c1c'),C('#4a5c2b')],...o});
     for(const o of [].concat(kelapa||[]))if(o.n)tanam(o.n,geoKelapa,matK,{tinggi:[11,17],warna:[C('#3d5226'),C('#5b6e30')],...o});};
   return{tinggi:(x,z)=>titik(x,z).h,basah:(x,z)=>titik(x,z).b,arah,pohon,tumbuh,ubin};}
-/* bayangan matahari ikut kamera: kotak bayang ±r di sekitar titik `maju` m di depan kamera, posisi dibulatkan ke texel ruang
-   cahaya (bayangan diam tidak berkedip saat kamera terbang). Panggil sesudah applyCam(), sebelum render. */
+/* bayangan matahari ikut kamera: kotak ±r di titik `maju` m di depan kamera, dibulatkan ke texel (tak berkedip). Sesudah applyCam(), sebelum render. */
 function ikutMatahari(arah,{r=70,maju=45,jauh=450}={}){key.shadow.normalBias=.06*r/70;const f=camera.getWorldDirection(new THREE.Vector3()).setY(0).normalize(),
   c=camera.position.clone().addScaledVector(f,maju),ka=new THREE.Vector3().crossVectors(arah,new THREE.Vector3(0,1,0)).normalize(),
   at=new THREE.Vector3().crossVectors(ka,arah).normalize(),tx=2*r/key.shadow.mapSize.x,bul=(v,s)=>c.addScaledVector(v,Math.round(c.dot(v)/s)*s-c.dot(v));
   bul(ka,tx);bul(at,tx);key.target.position.copy(c);key.position.copy(c).addScaledVector(arah,jauh);
   const sc=key.shadow.camera;if(sc.right!==r||sc.far!==jauh*2){Object.assign(sc,{left:-r,right:r,top:r,bottom:-r,near:1,far:jauh*2});sc.updateProjectionMatrix();}}
-/* lewati(objek,{tinggi,jarak,dari}) → 3 titik terbang() segaris menembus pusat kotak objek (gapura bentar: celah di tengah) searah
-   sumbu z lokalnya, `tinggi` di atas dasar kotak, ±`jarak`; diurutkan dari arah `dari` (titik jalur sebelumnya). Periksa jarak bebas. */
+/* lewati(objek,{tinggi,jarak,dari}) → 3 titik terbang() segaris menembus pusat kotak objek searah sumbu z lokalnya; urut dari arah `dari` */
 function lewati(o,{tinggi=2,jarak=10,dari=null}={}){o=objek3(o);const b=kotak3(o),c=b.getCenter(new THREE.Vector3()),
   d=o.getWorldDirection(new THREE.Vector3()).setY(0).normalize().multiplyScalar(jarak),q=[-1,0,1].map(k=>[c.x+d.x*k,b.min.y+tinggi,c.z+d.z*k]);
   return dari&&Math.hypot(dari[0]-q[2][0],dari[2]-q[2][2])<Math.hypot(dari[0]-q[0][0],dari[2]-q[0][2])?q.reverse():q;}

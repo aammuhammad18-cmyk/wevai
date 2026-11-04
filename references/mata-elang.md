@@ -1,8 +1,7 @@
 # Mata elang — shot terbang 3D dan 2.5D
 
-Dibaca HANYA saat membangun shot mata elang. Aturan kapan shot ini sah ada di `sinematografi.md` §3: satu per bab,
-termotivasi, ≥ 3 dtk tanpa cut, mendarat di subjek. Contoh hidup: `assets/starter-elang.html` (11,5 dtk, sawah → gapura
-bentar → lembah dan gunung saat senja). Bukti dan angka: `evals/bukti/2026-11-03-mata-elang/`.
+Dibaca HANYA saat membangun shot mata elang. Kapan shot ini sah: `sinematografi.md` §3. Contoh hidup: `assets/starter-elang.html` (11,5 dtk).
+Bukti: `evals/bukti/2026-11-03-mata-elang/`, `evals/bukti/2026-11-04-rupa-3d/`.
 
 ## Isi
 
@@ -10,7 +9,6 @@ bentar → lembah dan gunung saat senja). Bukti dan angka: `evals/bukti/2026-11-
 |---|---|---|
 | `terbang` (`src/runtime/terbang.js`) | `jalurElang()`, `terbang()`: jalur, tatap, roll, guncang. 3D dan 2.5D | `starter-elang.html`; 2.5D: salin blok |
 | `lanskap-3d` (`src/runtime/lanskap-3d.js`) | `lanskap()`, `tumbuh()`, `ikutMatahari()`, `lewati()`, `ss()` | `starter-elang.html` |
-| starter | `gapuraBentar()`, DUNIA, jalur, motion blur, tone mapping, kait uji | `starter-elang.html` |
 
 2.5D: blok `terbang` ada di `starter-babak.html` (resep: `sinematografi.md` §5 "Babak multi-adegan"). Starter 2.5D lain: salin
 `src/runtime/terbang.js` **sesudah** blok `kamera-dom`, sebelum kode adegan. `test-starters` menyuntikkan blok ke setiap starter 2.5D.
@@ -31,7 +29,6 @@ berlanjut tanpa lompatan. Wajib dipanggil urut waktu, seperti `rail()`.
 | `guncang` | `2` | derajat guncangan pada trauma 1 (yaw/pitch/roll; 2.5D: geser px setara) |
 | `trauma0` | `.2` | turbulensi dasar × laju relatif (nol saat diam) |
 | `trauma` | `[]` | `[[detik, besar], …]` meluruh `luruh`/dtk, atau `d => [[d[5], .6]]` = hentakan di titik ke-5 |
-| `seed` | `7` | noise guncangan |
 
 Kembali: fungsi pose `R(t)` dan `R.detik` = detik melintasi tiap titik. Pakai untuk segmen motion blur, trauma, dan VO.
 
@@ -72,7 +69,7 @@ Starter melebarkan `r` 70 → 500 m saat kamera naik (bayang senja panjang di le
 
 `ACESFilmicToneMapping`, exposure .5 (r161 mengalikan exposure/0,6; naik/turun 0,05 sambil melihat langit dekat matahari). Tanpa tone mapping,
 matahari dan api menggunting. Brand/produk tetap `NoToneMapping` (`sinematografi.md` §6). ACES vs AgX di r161 (bukti: `tonemap.jpg`): api ACES
-tetap jingga lalu kuning-putih, AgX memucat ke salem; senja berlatar terang: rentang 79 vs 69, kontras subjek 64 vs 49.
+tetap jingga lalu kuning-putih, AgX memucat ke salem.
 
 ## Motion blur
 
@@ -92,9 +89,9 @@ Hanya akumulasi sub-frame, hanya di segmen `KABUR = [[a, b], …]` (starter: det
    ½ diagonal near plane. Celah 3,4 m + near .25: kamera tepat di tengah.
 4. **Sumber cahaya di celah**: di antara dinding semua sisi teduh (frame hitam ±0,4 dtk). Obor `practical()` di muka gapura (`OBOR`, kedip = `noise(tl.time())`).
 5. **Reveal**: sesudah celah, naik sambil menatap DATAR ke lembah; dua titik terakhir menatap gunung. Melambat lalu mendarat. Legenda masuk saat kamera hampir diam.
-6. **Lensa** 24 mm untuk rasa laju. 3–9 m di atas sawah sudah terasa rendah; di bawah 3 m tanah dekat "meleleh".
-7. **Potret** detik kunci dengan `snap.mjs`: awal, depan gapura, melintas (MB), naik, mendarat. Lalu `nilai-visual` tanpa `--sumber`; bingkai gapura
-   per bingkai: `--subjek` = kotak gapura, `--sumber` = piksel api yang DIUKUR. Bingkai di dalam celah dan lanskap tanpa subjek memang memicu peringatan; tulis alasannya.
+6. **Lensa** 24 mm. 3–9 m di atas sawah sudah terasa rendah.
+7. **Potret** detik kunci dengan `snap.mjs`, lalu `nilai-visual` tanpa `--sumber`; bingkai gapura: `--subjek` kotak gapura, `--sumber` piksel api yang DIUKUR.
+   Bingkai di dalam celah dan lanskap tanpa subjek memang memicu peringatan; tulis alasannya.
 
 ## Jebakan
 
@@ -106,7 +103,7 @@ Hanya akumulasi sub-frame, hanya di segmen `KABUR = [[a, b], …]` (starter: det
 - **`mod` tabel petak**: JS dan GLSL harus memakai rumus sel yang sama; `sin()` dipakai untuk liuk karena hasilnya sama di keduanya, `ImprovedNoise` tidak.
 - **Kabut lembah** terlalu dekat/pekat = lantai merah muda. Taruh jauh, opasitas ≤ .25.
 - **Matahari di bawah rabung jauh** = lembah gelap saat reveal. Rabung 340 m di 4,7 km ≈ 4,1°; starter: cakrawala 180 m (≈2,2°), matahari 3,2°. Matahari 5,5° = sore datar.
-- **2.5D: bidang harus menutup seluruh jalur.** Terbang lebih lebar dari geser kamera adegan menyingkap tepi bidang.
+- **2.5D: bidang harus menutup seluruh jalur.** Kalau tidak, tepi bidang tersingkap.
 - **`CAM.rail` aktif sejak t = 0**: kait yang menyetel pose bola harus menyetel `rail:-1` lalu MEMULIHKANNYA. GSAP mencatat nilai awal tween saat render
   pertamanya; `rail` asing yang tertinggal membuat kamera diam di setiap seek balik. `ELANG_UJI` mengukur jarak tempuh.
 - **CI tanpa GPU**: `test-starters` melewatinya di perangkat lunak (`BERAT`, baris `lewat`); matematika tetap di `test-elang`.

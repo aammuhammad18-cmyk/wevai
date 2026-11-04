@@ -132,8 +132,8 @@ Urutan per frame (starter `siapkan()`): `applyCam()` → near/far dan kabut dari
 - **Label vs busur yang melayang**: busur 9 km tampak ±18 km lebih jauh dari jejak tanahnya. Pindahkan label ke sisi lain atau ke detik lain.
 - **Kabut berbasis jarak** menenggelamkan seluruh pulau saat kamera 1 500 km jauhnya. `fog.near/far` dan `camera.near/far` disetel tiap
   frame dari jarak ke titik tatap.
-- **Label tanpa oklusi**: label di balik punggung gunung tetap tampak. Pilih detik atau sudut yang tidak menyembunyikan titiknya.
-- **CI tanpa GPU**: halaman ini masuk `BERAT` di `test-starters` (dilewati di SwiftShader); matematika diuji `test-peta`.
+- **Label tanpa oklusi**: label di balik gunung tetap tampak. Pilih detik atau sudut lain.
+- **CI tanpa GPU**: `BERAT` di `test-starters`; matematika di `test-peta`.
 - **Biaya**: kisi 184 rb + tambalan 84 rb verteks, bayangan 2048 PCF, MSAA 4×. Terukur HD 4000: BIAYA_PETA. Kenop pertama bila lambat: `langkah` 2,2, tanpa `halus`, bayangan 1024.
 
 ## Nama global

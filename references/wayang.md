@@ -9,7 +9,7 @@ Sumber: `src/runtime/wayang.js` (blok `<wv:wayang>`, butuh `atmosfer`). Uji: `sc
 
 - Cocok: sisipan legenda dan kisah pewayangan, pembuka bab sejarah Jawa (`babad-jawa-01`): potong ke starter di awal kisah, `kedip` tenang, legenda `#cap` ("Cerita rakyat · bukan catatan sejarah · sumber"), gunungan membuka dan menutup kisah.
 - Lemah: data, tokoh sejarah nyata (wayang = tokoh lakon, bukan potret), adegan cepat. Promo: hanya bila dimotivasi.
-- Jangan dipakai untuk mengklaim ritual (ruwatan, sesaji, makna mistis): starter sengaja netral.
+- Jangan mengklaim ritual (ruwatan, sesaji, makna mistis).
 
 ## Rig
 
@@ -50,8 +50,7 @@ Salah opsi = `Error('wayang.…')` yang menyebut pilihan sah. `panakawan` ditola
 
 ## Biaya
 
-Setup: rancang + panggang sprite ±1–2 dtk saat muat (lapis lukis ikut dipanggang: per frame tidak bertambah). Tiap frame: satu `drawImage` kelir, per figur 2–6 sprite + satu blur bila z besar, dua gradien penuh. `bench-frame` (capture, 3 putaran, 4 Nov): sisi bayang 209 ms (208–232), sisi dalang 298 ms (285–314). Batas 350 ms. Bila lewat: turunkan `res`, kurangi
-jumlah figur bergerak, atau `simping:false`.
+Setup: rancang + panggang sprite ±1–2 dtk saat muat (lapis lukis ikut dipanggang: per frame tidak bertambah). Tiap frame: satu `drawImage` kelir, per figur 2–6 sprite + satu blur bila z besar, dua gradien penuh. `bench-frame` (capture, 3 putaran, 4 Nov): sisi bayang 209 ms (208–232), sisi dalang 298 ms (285–314). Batas 350 ms. Bila lewat: turunkan `res` atau `simping:false`.
 
 ## Determinisme
 
@@ -113,7 +112,7 @@ Sumber: **[S]** Subagya, "Nilai-nilai Estetis Bentuk Wayang Kulit", *Gelar* 11(2
 - **Kanan/kiri kayon.** Sumber menyebut condong dan disisihkan "ke kanan" tanpa menyebut dari sisi siapa. Starter membacanya sisi dalang, jadi di sisi bayang tampak ke kiri.
 - **Kemiringan tiap pathet** hanya dari artikel populer ([Mojok](https://mojok.co/terminal/gunungan-penanda-waktu-pagelaran-wayang-dan-simbol-kehidupan/)): tidak dipakai.
 - **Tuding vs cempurit.** I: gapit dan tuding batang terpisah; W menyebut cempurit penjepit. Sumber lain: cempurit terdiri dari tuding dan gapit. Dokumen ini mengikuti I. Gapit berhenti di dada: pilihan rupa supaya muka tidak tercoret.
-- **Dua sendi lengan** dari pengetahuan umum (UNESCO hanya "swivelling arms"); periksa dengan dalang.
+- **Dua sendi lengan** dari pengetahuan umum; periksa dengan dalang.
 - **Tinggi relatif** dari S; angkanya rekaan.
 - **Prada tubuh** dari S. Warna kain bukan pakem tokoh.
 - **Kedip** rekaan; museum menekankan api dijaga stabil, kedip kuat = pilihan dramatis.

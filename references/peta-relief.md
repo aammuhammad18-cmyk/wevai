@@ -29,7 +29,7 @@ baca lain tidak bertambah satu bita pun.
 | Sungai | **SKEMATIS** — Natural Earth 10m tidak memuat satu pun sungai Jawa (0 fitur di kotak 104,5–116 BT; diperiksa) | titik kota/muara yang dilalui, hulu → muara, dihaluskan Catmull-Rom | karya sendiri |
 | Wilayah (dataran tinggi, pegunungan selatan, Kendeng, Rembang, Ijen) | bentuk tangan | gaussian `[lon, lat, jari x, jari z, tinggi]` | karya sendiri |
 
-Jari kaki kerucut (`R`), lengkung profil (`k`), ukuran kawah, jurang, dan kaldera Tengger adalah **perkiraan bentuk**, bukan data. Yang
+Jari kaki (`R`), profil (`k`, `apron`), bahu, kawah, jurang, kaldera Tengger, dan tata lahan adalah **perkiraan bentuk**, bukan data. Yang
 data hanya posisi dan elevasi puncak. Gunung Sumatra di luar 104,5 BT tidak dimuat (daratannya ada, gunungnya tidak). Sungai bisa diganti data vektor sungguhan (mis. HydroRIVERS) bila lisensinya cocok dengan MIT; OSM
 (ODbL) menuntut share-alike untuk basis data turunan, jadi tidak ditanam di repo ini.
 
@@ -61,10 +61,11 @@ Mengembalikan `{tinggi(x,z), darat, laut, gunung, sungai, kerucut}`, murni dan d
   jadi lembah, bukan ngarai); laut = parameter kedalaman negatif.
   `alur` 0 = kerucut tanpa jurang (kisi kasar; jurangnya digambar shader).
 - `darat.sdf`, `laut.sdf`: jarak bertanda ke pantai / garis 200 m. Tepat ≤ 8 km (ember 8 km); lebih jauh dari kisi pembantu 8 km atas ruas yang dijarangkan 3× (galat ±1–2 km, dilebur 6–8 km).
-- `gunung[i]`: `{nama, x, z, E, R, k, kawah, cekung, alur, jurang, fase, kaldera}`. Puncak = bibir kawah = data GVP. Kaki tak bulat
-  (R ± 18 % menurut arah). Jurang radial: 8–14 per gunung, berliuk ke kaki, dalamnya beda-beda (barranco di antara alur dangkal),
-  hingga `alur` (,22 Holosen; ,32 Pleistosen: tererosi, tanpa kawah, puncak membulat) di tengah lereng. Rumus jurang ditulis dua
-  kali, di `medan()` (JS) dan shader `petaRelief` (GLSL): ubah keduanya bersama.
+- `gunung[i]`: `{nama, x, z, E, R, k, apron, kawah, cekung, alur, lancip, jurang, fase, bahu, kaldera}`. Puncak = bibir kawah = data GVP (uji ±20 m).
+  Bentuk ber-seed per gunung (opsi data boleh menimpa): profil dua lengkung (`apron`: lereng atas curam + kaki lebar), punggung radial, 1–3 `bahu`
+  (`[arah rad, r, tinggi]`, selalu di bawah puncak), kaki tak bulat (A + B ≤ ,18). Holosen: 9–15 jurang, kepala tanah + abu; Pleistosen: 5–9 jurang
+  lebih dalam, puncak membulat, berhutan. Jurang berliuk, dalamnya beda-beda, mulai di ketinggian berbeda. Rumus jurang ditulis dua kali, di
+  `medan()` (JS) dan shader `petaRelief` (GLSL): ubah keduanya bersama. Bahu baru bisa membuat sungai berjalan di punggung: `test-peta` menangkapnya.
 - `sungai[i]`: `{nama, p[[x,z]], air[]}` per 0,8 km; `air` = batas bawah ukiran: minimum berjalan dari hulu (tak pernah naik) atas tanah
   terendah di penampang (±0,3 km di hulu → ±2,4 km di hilir), berakhir di pantai. Pita sungai digambar di tanah terukir.
 
@@ -84,7 +85,10 @@ Kembali `{grup, U, tegak, tinggiDunia(x,z)}`. `grup.scale.y` = relief naik (0,03
 
 Jurang di kisi kasar (1,8 km) tidak bisa jadi geometri tanpa aliasing, jadi tiap verteks membawa indeks gunung yang menguasainya
 (atribut `gunung`, `flat`), dan fragmen menghitung `jurang()` gunung itu lalu memiringkan normal. Tambalan `halus` memakai geometri
-jurang sungguhan (shader 0). Data gunung = 2 `vec4` uniform per gunung (68 gunung = 136 vektor; batas minimum WebGL2 224).
+jurang sungguhan; alur halus lereng bawah hanya di shader. Data gunung = 2 `vec4` uniform per gunung (68 gunung = 136 vektor).
+
+Tata lahan di shader dari ubin noise 256² (mipmap, tanpa raster): sawah bertambal, tegal, bercak permukiman, hutan makin rapat ke atas. **Nada, bukan
+data**: tidak ada batas hutan, kota, atau sawah sungguhan; jangan dipakai sebagai keterangan. Kontur memudar ke 22 % saat relief naik (`uCetak`).
 
 - `sungaiPeta(peta, {lebar: px, warna, angkat})` → `{[nama]: {mesh, mat, s}, U}`. Lebar dalam **piksel** (vertex shader ∝ jarak kamera),
   menipis ke hulu. Tween `mat.color` untuk sungai yang sedang diceritakan.
@@ -124,11 +128,8 @@ Urutan per frame (starter `siapkan()`): `applyCam()` → near/far dan kabut dari
   200 m palsu di tengah laut dalam (selatan Jawa Timur). `peta-data.mjs` membuang ruas kembar, dan ruas nol: klip Sutherland–Hodgman
   bisa menggandakan titik pojok kotak, rangkaian ulang lalu putus dan cincin menutup dengan tali busur melintang samudra (pernah
   terjadi: garis 200 m palsu dari 117,4 BT 4 LS ke 112,7 BT 12 LS). `test-peta` memeriksa laut lepas tetap dalam.
-- **Lembah sungai memangkas gunung.** Hulu Citarum 2,3 km dari puncak Wayang-Windu: lembah selebar hilir memangkas 0,5 km. Kini
-  lebar lembah tumbuh dari 1,2 km (hulu) ke 4,5 km (hilir); `test-peta` memeriksa semua puncak.
-- **Ngarai dan tanggul.** Muka air = minimum berjalan, jadi SATU cekungan di hulu menahan muka air rendah sepanjang puluhan km: Brantas
-  pernah mengukir ngarai 0,2 km (×4 = 0,8 km visual) melewati Malang, yang di bingkai tampak sebagai tanggul berbayang. Kini ukiran
-  dibatasi 80 m di bawah tanah asli, dan dataran tinggi Batu–Malang diberi `wilayah`. `test-peta`: alur tak pernah di atas kedua tebing.
+- **Lembah sungai memangkas gunung.** Lebar lembah tumbuh dari 1,2 km (hulu) ke 4,5 km (hilir); `test-peta` memeriksa semua puncak.
+- **Ngarai dan tanggul.** Muka air = minimum berjalan: satu cekungan di hulu menahan muka air sepanjang puluhan km. Kini ukiran dibatasi 80 m, `test-peta`: alur tak pernah di atas kedua tebing.
 - **Kamera sebelum terbang pertama** ada di pose bawaan (10 km dari asal = Dieng). `cutTo(0, pose awal)` dulu.
 - **Data pantai harus menutup semua yang terlihat.** Kotak klip yang lebih sempit dari bingkai membuat daratan di luar kotak
   memanjang lurus (uji dalam/luar menjepit titik ke tepi kotak): Sumatra pernah berpantai lurus di sudut kiri atas.
@@ -138,9 +139,7 @@ Urutan per frame (starter `siapkan()`): `applyCam()` → near/far dan kabut dari
   frame dari jarak ke titik tatap.
 - **Label tanpa oklusi**: label di balik punggung gunung tetap tampak. Pilih detik atau sudut yang tidak menyembunyikan titiknya.
 - **CI tanpa GPU**: halaman ini masuk `BERAT` di `test-starters` (dilewati di SwiftShader); matematika diuji `test-peta`.
-- **Biaya**: kisi 184 rb + tambalan 84 rb verteks (523 rb segitiga), bayangan 2048 PCF, MSAA 4×, 68 gunung per fragmen hanya untuk
-  indeksnya sendiri. Halaman siap ±6–13 dtk di HD 4000 (Idle, sambil render pemilik). Belum di-bench; target ≤ 350 ms/frame, riset
-  memperkirakan 60–90 ms render. Kenop pertama bila lambat: `langkah` 2,2, tanpa `halus`, bayangan 1024.
+- **Biaya**: kisi 184 rb + tambalan 84 rb verteks, bayangan 2048 PCF, MSAA 4×. Terukur HD 4000: BIAYA_PETA. Kenop pertama bila lambat: `langkah` 2,2, tanpa `halus`, bayangan 1024.
 
 ## Nama global
 

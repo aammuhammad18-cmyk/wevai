@@ -117,7 +117,7 @@ Rilis 1.4.0 (L) mencakup:
 - Setiap gaya punya starter atau kulit, dokumen, dan lembar kontak.
 - Tindak lanjut relief candi sesudah masuk `main`:
   - bench di mesin senggang: `bench-frame.mjs assets/starter-relief.html "clean=1" 20`, ≥ 3 run bergantian; ukur juga setup;
-  - vonis pemilik, termasuk legenda "GAYA BOROBUDUR · ILUSTRASI" di atas panel rekaan (sudah ditandai ilustrasi atau tidak).
+  - vonis pemilik, termasuk legenda "GAYA BOROBUDUR · ILUSTRASI" di atas panel rekaan (sudah ditandai ilustrasi).
 - Tindak lanjut painterly sesudah masuk `main`: bench di mesin senggang (`bench-frame.mjs assets/starter-lukis.html "clean=1" 20`);
   vonis pemilik. Agen pembuatnya macet sesudah bukti di-commit, jadi gerbang dan uji penggabungan dijalankan controller.
 - Tindak lanjut peta relief 3D sesudah masuk `main`: bench (`bench-frame.mjs assets/starter-peta-relief.html "clean=1" 20`); sungai

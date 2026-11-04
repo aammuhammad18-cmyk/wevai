@@ -14,6 +14,8 @@
    mis. mockup UI yang memang berteks kecil). INFO = pengingat.
    ========================================================= */
 import { readFile } from 'node:fs/promises';
+import { dirname, isAbsolute, relative, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const argv = process.argv.slice(2);
 const asJson = argv.includes('--json');
@@ -146,8 +148,12 @@ function lint(file, raw) {
   return find;
 }
 
+const SKILL = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const diDalamSkill = f => { const r = relative(SKILL, resolve(f)); return !r.startsWith('..') && !isAbsolute(r) && !/^(assets|evals)[\\/]/.test(r); };
+
 const results = [];
 for (const f of files) {
+  if (diDalamSkill(f)) { results.push({ file: f, findings: [{ level: 'FAIL', rule: 'folder-proyek', msg: 'keluaran video ada di dalam folder skill', line: null, fix: 'pindahkan ke folder di sebelah folder skill (../<nama-video>/) dan jalankan alat dari sana' }] }); continue; }
   let raw; try { raw = await readFile(f, 'utf8'); }
   catch { results.push({ file: f, error: 'tidak bisa dibaca' }); continue; }
   results.push({ file: f, findings: lint(f, raw) });

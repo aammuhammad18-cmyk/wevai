@@ -1,6 +1,6 @@
 node_modules/
 package-lock.json
-# keluaran alat kerja bila dijalankan di dalam repo
+# jaring pengaman saja: keluaran video TIDAK boleh ditulis di dalam repo (SKILL.md, "Folder proyek")
 frames/
 shots/
 aset/

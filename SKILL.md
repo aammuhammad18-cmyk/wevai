@@ -43,7 +43,9 @@ menurunkan kepatuhan pada aturan yang penting.
 isinya), bukan seluruhnya.
 
 `<folder skill>` = folder berisi SKILL.md ini (path absolut yang kamu pakai
-membukanya); `references/`, `assets/`, `scripts/` ada di dalamnya. Daftar semua berkas: `references/isi-paket.md`.
+membukanya). Daftar semua berkas: `references/isi-paket.md`.
+
+**Folder proyek** = folder kerja, kecuali bila folder kerja itu `<folder skill>`: buat `../<nama-video>/` di sebelahnya dan jalankan semua alat dari sana. Jangan menulis keluaran (`index.html`, `shots/`, `frames/`) di dalam `<folder skill>`.
 
 ## Prasyarat — hanya browser
 
@@ -322,8 +324,7 @@ bagian 1 dan 1b. Ringkasnya:
    pan 3D per kata, menu transisi, mockup UI). Resep adalah perkakas, bukan
    daftar belanja: pakai hanya yang dituntut konsep.
 5. **Periksa mekanis lalu VISUAL.** Jalankan dulu
-   `node "<folder skill>/scripts/lint-motion.mjs"` di folder proyek (section yang
-   di-fade, `Math.random`, loop, `<video autoplay>`, teks < 30 px, module lokal);
+   `node "<folder skill>/scripts/lint-motion.mjs"` di folder proyek;
    perbaiki semua FAIL. Lint tidak menilai rasa: **verifikasi VISUAL, bukan cuma
    "kode jalan"** — kamu tidak bisa menonton video, hanya melihat FRAME. Potret
    6–20 detik kunci (awal tiap adegan, saat teks muncul, transisi) dengan
@@ -331,16 +332,14 @@ bagian 1 dan 1b. Ringkasnya:
    `shots/kontak.png`, satu lembar kontak berlabel detik. BUKA gambar itu dan
    nilai seperti sutradara: teks kepotong? tumpang tindih? teks muncul
    sebelum kamera selesai? masih terasa slide? Perbaiki, potret lagi.
-   JANGAN merender semua frame untuk mengecek (ribuan gambar, bukan
-   verifikasi); render penuh hanya untuk export MP4 (langkah 6).
+   JANGAN merender semua frame untuk mengecek; render penuh hanya untuk export MP4 (langkah 6).
    Tanpa Node: buka `?debug=1`, scrub manual, screenshot.
 6. **Centang `references/checklist.md`, lalu serahkan SATU `index.html` yang bisa diklik dua kali.** Output
    akhir tidak boleh butuh server/Node: CSS dan JS ditulis INLINE di dalam
    berkas (module lokal `<script type="module" src="…">` diblokir CORS saat
    dibuka lewat `file://`, module inline tidak), library dari CDN, aset
-   (ikon/gambar) relatif di folder yang sama. Server no-cache
-   (`scripts/serve.py`) hanya alat KERJA saat mengedit, bukan syarat
-   menonton. Tanpa player di layar (lihat "Player"); sebutkan `?debug=1`
+   (ikon/gambar) relatif di folder yang sama. `scripts/serve.py`
+   hanya alat KERJA saat mengedit. Tanpa player di layar (lihat "Player"); sebutkan `?debug=1`
    untuk scrub. **Export MP4 hanya bila user memintanya**: `scripts/
    export-frames.mjs` merender tiap frame (60 fps) ke PNG lalu ffmpeg
    menggabungkannya — cara ini bebas frame drop, tapi mahal, bukan

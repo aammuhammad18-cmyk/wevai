@@ -143,3 +143,4 @@ piksel yang sama dalam satu proses: `RELIEF_UJI.seekSama` dan pemeriksaan kanvas
 - **Kalpataru** (pohon pengabul) dengan jambangan dan untaian permata adalah motif umum relief Jawa Tengah. Mahkota tinggi
   (jatamakuta) menandai bangsawan atau tokoh suci. Payung kebesaran menandai pangkat.
 - Bukan rekonstruksi arkeologis. Untuk klaim tentang panel atau kisah tertentu, periksa sumber dan sebutkan di narasi.
+- Panel generator bukan panel nyata, jadi legenda starter berbunyi "GAYA BOROBUDUR · ILUSTRASI", bukan nama monumen + abad. Angka abad atau nama candi hanya boleh dipakai bila yang ditampilkan memang panelnya.

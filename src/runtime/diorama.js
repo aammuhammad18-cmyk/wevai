@@ -1,14 +1,12 @@
-/* DIORAMA CEL-SHADED — miniatur museum: toon bertingkat + garis lambung terbalik + tilt-shift + alas + kartu 2D (references/diorama.md).
-   Satu global `diorama`, plus TILT dan GARIS yang di-tween dari timeline: tl.to(TILT,{pusat:.6},t). Semua keadaan = fungsi murni kamera + timeline:
-   geometri statis dirakit sekali, bayangan dipanggang sekali, kartu dirasterisasi sekali. Butuh: THREE, mergeGeometries, ShaderPass, scene, camera,
-   renderer, composer, W, H, hash (kamera.js), key + LUX (kamera-three.js). Satuan meter, y ke atas. Bagian murni diuji scripts/test-diorama.mjs. */
+/* DIORAMA CEL-SHADED: toon + garis lambung + tilt-shift + alas + kartu 2D (references/diorama.md). Global `diorama`, TILT, GARIS. Keadaan = fungsi murni kamera + timeline.
+   Butuh: THREE, mergeGeometries, ShaderPass, scene, camera, renderer, composer, W, H, hash, key, LUX. Meter, y ke atas. Uji: scripts/test-diorama.mjs. */
 const TILT={pusat:.5,lebar:.18,lunak:.3,kuat:14};   // y layar: 0 atas, 1 bawah; pusat ± lebar = tajam; lunak = rentang naik ke kuat (px jari-jari di 1080p); kuat 0 = pass mati
 const GARIS={tebal:2.2,acuan:45,warna:'#1a120c'};   // tebal px di jarak ≤ acuan m; lebih jauh menipis sampai 55 %
 const diorama=(()=>{
   const ss=(a,b,x)=>{const t=Math.min(1,Math.max(0,(x-a)/(b-a)));return t*t*(3-2*t);};
   /* ---------- murni ---------- */
   const jariTilt=(y,{pusat,lebar,lunak,kuat}=TILT)=>kuat*ss(lebar,lebar+lunak,Math.abs(y-pusat));   // sama dengan shader TILT_FS
-  /* arah lambung: normal yang dirata-rata per posisi, supaya sudut lambung menyambung (normal rata per muka = lambung robek di sudut) */
+  /* arah lambung: normal dirata-rata per posisi, supaya sudut menyambung */
   function arahLambung(p,n){const peta=new Map(),a=new Float32Array(p.length),k=i=>Math.round(p[i]*1e3)+'/'+Math.round(p[i+1]*1e3)+'/'+Math.round(p[i+2]*1e3);
     for(let i=0;i<p.length;i+=3){const s=peta.get(k(i))||[0,0,0];s[0]+=n[i];s[1]+=n[i+1];s[2]+=n[i+2];peta.set(k(i),s);}
     for(let i=0;i<p.length;i+=3){const s=peta.get(k(i)),l=Math.hypot(...s)||1;a[i]=s[0]/l;a[i+1]=s[1]/l;a[i+2]=s[2]/l;}return a;}
@@ -26,7 +24,7 @@ const diorama=(()=>{
   /* ---------- rakit: kepingan kotak/prisma → satu mesh toon + satu mesh lambung (2 draw call, berapa pun kepingannya) ---------- */
   const warnaC=c=>new THREE.Color(c),LAMBUNG=[];
   function rakit({seed=1,alas=.8,beda=.05,bahan={}}={}){const isi=[],lambung=[];let n=0;
-    /* warna verteks: warna ± beda (acak per keping) dan dasar lebih gelap (cuci kotor maket: mengikat benda ke tanah) */
+    /* warna verteks: ± beda per keping, dasar lebih gelap (cuci kotor maket) */
     const tambah=(g0,warna,{garis=true,kotor=alas}={})=>{const g=g0.toNonIndexed();g.deleteAttribute('uv');g.computeVertexNormals();n++;
       const p=g.attributes.position,col=new Float32Array(p.count*3),c=warnaC(warna),v=1+beda*(2*hash(n,seed)-1);let y0=Infinity,y1=-Infinity;
       for(let i=0;i<p.count;i++){const y=p.getY(i);y0=Math.min(y0,y);y1=Math.max(y1,y);}
@@ -45,7 +43,7 @@ const diorama=(()=>{
           uniforms:{tebal:{value:GARIS.tebal},acuan:{value:GARIS.acuan},warna:{value:warnaC(GARIS.warna)},piksel:{value:new THREE.Vector2(1/W,1/H)}},vertexShader:LAMBUNG_VS,fragmentShader:LAMBUNG_FS}));
         LAMBUNG.push(l.material.uniforms);l.name='lambung';G.add(m,l);G.userData.toon=m;G.userData.lambung=l;for(const g of [...isi,...lambung])g.dispose();return G;}};
     return R;}
-  /* pola bahan: 1 bata, 2 paras, 4 ijuk, 5 alang. Fungsi murni posisi dunia (tanpa tekstur, tanpa geometri tambahan); memudar saat pola lebih rapat dari piksel supaya tidak berkilau */
+  /* pola bahan (1 bata, 2 paras, 4 ijuk, 5 alang): murni posisi dunia; memudar saat lebih rapat dari piksel */
   const POLA_FS=`varying float vB;varying vec3 vP,vN;float hB(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
 float natB(float v,float t){float d=min(fract(v),1.-fract(v));return 1.-smoothstep(t,t+fwidth(v),d);}
 float polaB(){if(vB<.5)return 1.;vec3 n=abs(normalize(vN));float u=n.x>n.z?vP.z:vP.x;
@@ -54,7 +52,7 @@ if(n.y>.6)return 1.;float c=vB<1.5?.12:.4,l=vB<1.5?.34:.9,b=vP.y/c,r=floor(b),a=
 return mix(.97,(vB<1.5?.9+.2*hB(vec2(r,floor(a))):.95+.1*hB(vec2(r,floor(a))))*(1.-(vB<1.5?.3:.3)*max(natB(b,vB<1.5?.05:.025),natB(a,vB<1.5?.02:.012))),k);}`,
     pasangPola=sh=>{sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nattribute float bahan;varying float vB;varying vec3 vP,vN;').replace('#include <begin_vertex>','#include <begin_vertex>\nvB=bahan;vP=position;vN=normal;');
       sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\n'+POLA_FS).replace('#include <color_fragment>','#include <color_fragment>\ndiffuseColor.rgb*=polaB();');};
-  /* lambung di ruang klip: geser sepanjang normal layar tebal px (tetap setebal pena di lensa apa pun), lalu mundur sedikit agar tidak menusuk muka depan */
+  /* lambung di ruang klip: geser sepanjang normal layar tebal px, lalu mundur sedikit */
   const LAMBUNG_VS=`attribute vec3 arah;uniform float tebal,acuan;uniform vec2 piksel;
 void main(){vec4 v=modelViewMatrix*vec4(position,1.),c=projectionMatrix*v;vec2 n=(normalMatrix*arah).xy;float l=length(n);
 if(l>1e-4)c.xy+=n/l*tebal*clamp(acuan/-v.z,.55,1.)*piksel*2.*c.w;c.z+=.00012*c.w;gl_Position=c;}`,

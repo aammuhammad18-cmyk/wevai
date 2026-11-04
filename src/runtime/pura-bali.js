@@ -1,4 +1,4 @@
-/* PURA BALI — denah tri mandala GENERIK untuk diorama (bukan pura tertentu; sumber dan penyederhanaan: references/diorama.md › Akurasi).
+/* PURA BALI — denah tri mandala GENERIK untuk diorama (bukan pura tertentu; sumber: references/diorama.md › Akurasi).
    TRI_MANDALA = data denah; pura.bangun(R,T) merakit kepingan lewat R.kotak/R.prisma (diorama.rakit); pura.tanah(T,batas) melukis lantai tiga halaman.
    Arah: kaja (ke gunung) = −z, kelod (ke laut) = +z, kangin = +x, kauh = −x. Meter. Tanpa arca, sesajen, atau perlengkapan upacara. Diuji test-diorama.mjs. */
 const TRI_MANDALA={lebar:26,

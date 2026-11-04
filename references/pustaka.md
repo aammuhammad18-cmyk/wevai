@@ -48,7 +48,7 @@ terang/bayang di bawah tonjolan.
 | `beringin(o)` | — | banir, dahan, tajuk gumpal berlobus, akar gantung (yang sampai tanah menebal) |
 | `lontar(o)` | — | kipas bertangkai menjari (bukan kelapa), tepi bergerigi halus, daun kering menjuntai, bekas pelepah |
 | `gunungBerlapis(o)` | `lebar` 2880, `lapis` 3, `puncak` 2 | lapis jauh = gunung api (kawah, alur lereng), lapis dekat = bukit; kaki tiap lapis berkabut. `puncak:0` = bukit saja |
-| `sawahTerasering(o)` | `lebar` 1800, `baris` 9 | petak air (± 60 %) memantulkan langit lewat pita searah kontur: tepi jauh = warna cakrawala, tepi dekat = zenit; petak hijau; bibit padi; pematang + pantulannya; `cahaya:{x,y}` = kilau di bawah sumber |
+| `sawahTerasering(o)` | `lebar` 1800, `baris` 9, `air` .6 | petak air (fraksi `air`) memantulkan langit lewat pita searah kontur: garis tepi jauh = warna cakrawala, badan = langit, tepi dekat = zenit; petak hijau; bibit padi; pematang + pantulannya; `cahaya:{x,y}` = kilau di bawah sumber |
 | `obor(o)` | `jenis` `'tiang'`/`'dinding'`, `kolam` 0 | badan saja; nyala di `(x, y − tinggi)` lewat `api`. Cahaya bawaan dari atas (nyalanya sendiri) |
 | `asap(o)` | `angin` .35 | kepulan statis (gumpal bergradien); untuk kejauhan/still |
 | `relief(o)` | `lebar` 900, `isi` `'prosesi'`/`'kalpataru'`/`'perahu'` | panel batu berbingkai, pahatan timbul dengan bevel dipanggang (detail 0 = panel polos); `(x, y)` = tengah bawah. BUKAN `relief()` cahaya-2d (filter) — keduanya bisa ditumpuk |

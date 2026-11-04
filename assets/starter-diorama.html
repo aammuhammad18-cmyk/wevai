@@ -261,7 +261,7 @@ function gunungBerlapis(o){o=opsi('gunungBerlapis',{x:960,y:700,lebar:2880,tingg
   return`<g id="${id}" class="wv-pustaka" data-pustaka="gunungBerlapis" transform="${T}"><defs>${defs}<clipPath id="${id}-k">${kl}</clipPath></defs>${isi}</g>`;}
 
 /* sawah: pita searah kontur (air memantulkan langit, petak hijau), baris padi, pematang */
-function sawahTerasering(o){o=opsi('sawahTerasering',{x:960,y:1080,lebar:1800,tinggi:380,baris:9,...OPS},o);
+function sawahTerasering(o){o=opsi('sawahTerasering',{x:960,y:1080,lebar:1800,tinggi:380,baris:9,air:.6,...OPS},o);
   const A=siap('sawahTerasering',o,'#2f4a28'),{s,R,dt,N,id}=A,Wl=o.lebar/s/2,n=round(o.baris),sd=o.seed*13,xs=[],
     pc=x=>-1000*(.62+.38*vnoise(x*s/480,sd))*(1-.8*(abs(x)/Wl)**2.5),   // skala derau dalam px: halus di ukuran berapa pun
     e=(k,x)=>k?pc(x)*(k/n)**1.25+(k<n?(6*sin(x*s/110+k*1.7)+8*(vnoise(x*s/120,sd+k)-.5))/s:0):0,
@@ -270,11 +270,11 @@ function sawahTerasering(o){o=opsi('sawahTerasering',{x:960,y:1080,lebar:1800,ti
     gs=(p,c,w,op)=>`<path d="M${tk(...p[0])+kv(p)}" fill="none" stroke="${c}" stroke-width="${f(w/s)}"${op?` opacity="${op}"`:''}/>`;
   for(let x=-Wl;x<=Wl;x+=[80,52,36][dt]/s)xs.push(x);
   const K=lapis();let isi='';K.S=poly(xs.map(x=>[x,pc(x)]).concat([[Wl,40],[-Wl,40]]));
-  for(let k=0;k<n;k++){const a=xs.map(x=>[x,e(k+1,x)]),b=xs.map(x=>[x,e(k,x)]).reverse(),bj=R()<.6,d=`M${tk(...a[0])+kv(a)}L${tk(...b[0])+kv(b)}Z`,w=(2+4*(1-k/n)),
+  for(let k=0;k<n;k++){const a=xs.map(x=>[x,e(k+1,x)]),b=xs.map(x=>[x,e(k,x)]).reverse(),bj=R()<o.air,d=`M${tk(...a[0])+kv(a)}L${tk(...b[0])+kv(b)}Z`,w=(2+4*(1-k/n)),
       ret=q=>xs.filter((_,i)=>i%2<1).map(x=>[x,e(k,x)+(e(k+1,x)-e(k,x))*q]);   // garis searah kontur petak
     isi+=`<path d="${d}" fill="${bj?J(campur(LANGIT.horizon,tg,.72)):N.dasar}"/>`;
     if(dt){const hp=abs(e(k+1,0)-e(k,0))*s,[jh,dk]=bj?[J(campur(LANGIT.horizon,tg,.15)),J(campur(tg,LANGIT.zenit||tg,.5))]:[J(campur(N.dasar,'#b8c060',.34)),N.gelap];
-      isi+=gs(ret(.76),jh,hp*.46,.55)+gs(ret(.92),jh,hp*.16,.8)+gs(ret(.16),dk,hp*.34,.6);
+      isi+=(bj?gs(ret(.93),jh,hp*.14,.85):gs(ret(.76),jh,hp*.46,.55)+gs(ret(.92),jh,hp*.16,.8))+gs(ret(.26),dk,hp*.52,bj?.75:.6);
       if(!bj||R2()<.5)isi+=`<path d="${d}" fill="url(#${id}-p)"${bj?'':' opacity=".7"'}/>`;
       if(!bj)for(const q of[.3,.62])isi+=gs(ret(q),N.gelap,1.5,.4);
       else{let c='',g='';for(let i=0;i<6;i++){const x=(R2()-.5)*1.8*Wl,q=.2+.6*R2();c+=el(x,e(k,x)+(e(k+1,x)-e(k,x))*q,(14+30*R2())/s,1/s);}

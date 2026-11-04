@@ -23,7 +23,7 @@ dirancang (bukan kapsul), tiga arah pandang, kostum Jawa kuno, kerumunan ber-see
 | Panggilan | Hasil |
 |---|---|
 | `buat(o)` | string `<g id class="wv-tokoh" data-tokoh>`; slot `#id-<slot>` ber-`transform="matrix(…)"` |
-| `gerak(bidang, [{…o, kunci}], {cahaya, lantai, rim:4, gelap:.55, panjang:.6, resolusi:1})` | `<canvas class="wv-tokoh">` di `<div data-z>`. `cahaya` = nama/larik nama `SUMBER` atau `{x,y}`: arah rim dihitung tiap frame dari posisi tokoh; `lantai` (y) = bayangan jatuh; `resolusi` 1,5 untuk close-up |
+| `gerak(bidang, [{…o, kunci}], {cahaya, lantai, rim:4, gelap:.55, panjang:.6, resolusi:1, hangat:.5})` | `<canvas class="wv-tokoh">` di `<div data-z>`. `cahaya` = nama/larik nama `SUMBER` atau `{x,y}`: arah rim dihitung tiap frame dari posisi tokoh; `lantai` (y) = bayangan jatuh; `resolusi` 1,5 untuk close-up; `hangat` = kekuatan + jangkauan sisi terang (.9 untuk MCU: sebagian besar badan di luar bingkai) |
 | `kerumunan({seed, n, area:[x,y,w,h], ragam, arah, hadap, tinggi, detail:0, cahaya, jarak, id})` | larik opsi tokoh (untuk `gerak`/`buat`): tinggi, badan, arketipe, pandang, pose, fase napas beragam; urut kedalaman |
 | `pose(id, kunci, t)` | `{akar, m, q, W, F, tangan, duduk}`: matriks slot (string + angka) |
 | `ik(L1, L2, tx, ty, sisi)` | `[a1, a2, sendi x, y, ujung x, y]`; sudut dari arah bawah ke +x; di luar jangkauan dijepit lurus |
@@ -67,6 +67,13 @@ lewat `tl.set` di `tLepas` + kunci `{benda:0}` (katalog tableau C).
 katalog) — lalu SATU gradien layar per tokoh searah cahaya (hangat → gelap) + oklusi tanah, `source-atop`; pendar rim buram di bawah,
 pita rim tajam di atas, bayangan jatuh di lantai. SVG `buat()` = warna rata saja: pasang `rim()`/`bayangan()` cahaya-2d sendiri.
 
+**Agar tidak terbaca manekin** (4 Nov 2026, `evals/bukti/2026-11-04-rupa-babak`): kepala 1,12× (± 6,7 kepala); profil wajah bertitik padat
+(dahi, pangkal hidung, ujung hidung, bibir, dagu) dengan cincin depan berindeks sejajar supaya tiga perempat tak menggeser hidung; mata
+(lensa, iris, kelopak), alis, bibir, telinga + subang. Bahu turun dan masuk: tutup lengan tak lagi seperti pelindung bahu. Tangan = siluet
+berjari + ibu jari + garis jari per varian. **Sabit** = bayang bentuk di sisi menjauhi cahaya, dua varian per bagian, dipilih per frame
+(`p.c`). Bagian **isi dalam** (`p.i`: wajah, sabit, selempang) dilewati pass siluet: biayanya hanya sekali gambar. Pose `tombak` =
+kuda-kuda jaga. `jalan`: lengan pembawa benda tak mengayun, tombak tak memotong wajah.
+
 ## Determinisme (diukur 3 Nov 2026: jalur seek berbeda ke detik yang sama, hash PNG)
 
 - Transform `<g>` tiap frame di `<svg>` ber-`will-change` (rencana awal): tepi ±1–2 (raster dirty-rect); tokoh ber-`rim()`/
@@ -84,7 +91,7 @@ pita rim tajam di atas, bayangan jatuh di lantai. SVG `buat()` = warna rata saja
 - `gerak()` menyampel semua kunci tiap 0,25 dtk untuk ukuran kanvas: kunci sesudah `sampai` (30 dtk) tidak ikut terukur.
 - Bayangan butuh sumber titik (`SUMBER` atau `{x,y}`); `cahaya:{arah}` = rim saja.
 - Benda selalu tegak. `tongkat`/`cangkul` selalu bertumpu di tanah; `tombak`/`payung` di tanah pada pose `tombak`, ikut genggaman
-  di pose lain; `perisai`/`sesaji` ikut genggaman. Belum ada: mendayung, menunggang (butuh benda bersudut).
+  di pose lain; `perisai` (640, daun memanjang setinggi dada)/`sesaji` ikut genggaman. Belum ada: mendayung, menunggang (butuh benda bersudut).
 - Panel kain menempel di paha (ikut ayun); pose `duduk` menukarnya dengan `pangku` dan menyembunyikan wiron + sampur.
 - Biaya (HD 4000, mesin senggang, 4 Nov 2026): tokoh detail 2 = ±14 ms/frame (±60 isi dua kali, 2 blur diklip ke kotaknya); kerumunan
   detail 0 tanpa blur. Tableau 6 tokoh detail 2 = 290 ms/frame (tanpa tokoh 208, batas 350); babak 1 tokoh = 222 ms. Mesin sibuk menaikkan
@@ -95,13 +102,16 @@ pita rim tajam di atas, bayangan jatuh di lantai. SVG `buat()` = warna rata saja
 
 - **Busana dasar**: pria bertelanjang dada, kain sampai lutut (rakyat, prajurit, petani) atau mata kaki (raja, resi, putri), sabuk,
   sampur di pinggul — umum di arca dan relief Mataram Kuno hingga Majapahit. Wiron (lipit depan) penyederhanaan.
+- **Prajurit**: tanpa baju zirah logam: kehadiran dari kain, perhiasan, dan perisai. Kelat bahu, gelang, kalung, subang tampil pada arca
+  dan relief bangsawan; pada prajurit biasa = konvensi ilustrasi (penjaga keraton dianggap berpangkat). **Selempang** kain dan kain merah
+  berpinggir kuning = perkiraan: merah mengkudu dikenal luas di Nusantara, tetapi warna tak terawetkan di batu. Pertapa = alis putih.
 - **Mahkota** raja = kirita makuta silinder bertingkat + sumping; **jamang** = diadem bangsawan/putri; **jata** = sanggul rambut
   pertapa (resi) dengan jenggot dan upawita (tali kasta). Bentuk ikonik, bukan salinan arca tertentu.
 - **Kemben** putri adalah konvensi ilustrasi modern: arca dan relief masa itu umumnya menggambarkan dada terbuka dengan perhiasan.
   Dipilih demi kepatutan penonton; tulis sebagai konvensi bila klaimnya penting.
 - **Payung** kebesaran (chattra) tampil di relief Borobudur; bentuk bertingkat bersulur = gaya kemudian. **Keris** berwarangka
   ladrang di pinggang belakang = cara pakai Majapahit dan sesudahnya; untuk Mataram Kuno diragukan. **Perisai** daun memanjang dan
-  **tombak** berumbai = umum.
+  **tombak** berumbai = umum; tinggi perisai dan ragam hias chevron-nya perkiraan, bukan salinan relief.
 - Kain bermotif memakai `pustaka.kain`: kawung (raja) dan ceplok (putri) tampil pada arca era Hindu-Buddha; parang/truntum
   anakronistis — jangan dipakai untuk tokoh pra-Islam.
 - **Sembah** (añjali, telapak bertemu di depan wajah) dan duduk **bersila** tampil di relief Borobudur/Prambanan. Aturan tinggi

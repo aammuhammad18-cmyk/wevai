@@ -628,7 +628,7 @@ function sawahTerasering(o){o=opsi('sawahTerasering',{x:960,y:1080,lebar:1800,ti
   for(let x=-Wl;x<=Wl;x+=[80,52,36][dt]/s)xs.push(x);
   const K=lapis();let isi='';K.S=poly(xs.map(x=>[x,pc(x)]).concat([[Wl,40],[-Wl,40]]));
   for(let k=0;k<n;k++){const a=xs.map(x=>[x,e(k+1,x)]),b=xs.map(x=>[x,e(k,x)]).reverse(),bj=R()<.6,d=`M${tk(...a[0])+kv(a)}L${tk(...b[0])+kv(b)}Z`,w=(2+4*(1-k/n)),
-      ret=q=>xs.map(x=>[x,e(k,x)+(e(k+1,x)-e(k,x))*q]);   // garis searah kontur petak
+      ret=q=>xs.filter((_,i)=>i%2<1).map(x=>[x,e(k,x)+(e(k+1,x)-e(k,x))*q]);   // garis searah kontur petak
     isi+=`<path d="${d}" fill="${bj?J(campur(LANGIT.horizon,tg,.72)):N.dasar}"/>`;
     if(dt){const hp=abs(e(k+1,0)-e(k,0))*s,[jh,dk]=bj?[J(campur(LANGIT.horizon,tg,.15)),J(campur(tg,LANGIT.zenit||tg,.5))]:[J(campur(N.dasar,'#b8c060',.34)),N.gelap];
       isi+=gs(ret(.76),jh,hp*.46,.55)+gs(ret(.92),jh,hp*.16,.8)+gs(ret(.16),dk,hp*.34,.6);

@@ -10,13 +10,13 @@
 const JAWA={
   pantai:{kotak:[103,-9.5,117,-3],q:.002,s:'yqrD90HVFjH-BpFU7BLdaIWjBMtIczBPfdnBenCMLMPkCtBTVbrBhBvBaVFRRGTHJTEFYHEhDDfbLnCpBZ_DA7FgB3FuB5CFhBQBeVO3DYZwBhBQjBcrDgBLWrBINMxBH1ESnDepSuBpBiBtBOjBPCsBXYKwCcqBSKkBCEKPW0C6CBoCbSbDdMbHVdjCFtBONQTGJSpBgBhBBrBUnC8BpCS7BFPFDNNDJOjDPnCOxETTPlBMLHZWREVNVapBStBCHDJZRJRIT2BTQMKgBFOGuBqBayBSGaRSXEfc3BgBVSGmB2C-C8CGQJ0CayBMIWAElBeVmCWaiBQsBIuGkB2DUoB6C2CUiCWYgBMiBDWXEhCGJqBXQDiBQuB4BqBDgCvBwBJ8BdaAgBWWGoEFiBRS1BOLqBHsBCoFeIsBNYauBDiBWKkBHiBPkBjBUFkBCqCYqCV0DpF-ClB6BDiBlBWLWMQJQEyBacFAWQEWFCNOAWUKXAV0BfyE9BwBE2BiBIMCaTSMEyBT-BAWNGMWEM9C0ClD0CrBiB3FgB7C6BFqBbqBPsBAqBYKJuBLiBhBUFoBIS0BSCiBNmBdyBXyGT2CQ2B6BoBhBiGbqF1BsBFsBC6EYoBqBKDKdOJwCfgCnBaDiBSoBIeM2CmDoC0EOsBGuCSsBJWeMcgBwDmByCOwBbeAIMyBxBGnB2BrEYpB-GT-BMQKyBiCaP4BJiBN0C7CuBZkCRqCH2BYWESDsD5DiCD4CU8BCqBOYE0BLUMSFuBhBqBHQKEqBUDWhBV1CkBzBKDeIIPvBPHJELSfaNajBFRNF7BGQVwCnBuBwBWGeRarBCfJ9CHTlBXHPAzCyC7BgE3B0CPsC_BkCTqBISJafOFYC6CyByDkBiETqBOWBgCRSEiBkBQI4BHkBImC8BeGgBR-BlCgBNYA-BOQF0BrB-BH6BjBOPITH_BTlBGxCpBvEtB7HCTMXEhCMHOKEmCSRC_CUnBQPwBJaR2BRkBzBBXZjBpBB3CevCAVGEQWaFkBjBgBvBUnBC_BjBXalCRrBGbczBPLQGkBJGpBNpBKpBYNNJwBHGfFXTZADaLKjBBfkBrBKVWtBDlBWXeTCfNRIxB6BVOzCepBCrFXlBVzB5BhBVrBMXQPTJBXMjBZtBJdZ7BgB7CYtCArBUVAIOpBatBCzBLjBS3FU1BazBXTGXWzBGdMJFJTBjBTFNeJGHDX1BSPPJpBOXiBRNxBWNAdNlCSFkBPIjBHZO_BAXOxDhBNchBMJkBHBdrBvBB1CiBzCSjEIXSzBOlBSAHzBYpCQhCkBdCzB0BnBG9HkElDe 4ykD39C--CAQtBG7DUpBFrBJJhChBjBb9BvCRrB9B7GGnBafyC5BSfAjBPnBhC9ClBnEThDI9BmBxCDVaTOhBIGERHpBMhBV3BSjCPHHRN_DEXkB9BChBpBhDD1GXxCFtBGzCP9BI9BB9BX_BXtDzBjCJIH4BdMvCKPUFsCLiBVWTTpBU1CsC3C0DdWdPDRMnBTxBHHbIVLQ7BAbUd9BbEP6BRNNlBLtBErBkBrFqC_BwBvBOvC0CbU7BQPMIVtBBPFRPFPGT6E3HOtCOjBPHpECHIEkBDYLStC8BNehC8B1CwBHSYULUrBuBzBUJGRezBW3CqDrBsBFQOiBJQdU7BIHQQeEgBVkB7BkBnBmBrBEVKKmBdWXCbZlB8BXKlBC1BsBlBIvBNbiCZQPLPGX8BjE0D5DqCxBU uxxD39CZJPK5DAEFUGgBDQtBsC5BOPDLzCZLGDPUjBEXFXNJpBNIaKCKHOOEUPAtBTX9B9BnDNnBThEVZtDLjDrCtFzCrQtG3FzCjFjDvBNnBORmBEsBWsCT2CHmCIsFPuB7BqCNsBCsBagElBTLNLpDLL_BO7D-BXaCUKQaQWiCkBuBEWnBjBrCvD9BV7BORUDiBSiDDaT1CRPlB_B9ClB9BjBnCZjDPxCQHqCU0CBqBdyCnDEVDhBZLlBPJ5BDNCFMFmBJSbUsBzCGZzB6BlCyBbmCpBe5BWXqBrBAPjBJJXDhBjBHTalB2BLAF_KhHfbTHjBIPVTFVGlEiDpBStBIjDP1CzBtEvEjCtBzCaNOAUcgCGgCbiGSgET-B3GArBRRGFM_KAzD9BpCZrBDjBIxCuBlCMIaPAvB9BjBRfaBMQOFc5LA 03uD_nIQRBTlBHvCAJGAeOKFQ 8uqDtyHWDCPrBGtEoB5BBFOESYY0BZ0CP i9vD5-GcHDd5DOEQqBU ylxDj-GE3BRVlBLpBIlBUNUIKSBIaIAIVOLoCHEEHAJQMOIF -6wD5uIYFqBjCIbjBnBbI1BoBRUTIyB-BSD y7wD33GCZNJ1BE7BaXPlBQlBRELeLWTVPVGlBePTIbPHbYKuB1BBHMEYmBoBLSgBKoDCwCH-CvB 8huD9yFkBlBEXHnBfTjBAJKXJZAV2BgC-BMD w1xD_pDESejBnB9GHH1BuCHeiB8C w5mD_rGA_BHjBPPRFRXLDJGUwBTQFYrBpBLDBSUYyBoBIHUS gsmD_zFSXDbHHvBgBTkBGKKA i2vDx9GapBDtB7BSFMhBEVgCYacEUF 68xDziIiBNmBbehBInB5B3CDrC1B5BnChE3B5BK3BKBKSKGIJoBRVfpBFNGhBXdANKUYUuBPGfBZTGhDNEBaHMJARNXcnCVTOfNjBqB9BEDNXFNKSMCGPKbHAlBTFRKNeRSZHPE7BgBbGLYCWEWOYUFMGMd-BAeQoBJSOIAQZWWEMfMMoEJ4BXWJ2BWgBUIkBAQgB6BkBqDmD6CiBSAeP0DZyBZ -rvDh4GwBRQNOjBbArBdlCHZXtBDRLVjBQDKTXHnBDlFWTVjBCbXhBvChBNRSXIxBD3EIjBKvBPTEHiBLOMUjBMHBJjBsBjBBLRF1JmC7CEHoBKcHIJPHGJiBIYiBG6BsB0B6BBSqCQ4EKuCLsJMwCNyEQ6DBiESiCN u1pD39CEnBZ_Baf3DZJJFRAjBJFzCHJWDkCtC-BCSTSrBNANQbAlBZV9BdjCAbhBZHdMHWMekBwBrBsBDsBNoB mnoD39CMDIPHhBOTHFHEbRTIRJNQ1BIbDHZNITLNMR4BrBmB ooyDn8IxBkBrBDjDcfYJDjB0BESQYLwBoBwBqBIGShB2BRBHKI6BXOqByCqBKIUBuBUPWD4DqB 2rvDh9GOJIRDL_BGpBQPSQQMH s-wDp6GQTHBZKZDdMZaKUSA k9wD_iIoC3BWfNrB_CxClCDLFFVRNlEvBpBbjC5CpBNHTCVORIGNUSIGRBvBFJxBTtBAnBQAQiCkBWkBEYd8BzBgBbsB1BmB9CwCjE-BnBIzDAjBM1B0BxC0DTgDEa0BGkBlBQFqBYOLwCNmF5BiBO8CAmBIqBcoCoCkBQWAqBLgBVmCNkFjCgCxB wyxDl0DUNKRLFJdVdAXSlBBZdFRXpBJLfXNZdlBPXdJcJGNHHUOiCYKEKTeDSK-BDY1BsCD-CYgCM4CsBuCYsCyBciDuCKZT5DGnB2BpCERtBPBRYzB'},
   dalam:{kotak:[103.6,-12,117.4,-4],q:.002,s:'8guD_2Lr7IAA84GuP9OoCvBAvB0BF8F5IoCnFiD_DBvDzBvBWlBuFgBoCuCrByLYyD8CzB8C2C0BKkHjEUtBH9N_E1EHfQ7B-C3DqB7CmBVkClFqBfsDa4DXoCwB4DA0F2CkElBgDnCwFHc1B5B9DAvCoBvCmDLCxBnBhCgBf8IEkCZqE-CwBE0P5CgD1BwBnCgDAqEvF2BnBwEA-EhDiECoCnCgGvB-BtBqG-CuBLqCzCoCYoCXoFgDgDAwBwB4DXyCwBmH_CwEY4FpDwJ3CoElF2GkD2X9D4CQ0DyCgG_CwEY4DvBkO5BkCUwI2FaTW7DqC9CuBZwBGiCkCmCW4H_CoCvB4DYgDvBwDS4EpEgGAyHrCoBiBHoB3C6ETuDayB4DYWXC9E-E9CgClFqCXuG2BiD0BoFXgDsBYcHoB7BoC3CeHuB6DkCuCyCUsC_G4GjJ0DrEN_EnDxKiCtCiGYgDZiCMyBoF6E2BOwD-CoEG8L4HsDU0EJ8FzC-CD0G6B2D0CYoC0BmBbiEyD0FNgGkUsnBmDqDkDwHO-CrBoHkC4DAgDwBwByCiJA_5H glnDzrK6Cea8CLuCjDGpDhBChD wqyDl-I2EkCyFAA4e1BLXhBc_ByBEApEtBtBrEmDrCWxExB5BYzC3CjBHvEoF1I2B3DlBjD1ClDB7BZLrBenEH_B_GrEjBvBC5ByBzB4GnD8CW2HpCgI0B6FzDmEF6C_B quyDpvHkBYqFLA-GpDhB_DqBtBHJlBqBvGZ7D0B_BsBOiB4B 6yyDn6F-BaA6QxClCnCvE9E_DhBlCUjC6B7B0Dd'},
-  /* [nama, lon, lat, puncak m (GVP)], jari kaki km, opsi {k: lengkung profil, kawah: jari km, cekung: km, kaldera:[jari bibir, tinggi bibir, lantai, jari kerucut tengah]} */
+  /* [nama, lon, lat, puncak m (GVP)], jari kaki km, opsi {k: lengkung profil, kawah: jari km, cekung: km, bahu:[[arah rad, r, t]…], kaldera:[jari bibir, tinggi bibir, lantai, jari kerucut tengah]} */
   gunung:[['Pulosari',105.978,-6.343,1324,8],['Karang',106.05,-6.268,1768,10],['Perbakti-Gagak',106.675,-6.75,1726,6],['Salak',106.733,-6.716,2218,11],
     ['Gede-Pangrango',106.983,-6.786,3026,15],['Patuha',107.4,-7.162,2422,9],['Tangkuban Parahu',107.6,-6.77,2084,13,{k:1.3}],['Papandayan',107.7306,-7.3175,2643,9],
     ['Guntur',107.841,-7.143,2251,8],['Tampomas',107.9612,-6.7639,1690,8],['Galunggung',108.058,-7.25,2168,10],['Talagabodas',108.07,-7.208,2201,8],
     ['Ciremai',108.408,-6.895,3039,14],['Slamet',109.208,-7.242,3428,20],['Dieng',109.879,-7.2,2565,10,{k:1}],['Sundoro',109.997,-7.3014,3149,12],
     ['Sumbing',110.0747,-7.3819,3370,13],['Merbabu',110.44,-7.454,3118,12],['Merapi',110.446,-7.54,2910,13,{kawah:.5}],['Lawu',111.192,-7.625,3265,18],
-    ['Kelud',112.314,-7.935,1730,11,{kawah:.7,cekung:.2}],['Kawi-Butak',112.45,-7.92,2651,12],['Arjuno-Welirang',112.575,-7.733,3343,14],['Penanggungan',112.62,-7.616,1631,6],
+    ['Kelud',112.314,-7.935,1730,11,{kawah:.7,cekung:.2}],['Kawi-Butak',112.45,-7.92,2651,12],['Arjuno-Welirang',112.575,-7.733,3343,14,{bahu:[[4.71,.28,.16],[.6,.45,.1]]}],['Penanggungan',112.62,-7.616,1631,6],
     ['Semeru',112.922,-8.108,3657,15],['Tengger',112.95,-7.942,2329,18,{k:1.5,kaldera:[4.6,2.65,2.15,1.4]}],['Lamongan',113.341,-7.981,1641,9],
     ['Iyang-Argapura',113.57,-7.97,3088,16,{k:1.3}],['Raung',114.056,-8.119,3260,14,{kawah:.8,cekung:.25}],['Ijen',114.242,-8.058,2769,10,{kawah:.6,cekung:.2}],
     ['Baluran',114.37,-7.85,1247,8],['Buyan-Bratan',115.133,-8.283,2244,10],['Batur',115.3775,-8.2403,1711,8],['Agung',115.508,-8.343,2997,12]],
@@ -92,19 +92,21 @@ function medan(D=JAWA,{seed=3}={}){
       return{dalam,jarak,sdf:(x,z)=>dalam(x,z)?jarak(x,z):-jarak(x,z)};},
     darat=bidang(D.pantai),laut=bidang(D.dalam),
     G=[...D.gunung.map(g=>[g,0]),...D.gunungTua.map(g=>[g,1])].map(([[nama,lon,lat,m,R,o={}],tua],i)=>{const[x,z]=proyeksi(lon,lat);
-      return{nama,lon,lat,x,z,E:m/1e3,R,tua,k:tua?1.35:1.7,kawah:tua?0:.45,cekung:.12,alur:tua?.32:.22,lancip:tua?.09:.03,
-        jurang:8+Math.floor(hash(i,seed+5)*7),fase:hash(i,seed+6)*6.283,...o};}),
-    /* jurang radial: 8–14 per gunung, jarak tak rata dan berliuk ke kaki (sin bertumpuk), sempit ((1−|sin|)^2,5), dalamnya beda-beda
-       (barranco dalam di antara alur dangkal), dalam ke kaki. Rumus SAMA dengan jurang() di shader petaRelief */
-    jurang=(g,r,a)=>{const q=g.jurang*a/2+.9*Math.sin(3*a+g.fase)+.45*Math.sin(7*a+2*g.fase+2.3*r)+.5*r*Math.sin(5*a+g.fase);
-      return g.alur*ss(.08,.42,r)*(1-ss(.82,1,r))*(1-Math.abs(Math.sin(q)))**2.5*(.3+.7*(.5+.5*Math.sin(.61*q+2.1*g.fase)));},
-    /* kaki tak bulat: R(a) = R·(1 + ,12 sin(2a+fase) + ,06 sin(3a+2fase)) — lereng satu sisi lebih landai; sama dengan shader */
-    kerucut=(g,x,z,alur=1)=>{const dx=x-g.x,dz=z-g.z,q=dx*dx+dz*dz;if(q>=g.R*g.R*1.4)return 0;const a=Math.atan2(dz,dx),R=g.R*(1+.12*Math.sin(2*a+g.fase)+.06*Math.sin(3*a+2*g.fase)),d=Math.sqrt(q);
+      const h=j=>hash(i,seed+j),fase=h(6)*6.283;   // ragam bentuk, ber-seed: profil dua lengkung (apron), bahu, jumlah jurang. Puncak tetap GVP
+      return{nama,lon,lat,x,z,E:m/1e3,R,tua,k:tua?1.05+.6*h(7):1.3+.9*h(7),apron:.1+.42*h(8),kawah:tua?0:.45,cekung:.12,alur:tua?.26+.14*h(9):.15+.13*h(9),lancip:tua?.06+.12*h(10):.02+.03*h(10),
+        jurang:tua?5+Math.floor(h(5)*5):9+Math.floor(h(5)*7),fase,bahu:Array.from({length:1+Math.floor(h(11)*3)},(_,b)=>[hash(b,i+seed+40)*6.283,.3+.3*hash(b,i+seed+41),.07+.13*hash(b,i+seed+42)]),...o};}),
+    /* jurang radial: 5–15 per gunung, jarak tak rata dan berliuk ke kaki, sempit, dalamnya beda-beda, mulai di ketinggian berbeda (bukan sisir dari puncak).
+       Rumus SAMA dengan jurang() di shader petaRelief; alur halus lereng bawah hanya di shader */
+    jurang=(g,r,a)=>{const w=g.fase,q=g.jurang*a/2+.9*Math.sin(3*a+w)+.45*Math.sin(7*a+2*w+2.3*r)+.5*r*Math.sin(5*a+w),s=.06+.3*(.5+.25*Math.sin(4*a+1.7*w)+.25*Math.sin(9*a+w));
+      return g.alur*ss(s,s+.3,r)*(1-ss(.82,1,r))*(1-Math.abs(Math.sin(q)))**2.5*(.3+.7*(.5+.25*Math.sin(5*a+2.1*w)+.25*Math.sin(11*a+w)));},
+    /* kaki tak bulat: R(a) = R·(1 + A sin(2a+w) + B sin(3a+2w)), A+B ≤ ,18, beda per gunung; sama dengan shader */
+    kerucut=(g,x,z,alur=1)=>{const dx=x-g.x,dz=z-g.z,q=dx*dx+dz*dz;if(q>=g.R*g.R*1.4)return 0;const a=Math.atan2(dz,dx),w=g.fase,R=g.R*(1+(.09+.035*Math.sin(3*w))*Math.sin(2*a+w)+(.04+.015*Math.cos(5*w))*Math.sin(3*a+2*w)),d=Math.sqrt(q);
       if(d>=R)return 0;const r0=(d-g.kawah)/(R-g.kawah),c=g.lancip,r=(Math.sqrt(r0*r0+c*c)-c)/(Math.sqrt(1+c*c)-c),f=alur?jurang(g,r,a):0;   // puncak sedikit membulat
       if(g.kaldera){const[rb,hb,lt,rk]=g.kaldera,luar=d<rb?lt+(hb-lt)*ss(rb-1.4,rb,d):hb*Math.pow(1-(d-rb)/(R-rb),g.k)*(1-f);
         return Math.max(luar,d<rk?lt+(g.E-lt)*Math.pow(1-d/rk,1.2):0);}   // dinding kaldera, lantai pasir, kerucut tengah = puncak GVP
       if(d<g.kawah)return g.E-g.cekung*(1-(d/g.kawah)**2);   // kawah: bibir = puncak GVP
-      return g.E*Math.pow(1-r,g.k)*(1-f);},
+      let b=0;for(const[a0,r1,t]of g.bahu){const e=Math.atan2(Math.sin(a-a0),Math.cos(a-a0))/.38,u=(r-r1)/.15;b+=t*Math.exp(-e*e-u*u);}   // bahu: tonjolan di lereng, selalu di bawah puncak
+      return g.E*(((1-g.apron)*Math.pow(1-r,g.k)+g.apron*Math.pow(1-r,g.k*2.2))*(1+.24*ss(.1,.5,r)*(.5*Math.sin(3*a+2*w)+.35*Math.sin(5*a+3*w)+.15*Math.sin(9*a+w)))+b*(1-ss(.75,1,r)))*(1-f);},
     W=D.wilayah.map(([lon,lat,rx,rz,h])=>[...proyeksi(lon,lat),rx,rz,h]),
     wilayah=(x,z)=>{let s=0;for(const[cx,cz,rx,rz,h]of W){const u=(x-cx)/rx,v=(z-cz)/rz,q=u*u+v*v;if(q<9)s+=h*Math.exp(-q);}return s;},
     kasar=(x,z,dc,alur=1)=>{const w=wilayah(x,z);let h=Math.max(Math.min(.002*dc,.03),.0025*Math.min(dc,40)+(w+(.04+.15*w)*fbm(x/28,z/28))*ss(0,8,dc));
@@ -140,7 +142,7 @@ function petaRelief(M,{kotak=[105,-9.1,115.9,-5.5],langkah=1.8,halus=null,tegak=
       return[...t.map(d=>a-d).reverse(),...v,...t.map(d=>b+d)];},
     xs=sumbu(ax0,ax1,langkah),zs=sumbu(az0,az1,langkah),nx=xs.length,Hc=new Float32Array(nx*zs.length);
   for(let j=0;j<zs.length;j++)for(let i=0;i<nx;i++)Hc[j*nx+i]=M.tinggi(xs[i],zs[j],0);   // urut baris: tembolok baris z di medan(). Kasar: kerucut tanpa jurang (jurang per piksel di shader)
-  const P={sawah:C('#93a565'),tegal:C('#aaa56f'),hutan:C('#86905f'),tanah:C('#9c8b6e'),abu:C('#8a8079'),cadas:C('#8e7a66')},c=new THREE.Color(),
+  const P={sawah:C('#93a565'),tegal:C('#8f9b5e'),hutan:C('#5a6c43'),tanah:C('#8d7c60'),abu:C('#7f766f'),cadas:C('#7d6d5a')},c=new THREE.Color(),
     GN=M.gunung,dominan=(x,z)=>{let m=-1,b=0;GN.forEach((g,i)=>{const v=M.kerucut(g,x,z,0);if(v>b){b=v;m=i;}});return m;},   // gunung yang menguasai titik: indeks jurang shader
     jaring=(X,Z,H,lubang,luar)=>{const nx=X.length,nz=Z.length,n=nx*nz,pos=new Float32Array(n*3),nor=new Float32Array(n*3),col=new Float32Array(n*3),gun=new Float32Array(n),idx=[],
         Y=k=>Math.max(H[k],0)*tegak,r=Math.max(1,Math.round(3.6/Math.min(...X.slice(1).map((v,i)=>v-X[i])))),at=(i,j)=>H[Math.min(nz-1,Math.max(0,j))*nx+Math.min(nx-1,Math.max(0,i))];
@@ -148,40 +150,49 @@ function petaRelief(M,{kotak=[105,-9.1,115.9,-5.5],langkah=1.8,halus=null,tegak=
           gx=(Y(j*nx+ir)-Y(j*nx+il))/(X[ir]-X[il]),gz=(Y(jr*nx+i)-Y(jl*nx+i))/(Z[jr]-Z[jl]),l=Math.hypot(gx,1,gz),h=H[k],
           lereng=Math.hypot(gx,gz)/tegak,ao=Math.max(-1,Math.min(1,((at(i-r,j)+at(i+r,j)+at(i,j-r)+at(i,j+r))/4-h)/.12));   // cekung (lembah) + / cembung (punggung) −
         pos.set([X[i],Y(k),Z[j]],k*3);nor.set([-gx/l,1/l,-gz/l],k*3);gun[k]=dominan(X[i],Z[j]);
-        c.copy(P.sawah).lerp(P.tegal,ss(.05,.45,h)).lerp(P.hutan,ss(.4,1.3,h)).lerp(P.tanah,ss(1.2,2.3,h)).lerp(P.abu,ss(2.2,3.3,h)).lerp(P.cadas,.5*ss(.25,.6,lereng))
+        const gm=GN[gun[k]],rel=gm?h/gm.E:0;   // puncak menurut gunungnya: Holosen berkepala tanah + abu, Pleistosen berhutan sampai dekat puncak
+        c.copy(P.sawah).lerp(P.tegal,ss(.05,.4,h)).lerp(P.hutan,ss(.3,1,h)).lerp(P.tanah,gm?(gm.tua?.45*ss(.88,1,rel):ss(.58,.84,rel)):0).lerp(P.abu,gm&&!gm.tua?ss(.82,.97,rel):0).lerp(P.cadas,.45*ss(.3,.65,lereng))
           .multiplyScalar(ao>0?1-.4*ao:1-.18*ao);col.set([c.r,c.g,c.b],k*3);
         if(luar)luar(i,j,nor,k*3);}
       for(let j=0;j<nz-1;j++)for(let i=0;i<nx-1;i++){if(lubang&&i>=lubang[0]&&i<lubang[1]&&j>=lubang[2]&&j<lubang[3])continue;const a=j*nx+i,b=a+1,d=a+nx;idx.push(a,d,b,b,d,d+1);}
       const g=new THREE.BufferGeometry();g.setIndex(idx);g.setAttribute('position',new THREE.BufferAttribute(pos,3));g.setAttribute('normal',new THREE.BufferAttribute(nor,3));
       g.setAttribute('color',new THREE.BufferAttribute(col,3));g.setAttribute('tinggi',new THREE.BufferAttribute(H,1));g.setAttribute('gunung',new THREE.BufferAttribute(gun,1));return g;},
-    U={uWaktu:{value:0},uAwan:{value:.1},uKontur:{value:1},uCetak:{value:0},uTerang:{value:.9},uNaik:{value:1},uTegak:{value:tegak},uTinta:{value:C('#5a5244')},
+    /* ubin noise 256² berulang, mipmap (menjauh → rata-rata): R fBm kasar, G butir, B fBm sedang. Pengganti noise per piksel: lebih murah, tanpa kilau */
+    ubin=(()=>{const n=256,a=new Uint8Array(n*n*4),v=(p,s,x,y)=>{const u=x/n*p,w=y/n*p,i=Math.floor(u),j=Math.floor(w),f=u-i,g=w-j,F=f*f*(3-2*f),G=g*g*(3-2*g),h=(a,b)=>hash((b%p)*p+a%p,s);
+        return(h(i,j)*(1-F)+h(i+1,j)*F)*(1-G)+(h(i,j+1)*(1-F)+h(i+1,j+1)*F)*G;},fb=(P,s,x,y)=>P.reduce((o,p,k)=>o+v(p,s+k,x,y)/2**(k+1),0)/(1-.5**P.length);
+      for(let y=0;y<n;y++)for(let x=0;x<n;x++)a.set([fb([8,16,32,64],21,x,y)*255,fb([64,128],27,x,y)*255,fb([32,64],31,x,y)*255,255],(y*n+x)*4);
+      const t=new THREE.DataTexture(a,n,n);Object.assign(t,{wrapS:THREE.RepeatWrapping,wrapT:THREE.RepeatWrapping,magFilter:THREE.LinearFilter,minFilter:THREE.LinearMipmapLinearFilter,generateMipmaps:true,anisotropy:4,needsUpdate:true});return t;})(),
+    U={uUbin:{value:ubin},uWaktu:{value:0},uAwan:{value:.1},uKontur:{value:1},uCetak:{value:0},uTerang:{value:.9},uNaik:{value:1},uTegak:{value:tegak},uTinta:{value:C('#5a5244')},
       uPantai:{value:C(warnaLaut.pantai||'#dfe2d6')},uDangkal:{value:C(warnaLaut.dangkal||'#c3cfcb')},uLaut:{value:C(warnaLaut.laut||'#88a0ad')},uLautDalam:{value:C(warnaLaut.dalam||'#5d7889')}},
     uG=GN.map(g=>new THREE.Vector4(g.x,g.z,g.R,g.kawah)),uG2=GN.map(g=>new THREE.Vector4(g.lancip,g.alur,g.jurang,g.fase)),
-    bahan=jk=>{const m=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.93,metalness:0});   // jk: kuat jurang shader (kisi kasar 1, tambalan 0: jurangnya sudah geometri)
+    bahan=jk=>{const m=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.93,metalness:0});   // jk: kuat jurang shader (kisi kasar 1, tambalan 0: jurangnya sudah geometri; alur halus di keduanya)
       m.onBeforeCompile=s=>{Object.assign(s.uniforms,U,{uJurang:{value:jk*.7},uG:{value:uG},uG2:{value:uG2}});
     s.vertexShader=s.vertexShader.replace('#include <common>','#include <common>\nattribute float tinggi,gunung;varying float vH;varying vec3 vDunia;flat varying float vG;')
       .replace('#include <begin_vertex>','#include <begin_vertex>\nvH=tinggi;vG=gunung;vDunia=(modelMatrix*vec4(transformed,1.)).xyz;');
     s.fragmentShader=s.fragmentShader.replace('#include <common>',`#include <common>
-uniform float uWaktu,uAwan,uKontur,uCetak,uTerang,uJurang,uNaik,uTegak;uniform vec3 uTinta,uPantai,uDangkal,uLaut,uLautDalam;uniform vec4 uG[${GN.length}],uG2[${GN.length}];
+uniform sampler2D uUbin;uniform float uWaktu,uAwan,uKontur,uCetak,uTerang,uJurang,uNaik,uTegak;uniform vec3 uTinta,uPantai,uDangkal,uLaut,uLautDalam;uniform vec4 uG[${GN.length}],uG2[${GN.length}];
 varying float vH;varying vec3 vDunia;flat varying float vG;
-float h21(vec2 p){vec3 q=fract(vec3(p.xyx)*.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
-float vn(vec2 p){vec2 i=floor(p),f=fract(p),u=f*f*(3.-2.*f);return mix(mix(h21(i),h21(i+vec2(1,0)),u.x),mix(h21(i+vec2(0,1)),h21(i+1.),u.x),u.y);}
 float iso(float v,float px){float f=max(fwidth(v),1e-6),d=abs(fract(v+.5)-.5)/f;return(1.-smoothstep(px*.5,px*.5+1.,d))*(1.-smoothstep(.1,.3,f));}
-float jurang(vec2 p,int i){vec4 g=uG[i],h=uG2[i];vec2 d=p-g.xy;float a=atan(d.y,d.x),R=g.z*(1.+.12*sin(2.*a+h.w)+.06*sin(3.*a+2.*h.w)),r0=(length(d)-g.w)/(R-g.w),
-    r=(sqrt(r0*r0+h.x*h.x)-h.x)/(sqrt(1.+h.x*h.x)-h.x),q=h.z*a*.5+.9*sin(3.*a+h.w)+.45*sin(7.*a+2.*h.w+2.3*r)+.5*r*sin(5.*a+h.w);
-  return h.y*smoothstep(.08,.42,r)*(1.-smoothstep(.82,1.,r))*pow(1.-abs(sin(q)),2.5)*(.3+.7*(.5+.5*sin(.61*q+2.1*h.w)));}`)
+float jurang(vec2 p,int i){vec4 g=uG[i],h=uG2[i];float w=h.w;vec2 d=p-g.xy;float a=atan(d.y,d.x),R=g.z*(1.+(.09+.035*sin(3.*w))*sin(2.*a+w)+(.04+.015*cos(5.*w))*sin(3.*a+2.*w)),r0=(length(d)-g.w)/(R-g.w),
+    r=(sqrt(r0*r0+h.x*h.x)-h.x)/(sqrt(1.+h.x*h.x)-h.x),q=h.z*a*.5+.9*sin(3.*a+w)+.45*sin(7.*a+2.*w+2.3*r)+.5*r*sin(5.*a+w),s=.06+.3*(.5+.25*sin(4.*a+1.7*w)+.25*sin(9.*a+w));
+  return h.y*(1.-smoothstep(.82,1.,r))*(uJurang*smoothstep(s,s+.3,r)*pow(1.-abs(sin(q)),2.5)*(.3+.7*(.5+.25*sin(5.*a+2.1*w)+.25*sin(11.*a+w)))+.3*smoothstep(.3,.6,r)*pow(1.-abs(sin(3.*q+1.3*r)),4.));}`)
       .replace('#include <color_fragment>',`#include <color_fragment>
 float fh=max(fwidth(vH),1e-6),darat=smoothstep(-fh,fh,vH),paparan=smoothstep(-.2-fh,-.2+fh,vH);
-diffuseColor.rgb*=1.+.09*(vn(vDunia.xz/7.)-.5)*(1.-smoothstep(.15,.5,fwidth(vDunia.x/7.)))+.06*(vn(vDunia.xz/1.9+7.)-.5)*(1.-smoothstep(.15,.5,fwidth(vDunia.x/1.9)));   // belang lahan, pudar bila lebih kecil dari piksel
+vec2 pw=vDunia.xz;vec4 n1=texture2D(uUbin,pw/163.),n2=texture2D(uUbin,pw/23.+.31),n3=texture2D(uUbin,pw/5.1+.7);
+{float hl=clamp(vH,0.,3.);   // tata lahan (nada, bukan data): sawah bertambal, tegal, bercak permukiman, hutan makin rapat ke atas. Tanpa nama, tanpa batas sungguhan
+ vec3 lu=mix(mix(vec3(.26,.34,.09),vec3(.2,.31,.1),smoothstep(.36,.64,n2.b)),vec3(.36,.35,.12),.7*smoothstep(.5,.7,.6*n1.b+.4*n2.r));lu=mix(lu,vec3(.4,.33,.27),.55*smoothstep(.6,.68,.7*n2.g+.3*n3.g)*smoothstep(.5,.62,n1.r)*(1.-smoothstep(.15,.45,hl)));
+ lu=mix(lu,vec3(.09,.16,.06)*(.75+.5*n3.r),smoothstep(.46,.72,.25*n1.r+.25*n2.r+.2*n3.b+.5*smoothstep(.1,1.,hl)));
+ diffuseColor.rgb=mix(diffuseColor.rgb,lu*(.82+.36*n3.g),(1.-smoothstep(.95,1.9,hl))*(1.-.65*uCetak));}
 diffuseColor.rgb=mix(mix(mix(uLaut,uLautDalam,smoothstep(.2,2.6,-vH)),mix(uPantai,uDangkal,smoothstep(0.,.2,-vH)),paparan),diffuseColor.rgb,darat);
-float kontur=max(iso(vH*10.,1.)*.14*(1.-smoothstep(.04,.08,fwidth(vH*10.))),iso(vH*2.,1.6)*.32)*step(0.,vH)*uKontur,pantai=1.-smoothstep(.6,1.6,abs(vH)/fh),g200=1.-smoothstep(.5,1.5,abs(vH+.2)/fh);
+float kontur=max(iso(vH*10.,1.)*.14*(1.-smoothstep(.04,.08,fwidth(vH*10.))),iso(vH*2.,1.6)*.32)*step(0.,vH)*uKontur*(.22+.78*uCetak),pantai=1.-smoothstep(.6,1.6,abs(vH)/fh),g200=1.-smoothstep(.5,1.5,abs(vH+.2)/fh);
 diffuseColor.rgb=mix(diffuseColor.rgb,uTinta,max(kontur,max(pantai*.75,g200*.4)));`)
       .replace('#include <roughnessmap_fragment>','#include <roughnessmap_fragment>\nroughnessFactor=mix(.42,roughnessFactor,darat);')
       .replace('#include <normal_fragment_maps>',`#include <normal_fragment_maps>
-{vec2 p=vDunia.xz;float kuat=uJurang*darat*(1.-smoothstep(.25,.6,fwidth(p.x)));   // jurang kerucut per piksel: rumus = jurang() medan, H = tinggi visual
+{vec2 p=vDunia.xz;float kuat=darat*(1.-smoothstep(.25,.6,fwidth(p.x)));   // jurang kerucut per piksel: rumus = jurang() medan, H = tinggi visual
  if(vG>-.5&&kuat>.001){int i=int(vG+.5);vec3 nw=normalize((vec4(normal,0.)*viewMatrix).xyz),nu=nw/max(nw.y,.05);float e=.12,f=jurang(p,i),H=max(vH,0.)*uTegak*uNaik*kuat;
-   nu.xz+=H*vec2(jurang(p+vec2(e,0.),i)-f,jurang(p+vec2(0.,e),i)-f)/e;normal=normalize((viewMatrix*vec4(normalize(nu),0.)).xyz);}}`)
-      .replace('#include <opaque_fragment>',`outgoingLight*=1.-uAwan*smoothstep(.52,.74,.65*vn(vDunia.xz/90.+vec2(uWaktu*.03,uWaktu*.01))+.35*vn(vDunia.xz/30.-vec2(uWaktu*.045,0.)));
+   nu.xz+=H*vec2(jurang(p+vec2(e,0.),i)-f,jurang(p+vec2(0.,e),i)-f)/e;normal=normalize((viewMatrix*vec4(normalize(nu),0.)).xyz);}
+ normal=normalize(normal+mat3(viewMatrix)*vec3(n2.r-.5,0.,n3.r-.5)*(.1+.5*smoothstep(.05,1.,vH))*darat*uNaik);}`)
+      .replace('#include <opaque_fragment>',`outgoingLight*=1.-uAwan*smoothstep(.48,.62,.65*texture2D(uUbin,pw/720.+vec2(uWaktu*.004,uWaktu*.0013)).r+.35*texture2D(uUbin,pw/240.-vec2(uWaktu*.006,0.)).r);
 outgoingLight=mix(outgoingLight,diffuseColor.rgb*uTerang,uCetak);   // uCetak 1 = peta cetak datar (kulit topografi), 0 = relief bercahaya
 #include <opaque_fragment>`);};return m;},
     mat=bahan(1),grup=new THREE.Group();

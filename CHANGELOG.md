@@ -2,10 +2,9 @@
 
 ## Belum dirilis
 
-**Status penerimaan rilis ini**: pemilik menerima kesembilan butir vonis visual pada 4 Nov (siluet dan babak sinematik, mata elang, relief, painterly, peta relief, wayang, diorama, tokoh dan pustaka), dengan satu jawaban "terima" tanpa catatan per butir. Celah yang dicatat per gaya di bawah tetap terbuka. Uji langsung VO Gemini serta tinjauan dalang dan ahli arsitektur pura belum dilakukan; uji Antigravity pemilik baru mencakup satu opener 20 detik, bukan video panjang (lihat "Uji lapangan Antigravity").
+**Status penerimaan rilis ini**: pemilik menerima kesembilan butir vonis visual pada 4 Nov (siluet dan babak sinematik, mata elang, relief, painterly, peta relief, wayang, diorama, tokoh dan pustaka), dengan satu jawaban "terima" tanpa catatan per butir. Celah yang dicatat per gaya di bawah tetap terbuka. Uji langsung VO Gemini serta tinjauan dalang dan ahli arsitektur pura belum dilakukan; uji Antigravity pemilik baru mencakup satu opener 20 detik sampai MP4, bukan video panjang (lihat "Uji lapangan Antigravity").
 
 Gaya "Siluet sinematik" (sub-proyek 3 dari `docs/peta-peningkatan-gaya-2026-11-01.md`), langkah pertama: starter sendiri.
-Versi belum dinaikkan; rilisnya langkah terpisah.
 
 - **`assets/starter-sinematik.html`** (baru, ±98 KB): titik mulai gaya siluet sinematik 100 % kode — bidang `[data-z]` + kamera 2.5D +
   modul `atmosfer`/`cahaya-2d`/`pasca`. Isi bawaan: gapura malam "Penjaga Gerbang", 12 dtk (obor bersumber, siluet ber-rim, kabut
@@ -13,8 +12,8 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
   600; masuk 0,8 → 1,4 dtk, keluar 4,2 → 4,8 dtk, jadi frame t = 0 dan t ≥ 5 bebas teks). Rangka tanpa bagian explainer (view
   samping/peta, profil kecepatan, strip, hero, whip, kolase, rundown contoh) dan tanpa blok `footage`: `snap.mjs` dan
   `export-frames.mjs` hanya memakai `OPENER.seekFrame`/`clipsReady` bila ada. `?clean=1`, `?debug=1`, autoplay + loop, VO, grain, dan
-  gerbang `fonts.ready` sama dengan starter lain; `?kosong=1` = rig + modul tanpa adegan (kerangka uji). Satu adegan saja: babak
-  berurutan = langkah berikut sub-proyek 3.
+  gerbang `fonts.ready` sama dengan starter lain; `?kosong=1` = rig + modul tanpa adegan (kerangka uji). Satu adegan saja; babak
+  berurutan ada di `starter-babak.html` (lihat "Babak sinematik 60 dtk").
 - **Adegan dipindah, bukan disalin**: `demoSinematik()` + `SINEMA_UJI` dihapus dari `starter-explainer.html` (kini `gapuraMalam()` +
   `SINEMA_UJI` di starter baru, tanpa `view.side`/`.paper`); jalur bawaan explainer kembali ke `DUR = 22` dan
   `if(q.has('demo'))demoKamera();`, blok modulnya tetap ada (tersedia untuk MODE KOLASE). `starter-explainer.html?demo=sinematik`
@@ -41,15 +40,13 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
   11 identik dengan `starter-explainer.html?demo=sinematik&clean=1` di commit 538a7e6 — adegan pindah tanpa selisih piksel
   (a22c8266…, d1718925…, 1f3cf209…). Jalur bawaan `starter-explainer.html?clean=1` identik dengan 538a7e6 di t = 1, 5, 12
   (6676321b…, 24a766d6…, ee5fac59…).
-- **Belum diukur / celah yang diketahui**: ms/frame starter baru (`bench-frame.mjs`; mesin sedang dipakai render pemilik) —
-  tindak lanjut di mesin senggang, batas 350 ms. Kait modul (`ATM_UJI`, `CAHAYA_UJI`, `PASCA_UJI`, `CAM_UJI`) belum bisa dijalankan di
-  halaman yang sudah memakai modul (mis. `PASCA_UJI` menuntut tanpa lapisan grade; `ATM_UJI` mengganti langit halaman) — sampai kait itu
-  tahan terhadap halaman terisi, starter ber-adegan harus punya mode tanpa adegan seperti `?kosong=1`.
+- **Celah yang diketahui**: kait modul (`ATM_UJI`, `CAHAYA_UJI`, `PASCA_UJI`, `CAM_UJI`) belum bisa dijalankan di
+  halaman yang sudah memakai modul pada tahap ini (teratasi kemudian, lihat "Babak sinematik 60 dtk" › Uji). ms/frame: lihat "Bench akhir".
 - **Aturan rilis** (`docs/aturan-rilis.md`, baru): SemVer untuk seluruh skill, CHANGELOG dengan `## Belum dirilis`, 8 gerbang
   yang sama dengan CI, gerbang rupa (bukti, bench saat mesin menganggur, vonis pemilik), alur branch → `main` → commit
   `rilis X.Y.Z` → tag → push hanya dengan izin pemilik → GitHub Release. `scripts/rilis.mjs` menjalankan semua gerbang
   (`--tanpa-browser` saat mesin merender). Bila diberi versi, skrip menyiapkan CHANGELOG, `bump-version`, dan catatan rilis, tanpa
-  commit, tag, atau push. Penyesuaian yang tertunda: tag `v1.2.0` (7fa0791) dan `v1.3.0` (0748e0b), yang belum di-push.
+  commit, tag, atau push. Tag `v1.2.0` (7fa0791) dan `v1.3.0` (0748e0b) dibuat dan di-push bersama rilis ini.
 - **Kompatibel Antigravity (pengguna mana pun, Windows/PowerShell, macOS, Linux)**. Dasar: `docs/riset-antigravity-2026-11-03.md`
   (Antigravity membaca format Agent Skills apa adanya; yang patah adalah shell dan lingkungan, bukan tool khusus Claude). Semua
   perubahan netral-agen: perilaku Claude Code tidak berubah, `SKILL.md` tidak punya cabang "jika Antigravity", dan repo tidak
@@ -83,23 +80,22 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
     dikatakan tiga kali lagi, dan daftar nama konsep di baris `opener-konsep.md` pada "Isi paket"). Batas tidak diubah. Jalur Opener /
     promo / bumper 219,99 → 219,94 KB (sisa 15 → 57 karakter), Siluet sinematik 234,52 → 234,48 KB (sisa 490 → 532), jalur lain turun
     42 karakter; jalur "Build di After Effects" 76 847 → 76 846 (kalimat `ae-bridge-higgsfield.md` +41, `SKILL.md` −42).
-  - **Plugin Antigravity tidak ditambahkan.** `.antigravity-plugin/plugin.json` (`"skills": "./"`) diuji dengan
+  - **Plugin Antigravity** (`.antigravity-plugin/plugin.json`, ditambahkan sesudah `SKILL.md` muat batas). Pada uji pertama, `.antigravity-plugin/plugin.json` (`"skills": "./"`) diuji dengan
     `agy plugin validate --strict --json` pada salinan sementara repo (profil `agy` terpisah; `~/.gemini` tidak berubah): `SKILL.md` di
     akar terbaca sebagai 1 skill, tetapi mode ketat GAGAL (exit 1): `SKILL.md: the body is 37243 bytes; only the first 24000 are loaded`.
     Salinan yang `SKILL.md`-nya dipotong di bawah 24 000 byte lolos ketat.
     - Teratasi kemudian: sesudah `SKILL.md` dirapikan (butir "SKILL.md muat batas Antigravity" di bawah), manifest
       `.antigravity-plugin/plugin.json` (`"skills": "./"`, logo `icon.svg`) lolos `--strict --json` dengan 1 skill dan `findings`
       kosong, lalu ditambahkan.
-    - Versinya ikut `bump-version.mjs` (15 tempat).
+    - Versinya ikut `bump-version.mjs`.
     - README menyebut `agy plugin install https://github.com/aammuhammad18-cmyk/wevai`; pemasangannya sendiri belum diuji.
   - **Celah yang diketahui**:
     - Batas 24 000 byte `SKILL.md`: teratasi dengan butir "SKILL.md muat batas Antigravity". Uji empirisnya tetap: minta agen
       Antigravity mengutip langkah 6 "Alur kerja".
-    - Belum dijalankan di Antigravity sungguhan (App/CLI/IDE) dan belum di macOS/Linux. Deteksi browser macOS/Linux hanya daftar lokasi
+    - Di Antigravity baru diuji lewat IDE dan `agy` di Windows (lihat "Uji lapangan Antigravity"); App, macOS, dan Linux belum. Deteksi browser macOS/Linux hanya daftar lokasi
       standar yang belum dicoba di OS itu; seluruh verifikasi dilakukan di Windows 11 (PowerShell 5.1, Git Bash).
     - URL MCP Higgsfield di README belum terverifikasi (hanya sumber pihak ketiga).
-  - **Status penerimaan**: menunggu. Pemilik menguji checklist C5 di `docs/riset-antigravity-2026-11-03.md` (uji `/wevai`, opener 20 detik,
-    `--help`, MP4) di Antigravity sebelum lencana README diubah.
+  - **Status penerimaan**: sebagian. Pemilik menguji opener 20 detik sampai MP4 di IDE (4–5 Nov). Video panjang belum diuji, jadi lencana README belum diubah.
   - **Bukti** (Windows 11, tanpa `PUPPETEER_EXECUTABLE_PATH`, prioritas Idle karena render pemilik berjalan): `test-starters` 9 dari 9 starter
     lolos; satu `snap.mjs` menghasilkan potret dan lembar kontak; kontrol negatif: `puppeteer.launch` polos tanpa env dan tanpa `chrome.mjs`
     gagal di mesin yang sama ("Could not find Chrome"); `--help`/`-h` pada 9 skrip ber-guard: exit 0, tanpa berkas baru, tanpa proses
@@ -182,11 +178,10 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
     `scripts/test-pustaka.mjs` masuk `rilis.mjs` dan CI.
   - **Bukti**: `evals/bukti/2026-11-03-pustaka-jawa/kontak.jpg`. Hasil `nilai-visual`: rentang 33,7–38,9; titik obor +68,5…+73,1.
   - **Celah yang diketahui**:
-    - candi senja berkontras subjek 4,7–7,8, di bawah ambang 10, karena larut dalam kabut yang sama;
-    - biaya per frame belum diukur (tableau tersembunyi tetap menjalankan callback);
+    - tableau tersembunyi tetap menjalankan callback (ms/frame: lihat "Bench akhir");
     - akurasi budaya bersifat suasana, bukan rekonstruksi; parang dan truntum anakronistik untuk Majapahit
       (lihat `pustaka.md`);
-    - sawah senja perlu dinilai pemilik (masih terbaca seperti pasir).
+    - candi senja dan sawah diperbaiki kemudian (lihat "Rupa babak, tokoh, pustaka").
   - **Status penerimaan**: diterima pemilik 4 Nov.
 - **Mata elang 3D** (sub-proyek 5, H di `docs/rencana-1.4.0.md`).
   - **Berkas**: `src/runtime/terbang.js` (blok baru `<wv:terbang>`) dan `src/runtime/lanskap-3d.js`; `assets/starter-elang.html`,
@@ -216,9 +211,9 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
   - **Bukti**: `evals/bukti/2026-11-03-mata-elang/` (`kontak.jpg`, `elang.gif`, `tonemap.jpg`, `terbang25.jpg`). `nilai-visual`
     dengan subjek dan sumber dideklarasikan: gapura + dua obor kontras 59,9, obor +71,6; gunung di 11 dtk kontras 27,2.
   - **Celah yang diketahui**:
-    - ms/frame belum diukur (mesin sedang merender). Bila > 350 ms, kenop pertamanya MSAA → FXAA, peta bayangan 1024, jumlah pohon;
+    - bila ms/frame melewati 350 (kini 295, lihat "Bench akhir"), kenop pertamanya MSAA → FXAA, peta bayangan 1024, jumlah pohon;
     - sawah lembah dekat tampak kotak-kotak pada grid kasar (±14 m) di frame akhir;
-    - `terbang()` 2.5D belum dipasang di starter 2.5D mana pun; shot mata elang brief 10 menyusul bersama babak multi-adegan (E).
+    - `terbang()` 2.5D baru terpasang di `starter-babak.html`; starter 2.5D lain menyalin bloknya (`mata-elang.md`).
   - **Status penerimaan**: diterima pemilik 4 Nov.
 - **Relief candi hidup** (sub-proyek 7, gaya lanjutan pertama; J di `docs/rencana-1.4.0.md`).
   - **Berkas**: `assets/starter-relief.html`, `src/runtime/relief-hidup.js` (blok baru `<wv:relief-hidup>`: `reliefHidup()`,
@@ -278,9 +273,8 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
     - selisih latar (bukan tokoh) ±1 px, maks. 76–84, sesudah lompat mundur ke tableau yang tampil sejak halaman dimuat; terjadi juga
       di `katalog-pustaka` tanpa tokoh. Ekspor maju tidak menampilkan ulang tableau, jadi kemungkinan tidak terdampak;
     - cincin samar ±4 di pendar obor `cahaya-2d` antara jalur berurutan dan jalur lompat;
-    - ms/frame belum diukur (mesin sedang merender);
     - pose mendayung dan menunggang belum ada; tokoh statis `buat()` hanya berwarna rata (cahaya lewat `rim()`/`bayangan()`);
-    - blok `<wv:tokoh>` baru ada di katalog; pemasangannya di starter sinematik menyusul bersama babak multi-adegan (E).
+    - blok `<wv:tokoh>` ada di katalog dan `starter-babak.html`; `starter-sinematik.html` tetap tanpa blok ini (penjaganya digambar sendiri).
   - **Status penerimaan**: diterima pemilik 4 Nov.
 - **Ekspor panjang** (sub-proyek 6).
   - **Berkas baru**: `scripts/antre-render.mjs`, `scripts/ekspor-inti.mjs`, `scripts/test-ekspor.mjs`.
@@ -312,7 +306,7 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
     - `VideoEncoder` H.264 Annex B dialirkan ke ffmpeg (`-r <fps> -f h264 -c copy`);
     - uji: 90 frame, 6,000000 dtk, urutan frame benar, selisih rata-rata 1,0–1,7 level dibanding jalur PNG;
     - tanpa kait kanvas: pesan jelas, lalu jalur biasa.
-  - **Uji**: `test-ekspor` (40 uji tanpa Chrome dan ffmpeg; 10 dari 11 mutasi tertangkap) masuk `rilis.mjs`, CI, dan `aturan-rilis.md`.
+  - **Uji**: `test-ekspor` (43 uji tanpa Chrome dan ffmpeg; 10 dari 11 mutasi tertangkap) masuk `rilis.mjs`, CI, dan `aturan-rilis.md`.
   - **Dokumen**: `alat-kerja.md` › "Render panjang" dan "Mode WebCodecs"; kait `canvas` di kontrak `OPENER` (`architecture.md`);
     README; satu penunjuk di langkah 6 `SKILL.md`.
   - **Belum diukur / celah**:
@@ -375,7 +369,7 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
     kontras subjek yang dideklarasikan 11,0–20,5, kepala rute +31,9…+34,4. Bingkai peta lebar tanpa subjek memberi peringatan kontras
     tengah-tepi (2,4–7,8), dijelaskan di README bukti.
   - **Celah yang diketahui**:
-    - ms/frame belum diukur (siap 6–13 dtk di HD 4000 saat render pemilik berjalan);
+    - siap 6–13 dtk di HD 4000 saat render pemilik berjalan (ms/frame: lihat "Bench akhir");
     - sungai skematis (galat beberapa km); vektor sungai asli butuh cek lisensi (OSM = ODbL, tidak cocok);
     - label tanpa uji oklusi; gunung Sumatra barat 104,5° BT tidak dimodelkan (tertutup kabut di gambar besar);
     - kerucut gunung masih seragam dan dataran lembah polos (pengamatan controller pada lembar kontak).
@@ -407,8 +401,7 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
     babak: 336 ms/frame pada ekspor JPEG q95).
   - **Celah yang diketahui**:
     - t 27,5 lewat jalur berurutan vs seek langsung: ±3 level di 0,49 % piksel; penyebab belum terbukti;
-    - penjaga rig v2 lebih ramping dan tanpa zirah dibanding versi lama (`sebelum-sesudah.jpg`); di t 33,6 ada bidang pink rata dan ujung
-      api terpotong;
+    - rupa penjaga dan t 33,6 diperbaiki kemudian (lihat "Rupa babak, tokoh, pustaka");
     - kanvas panggang tidak dipanggang ulang bila konteks GPU hilang; halaman ±52 MP kanvas (87 MP pernah menghilangkan konteks);
     - setup 2–5 dtk di mesin senggang, sampai 147 dtk saat render pemilik berjalan.
   - **Status penerimaan**: diterima pemilik 4 Nov.
@@ -431,7 +424,7 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
   - **Celah yang diketahui**:
     - pakem belum ditinjau dalang; sumber gunungan hanya sekunder; bentuk `inten`/`masmasan` dan letak motif dirancang dari nama;
     - sendi dua pada lengan belum ada sumber yang terbaca; tinggi relatif dan kedip adalah angka perkiraan;
-    - muka raksasa masih agak kartun; sisi dalang disederhanakan (tanpa dalang, gamelan, debog atas);
+    - sisi dalang disederhanakan (tanpa dalang, gamelan, debog atas); rupa raksasa diperbaiki kemudian (lihat "Rupa budaya");
     - panakawan ditolak generator dengan pesan alasan; `gagahan` dan `putri` hanya tampil di simpingan.
   - **Status penerimaan**: diterima pemilik 4 Nov; pakem belum ditinjau dalang.
 - **Diorama cel-shaded** (sub-proyek 7, gaya lanjutan kelima; J di `docs/rencana-1.4.0.md`): maket museum untuk menjelaskan struktur tempat.
@@ -477,7 +470,9 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
   - **Semua alat agen gagal.** Hook `PreToolUse` plugin `googlecloudtools.datacloud_telemetry` patah pada nama pengguna Windows berspasi, sehingga agen tak bisa membaca atau menulis apa pun. Plugin dinonaktifkan di mesin pemilik; jalan keluarnya dicatat di README.
   - **Deskripsi skill tak mencakup permintaan dokumenter.** Kini memuat "video dokumenter" dan video sejarah/budaya panjang (932 dari 1024 karakter, ukuran total tak bertambah). Efeknya pada pemilihan skill belum teruji.
   - **Uji ulang: opener 20 detik jadi.** Skill termuat, lint dan `snap.mjs` berjalan, tetapi keluaran tertulis di dalam folder skill karena workspace-nya folder itu dan istilah "folder proyek" tak pernah didefinisikan; catatan pikiran agen juga menyebut `.gitignore` sebagai alasan menganggapnya sah. Kini SKILL.md mendefinisikannya (folder kerja, atau `../<nama-video>/` bila folder kerja = folder skill), `lint-motion` memberi FAIL `folder-proyek` untuk keluaran di dalam folder skill, dan komentar `.gitignore` diganti.
-  - **Celah**: video panjang di Antigravity belum diuji. Agen juga tidak berhenti meminta persetujuan rundown: catatan pikirannya menyebut aturan itu, lalu menganggap permintaan awal sudah cukup. SKILL.md kini memerintahkan berhenti dan menunggu balasan, dan menyatakan permintaan awal maupun mode otomatis bukan persetujuan. Ini aturan tertulis, tidak ada pemeriksaan mesin yang menegakkannya.
+  - **Persetujuan rundown.** Pada uji itu agen tidak berhenti: catatan pikirannya menyebut aturan itu, lalu menganggap permintaan awal sudah cukup. SKILL.md kini memerintahkan berhenti dan menunggu balasan, dan menyatakan permintaan awal maupun mode otomatis bukan persetujuan. Ini aturan tertulis, tidak ada pemeriksaan mesin yang menegakkannya.
+  - **Uji ulang kedua (4–5 Nov, IDE, permintaan yang sama).** Agen berhenti dan menunggu persetujuan, dan lint menangkap berkas yang salah tempat. Tetapi agen memakai ulang hasil uji pertama yang sudah dipindahkan, bukan membuat yang baru, lalu menyalinnya kembali ke folder skill; SKILL.md kini juga melarang salinan, dan larangan ini belum diuji ulang di IDE. Render di dalam IDE gagal dua kali (lihat "Render tak lagi macet tanpa pesan"); MP4 akhirnya dibuat di luar IDE.
+  - **Celah**: video panjang di Antigravity belum diuji, dan pemilihan skill hanya teruji saat permintaan menyebut "pakai skill wevai".
 - **Rupa budaya ditingkatkan** sesudah tinjauan pemilik (bukti `evals/bukti/2026-11-04-rupa-budaya/`).
   - **Wayang**: raksasa digambar ulang dari ikonografi bersumber (plelengan, pelokan, gusen, gembel); sisi dalang mendapat lapis sungging dipanggang, kelat bahu, gelang, dan uncal; simpingan diurutkan menurut sumber. Bench bayang 209, dalang 298 ms/frame (terburuk 314).
   - **Diorama**: pola bata, paras, ijuk, dan alang di shader toon; padmasana tepas–batur–sari dari sumber jurnal, tanpa arca; legenda mengikuti kata sumber dan menandai "Denah generik, bukan pura tertentu". Bench 233 ms/frame.

@@ -2,6 +2,8 @@
 
 ## Belum dirilis
 
+**Status penerimaan rilis ini**: pemilik menerima kesembilan butir vonis visual pada 4 Nov (siluet dan babak sinematik, mata elang, relief, painterly, peta relief, wayang, diorama, tokoh dan pustaka), dengan satu jawaban "terima" tanpa catatan per butir. Celah yang dicatat per gaya di bawah tetap terbuka. Uji langsung Antigravity dan VO Gemini serta tinjauan dalang dan ahli arsitektur pura belum dilakukan.
+
 Gaya "Siluet sinematik" (sub-proyek 3 dari `docs/peta-peningkatan-gaya-2026-11-01.md`), langkah pertama: starter sendiri.
 Versi belum dinaikkan; rilisnya langkah terpisah.
 
@@ -185,7 +187,7 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
     - akurasi budaya bersifat suasana, bukan rekonstruksi; parang dan truntum anakronistik untuk Majapahit
       (lihat `pustaka.md`);
     - sawah senja perlu dinilai pemilik (masih terbaca seperti pasir).
-  - **Status penerimaan**: menunggu vonis visual pemilik.
+  - **Status penerimaan**: diterima pemilik 4 Nov.
 - **Mata elang 3D** (sub-proyek 5, H di `docs/rencana-1.4.0.md`).
   - **Berkas**: `src/runtime/terbang.js` (blok baru `<wv:terbang>`) dan `src/runtime/lanskap-3d.js`; `assets/starter-elang.html`,
     `references/mata-elang.md`, dan `scripts/test-elang.mjs` (baru). `RAILS` pindah ke `kamera.js` inti; `kamera-three.js` dan
@@ -217,7 +219,7 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
     - ms/frame belum diukur (mesin sedang merender). Bila > 350 ms, kenop pertamanya MSAA → FXAA, peta bayangan 1024, jumlah pohon;
     - sawah lembah dekat tampak kotak-kotak pada grid kasar (±14 m) di frame akhir;
     - `terbang()` 2.5D belum dipasang di starter 2.5D mana pun; shot mata elang brief 10 menyusul bersama babak multi-adegan (E).
-  - **Status penerimaan**: menunggu bench di mesin senggang dan vonis visual pemilik.
+  - **Status penerimaan**: diterima pemilik 4 Nov.
 - **Relief candi hidup** (sub-proyek 7, gaya lanjutan pertama; J di `docs/rencana-1.4.0.md`).
   - **Berkas**: `assets/starter-relief.html`, `src/runtime/relief-hidup.js` (blok baru `<wv:relief-hidup>`: `reliefHidup()`,
     `SINAR`), `references/relief-candi.md`, dan `scripts/test-relief.mjs` (baru); `pustaka.dindingRelief` di `pustaka.js`.
@@ -243,7 +245,7 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
     - kanvas relief 1:1 di bidang z = 0, jadi melunak di atas zoom ±1,25; close-up butuh dinding kedua yang lebih kecil;
     - satu konteks WebGL2 per dinding, jadi 1–2 dinding per halaman;
     - sosok dan panel adalah kosakata bergaya, bukan salinan panel nyata (legenda kini ditandai ilustrasi, lihat "Rupa budaya").
-  - **Status penerimaan**: menunggu bench di mesin senggang dan vonis visual pemilik.
+  - **Status penerimaan**: diterima pemilik 4 Nov.
 - **Rig tokoh v2** (sub-proyek 4b, G di `docs/rencana-1.4.0.md`).
   - **Berkas**: `src/runtime/tokoh.js` (blok baru `<wv:tokoh>`, satu global `tokoh`), `assets/katalog-tokoh.html`,
     `references/tokoh.md`, dan `scripts/test-tokoh.mjs` (baru); penunjuk di `kartun-panggung.md`.
@@ -279,7 +281,7 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
     - ms/frame belum diukur (mesin sedang merender);
     - pose mendayung dan menunggang belum ada; tokoh statis `buat()` hanya berwarna rata (cahaya lewat `rim()`/`bayangan()`);
     - blok `<wv:tokoh>` baru ada di katalog; pemasangannya di starter sinematik menyusul bersama babak multi-adegan (E).
-  - **Status penerimaan**: menunggu bench di mesin senggang dan vonis visual pemilik.
+  - **Status penerimaan**: diterima pemilik 4 Nov.
 - **Ekspor panjang** (sub-proyek 6).
   - **Berkas baru**: `scripts/antre-render.mjs`, `scripts/ekspor-inti.mjs`, `scripts/test-ekspor.mjs`.
   - **`export-frames.mjs`**:
@@ -346,7 +348,7 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
     - memori GPU sementara ±112 MB per bidang 2240×1400 saat dilukis;
     - ms/frame ekspor penuh belum diukur di mesin senggang;
     - agen pembuatnya macet sesudah bukti di-commit, jadi laporan akhirnya tidak ada; gerbang dan uji penggabungan dijalankan controller.
-  - **Status penerimaan**: menunggu bench di mesin senggang dan vonis visual pemilik.
+  - **Status penerimaan**: diterima pemilik 4 Nov.
 - **Peta relief 3D topografi** (sub-proyek 7, gaya lanjutan ketiga; J di `docs/rencana-1.4.0.md`; lanjutan kulit topografi Jagad Budaya).
   - **Berkas**: `src/runtime/peta-relief.js` (blok baru `<wv:peta-relief>`, 37 KB termasuk data Jawa), `assets/starter-peta-relief.html`,
     `references/peta-relief.md`, `scripts/test-peta.mjs`, dan `scripts/peta-data.mjs` (membangun ulang data pantai, mis. untuk Bali);
@@ -377,7 +379,7 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
     - sungai skematis (galat beberapa km); vektor sungai asli butuh cek lisensi (OSM = ODbL, tidak cocok);
     - label tanpa uji oklusi; gunung Sumatra barat 104,5° BT tidak dimodelkan (tertutup kabut di gambar besar);
     - kerucut gunung masih seragam dan dataran lembah polos (pengamatan controller pada lembar kontak).
-  - **Status penerimaan**: menunggu bench di mesin senggang dan vonis visual pemilik.
+  - **Status penerimaan**: diterima pemilik 4 Nov.
 - **Babak sinematik 60 dtk** (sub-proyek 3, E di `docs/rencana-1.4.0.md`): `assets/starter-babak.html` (baru), babak "Penjaga Gerbang" untuk eval 10.
   - **Isi**: lima adegan di tiga dunia: gerbang dari dalam, lembah + keraton, satu shot mata elang `terbang()` 2.5D 24–31 dtk yang menembus
     celah gapura dan mendarat di penjaga, penjaga dekat, penutup. Transisi berpemicu: match cut di langit, push-through gapura, cut on
@@ -409,7 +411,7 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
       api terpotong;
     - kanvas panggang tidak dipanggang ulang bila konteks GPU hilang; halaman ±52 MP kanvas (87 MP pernah menghilangkan konteks);
     - setup 2–5 dtk di mesin senggang, sampai 147 dtk saat render pemilik berjalan.
-  - **Status penerimaan**: menunggu vonis visual pemilik.
+  - **Status penerimaan**: diterima pemilik 4 Nov.
 - **Wayang kulit** (sub-proyek 7, gaya lanjutan keempat; J di `docs/rencana-1.4.0.md`).
   - **Berkas**: `src/runtime/wayang.js` (blok baru `<wv:wayang>`, global `wayang` dan `BLENCONG`), `assets/starter-wayang.html`,
     `references/wayang.md`, dan `scripts/test-wayang.mjs` (baru); penunjuk di `explainer.md`, `isi-paket.md`, `alat-kerja.md`, README.
@@ -431,7 +433,7 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
     - sendi dua pada lengan belum ada sumber yang terbaca; tinggi relatif dan kedip adalah angka perkiraan;
     - muka raksasa masih agak kartun; sisi dalang disederhanakan (tanpa dalang, gamelan, debog atas);
     - panakawan ditolak generator dengan pesan alasan; `gagahan` dan `putri` hanya tampil di simpingan.
-  - **Status penerimaan**: menunggu tinjauan pakem dan vonis visual pemilik.
+  - **Status penerimaan**: diterima pemilik 4 Nov; pakem belum ditinjau dalang.
 - **Diorama cel-shaded** (sub-proyek 7, gaya lanjutan kelima; J di `docs/rencana-1.4.0.md`): maket museum untuk menjelaskan struktur tempat.
   - **Berkas**: `src/runtime/diorama.js` (blok `<wv:diorama>`) dan `src/runtime/pura-bali.js` (blok `<wv:pura-bali>`, jadi tempat lain bisa
     membuangnya), `assets/starter-diorama.html`, `references/diorama.md`, dan `scripts/test-diorama.mjs` (baru); penunjuk di `sinematografi.md`,
@@ -454,7 +456,7 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
       bentuk padmasana bersandar pada Wikipedia; letak bale kulkul bertentangan antar-sumber (madya vs nista);
     - kata-kata legenda perlu dinilai pemilik (diganti, lihat "Rupa budaya");
     - lipatan di dalam siluet tanpa garis (`garis.jpg`).
-  - **Status penerimaan**: menunggu tinjauan arsitektur pura dan vonis visual pemilik.
+  - **Status penerimaan**: diterima pemilik 4 Nov; belum ditinjau ahli arsitektur pura.
 - **Kartun panggung memakai `CAM`** (sisa E di `docs/rencana-1.4.0.md`): `starter-explainer-panggung.html` kini memuat `kamera.js` + `kamera-dom.js`, jadi dolly, truck, angle, handheld, `shot()`, dan bidang `[data-z]` berparalaks tersedia di panggung.
   - `cam(at, x, y, z)` = `camTo` (parameter panggung pertama dihapus); `cut()` dan `slide()` menaruh `CAM` di pose awal adegan; `?demo=1` ditambahkan; `#world` tanpa `will-change:filter` (meratakan 3D).
   - Tampilan bawaan praktis sama: 0,00–0,04 % piksel berbeda > 24 level di 9 waktu. Bench 208 → 211 ms sebelum perbaikan seek, 183 ms sesudahnya (sekali ukur, mesin tak sepenuhnya senggang). Bukti: `evals/bukti/2026-11-04-panggung-cam/`.

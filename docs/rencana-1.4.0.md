@@ -17,14 +17,14 @@ Sumber rincian:
 | B | Aturan rilis (`docs/aturan-rilis.md`, `scripts/rilis.mjs`) | selesai | 6ab34c8 |
 | C | Dukungan Antigravity: Chrome otomatis, `--help`, `SKILL.md` ≤ 24 KB, plugin | kode selesai; uji pemilik menunggu | f414a57, dfedd42, d80eb56 |
 | D | Alat VO Gemini (hingga 10 kunci, failover aman) | kode selesai; uji langsung pemilik menunggu | 73eb11f |
-| E | Sub-proyek 3, sisa: babak multi-adegan 60 dtk + `CAM` di kartun panggung | babak: kode selesai, vonis pemilik menunggu (`starter-babak.html`, keputusan pemilik 4 Nov); `CAM` panggung selesai | babak: fa45908..cac5ded; panggung: 50217ff..652c73a |
-| F | Sub-proyek 4a: pustaka aset prosedural Jawa kuno | kode selesai; vonis visual pemilik menunggu | 31172c7..0f1bef0 |
-| G | Sub-proyek 4b: rig tokoh v2 | kode selesai; bench katalog ±288 ms sesudah blur diklip (sebelumnya melewati 350); vonis visual pemilik menunggu | 5c9a3b1..ca20078 |
-| H | Sub-proyek 5: mata elang 3D | kode selesai; bench 292 ms, segmen motion blur 1294 ms (27 frame, pengecualian disengaja); vonis visual pemilik menunggu | 93e1629..087736e |
+| E | Sub-proyek 3, sisa: babak multi-adegan 60 dtk + `CAM` di kartun panggung | babak: selesai, diterima pemilik 4 Nov (`starter-babak.html`); `CAM` panggung selesai | babak: fa45908..cac5ded; panggung: 50217ff..652c73a |
+| F | Sub-proyek 4a: pustaka aset prosedural Jawa kuno | selesai, diterima pemilik 4 Nov | 31172c7..0f1bef0 |
+| G | Sub-proyek 4b: rig tokoh v2 | selesai, diterima pemilik 4 Nov; bench katalog 319 ms | 5c9a3b1..ca20078 |
+| H | Sub-proyek 5: mata elang 3D | selesai, diterima pemilik 4 Nov; bench 295 ms, segmen motion blur 1294 ms (27 frame, pengecualian disengaja) | 93e1629..087736e |
 | I | Sub-proyek 6: ekspor panjang | selesai (masuk `main` 3 Nov dengan izin pemilik); 2 worker 1,2–1,5× di halaman nyata 1080p, frame identik 98–99 %, sisanya ±1 level | 429c64f..7310d5a |
-| J | Sub-proyek 7: gaya lanjutan | relief candi (233 ms), painterly (219 ms), peta relief 3D (288 ms), wayang kulit (234/293 ms), diorama (240 ms): kode selesai, vonis pemilik menunggu (wayang: + tinjauan pakem; diorama: + tinjauan arsitektur pura) | relief: bfdac93..811ddca; painterly: 1f6d91f..d71c88c; peta: 40fa38f..f13d624; wayang: 611bbcf..e0e805f; diorama: 82bee1e..e2d8b8f |
+| J | Sub-proyek 7: gaya lanjutan | relief candi (220 ms), painterly (193 ms), peta relief 3D (275 ms), wayang kulit (228/310 ms), diorama (237 ms): selesai, diterima pemilik 4 Nov (tinjauan pakem wayang dan arsitektur pura belum) | relief: bfdac93..811ddca; painterly: 1f6d91f..d71c88c; peta: 40fa38f..f13d624; wayang: 611bbcf..e0e805f; diorama: 82bee1e..e2d8b8f |
 | K | Sub-proyek 8: penilaian visual otomatis + galeri | selesai (K2: 7 still di README, rekomendasi 4/1 sudah bersyarat izin raster di `explainer.md`) | K1: a3486a1..f114d7d |
-| L | Rilis 1.4.0 | belum | |
+| L | Rilis 1.4.0 | vonis visual selesai 4 Nov; menunggu izin rilis pemilik | |
 
 Rilis 1.4.0 (L) mencakup:
 - tag `v1.2.0` di 7fa0791 dan `v1.3.0` di 0748e0b;

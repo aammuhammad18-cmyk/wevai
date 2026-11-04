@@ -21,7 +21,7 @@ const JENIS={
   raksasa:{sikap:'jangkahan',mata:'plelengan',hidung:'pelokan',mulut:'gusen',kepala:'lanyapan',tunduk:-7,gelung:'gembel',muka:'merah',tinggi:1.3,gerak:1,simping:'kiri'},
   putri:{sikap:'samparan',mata:'gabahan',hidung:'wali miring',mulut:'rapat',kepala:'oyi',tunduk:20,gelung:'ukel keyongan',muka:'prada',tinggi:.8,gerak:2,simping:'kanan'}},
   /* warna muka → watak yang lazim disebut sumber; bukan hukum tunggal (lihat dokumen) */
-  MUKA={hitam:{warna:'#1a1613',makna:'dewasa, tenang, sigap'},merah:{warna:'#b5281c',makna:'mudah tergugah, makin tua makin temperamental'},
+  MUKA={hitam:{warna:'#1a1613',makna:'dewasa, tenang, sigap'},merah:{warna:'#a4261a',makna:'mudah tergugah, makin tua makin temperamental'},
     prada:{warna:'#d3a443',makna:'wayang brongsong: muka berlapis emas'},putih:{warna:'#e6dcc4',makna:'tidak seragam antarsumber'}},
   /* simpingan menurut sisi DALANG; penonton di sisi bayang melihatnya tercermin */
   PIHAK={kanan:{layar:'kiri',hadap:'kanan'},kiri:{layar:'kanan',hadap:'kiri'}},
@@ -42,6 +42,11 @@ const tk=p=>f(p[0])+','+f(p[1]),
       let s=sisa;while(s<=L){o.push([a[0]+ux*s,a[1]+uy*s,ux,uy]);s+=jarak;}sisa=s-L;}return o;};
 const lingkar=(x,y,r)=>`M${f(x-r)},${f(y)}a${f(r)},${f(r)} 0 1,0 ${f(2*r)},0a${f(r)},${f(r)} 0 1,0 ${f(-2*r)},0Z`,
   belah=(x,y,ux,uy,a,b)=>`M${f(x-ux*a)},${f(y-uy*a)}L${f(x-uy*b)},${f(y+ux*b)}L${f(x+ux*a)},${f(y+uy*a)}L${f(x+uy*b)},${f(y-ux*b)}Z`;
+/* cincin = lubang bercincin (arah balik: nonzero); pita = lubang garis meruncing; ulir = titik spiral; gerigi = garis luar bertonjolan */
+const cincin=(x,y,R,r)=>lingkar(x,y,R)+`M${f(x-r)},${f(y)}a${f(r)},${f(r)} 0 1,1 ${f(2*r)},0a${f(r)},${f(r)} 0 1,1 ${f(-2*r)},0Z`,
+  pita=(p,w0,w1=w0)=>{const a=[],b=[];p.forEach(([x,y],i)=>{const q=p[max(0,i-1)],s=p[min(p.length-1,i+1)],dx=s[0]-q[0],dy=s[1]-q[1],L=hypot(dx,dy)||1,w=lerp(w0,w1,i/(p.length-1))/2;a.push(tk([x-dy/L*w,y+dx/L*w]));b.unshift(tk([x+dy/L*w,y-dx/L*w]));});return'M'+a.concat(b).join('L')+'Z';},
+  ulir=(x,y,r,n=2,s=1)=>Array.from({length:25},(_,i)=>{const t=i/24,a=s*t*n*2*PI,q=r*(1-t*.9);return[x+cos(a)*q,y+sin(a)*q];}),
+  gerigi=(p,d,h)=>{const q=sepanjang(p,d),o=[];q.forEach(([x,y,a,b],i)=>{o.push([x,y,1]);const c=q[i+1];if(c)for(const t of[.2,.5,.8])o.push([lerp(x,c[0],t)-b*h*(t===.5?1.15:.85),lerp(y,c[1],t)+a*h*(t===.5?1.15:.85)]);});return o;};
 /* TATAH: pola lubang sepanjang garis → string subpath. u = ukuran dasar (satuan figur). Nama dari sumber; rupa inten/mas-masan
    dirancang dari namanya (dokumen, bagian Akurasi). */
 const TATAH={
@@ -81,7 +86,7 @@ const keadaan=(F,t)=>hitung(F.a,F.K,t);
 const KAKI=[[-14,-52],[14,-52],[24,-30],[60,-15],[102,-8],[122,-13,1],[116,-1,1],[-12,0],[-22,-20]],
   KEPALA={alusan:[[8,10],[24,2],[38,-6],[41,-16],[47,-21],[43,-25,1],[48,-31],[59,-40],[80,-48,1],[52,-66],[33,-92],[16,-118],[-20,-128],[-50,-96],[-44,-30],[-14,10]],
     gagahan:[[6,14],[28,8],[44,-2],[48,-15],[55,-20],[50,-25,1],[58,-32],[60,-38],[86,-44],[97,-58,1],[62,-84],[44,-102],[24,-122],[-20,-132],[-54,-98],[-48,-30],[-14,14]],
-    raksasa:[[-8,20],[30,24],[58,14],[74,-4],[80,-20],[70,-27,1],[78,-36],[70,-42],[88,-44],[100,-58],[96,-76],[78,-90],[62,-100],[68,-114],[44,-134],[0,-144],[-40,-134],[-70,-102],[-70,-50],[-50,-5]],
+    raksasa:[[-30,24],[4,32],[38,30],[62,18],[76,0],[76,-12,1],[54,-14,1],[88,-26,1],[108,-36],[128,-38],[142,-52],[140,-72],[122,-84],[98,-94],[82,-110],[74,-128],[46,-136],[4,-136],[-34,-128],[-52,-104],[-56,-50],[-42,0]],
     putri:[[8,8],[22,0],[34,-6],[37,-15],[43,-20],[39,-23,1],[43,-28],[52,-37],[70,-46,1],[46,-62],[30,-88],[14,-112],[-20,-122],[-48,-92],[-42,-30],[-12,8]]};
 /* gelung: garis luar (koordinat kepala); ukel = ikal ujung lungsen */
 const GELUNG={
@@ -89,8 +94,8 @@ const GELUNG={
     lungsen:[[-46,-74],[-58,-44],[-62,-8],[-54,18],[-36,26],[-26,16],[-36,8],[-44,2],[-46,-14],[-38,-44],[-32,-66]],serit:[[-84,-128],[-62,-158],[-40,-186],[-10,-202]]},
   'ukel keyongan':{isi:[[16,-108],[-6,-128],[-36,-126],[-60,-112],[-90,-118],[-114,-92],[-112,-62],[-88,-46],[-64,-54],[-52,-70],[-46,-96],[-16,-118]],
     lungsen:[[-44,-60],[-58,-20],[-60,28],[-40,44],[-26,34],[-40,20],[-40,-10],[-34,-40]],serit:[[-58,-112],[-30,-124],[-4,-118]]},
-  gembel:{isi:[[42,-130],[30,-148],[8,-146],[-10,-160],[-32,-150],[-52,-156],[-72,-138],[-92,-132],[-98,-110],[-116,-92],[-108,-68],[-122,-46],[-104,-30],[-108,-4],[-86,0],[-78,22],[-58,8],[-60,-56],[-64,-112],[-24,-140]],
-    lungsen:[[-60,0],[-82,30],[-72,58],[-88,82],[-56,84],[-40,58],[-28,26]],serit:[[-96,-84],[-76,-118],[-42,-136],[-4,-136]]}};
+  gembel:{isi:[...gerigi([[60,-150],[30,-178],[-12,-190],[-60,-178],[-96,-142],[-118,-94],[-132,-44],[-142,10],[-142,62],[-126,104],[-92,124]],38,13),[-62,98],[-30,42],[-6,-40],[20,-130]],
+    lungsen:[[-60,0],[-72,30],[-56,44],[-34,30],[-30,4]],serit:[[-100,-56],[-86,-104],[-56,-142],[-10,-160],[36,-150]]}};
 /* lengan: [panjang atas, panjang bawah termasuk telapak, lebar] */
 const LENGAN={alusan:[240,335,.86],gagahan:[252,345,1.2],raksasa:[262,350,1.72],putri:[214,300,.74]};
 
@@ -100,8 +105,9 @@ function potongLengan(L1,L2,w,cakar){const b=(x,y)=>[x*w,y],
   /* telapak: jari rapat melengkung (raksasa: cakar). Bersatu dengan hasta — pakem dua sendi: bahu + siku */
   jari=cakar?[b(-10,L2-82),b(10,L2-82),b(20,L2-58),b(25,L2-28),[29*w,L2+8,1],b(15,L2-26),b(10,L2-44),b(8,L2-4),[6*w,L2+8,1],b(-1,L2-30),b(-3,L2-46),b(-5,L2-14),[-8*w,L2-2,1],b(-11,L2-44),b(-12,L2-62)]
     :[b(-9,L2-82),b(9,L2-82),b(14,L2-60),b(19,L2-34),b(24,L2-12),[33*w,L2+6,1],b(14,L2-6),b(2,L2-22),b(-5,L2-44),b(-10,L2-62)],
-  jempol=[b(9,L2-74),b(22,L2-82),[36*w,L2-70,1],b(22,L2-64),b(11,L2-58)];
-  return{atas,hasta,jari,jempol};}
+  jempol=[b(9,L2-74),b(22,L2-82),[36*w,L2-70,1],b(22,L2-64),b(11,L2-58)],
+  kelat=[b(-19,28),b(-21,42),b(-19,58),b(0,64),b(19,58),b(21,42),b(19,28),b(0,22)],gelang=[b(-13,L2-112),b(-15,L2-100),b(-13,L2-88),b(13,L2-88),b(15,L2-100),b(13,L2-112)];
+  return{atas,hasta,jari,jempol,kelat,gelang};}
 
 /* polilinea dalam poligon: tiap baris y → ruas [x kiri, x kanan] dipotong tepi (titik mentah, cukup untuk penempatan pola) */
 const potongBaris=(p,y)=>{const X=[];for(let i=0;i<p.length;i++){const a=p[i],b=p[(i+1)%p.length];if((a[1]<=y)!==(b[1]<=y))X.push(a[0]+(y-a[1])/(b[1]-a[1])*(b[0]-a[0]));}X.sort((m,n)=>m-n);return X;},
@@ -116,6 +122,15 @@ const polaKisi=(p,y0,y1,dx,dy,urut,u,tepi=9)=>{let s='',i=0;for(let y=y0;y<=y1;y
    tidak pernah golongan */
 function rancang(jn,seed=1){const J=JENIS[jn],R=mulberry32(seed*7919+jn.length),BG=[],LB=[],ATAS=[],G={},U=.925,
     isi=(n,pts,w)=>{BG.push({n,d:jalur(pts),w});return pts;},ubin=(j,g,u)=>LB.push(tatah(j,g,u)),
+    /* lapis lukis (sisi dalang saja, dipanggang): LK di bawah lubang, LA di atas; r = gradasi sungging bertingkat (RAMP), klip = hanya di dalam bentuk */
+    LK=[],LA=[],LT=[],LH=[],gradasi=(p,r,l,o={},A=LK)=>{const d=jalur(p,o.tutup??0);A.push({d,c:'#1a0c06',l:l+1.6,klip:o.klip});RAMP[r].forEach((c,i)=>A.push({d,c,l:l*(1-i/4),klip:o.klip}));},
+    tepi=(pts,r,l)=>gradasi(pts,r,l,{tutup:1,klip:jalur(pts)}),drenjem=(p,A=LK)=>A.push({d:jalur(p,0),c:'#1a0c06',l:1.7,titik:4.6}),
+    /* gelang kaki: tonjolan kecil di siluet + pita warna */
+    gelangKaki=(x0,x1,y)=>{isi('perhiasan',[[x0-3,y-7],[(x0+x1)/2,y-9],[x1+3,y-7],[x1+4,y+6],[(x0+x1)/2,y+8],[x0-4,y+6]],prada);gradasi([[x0,y],[x1,y]],'merah',11);},
+    /* uncal: juntai berlekuk, meruncing (bentuk disederhanakan dari foto W, Rosalinda) */
+    uncal=(x,y,L,w)=>{const U=[...gerigi([[x-w,y],[x-w*.7,y+L]],L/4.5,w*.42),[x,y+L+w,1],...gerigi([[x+w*.7,y+L],[x+w,y]],L/4.5,w*.42)];isi('uncal',U,'kain2');ubin('bubukan',[[x,y+12],[x,y+L-6]],w*.17);tepi(U,'jingga',w*.72);},
+    /* motif kain: serong rekaan, bukan motif bernama (dokumen) */
+    serong=(pts,c)=>{let d='';for(let u=-900;u<900;u+=31)d+=`M${u},-600L${u+640},40`;LK.push({d,c,l:2.6,klip:jalur(pts)});},
     k0=.98+.04*R(),kain=['#4c1812','#172640','#1c3526'][floor(R()*3)],kain2=['#b9862e','#8f2c1c','#28507a'][floor(R()*3)],
     urutKain=[['bubukan','inten'],['masmasan','bubukan'],['inten','tratasan','bubukan']][floor(R()*3)],prada='prada';
   G.warnaKain=[kain,kain2];let bahuD,bahuB,leherP;
@@ -128,24 +143,24 @@ function rancang(jn,seed=1){const J=JENIS[jn],R=mulberry32(seed*7919+jn.length),
     ubin('bubukan',[[14*b,-722],[12*b,-660],[8*b,-590]],2.1);ubin('tratasan',[[-96*b,-762],[-46*b,-772]],2.4);ubin('tratasan',[[60*b,-694],[42*b,-612]],2.3);ubin('tratasan',[[-48*b,-680],[-36*b,-606]],2.3);
     ubin('inten',[[-46*b,-564],[46*b,-564]],3);ubin('bubukan',[[-44*b,-550],[44*b,-550]],2);}
   if(jn==='alusan'){/* bokongan: kaki merapat, pantat bulat terlihat, kain sampai betis, dua uncal, manggaran di belakang */
-    for(const dx of[-58,0]){isi('kaki',[[42+dx,-200],[40+dx,-120],[32+dx,-46],[14+dx,-46],[8+dx,-120],[10+dx,-200]],prada);isi('kaki',ubah(KAKI,{dx:dx+22}),prada);}
+    for(const dx of[-58,0]){isi('kaki',[[42+dx,-200],[40+dx,-120],[32+dx,-46],[14+dx,-46],[8+dx,-120],[10+dx,-200]],prada);isi('kaki',ubah(KAKI,{dx:dx+22}),prada);gelangKaki(11+dx,37+dx,-70);}
     const K=isi('kain',[[42,-556],[54,-490],[64,-400],[72,-300],[78,-186],[60,-172],[10,-164],[-40,-170],[-62,-186],[-60,-250],[-72,-310],[-108,-368],[-124,-412],[-112,-462],[-74,-512],[-44,-556]],'kain');
     /* kunca belakang: jatuh dari pinggang, melengkung ke betis */
     const Kb=isi('kunca',[[-44,-552],[-92,-500],[-126,-430],[-138,-350],[-150,-260],[-168,-160,1],[-122,-242],[-100,-320],[-92,-400],[-54,-510]],'kain2');
     const Ud=isi('uncal',[[42,-556],[64,-470],[82,-360],[92,-250],[108,-120,1],[76,-200],[62,-320],[50,-450]],'kain2');
-    isi('uncal',[[-4,-300],[12,-300],[10,-180],[4,-104,1],[-4,-180]],'kain2');
+    uncal(4,-296,170,11);
     isi('manggaran',[[-40,-566],[-80,-592],[-116,-596,1],[-98,-568],[-124,-544,1],[-84,-546],[-42,-546]],'kain2');
-    LB.push(polaKisi(K,-530,-186,17,14,urutKain,1.75,8));LB.push(polaTepi(K,'bubukan',1.7,.95));LB.push(tatah('bubukan',[[-40,-536],[38,-536]],1.8));
+    LB.push(polaKisi(K,-530,-186,17,14,urutKain,1.5,8));LB.push(polaTepi(K,'bubukan',1.7,.95));LB.push(tatah('bubukan',[[-40,-536],[38,-536]],1.8));serong(K,'rgba(214,170,84,.5)');tepi(K,'jingga',11);tepi(Kb,'merah',14);tepi(Ud,'hijau',12);
     LB.push(polaTepi(Kb,'tratasan',1.9,.68));LB.push(polaTepi(Ud,'bubukan',1.7,.6));ubin('tratasan',[[-90,-580],[-58,-562]],1.8);
     ubin('tratasan',[[30,-160],[24,-70]],1.8);ubin('tratasan',[[-30,-160],[-34,-70]],1.8);}
   if(jn==='gagahan'){/* jangkahan: kaki melebar, kain sampai paha, empat uncal */
-    isi('kaki',[[40,-370],[96,-340],[134,-270],[146,-200],[142,-120],[142,-48],[110,-48],[104,-120],[96,-200],[60,-280],[20,-330]],prada);isi('kaki',ubah(KAKI,{dx:126}),prada);
+    isi('kaki',[[40,-370],[96,-340],[134,-270],[146,-200],[142,-120],[142,-48],[110,-48],[104,-120],[96,-200],[60,-280],[20,-330]],prada);isi('kaki',ubah(KAKI,{dx:126}),prada);gelangKaki(106,144,-84);gelangKaki(-134,-96,-84);
     isi('kaki',[[-20,-370],[-80,-330],[-112,-266],[-126,-200],[-132,-120],[-138,-48],[-106,-48],[-96,-120],[-82,-200],[-46,-270],[10,-330]],prada);isi('kaki',ubah(KAKI,{dx:-122}),prada);
     const K=isi('kain',[[60,-556],[100,-500],[136,-420],[158,-350],[178,-316,1],[122,-334],[60,-326],[0,-344],[-66,-328],[-124,-340],[-186,-296,1],[-174,-372],[-140,-452],[-60,-556]],'kain');
-    for(const[x,L]of[[140,-204],[70,-236],[-30,-232],[-134,-214]])isi('uncal',[[x-6,-352],[x+7,-352],[x+13,-296],[x+1,L,1],[x-12,-296]],'kain2');
+    for(const[x,L]of[[140,136],[70,170],[-30,166],[-134,146]])uncal(x,-350,L,11);
     isi('kunca',[[-60,-552],[-120,-500],[-170,-420],[-210,-330],[-236,-262,1],[-196,-284],[-170,-340],[-138,-424],[-84,-506]],'kain2');
     isi('manggaran',[[-66,-566],[-110,-586],[-150,-580,1],[-128,-562],[-150,-538,1],[-108,-540],[-66,-546]],'kain2');
-    LB.push(polaKisi(K,-538,-340,18,15,urutKain,1.9,9));LB.push(polaTepi(K,'bubukan',1.8,.94));
+    LB.push(polaKisi(K,-538,-340,18,15,urutKain,1.6,9));LB.push(polaTepi(K,'bubukan',1.8,.94));serong(K,'rgba(214,170,84,.5)');tepi(K,'jingga',11);
     ubin('tratasan',[[128,-270],[122,-110]],2.3);ubin('tratasan',[[-104,-270],[-116,-110]],2.3);}
   if(jn==='raksasa'){/* gemuk; pakem: hanya tangan depan bersendi, tangan belakang digambar tetap malang kerik */
     bahuD=[118,-762];bahuB=null;leherP=[50,-826];
@@ -154,12 +169,15 @@ function rancang(jn,seed=1){const J=JENIS[jn],R=mulberry32(seed*7919+jn.length),
     isi('leher',[[70,-806],[86,-842],[16,-856],[-22,-816]],prada);
     isi('kaki',[[60,-380],[160,-340],[206,-266],[224,-200],[214,-120],[220,-52],[170,-52],[160,-120],[146,-200],[90,-270],[20,-330]],prada);isi('kaki',ubah(KAKI,{s:1.35,dx:186}),prada);
     isi('kaki',[[-50,-380],[-132,-330],[-176,-262],[-194,-200],[-186,-120],[-206,-52],[-156,-52],[-140,-120],[-116,-200],[-60,-270],[20,-330]],prada);isi('kaki',ubah(KAKI,{s:1.35,dx:-180}),prada);
-    const K=isi('kain',[[112,-556],[168,-480],[214,-400],[246,-344],[266,-308,1],[176,-340],[80,-326],[0,-352],[-90,-332],[-170,-348],[-262,-286,1],[-240,-372],[-176,-470],[-98,-556]],'kain');
-    for(const[x,L]of[[196,-196],[96,-234],[-44,-230],[-184,-200]])isi('uncal',[[x-8,-352],[x+9,-352],[x+17,-290],[x+1,L,1],[x-16,-290]],'kain2');
+    const Cf=isi('celana',[[60,-380],[160,-340],[206,-266],[212,-236],[214,-222],[166,-214],[118,-232],[90,-270],[20,-330]],'#6a1a12'),Cb=isi('celana',[[-50,-380],[-132,-330],[-176,-262],[-186,-232],[-184,-218],[-136,-212],[-92,-232],[-60,-270],[20,-330]],'#6a1a12');
+    LB.push(polaKisi(Cf,-330,-226,19,15,['bubukan'],1.9,8),polaKisi(Cb,-330,-226,19,15,['bubukan'],1.9,8));tepi(Cf,'jingga',8);tepi(Cb,'jingga',8);
+    gelangKaki(116,214,-222);gelangKaki(-186,-92,-222);gelangKaki(162,222,-92);gelangKaki(-200,-140,-92);
+    const K=isi('kain',[[112,-556],[160,-486],[198,-420],[226,-362],[238,-326,1],[168,-346],[84,-330],[14,-302],[-50,-330],[-150,-348],[-226,-320,1],[-214,-378],[-168,-470],[-98,-556]],'kain'),Wa=isi('kunca',[[-22,-556],[46,-556],[58,-420],[42,-270],[14,-214,1],[-12,-270],[-32,-420]],'kain2');
+    for(const[x,y,L]of[[200,-344,130],[116,-330,136],[-96,-330,136],[-190,-344,130]])uncal(x,y,L,13);
     ubin('masmasan',[[-110,-808],[-60,-750],[20,-716],[96,-748],[136,-790]],3.8);ubin('bubukan',[[-90,-802],[-40,-758],[20,-734],[86,-760],[122,-796]],2.4);
     ubin('inten',[[-96,-566],[116,-566]],3.8);ubin('bubukan',[[-98,-550],[112,-550]],2.4);ubin('tratasan',[[-92,-690],[-68,-620],[10,-596],[100,-602],[148,-650]],2.6);
     ubin('seritan',[[30,-690],[44,-650],[66,-640]],2.2);ubin('seritan',[[-44,-700],[-34,-660]],2.2);
-    LB.push(polaKisi(K,-540,-340,20,16,urutKain,2.15,10));LB.push(polaTepi(K,'bubukan',2.1,.94));LB.push(tatah('bubukan',[[-178,-776],[-262,-680],[-282,-640],[-250,-612],[-150,-570]],2.6));
+    LB.push(polaKisi(K,-540,-340,20,16,urutKain,1.9,10));LB.push(polaTepi(K,'bubukan',2.1,.94));LB.push(tatah('bubukan',[[-178,-776],[-262,-680],[-282,-640],[-250,-612],[-150,-570]],2.6));LB.push(polaKisi(Wa,-530,-240,17,15,['inten'],1.8,7));serong(K,'rgba(214,170,84,.5)');tepi(K,'jingga',12);tepi(Wa,'merah',14);
     ubin('inten',[[-250,-642],[-214,-618]],2.8);ubin('tratasan',[[192,-270],[186,-110]],2.6);ubin('tratasan',[[-150,-270],[-170,-110]],2.6);}
   if(jn==='putri'){/* kain panjang menjuntai menyentuh tanah (samparan), kedua kaki sejajar, tangan hampir menyentuh telapak */
     bahuD=[54,-722];bahuB=[-92,-734];leherP=[14,-846];
@@ -176,31 +194,35 @@ function rancang(jn,seed=1){const J=JENIS[jn],R=mulberry32(seed*7919+jn.length),
   isi('siten',[[sit[0],0,1],[sit[1],0,1],[sit[1]+12,7,1],[sit[1],14,1],[sit[0],14,1],[sit[0]-12,7,1]],'kain2');ubin('bubukan',[[sit[0]+10,7],[sit[1]-10,7]],2.2);
   /* kepala: tunduk/tengadah = pakem golongan */
   const k=jn==='raksasa'?1.5:jn==='gagahan'?1.12:1.08,C={s:k,r:J.tunduk,dx:leherP[0],dy:leherP[1]},Gl=GELUNG[J.gelung],T=p=>ubah(p,C),T1=(x,y)=>T([[x,y]])[0];
-  isi('rambut',T(Gl.isi),'rambut');isi('rambut',T(Gl.lungsen),'rambut');isi('muka',T(KEPALA[jn]),'muka');
-  ubin('seritan',T(Gl.serit),jn==='raksasa'?2.7:2);
+  if(jn==='raksasa')BG.unshift({n:'rambut',d:jalur(T(Gl.isi)),w:'rambut'});else isi('rambut',T(Gl.isi),'rambut');isi('rambut',T(Gl.lungsen),'rambut');isi('muka',T(KEPALA[jn]),'muka');
+  ubin('seritan',T(Gl.serit),2);if(jn==='raksasa'){ubin('bubukan',T([[-120,-50],[-104,-96],[-68,-150],[-14,-174],[34,-166]]),2.4);ubin('bubukan',T([[-132,60],[-128,0],[-112,-40]]),2.4);ubin('bubukan',T([[-100,84],[-96,20],[-82,-30]]),2.2);}
   if(J.gelung==='cupit urang'){/* jamang di dahi + garuda mungkur di belakang gelung */
     isi('perhiasan',T([[20,-108],[30,-120],[-2,-146],[-46,-136],[-44,-120],[-6,-126]]),prada);ubin('bubukan',T([[14,-120],[-36,-132]]),1.7);
-    isi('perhiasan',T([[-96,-146],[-128,-158],[-146,-136],[-138,-112],[-154,-90],[-132,-72],[-104,-80],[-80,-96]]),prada);LB.push(polaTepi(T([[-96,-146],[-128,-158],[-146,-136],[-138,-112],[-154,-90],[-132,-72],[-104,-80],[-80,-96]]),'bubukan',1.9,.66));}
+    const Gm=T([[-96,-140],[-118,-152,1],[-124,-132],[-146,-120,1],[-134,-102],[-146,-80,1],[-120,-82],[-100,-84],[-82,-98]]);isi('perhiasan',Gm,prada);LB.push(polaTepi(Gm,'bubukan',1.7,.62));tepi(Gm,'merah',9);}
   if(J.gelung==='ukel keyongan'){const S=[];for(let a=0;a<4.4*PI;a+=.5)S.push([-84+cos(a)*(3+a*1.9),-84+sin(a)*(3+a*1.9)]);ubin('bubukan',T(S),1.6);
     isi('perhiasan',T([[16,-106],[28,-118],[-4,-138],[-38,-130],[-36,-116],[-6,-122]]),prada);ubin('bubukan',T([[10,-118],[-30,-126]]),1.5);}
-  /* sumping */isi('perhiasan',T(jn==='raksasa'?[[-12,-78],[-30,-98],[-46,-70],[-42,-36],[-24,-14,1],[-16,-44]]:[[-10,-70],[-22,-86],[-38,-68],[-34,-44],[-22,-30,1],[-12,-48]]),prada);ubin('bubukan',T(jn==='raksasa'?[[-20,-76],[-32,-50]]:[[-18,-68],[-26,-50]]),1.5);
+  /* sumping + gradasi hijau */{const Sm=T(jn==='raksasa'?[[-30,-84],[-46,-96],[-60,-74],[-58,-50],[-44,-22,1],[-34,-52]]:[[-10,-70],[-22,-86],[-38,-68],[-34,-44],[-22,-30,1],[-12,-48]]);isi('perhiasan',Sm,prada);ubin('bubukan',T(jn==='raksasa'?[[-44,-76],[-48,-52]]:[[-18,-68],[-26,-50]]),1.5);tepi(Sm,'hijau',7);}
   ubin('tratasan',T([[-40,-18],[-14,-2]]),1.5);   // garis trilaksana kanta di leher
   /* mata + mulut sebagai tatah: bentuk menentukan golongan */
-  if(J.mata==='gabahan'){const[a,b,c]=jn==='putri'?[14,-68,.92]:[15,-72,1];LB.push(jalur(T([[a,b,1],[a+13*c,b-5.5*c],[a+29*c,b+1.5,1],[a+13*c,b+3.5*c]])));ubin('tratasan',T([[10,-90],[-6,-100]]),1.4);}
+  if(J.mata==='gabahan'){const[a,b,c]=jn==='putri'?[14,-68,.92]:[15,-72,1];LB.push(jalur(T([[a,b,1],[a+13*c,b-5.5*c],[a+29*c,b+1.5,1],[a+13*c,b+3.5*c]])));ubin('tratasan',T([[10,-90],[-6,-100]]),1.4);LA.push({d:jalur(T([[a-4,b-8],[a+14*c,b-12],[a+30*c,b-6]]),0),c:'#1a0c06',l:1.8},{d:jalur(T([[22,-26],[32,-24],[40,-26]]),0),c:'#8e2418',l:1.8});}
   if(J.mata==='kedhelen'){LB.push(jalur(T([[16,-78],[32,-88],[47,-78],[36,-66],[20,-68]])));ATAS.push({n:'mata',d:lingkar(...T1(33,-77),5),w:'hitamMata'});ubin('tratasan',T([[14,-96],[-6,-104]]),1.5);}
-  if(J.mata==='plelengan'){const[x,y]=T1(40,-96),[px,py]=T1(43,-95);LB.push(lingkar(x,y,11*k));ATAS.push({n:'mata',d:lingkar(px,py,4.4*k),w:'hitamMata'});ATAS.push({n:'mata',d:jalur(T([[56,-92,1],[46,-112],[26,-108],[24,-102],[40,-101]])),w:'muka'});ubin('tratasan',T([[-2,-120],[-44,-104]]),2);ubin('tratasan',T([[26,-74],[10,-60]]),1.7);}
+  if(J.mata==='plelengan'){const[x,y]=T1(44,-92),R=18*k,r=11.5*k;LB.push(cincin(x,y,R,r)+lingkar(x,y,2.6*k));for(const q of[[26,-110],[44,-115],[62,-110]])LB.push(lingkar(...T1(...q),2.5*k));ubin('seritan',T([[14,-94],[22,-118],[44,-128],[64,-124],[72,-108]]),1.4);LB.push(pita(T(ulir(12,-86,12)),2.6*k,.7*k));
+    for(const[q,c]of[[R,'#f0e6cc'],[r+1.5*k,'#1a0c06'],[r,'#c4241a'],[4.4*k,'#1a0c06']])LA.push({d:lingkar(x,y,q),c});LA.push({d:lingkar(x+1.4*k,y-1.6*k,1.2*k),c:'#f0e6cc'});LA.push({d:jalur(T([[130,-80],[102,-88],[84,-102]]),0),c:'#3a0e08',l:1.6});LB.push(pita(T(ulir(-32,-40,15,.95,-1)),2.6*k,.8*k),pita(T(ulir(100,-54,8,1.6)),1.9*k,.5*k));}
   if(J.mulut==='rapat')ubin('tratasan',T([[22,-25],[40,-25]]),1.4);
-  if(J.mulut==='gusen'){/* gusen: mulut lebar sampai bawah mata, gusi + gigi + taring tetap kulit */
-    LB.push(jalur(T([[72,-27,1],[44,-33],[16,-28],[-8,-12],[6,-2],[36,0],[66,-10,1]])));
-    ATAS.push({n:'gusi',d:jalur(T([[72,-27,1],[44,-33],[16,-28],[-8,-12],[18,-20],[60,-21]])),w:'merahGusi'});
-    for(const x of[58,48,38,28])ATAS.push({n:'gigi',d:jalur(T([[x,-25+(58-x)*.02,1],[x+7,-24+(58-x)*.02,1],[x+3,-12+(58-x)*.02,1]])),w:'gading'});
-    ATAS.push({n:'gigi',d:jalur(T([[6,-20,1],[16,-23,1],[12,4,1]])),w:'gading'});ATAS.push({n:'gigi',d:jalur(T([[56,-8,1],[44,-3,1],[60,-40,1]])),w:'gading'});   // taring atas + bawah
-    isi('perhiasan',T([[32,-126],[70,-122],[84,-104],[66,-102],[38,-108]]),'rambut');isi('perhiasan',T([[44,-134],[50,-120],[-4,-138],[-58,-122],[-64,-136],[-6,-154]]),prada);ubin('bubukan',T([[30,-132],[-6,-146],[-52,-132]]),1.9);ubin('seritan',T([[-30,10],[12,22],[50,14]]),2.2);}
+  if(J.mulut==='gusen'){/* gusen: mulut panjang sampai pipi; gusi, deret gigi, taring runcing (W, Rosalinda). Gigi = kulit tersisa di lubang mulut */
+    LB.push(jalur(T([[56,-11,1],[38,-30],[6,-36],[-26,-26,1],[-6,-4],[30,2]])));
+    ATAS.push({n:'gusi',d:jalur(T([[58,-17,1],[38,-30],[6,-36],[-26,-26,1],[2,-26],[36,-23]])),w:'merahGusi'});
+    for(const x of[44,35,26,17,8,-1])ATAS.push({n:'gigi',d:jalur(T([[x,-26,1],[x+7,-26,1],[x+6.5,-17,1],[x+.5,-17,1]])),w:'gading'});for(const x of[30,21,12,3])ATAS.push({n:'gigi',d:jalur(T([[x,1,1],[x+7,1,1],[x+6,-5,1],[x+1,-5,1]])),w:'gading'});
+    ATAS.push({n:'gigi',d:jalur(T([[-14,-31,1],[-4,-32,1],[-2,-16],[-8,0,1],[-11,-16]])),w:'gading'});ATAS.push({n:'gigi',d:jalur(T([[42,0,1],[52,-4,1],[52,-18],[60,-33,1],[45,-18]])),w:'gading'});   // taring
+    {const Jm=T([[80,-126],[68,-146],[28,-156],[-20,-152],[-56,-128],[-50,-112],[-14,-128],[28,-136],[62,-128]]);isi('perhiasan',Jm,prada);ubin('bubukan',T([[66,-136],[28,-147],[-18,-142],[-48,-122]]),1.7);tepi(Jm,'merah',6);}ubin('bubukan',T([[-30,18],[12,26],[52,16]]),1.7);}
   /* lengan */
-  const[L1,L2,w]=LENGAN[jn],Pot=potongLengan(L1,L2,w,jn==='raksasa');Object.assign(G,{L:[L1,L2],bahuD,bahuB,Pot});
+  const[L1,L2,w]=LENGAN[jn],Pot=potongLengan(L1,L2,w,jn==='raksasa');Object.assign(G,{L:[L1,L2],bahuD,bahuB,Pot,leher:leherP});
+  gradasi([[-20*w,43],[20*w,43]],'merah',15,{},LT);drenjem([[-18*w,43],[18*w,43]],LT);gradasi([[-14*w,L2-100],[14*w,L2-100]],'hijau',12,{},LH);
+  /* kalung + sabuk: warna di bawah lubang yang sudah ada */
+  if(jn==='raksasa'){gradasi([[-110,-808],[-60,-750],[20,-716],[96,-748],[136,-790]],'jingga',17);gradasi([[-98,-558],[116,-558]],'hijau',19);}else if(jn==='putri')gradasi([[-18,-764],[8,-722],[36,-750]],'jingga',11);else{const b=jn==='alusan'?1:1.3;gradasi([[-34*b,-776],[-12*b,-742],[14*b,-730],[40*b,-742],[60*b,-772]],'jingga',13);gradasi([[-44*b,-558],[44*b,-558]],'hijau',17);}
   G.lubangAtas=lingkar(0,0,3)+tatah('bubukan',[[0,16],[0,34]],1.9)+tatah('inten',[[-13*w,50],[13*w,50]],2.3)+tatah('bubukan',[[-13*w,62],[13*w,62]],1.6)+tatah('tratasan',[[0,90],[0,L1-40]],2);
   G.lubangHasta=lingkar(0,0,2.6)+tatah('tratasan',[[0,30],[0,L2-140]],2)+tatah('inten',[[-10*w,L2-112],[10*w,L2-112]],2.2)+tatah('bubukan',[[-9*w,L2-96],[9*w,L2-96]],1.5);
-  Object.assign(G,{bagian:BG,atas:ATAS,lubang:LB.join(''),J,jn,seed,U});return G;}
+  Object.assign(G,{bagian:BG,atas:ATAS,lubang:LB.join(''),lukis:LK,lukisAtas:LA,lukisT:LT,lukisH:LH,J,jn,seed,U});return G;}
 
 /* GUNUNGAN (kayon, jenis gapuran): siluet gunung meruncing; satu sisi = gerbang berpenjaga, kalpataru dililit naga, banteng berhadapan
    harimau, kera, burung; sisi balik = api merah. Data simetris kecuali hewan berhadapan. lapis urut bawah → atas: positif digambar di atas
@@ -245,22 +267,28 @@ function rancangKayon(seed=1){const R=mulberry32(seed*104729),L=[],c=(d,w,g)=>L.
   return{garis:GARIS_K,lapis:L,lubang:lub};}
 
 /* ---------- WARNA sisi dalang (sunggingan disederhanakan: warna rata + gradien + tepi) ---------- */
+/* gradasi sungging bertingkat, tua ke muda; urutan warna: Purbasari, Arty 2012 */
+const RAMP={merah:['#5c120c','#a82a1c','#d9604a','#f2b7a4'],hijau:['#123d2a','#2e7a4e','#86b46a','#e4dc8a'],biru:['#14284e','#2a5a94','#7fa9cf','#e8eef2'],jingga:['#7a3410','#c86a1c','#eca341','#f7dd7c'],ungu:['#2e1640','#67387e','#a67fb0','#eed4dc']};
 const WARNA_K={batang:'#c89838',dahan:'#a9782c',daun:'#3f7f54',naga:'#d0a640',banaspati:'#b5281c',banteng:'#2a1d18',macan:'#c47a24',kera:'#7a4a24',burung:'#c9402a',gapura:'#d5ab50',penjaga:'#8a2a1e',lapik:'#b5281c',bidang:'#14100c'};
 const warnaDari=(G,w)=>w==='prada'?'#d3a443':w==='muka'?MUKA[G.muka].warna:w==='kain'?G.warnaKain[0]:w==='kain2'?G.warnaKain[1]:w==='rambut'?'#14100c':w==='gading'?'#efe6cc':w==='merahGusi'?'#a01e16':w==='hitamMata'?'#0c0806':w;
 
 const kanvasBaru=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c;};
 /* panggang satu lapis wayang ke kanvas: warna 0 = siluet bayang (warna gelap kelir), 1 = lukisan */
 const WARNA_BAYANG='#120805',pradaGrad=(x,a,b)=>{const g=x.createLinearGradient(0,a,0,b);g.addColorStop(0,'#e7c26a');g.addColorStop(.3,'#c9963c');g.addColorStop(.6,'#dcb45a');g.addColorStop(1,'#a97a2c');return g;};
-function pangkatFigur(G,res,warna){const u=res*G.U,x0=-420,y0=-1120,lebar=860,tinggi=1160,c=kanvasBaru(ceil(lebar*u),ceil(tinggi*u)),x=c.getContext('2d');
+/* prada pecah: bintik ber-seed, ditumpangkan source-atop */
+const lukisLapis=(x,A,Pd)=>{for(const o of A){const P=new Path2D(o.d);x.save();if(o.klip)x.clip(new Path2D(o.klip));const c=o.c==='prada'?Pd:o.c;if(o.l){x.strokeStyle=c;x.lineWidth=o.l;x.lineCap='round';x.lineJoin='round';if(o.titik)x.setLineDash([.01,o.titik]);x.stroke(P);}else{x.fillStyle=c;x.fill(P);}x.restore();}};
+let TILE=null;const bintik=()=>{if(TILE)return TILE;TILE=kanvasBaru(160,160);const q=TILE.getContext('2d'),R=mulberry32(41);for(let i=0;i<900;i++){q.fillStyle=R()<.55?`rgba(88,50,12,${.05+.13*R()})`:`rgba(255,232,160,${.05+.14*R()})`;q.fillRect(R()*160,R()*160,1+R()*2.4,1+R()*1.6);}return TILE;};
+function pangkatFigur(G,res,warna){const u=res*G.U,x0=-420,y0=-1170,lebar=860,tinggi=1210,c=kanvasBaru(ceil(lebar*u),ceil(tinggi*u)),x=c.getContext('2d');
   x.setTransform(u,0,0,u,-x0*u,-y0*u);const Pd=warna&&pradaGrad(x,-1000,0);
   for(const b of G.bagian){const P=new Path2D(b.d);x.fillStyle=warna?(b.w==='prada'||b.w==='perhiasan'?Pd:warnaDari(G,b.w)):WARNA_BAYANG;x.fill(P);if(warna){x.strokeStyle='rgba(30,14,6,.8)';x.lineWidth=1.5;x.stroke(P);}}
+  if(warna){x.globalCompositeOperation='source-atop';x.fillStyle=x.createPattern(bintik(),'repeat');x.fillRect(x0,y0,lebar,tinggi);x.globalCompositeOperation='source-over';lukisLapis(x,G.lukis,Pd);}
   const Lb=new Path2D(G.lubang);x.globalCompositeOperation='destination-out';x.fill(Lb);x.globalCompositeOperation='source-over';if(warna){x.strokeStyle='#e9c871';x.lineWidth=1;x.stroke(Lb);}
-  for(const b of G.atas){x.fillStyle=warna?warnaDari(G,b.w):WARNA_BAYANG;x.fill(new Path2D(b.d));}
+  for(const b of G.atas){x.fillStyle=warna?warnaDari(G,b.w):WARNA_BAYANG;x.fill(new Path2D(b.d));}if(warna)lukisLapis(x,G.lukisAtas,Pd);
   return{c,u,x0,y0};}
 function pangkatLengan(G,res,warna){const[L1,L2]=G.L,P=G.Pot,u=res*G.U,w=120,c1=kanvasBaru(ceil(w*u),ceil((L1+50)*u)),c2=kanvasBaru(ceil(w*u),ceil((L2+50)*u)),
-    gambar=(c,parts,lb)=>{const x=c.getContext('2d');x.setTransform(u,0,0,u,w/2*u,30*u);for(const p of parts){const q=new Path2D(jalur(p));x.fillStyle=warna?pradaGrad(x,-30,c.height/u):WARNA_BAYANG;x.fill(q);if(warna){x.strokeStyle='rgba(30,14,6,.8)';x.lineWidth=1.4;x.stroke(q);}}
+    gambar=(c,parts,lb,A)=>{const x=c.getContext('2d');x.setTransform(u,0,0,u,w/2*u,30*u);for(const p of parts){const q=new Path2D(jalur(p));x.fillStyle=warna?pradaGrad(x,-30,c.height/u):WARNA_BAYANG;x.fill(q);if(warna){x.strokeStyle='rgba(30,14,6,.8)';x.lineWidth=1.4;x.stroke(q);}}if(warna)lukisLapis(x,A);
       const Lb=new Path2D(lb);x.globalCompositeOperation='destination-out';x.fill(Lb);x.globalCompositeOperation='source-over';if(warna){x.strokeStyle='#e9c871';x.lineWidth=1;x.stroke(Lb);}};
-  gambar(c1,[P.atas],G.lubangAtas);gambar(c2,[P.hasta,P.jempol,P.jari],G.lubangHasta);return{c1,c2,u,w};}
+  gambar(c1,[P.atas,P.kelat],G.lubangAtas,G.lukisT);gambar(c2,[P.hasta,P.gelang,P.jempol,P.jari],G.lubangHasta,G.lukisH);return{c1,c2,u,w};}
 function pangkatKayon(D,res,warna,balik){const u=res,lb=660,tg=1040,c=kanvasBaru(ceil(lb*u),ceil(tg*u)),x=c.getContext('2d'),O=new Path2D(jalur(D.garis));
   x.setTransform(u,0,0,u,lb/2*u,1020*u);x.lineCap='round';x.lineJoin='round';
   if(balik){/* sisi balik: hanya api merah (Wikipedia, Gunungan) — lidah api dirancang dari kode */
@@ -300,12 +328,12 @@ function bakeKelir(p){const c=kanvasBaru(W,H),x=c.getContext('2d'),B=BLENCONG,g=
 /* simpingan: wayang simpingan menancap di debog di kedua sisi; tinggi menurun dari ujung debog ke tengah; muka membelakangi tempat
    perkeliran (sumber: Subagya 2013). x = koordinat layar sisi BAYANG, jadi simpingan kanan dalang ada di kiri layar */
 function bakeSimpingan(p){const Lb=kanvasBaru(W,H),xB=Lb.getContext('2d'),warna=p.sisi==='dalang',Lw=warna?kanvasBaru(W,H):null,xW=warna?Lw.getContext('2d'):null,R=mulberry32(p.seed*31);
-  const baris=(ragam,x0,dx,hadap)=>{for(let i=0;i<9;i++){const jn=ragam[i%ragam.length],G=rancang(jn,floor(R()*1e4)),k=(1.04-.055*i)*JENIS[jn].tinggi*p.tinggi/1000;
+  const baris=(ragam,x0,dx,hadap)=>{for(let i=0;i<8;i++){const jn=ragam[i%ragam.length],G=rancang(jn,floor(R()*1e4)),k=(1.04-.055*i)*JENIS[jn].tinggi*p.tinggi/1000;
       G.muka=JENIS[jn].muka;gambarDiam(xB,G,x0+i*dx,p.dasar,k,hadap,p,0);if(warna)gambarDiam(xW,G,x0+i*dx,p.dasar,k,hadap,p,1);}};
-  baris(['gagahan','alusan','alusan','putri','gagahan','alusan','putri','alusan','putri'],30,50,-1);
-  baris(['raksasa','gagahan','raksasa','gagahan','gagahan','raksasa','gagahan','alusan','gagahan'],W-30,-50,1);
+  baris(['gagahan','gagahan','gagahan','alusan','alusan','alusan','putri','putri'],36,58,-1);
+  baris(['raksasa','raksasa','raksasa','gagahan','gagahan','gagahan','alusan','alusan'],W-36,-58,1);
   /* siluet simpingan masuk kelir dipanggang (tajam: menempel kelir), warnanya lapisan terpisah di sisi dalang */
-  PANGGUNG.kelir.getContext('2d').globalAlpha=.94;PANGGUNG.kelir.getContext('2d').drawImage(Lb,0,0);PANGGUNG.kelir.getContext('2d').globalAlpha=1;PANGGUNG.simpingWarna=Lw;}
+  PANGGUNG.kelir.getContext('2d').globalAlpha=.82;PANGGUNG.kelir.getContext('2d').drawImage(Lb,0,0);PANGGUNG.kelir.getContext('2d').globalAlpha=1;PANGGUNG.simpingWarna=Lw;}
 /* figur diam ke kanvas pemanggang: lengan menjuntai (simpingan) */
 function gambarDiam(x,G,gx,gy,k,hadap,p,warna){const s=pangkatFigur(G,p.res,warna),u=s.u,L=pangkatLengan(G,p.res,warna),U=G.U,[L1]=G.L,
     pakai=(q,bx,by)=>{const c=cos(q),n=sin(q);x.setTransform(k*hadap*c,k*n,-k*hadap*n,k*c,gx+k*hadap*bx,gy+k*by);},
@@ -345,7 +373,7 @@ function gambarFigur(x,F,S,M,warna,p){const res=warna?F.sw:F.sb;
   if(B){lengan(B);rotan(B,warnaR);}
   pakai(M);x.drawImage(res.c,res.x0*U,res.y0*U,res.c.width/res.u*U,res.c.height/res.u*U);
   /* gapit: dua bilah tanduk mengapit badan dari kepala menembus telapak ke debog */
-  pakai(M);x.strokeStyle=warnaR;x.lineWidth=warna?3.6:5;x.beginPath();x.moveTo(6,-880);x.lineTo(2,-520);x.lineTo(0,240);x.stroke();
+  pakai(M);x.strokeStyle=warnaR;x.lineWidth=warna?3.6:5;x.beginPath();x.moveTo(G.leher[0]*.5,G.leher[1]+30);x.lineTo(2,-520);x.lineTo(0,240);x.stroke();
   if(D){lengan(D);rotan(D,warnaR);}}
 
 /* kotak layar sebuah figur: batas satuan figur (lengan terjulur, tuding sampai debog) lewat M, + ekor blur, dipotong frame */

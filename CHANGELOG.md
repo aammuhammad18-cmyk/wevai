@@ -242,7 +242,7 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
     - ms/frame ekspor penuh dan setup di mesin senggang belum diukur;
     - kanvas relief 1:1 di bidang z = 0, jadi melunak di atas zoom ±1,25; close-up butuh dinding kedua yang lebih kecil;
     - satu konteks WebGL2 per dinding, jadi 1–2 dinding per halaman;
-    - sosok dan panel adalah kosakata bergaya, bukan salinan panel nyata, sedangkan legendanya "BOROBUDUR · ABAD IX".
+    - sosok dan panel adalah kosakata bergaya, bukan salinan panel nyata (legenda kini ditandai ilustrasi, lihat "Rupa budaya").
   - **Status penerimaan**: menunggu bench di mesin senggang dan vonis visual pemilik.
 - **Rig tokoh v2** (sub-proyek 4b, G di `docs/rencana-1.4.0.md`).
   - **Berkas**: `src/runtime/tokoh.js` (blok baru `<wv:tokoh>`, satu global `tokoh`), `assets/katalog-tokoh.html`,
@@ -452,7 +452,7 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
   - **Celah yang diketahui**:
     - proporsi bangunan perkiraan, bukan ukuran Asta Kosala Kosali; sebagian sumber hanya terbaca abstraknya, dua halaman hanya dari ringkasan pencarian;
       bentuk padmasana bersandar pada Wikipedia; letak bale kulkul bertentangan antar-sumber (madya vs nista);
-    - legenda "makin dekat ke gunung, makin suci" adalah ringkasan, perlu dinilai pemilik;
+    - kata-kata legenda perlu dinilai pemilik (diganti, lihat "Rupa budaya");
     - lipatan di dalam siluet tanpa garis (`garis.jpg`).
   - **Status penerimaan**: menunggu tinjauan arsitektur pura dan vonis visual pemilik.
 - **Kartun panggung memakai `CAM`** (sisa E di `docs/rencana-1.4.0.md`): `starter-explainer-panggung.html` kini memuat `kamera.js` + `kamera-dom.js`, jadi dolly, truck, angle, handheld, `shot()`, dan bidang `[data-z]` berparalaks tersedia di panggung.
@@ -468,6 +468,12 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
   - **Diukur ulang pada babak** (PNG, FPS=10): 560/600 frame identik, 1,59× lebih cepat; sisanya t 30–34, maks. 3 level di 6 frame terburuk, ≤ 0,2 % piksel (`bukti.txt` §8). Halaman lain belum diukur ulang.
 - **Rig tokoh lebih hemat**: blur rim dan pendar diklip ke kotak tokoh, sebelumnya memproses selebar kanvas. Tableau 6 tokoh detail 2 turun dari ±371 ke ±288 ms/frame di HD 4000 (batas 350; mesin senggang, belum diukur saat render berjalan), biaya per tokoh ±27 → ±14 ms, babak ±231 → ±222 ms. Rupa tetap: 0 % piksel beda > 16 level, maks. 7. Bukti: `evals/bukti/2026-11-04-tokoh-hemat/`. Angka 437 ms di catatan bench di atas berasal dari sebelum perbaikan ini.
 - **Segmen motion blur mata elang**: terukur 1294 ms/frame (maks. 1646), di luar segmen itu 299 ms. Pengecualian yang disengaja terhadap batas 350 ms: 27 dari 345 frame, tambahan ±30 dtk per shot saat render, gambar tidak terdampak.
+- **Rupa budaya ditingkatkan** sesudah tinjauan pemilik (bukti `evals/bukti/2026-11-04-rupa-budaya/`).
+  - **Wayang**: raksasa digambar ulang dari ikonografi bersumber (plelengan, pelokan, gusen, gembel); sisi dalang mendapat lapis sungging dipanggang, kelat bahu, gelang, dan uncal; simpingan diurutkan menurut sumber. Bench bayang 209, dalang 298 ms/frame (terburuk 314).
+  - **Diorama**: pola bata, paras, ijuk, dan alang di shader toon; padmasana tepas–batur–sari dari sumber jurnal, tanpa arca; legenda mengikuti kata sumber dan menandai "Denah generik, bukan pura tertentu". Bench 233 ms/frame.
+  - **Relief**: legenda kini "GAYA BOROBUDUR · ILUSTRASI". Bench 210 ms/frame.
+  - **Anggaran**: pelacak Diorama 215 → 217 KB karena `pustaka.js` ikut membesar; Wayang 246/246 tanpa ruang.
+  - **Celah**: wajah raksasa sisi dalang masih bidang merah polos, tangan terangkatnya mirip trisula; badan sisi dalang polos dari dekat; padmasana tanpa Bedawang Nala tak lengkap secara tipologi (dinyatakan di `diorama.md`); kartu pohon diorama datar; ukuran bata dan serat ijuk tanpa sumber. Belum ditinjau dalang atau ahli arsitektur pura.
 - **Rupa babak, tokoh, pustaka ditingkatkan** sesudah tinjauan pemilik (bukti `evals/bukti/2026-11-04-rupa-babak/`).
   - **Tokoh**: berwajah di tiga pandang, tangan berjari, bayang bentuk, bahu baru. **Bug**: kain bermotif tak pernah tampil karena `'pola'` dianggap warna tak sah; kini kawung dan ceplok tampil, dengan uji regresi di `test-tokoh`.
   - **Penjaga**: kuda-kuda, kain merah, perhiasan, perisai daun, tanpa zirah rekaan. Sebagian perhiasan dan warna adalah konvensi ilustrasi atau perkiraan (`tokoh.md`).

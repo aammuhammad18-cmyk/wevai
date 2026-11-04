@@ -123,7 +123,8 @@ Env proses ikut ke semua butir. Opsi lain: `--gabung <mp4>`, `--log <berkas>`, `
 `--tanpa-tahan-sleep`; lengkapnya `--help`.
 
 Jalankan sebagai proses TERLEPAS: perintah latar milik agen bisa ikut mati bila aplikasi agennya di-restart atau
-percakapannya diarsipkan.
+percakapannya diarsipkan. Laptop jangan ditutup: penahan sleep tidak mencegah tidur karena tutup laptop atau tombol daya.
+`Target closed` berarti browser mati, bukan tanda `WORKERS` kebanyakan: skrip membuka ulang sendiri sampai 3 kali, lalu berhenti dengan galat.
 
 - PowerShell: `$env:FPS='30'; $env:SYNC='1'; $env:PRESET='ultrafast'; Start-Process node -ArgumentList '"<folder skill>/scripts/antre-render.mjs" antrean.json --gabung final.mp4' -RedirectStandardOutput antre.out -RedirectStandardError antre.err -WindowStyle Hidden`
 - bash/zsh: `FPS=30 SYNC=1 PRESET=ultrafast nohup node "<folder skill>/scripts/antre-render.mjs" antrean.json --gabung final.mp4 > antre.out 2>&1 &`

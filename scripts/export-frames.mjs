@@ -25,7 +25,7 @@
              >= 2 thread, selain itu 1 (ekspor-inti.mjs). Di laptop 2 core (i3-3217U + HD 4000), halaman nyata 1080p:
              1,2–1,5× lebih cepat (pengukuran awal di halaman ringan: ±2×). Frame vs WORKERS=1: 93–99 % identik, sisanya
              tak terlihat (halaman pendek PSNR ≥ 110 dB, babak 60 dtk ≥ 64,9 dB; bukti ekspor §5, §7). Di 4 core + GPU terintegrasi pernah
-             terukur lebih lambat: set WORKERS=1 bila begitu. Butuh seek yang deterministik (detik mana pun bisa
+             terukur lebih lambat: set WORKERS=1 bila begitu (ukur dulu; "Target closed" berarti browser mati, bukan tanda ini). Butuh seek yang deterministik (detik mana pun bisa
              dirender tanpa detik sebelumnya) — kontrak OPENER yang sama dengan snap.mjs.
      SYNC=1  lewati penantian 2×rAF per frame. Hanya untuk halaman yang seek(t)-nya
              menggambar sinkron (DOM/SVG; tanpa kanvas yang digambar di rAF, tanpa klip
@@ -48,7 +48,7 @@
 
 import { luncurkan } from './chrome.mjs';
 import { bantuan } from './bantuan.mjs';
-import { workersStandar, kodekAvc, bitrateStandar } from './ekspor-inti.mjs';
+import { workersStandar, kodekAvc, bitrateStandar, gantiBrowser, tutupBrowser } from './ekspor-inti.mjs';
 import { pathToFileURL, fileURLToPath } from 'node:url';
 import { mkdir, writeFile, rm } from 'node:fs/promises';
 import { spawn, spawnSync } from 'node:child_process';
@@ -203,10 +203,9 @@ async function renderRange(w, from, to, sink, capture = captureFrame, step = 1){
       try { buf = await Promise.race([capture(w.page, i, n), macet]); clearTimeout(timer); }
       catch (e) {
         clearTimeout(timer);
-        if (coba > 3) throw e;
+        if (coba > 3) throw new Error(`frame ${i} gagal sesudah 3 kali membuka ulang browser: ${e.message.split('\n')[0]}`);
         console.log(`\nframe ${i}: ${e.message.split('\n')[0]} — membuka ulang browser (percobaan ${coba}/3)`);
-        await w.browser.close().catch(() => {});
-        Object.assign(w, await openWorker());
+        await gantiBrowser(w, openWorker).catch(g => console.log(`gagal membuka ulang: ${g.message.split('\n')[0]}`));   // gagal = dihitung satu percobaan
       }
     }
     await sink(i, buf);   // di luar penjaga waktu: frame yang sudah terkirim tidak pernah diulang
@@ -267,7 +266,7 @@ try {
     await rm(parts, { recursive: true, force: true });
   }
 } finally {
-  await Promise.all(workers.map(w => w.browser.close()));
+  await Promise.all(workers.map(w => tutupBrowser(w.browser)));
 }
 
 const secs = Math.round((Date.now() - t0) / 1000);

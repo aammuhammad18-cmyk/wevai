@@ -20,6 +20,30 @@ process.on('exit', () => { for (const d of dibuat) try { rmSync(d, { recursive: 
 const P = resolve(tmpdir(), 'proyek-uji');                 // akar proyek rekaan (tidak perlu ada di disk)
 const di = (...a) => resolve(P, ...a);
 
+/* ---------- pemulihan browser: Chrome beku tidak boleh membuat render macet tanpa pesan ---------- */
+const browserPalsu = (close = async () => {}) => { const b = { dibunuh: 0, close, process: () => ({ kill: () => { b.dibunuh++; } }) }; return b; };
+const selamanya = () => new Promise(() => {});
+test('tutupBrowser: close yang menggantung dibatasi waktu, lalu prosesnya dimatikan', async () => {
+  const b = browserPalsu(selamanya);
+  await inti.tutupBrowser(b, 10);
+  assert.equal(b.dibunuh, 1);
+});
+test('gantiBrowser: browser lama beku tetap diganti yang baru', async () => {
+  const lama = browserPalsu(selamanya), baru = browserPalsu(), w = { browser: lama, page: 'lama' };
+  await inti.gantiBrowser(w, async () => ({ browser: baru, page: 'baru' }), { tutupMs: 10, bukaMs: 1000 });
+  assert.equal(lama.dibunuh, 1);
+  assert.equal(w.browser, baru);
+  assert.equal(w.page, 'baru');
+});
+test('gantiBrowser: pembukaan yang menggantung ditolak dengan pesan, dan browser yang terlambat ikut ditutup', async () => {
+  const telat = browserPalsu(), w = { browser: browserPalsu() };
+  let lepas; const buka = () => new Promise(ok => { lepas = () => ok({ browser: telat }); });
+  await assert.rejects(inti.gantiBrowser(w, buka, { tutupMs: 10, bukaMs: 10 }), /membuka browser tidak selesai/);
+  assert.notEqual(w.browser, telat);
+  lepas(); await new Promise(r => setTimeout(r, 30));
+  assert.equal(telat.dibunuh, 1);
+});
+
 /* ---------- WORKERS standar ---------- */
 test('workersStandar: 2 bila thread >= 2, selain itu 1; tidak pernah lebih dari 2 tanpa env', () => {
   for (const [n, harap] of [[1, 1], [2, 2], [3, 2], [4, 2], [16, 2]]) assert.equal(inti.workersStandar({}, n), harap, `${n} thread`);

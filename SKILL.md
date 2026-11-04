@@ -45,7 +45,7 @@ isinya), bukan seluruhnya.
 `<folder skill>` = folder berisi SKILL.md ini (path absolut yang kamu pakai
 membukanya). Daftar semua berkas: `references/isi-paket.md`.
 
-**Folder proyek** = folder kerja, kecuali bila folder kerja itu `<folder skill>`: buat `../<nama-video>/` di sebelahnya dan jalankan semua alat dari sana. Jangan menulis keluaran (`index.html`, `shots/`, `frames/`) di dalam `<folder skill>`.
+**Folder proyek** = folder kerja, kecuali bila folder kerja itu `<folder skill>`: buat `../<nama-video>/` di sebelahnya dan jalankan semua alat dari sana. Jangan menulis keluaran (`index.html`, `shots/`, `frames/`) atau salinannya di dalam `<folder skill>`.
 
 ## Prasyarat — hanya browser
 
@@ -335,11 +335,8 @@ bagian 1 dan 1b. Ringkasnya:
    dibuka lewat `file://`, module inline tidak), library dari CDN, aset
    (ikon/gambar) relatif di folder yang sama. `scripts/serve.py`
    hanya alat KERJA saat mengedit. Tanpa player di layar (lihat "Player"); sebutkan `?debug=1`
-   untuk scrub. **Export MP4 hanya bila user memintanya**: `scripts/
-   export-frames.mjs` merender tiap frame (60 fps) ke PNG lalu ffmpeg
-   menggabungkannya — cara ini bebas frame drop, tapi mahal, bukan
-   alat pengecekan. Video lebih dari ±10 menit: pecah per babak dan render lewat
-   `scripts/antre-render.mjs` (`references/alat-kerja.md` › Render panjang). Bila user ingin berkas yang aman disimpan
+   untuk scrub. **Export MP4 hanya bila user memintanya**: render frame demi frame (mahal, bukan alat pengecekan) lewat
+   `scripts/antre-render.mjs` sebagai proses TERLEPAS (`references/alat-kerja.md` › Render panjang); pantau lognya, laporkan galat, jangan turunkan `WORKERS` tanpa mengukur. Video lebih dari ±10 menit: pecah per babak. Bila user ingin berkas yang aman disimpan
    bertahun-tahun (arsip/portofolio), tawarkan `scripts/vendor-libs.mjs` — GSAP dan font
    ditanam ke dalam berkas sehingga tidak bergantung pada CDN.
 

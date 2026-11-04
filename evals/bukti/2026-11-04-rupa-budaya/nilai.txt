@@ -1,0 +1,71 @@
+nilai-visual, bingkai sesudah (?clean=1, 1920x1080), HEAD starter 4 Nov 2026; satu panggilan per bingkai. Sisi bayang dan relief memakai posisi lampu dan kotak dari bukti 3 Nov; sisi dalang = api blencong di layar; diorama tanpa --sumber.
+=== bayang/t0_50: sumber 960,250; subjek 690,140,540,840
+nilai-visual: 1 bingkai · sumber dideklarasikan: 1 · subjek: 690,140,540,840
+bingkai    p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
+t0_50.png  11/44/79    67.6 ok  subjek 18.6 ok  +41.5 ok      5 ok #180c06 #b58546 #dab678  ok
+1 bingkai: 1 ok, 0 peringatan. Ambang: rentang >= 28, kontras >= 10, titik terang >= +30, warna 2-6 (>= 5 % bingkai).
+=== bayang/t7_20: sumber 960,250; subjek 470,430,280,560
+nilai-visual: 1 bingkai · sumber dideklarasikan: 1 · subjek: 470,430,280,560
+bingkai    p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
+t7_20.png  11/42/80    68.4 ok  subjek 10.1 ok  +44.4 ok      5 ok #160b05 #cda161 #a46f36  ok
+1 bingkai: 1 ok, 0 peringatan. Ambang: rentang >= 28, kontras >= 10, titik terang >= +30, warna 2-6 (>= 5 % bingkai).
+=== bayang/t9_00: sumber 960,85; subjek 330,300,360,730
+nilai-visual: 1 bingkai · sumber dideklarasikan: 1 · subjek: 330,300,360,730
+bingkai    p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
+t9_00.png  15/51/84    69.3 ok  subjek 14.5 ok  +38.9 ok      5 ok #1a0e07 #daae6b #af7a3d  ok
+1 bingkai: 1 ok, 0 peringatan. Ambang: rentang >= 28, kontras >= 10, titik terang >= +30, warna 2-6 (>= 5 % bingkai).
+=== bayang/t13_80: sumber 960,238; subjek 530,410,170,590
+nilai-visual: 1 bingkai · sumber dideklarasikan: 1 · subjek: 530,410,170,590
+bingkai     p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
+t13_80.png  12/34/70    58.5 ok  subjek 13.6 ok  +41 ok        3 ok #160c06 #aa8751 #714c25  ok
+1 bingkai: 1 ok, 0 peringatan. Ambang: rentang >= 28, kontras >= 10, titik terang >= +30, warna 2-6 (>= 5 % bingkai).
+=== dalang/t0_50: sumber 1212,90; subjek 690,140,540,840
+nilai-visual: 1 bingkai · sumber dideklarasikan: 1 · subjek: 690,140,540,840
+bingkai    p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
+t0_50.png  15/50/80    64.7 ok  subjek 19.4 ok  +36.1 ok      5 ok #b38243 #19130a #503216  ok
+1 bingkai: 1 ok, 0 peringatan. Ambang: rentang >= 28, kontras >= 10, titik terang >= +30, warna 2-6 (>= 5 % bingkai).
+=== dalang/t9_00: sumber 1215,55; subjek 180,60,620,980
+nilai-visual: 1 bingkai · sumber dideklarasikan: 1 · subjek: 180,60,620,980
+bingkai    p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
+t9_00.png  20/56/85    65 ok    subjek 14.7 ok  +35.4 ok      5 ok #ca9954 #6b4521 #221b10  ok
+1 bingkai: 1 ok, 0 peringatan. Ambang: rentang >= 28, kontras >= 10, titik terang >= +30, warna 2-6 (>= 5 % bingkai).
+=== dalang/t13_80: sumber 1200,100; subjek 380,180,500,820
+nilai-visual: 1 bingkai · sumber dideklarasikan: 1 · subjek: 380,180,500,820
+bingkai     p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
+t13_80.png  15/41/71    55.8 ok  subjek 23.5 ok  +35.2 ok      5 ok #9a723c #1e150b #5f3e1d  ok
+1 bingkai: 1 ok, 0 peringatan. Ambang: rentang >= 28, kontras >= 10, titik terang >= +30, warna 2-6 (>= 5 % bingkai).
+=== diorama/t1_50: subjek 180,120,1500,900
+nilai-visual: 1 bingkai · sumber dideklarasikan: 0 · subjek: 180,120,1500,900
+bingkai    p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
+t1_50.png  17/25/66    49.1 ok  subjek 45.7 ok  -             4 ok #1f170e #5e5737 #a08e64  ok
+1 bingkai: 1 ok, 0 peringatan. Ambang: rentang >= 28, kontras >= 10, titik terang >= +30, warna 2-6 (>= 5 % bingkai).
+=== diorama/t6_50: subjek 430,400,800,500
+nilai-visual: 1 bingkai · sumber dideklarasikan: 0 · subjek: 430,400,800,500
+bingkai    p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
+t6_50.png  20/45/69    49.7 ok  subjek 28.8 ok  -             3 ok #605331 #9d8b62 #201c10  ok
+1 bingkai: 1 ok, 0 peringatan. Ambang: rentang >= 28, kontras >= 10, titik terang >= +30, warna 2-6 (>= 5 % bingkai).
+=== diorama/t10_00: subjek 540,240,1250,750
+nilai-visual: 1 bingkai · sumber dideklarasikan: 0 · subjek: 540,240,1250,750
+bingkai     p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
+t10_00.png  22/46/70    48.7 ok  subjek 29.1 ok  -             5 ok #744d34 #2b2015 #877f55  ok
+1 bingkai: 1 ok, 0 peringatan. Ambang: rentang >= 28, kontras >= 10, titik terang >= +30, warna 2-6 (>= 5 % bingkai).
+=== diorama/t12_50: subjek 0,0,900,800
+nilai-visual: 1 bingkai · sumber dideklarasikan: 0 · subjek: 0,0,900,800
+bingkai     p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
+t12_50.png  21/47/75    54.3 ok  subjek 23.3 ok  -             5 ok #714e35 #aa9e86 #3c321c  ok
+1 bingkai: 1 ok, 0 peringatan. Ambang: rentang >= 28, kontras >= 10, titik terang >= +30, warna 2-6 (>= 5 % bingkai).
+=== diorama/t15_50: subjek 300,0,1500,760
+nilai-visual: 1 bingkai · sumber dideklarasikan: 0 · subjek: 300,0,1500,760
+bingkai     p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
+t15_50.png  17/37/76    59.3 ok  subjek 19.7 ok  -             4 ok #201710 #6e604d #b2a78f  ok
+1 bingkai: 1 ok, 0 peringatan. Ambang: rentang >= 28, kontras >= 10, titik terang >= +30, warna 2-6 (>= 5 % bingkai).
+=== diorama/t18_80: subjek 745,470,540,550
+nilai-visual: 1 bingkai · sumber dideklarasikan: 0 · subjek: 745,470,540,550
+bingkai     p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
+t18_80.png  17/55/77    59.2 ok  subjek 19.5 ok  -             4 ok #9da29a #1c130d #6d756d  ok
+1 bingkai: 1 ok, 0 peringatan. Ambang: rentang >= 28, kontras >= 10, titik terang >= +30, warna 2-6 (>= 5 % bingkai).
+=== relief/t9_60: sumber 1044,512; subjek 389,303,1060,551
+nilai-visual: 1 bingkai · sumber dideklarasikan: 1 · subjek: 389,303,1060,551
+bingkai    p5/p50/p95  rentang  kontras         titik terang  warna                         hasil
+t9_60.png  19/38/60    41.3 ok  subjek 29.7 ok  +37.1 ok      3 ok #5c4846 #202332 #9b755c  ok
+1 bingkai: 1 ok, 0 peringatan. Ambang: rentang >= 28, kontras >= 10, titik terang >= +30, warna 2-6 (>= 5 % bingkai).

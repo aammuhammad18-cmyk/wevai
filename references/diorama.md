@@ -60,7 +60,7 @@ lain (`sinematografi.md` §6); brand/produk dengan gaya ini memakai `NoToneMappi
 ## Biaya
 
 Diukur di halaman, mesin acuan i3-3217U / HD 4000, 1080p, Chrome Idle (3–4 Nov).
-`bench-frame.mjs` (termasuk screenshot, 3 putaran, 4 Nov, sesudah pola bahan): median 232 ms/frame. Batas 350 ms.
+`bench-frame.mjs` (termasuk screenshot, 3 putaran, 4 Nov, sesudah pola bahan): median 233 ms/frame. Batas 350 ms.
 
 | Ukuran | Nilai |
 |---|---|

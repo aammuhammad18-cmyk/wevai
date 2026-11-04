@@ -45,12 +45,12 @@ Salah opsi = `Error('wayang.…')` yang menyebut pilihan sah. `panakawan` ditola
 |---|---|
 | Bayangan kabur | `z` 150–300 (`jarak` 620: skala 1,3–1,9; blur 8–23 px) |
 | Bayangan lebih keras di semua jarak | `BLENCONG.nyala` kecil (lampu listrik ±8) |
-| Api tenang / gelisah | `BLENCONG.kedip` 0,15 / 0,85; `kuat` memadamkan |
+| Api tenang / gelisah | `BLENCONG.kedip` 0,15 / 0,85 |
 | Warna sisi dalang | `muka` (`hitam` `merah` `prada` `putih`), warna kain mengikuti `seed` |
 
 ## Biaya
 
-Setup: rancang + panggang sprite ±1–2 dtk saat muat (lapis lukis ikut dipanggang: per frame tidak bertambah). Tiap frame: satu `drawImage` kelir, per figur 2–6 sprite + satu blur bila z besar, dua gradien penuh. `bench-frame` (dengan capture, 3 putaran): sisi bayang 234 ms, sisi dalang 293 ms (satu putaran 356); ekspor penuh rata-rata 271 dan 314 ms/frame. Batas 350 ms. Bila lewat: turunkan `res`, kurangi
+Setup: rancang + panggang sprite ±1–2 dtk saat muat (lapis lukis ikut dipanggang: per frame tidak bertambah). Tiap frame: satu `drawImage` kelir, per figur 2–6 sprite + satu blur bila z besar, dua gradien penuh. `bench-frame` (capture, 3 putaran, 4 Nov): sisi bayang 209 ms (208–232), sisi dalang 298 ms (285–314). Batas 350 ms. Bila lewat: turunkan `res`, kurangi
 jumlah figur bergerak, atau `simping:false`.
 
 ## Determinisme
@@ -60,7 +60,7 @@ membandingkan piksel lewat dua jalur seek; mutasi: `evals/bukti/2026-11-03-wayan
 
 ## Batas
 
-- Empat golongan + gunungan gapuran. Bukan tokoh bernama. Panakawan belum ada: bentuknya khas per tokoh.
+- Empat golongan + gunungan gapuran. Panakawan belum ada: bentuknya khas per tokoh.
 - Satu debog (bawah); dua debog pagelaran (`debog atas`) belum.
 - Satu gaya: terminologi Surakarta, sebagian gerak dari rekaman Yogyakarta. Bali, Cirebon, dsb. berbeda.
 - Sunggingan disederhanakan (lapis lukis dipanggang, sisi dalang saja): gradasi bertingkat pada perhiasan dan tepi kain, prada berbintik, drenjeman sedikit; tanpa `tlancap`, `bludiran`, dan `cawi` halus. Badan tetap polos: close-up masih lebih sederhana daripada wayang asli.
@@ -76,7 +76,7 @@ Sumber: **[S]** Subagya, "Nilai-nilai Estetis Bentuk Wayang Kulit", *Gelar* 11(2
 **[L]** Pranata, "Ebleg…", *Lakon* (ISI Surakarta) ([PDF](https://jurnal.isi-ska.ac.id/index.php/lakon/article/download/16-24/3287));
 **[Ro]** Rosalinda, *Adaptasi Unsur Rupa Raksasa Wayang Kulit Purwa ke dalam Karakter Visual Raksasa Nusantara*, disertasi ISI Surakarta 2025 ([PDF, versi potongan](https://repository.isi-ska.ac.id/8093/1/DISERTASI%20HERLIYANA%20ROSALINDA%202025%20pot.pdf): intisari, Bab IV–V, glosarium, foto Kumbakarna; Bab II–III tidak termuat);
 **[Pb]** Purbasari, "Teknik Pewarnaan Wayang Kulit" dari perajin Tunahan, *Arty* 1(1), 2012, UNNES ([PDF](https://journal.unnes.ac.id/sju/arty/article/download/312/361)): tahapan satu desa, bukan pakem Surakarta;
-**[K]** [Wikipedia: Gunungan](https://en.wikipedia.org/wiki/Gunungan) dan [detikEdu](https://www.detik.com/edu/detikpedia/d-7587505/gunungan-wayang-fungsi-jenis-simbol-dan-filosofinya) (merujuk *Mata Budaya* Dinas Kebudayaan DIY, UNS, Aini Loita 2018): sekunder, dipakai karena jurnal gunungan yang dicari tidak terbaca.
+**[K]** [Wikipedia: Gunungan](https://en.wikipedia.org/wiki/Gunungan) dan [detikEdu](https://www.detik.com/edu/detikpedia/d-7587505/gunungan-wayang-fungsi-jenis-simbol-dan-filosofinya): sekunder, jurnal gunungan yang dicari tidak terbaca.
 
 | Unsur | Pakem | Dipakai di kode | Sumber |
 |---|---|---|---|

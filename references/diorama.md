@@ -59,13 +59,13 @@ lain (`sinematografi.md` §6); brand/produk dengan gaya ini memakai `NoToneMappi
 
 ## Biaya
 
-Diukur di halaman (`performance.now()`, sinkron lewat `readPixels` 1 px), mesin acuan i3-3217U / HD 4000, 1080p, median 21 detik, Chrome Idle, tanpa render pemilik (3–4 Nov).
-`bench-frame.mjs` (termasuk screenshot, 3 putaran): median 240 ms/frame; ekspor penuh rata-rata 287 ms/frame. Batas 350 ms.
+Diukur di halaman, mesin acuan i3-3217U / HD 4000, 1080p, Chrome Idle (3–4 Nov).
+`bench-frame.mjs` (termasuk screenshot, 3 putaran, 4 Nov, sesudah pola bahan): median 232 ms/frame. Batas 350 ms.
 
 | Ukuran | Nilai |
 |---|---|
 | Satu frame penuh | ±72 ms |
-| + garis lambung | +1–4 ms (10 rb verteks tambahan, 1 draw call) |
+| + garis lambung | +1–4 ms |
 | + tilt-shift | +28 ms (2 pass, 13 sampel per pass; baris tajam dilewati) |
 | Geometri | 27 rb verteks toon, 2 draw call maket + kartu + lantai |
 | Muat → `OPENER.ready` | 4–5,5 dtk; ±8 dtk sesaat setelah peluncuran Chrome: raster kartu + latar 5,3 rb px, lantai flok, kompilasi |
@@ -118,10 +118,10 @@ Tempat suci. Pura di starter **generik**, tak ada denah nyata yang disalin. Tanp
 - Tanpa arca, dwarapala, karang bhoma, Bedawang Nala, naga, citra Acintya, dan seluruh ukiran: panel polos menggantikan ornamen. Ornamen tak boleh dikarang, dan arca bukan isi yang pantas untuk kepingan kotak.
 - **Tipologi padmasana.** [S11] membedakan padma capah (2 palih), padmasari (3 palih, 1 rong, tanpa Bedawang Nala), padmasana (5–9 palih, 1–3 rong, dengan Bedawang Nala). Tanpa Bedawang Nala, bentuk starter mirip padmasana bertingkat tetapi secara tipologi belum lengkap; kata "padmasana" hanya ada di data, tidak tertulis di layar. Jumlah palih dan proporsi perkiraan dari gambar [S11]. Panel ulon hitam berbingkai emas, kosong: [S4] mencatat pahatan Hyang Acintya emas di dasar hitam, sosoknya sengaja tidak dibuat.
 - Kori agung tertutup, tanpa pintu samping. Kedua gerbang ada di sumbu tengah: susunan linear, satu kemungkinan dari banyak.
-- Hanya tujuh bangunan. Tidak ada pewaregan, bale piasan, gedong simpen, sedahan, atau pelinggih lain yang biasanya ada; pura nyata jauh lebih penuh.
+- Hanya tujuh bangunan; pura nyata jauh lebih penuh.
 - Ukuran dan proporsi perkiraan (lebar 26 m, panjang 56 m), bukan hitungan Asta Kosala Kosali. Asta Kosala Kosali disebut sebagai rujukan tata letak umum [S9], bukan diterapkan rinci.
 - Atap alang-alang pada bale dan warna bahan adalah pilihan rupa, bukan hasil sumber. Pohon adalah penghias dari `pustaka.*` (bentuknya dibuat untuk Jawa kuno).
-- Pemedek = kartu kecil berkain dan berbaju putih, tanpa wajah, tanpa sesajen. Bukan penggambaran busana upacara.
+- Pemedek = kartu kecil tanpa wajah, tanpa sesajen; bukan penggambaran busana upacara.
 - **Legenda (perlu vonis pemilik):** "Tiga zona menurut tingkat kesucian, berpedoman pada arah gunung ke laut" mengikuti [S1] (tiga zona "berdasarkan tingkat kesuciannya", "berpedoman pada orientasi gunung – laut"). Menggantikan "makin dekat ke gunung, makin suci", yang menyimpulkan lebih jauh daripada sumber. Baris kecil "Denah generik, bukan pura tertentu" sengaja ditambahkan.
 - UNESCO [S10] hanya konteks Tri Hita Karana; tidak membahas denah pura.
 

@@ -221,8 +221,6 @@ gagal: opener adalah wajah produk, dan dua produk tidak boleh berwajah sama.
    keluar gelap dengan nebula karena starter dan contoh-contohnya gelap. Latar mengikuti
    tema: gradien terang, warna lembut, blok warna, kertas, foto, atau gelap
    — tabel "Arah gaya" punya sepuluh pilihan dan sebagian besar tidak gelap.
-   Contoh-contoh di skill ini (kertas terang, nebula) hanya contoh, bukan
-   templat yang dikunci.
    **Latar tidak pernah statis.** Selalu ada gerak latar (§7c), dan warna
    latar BOLEH berganti kapan pun dibutuhkan: mood/topik segmen berubah
    (masuk ke produk, masalah → solusi, klaim → CTA), brand warna-warni
@@ -281,8 +279,6 @@ bagian 1 dan 1b. Ringkasnya:
   satu warna ditolak. Elemen latar apa pun (partikel, bentuk,
   tekstur, garis): warna dari sisi gelap palet, opacity ≤ .35 di kantong
   teks, ≤ 40 elemen terang terlihat.
-- Pertimbangkan selang-seling gelap–terang bila segmennya memang berganti
-  mood; bukan kewajiban mekanis.
 
 ## Alur kerja
 
@@ -292,8 +288,7 @@ bagian 1 dan 1b. Ringkasnya:
    suara, plus pagar durasi. Jenis lain → lanjut; tanya hanya hal yang
    benar-benar tidak bisa diturunkan dari brief (rasio, durasi, ada
    musik/VO atau tidak), dalam satu pertanyaan.
-0b. **Tulis style brief** (Hukum #3) dan tunjukkan bersama rundown. Tanpa
-   style brief yang disetujui, jangan menyentuh kode.
+0b. **Tulis style brief** (Hukum #3); ditunjukkan bersama rundown di langkah 2.
 1. **Serap referensi & sumber brand.** Minta screenshot/potongan video
    referensi bila ada; petakan per shot (durasi, gerakan, jenis transisi,
    urutan atensi) — hanya RITMENYA, bukan kulitnya (Hukum #3). Warna, logo
@@ -303,8 +298,8 @@ bagian 1 dan 1b. Ringkasnya:
 2. **Tulis rundown dari konsep yang dipilih** — tabel `detik | adegan |
    kalimat | visual` (`visual` boleh berkosakata kamera: `WS high → dolly in CU`). Jumlah dan jenis adegan mengikuti konsep
    (`references/opener-konsep.md`), bukan pola hook → fitur → fitur → janji →
-   logo → CTA. Total 25–40 detik. Minta persetujuan user atas rundown ini
-   sebelum menulis kode; merombak rundown murah, merombak kode mahal.
+   logo → CTA. Total 25–40 detik.
+   **BERHENTI di sini: kirim style brief + rundown, akhiri giliranmu, tunggu balasan user.** Permintaan awal ("buatkan …") dan mode otomatis agen BUKAN persetujuan. Sebelum ada balasan, jangan membuat berkas apa pun; merombak rundown murah, merombak kode mahal. Lewati hanya bila user sudah menulis "langsung buat" atau sejenisnya.
 3. **Scaffold arsitektur.** Salin starter dengan perintah salin berkas
    (`Copy-Item`/`cp`) ke `index.html` di folder proyek — jangan diketik ulang.
    Opener/promo/bumper/typography: `assets/starter-opener.html` (stage 1920×1080,

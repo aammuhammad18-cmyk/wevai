@@ -90,7 +90,7 @@ svgDi(bidang(-900),pustaka.candi({x:1500,y:790,tinggi:460,varian:'bata',jarak:-9
   sampai bawah frame (babak dunia 2, katalog tableau B, katalog tokoh D).
 - **Dipanggang dalam keadaan tampil**: `relief()`/`rim()` cahaya-2d membaca kotak elemen. Sembunyikan adegan lain SESUDAHNYA,
   dengan `display:none` pada bidang — bukan opacity (meratakan paralaks).
-- Ukuran markup (detail 0/1/2): beringin 24/64/91 KB, sawah 21/60/85 KB, gunung 8/15/24 KB, lainnya ≤ 12 KB. Statis = dirasterisasi
+- Ukuran markup (detail 0/1/2): beringin 24/64/91 KB, sawah 26/71/98 KB, gunung 8/15/24 KB, lainnya ≤ 12 KB. Statis = dirasterisasi
   sekali, tetapi DOM besar memperlambat setup: pakai detail rendah untuk yang jauh/kecil (bawaan dari `jarak` sudah begitu).
 
 ## Akurasi budaya — yang pasti dan yang diragukan

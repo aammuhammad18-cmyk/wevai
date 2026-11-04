@@ -86,9 +86,10 @@ pita rim tajam di atas, bayangan jatuh di lantai. SVG `buat()` = warna rata saja
 - Benda selalu tegak. `tongkat`/`cangkul` selalu bertumpu di tanah; `tombak`/`payung` di tanah pada pose `tombak`, ikut genggaman
   di pose lain; `perisai`/`sesaji` ikut genggaman. Belum ada: mendayung, menunggang (butuh benda bersudut).
 - Panel kain menempel di paha (ikut ayun); pose `duduk` menukarnya dengan `pangku` dan menyembunyikan wiron + sampur.
-- Biaya: tokoh detail 2 = siluet offscreen + 2 blur + ±60 isi per frame; kerumunan detail 0 tanpa blur. Terukur (HD 4000):
-  tableau 6 tokoh detail 2 = 437 ms/frame, MELEWATI batas 350 ms; babak 1 tokoh = 251 ms. Batasi tokoh detail 2 per bingkai dan pakai
-  detail 0 untuk sisanya; jumlah batas persisnya belum diukur.
+- Biaya (HD 4000, mesin senggang, 4 Nov 2026): tokoh detail 2 = ±14 ms/frame (±60 isi dua kali, 2 blur diklip ke kotaknya); kerumunan
+  detail 0 tanpa blur. Tableau 6 tokoh detail 2 = 290 ms/frame (tanpa tokoh 208, batas 350); babak 1 tokoh = 222 ms. Render lain yang jalan
+  bersamaan menambah ±18 % (tableau yang sama sebelum klip: 437 vs 371). Tanpa klip tiap blur memproses selebar kanvas (+80 ms di
+  tableau, ): blur kanvas baru selalu diklip ke kotak isinya. Batas jumlah tokoh per bingkai belum diukur.
 
 ## Akurasi budaya — yang pasti dan yang diragukan
 

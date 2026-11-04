@@ -273,6 +273,16 @@ npm install --prefix ~/.gemini/config/skills/wevai/scripts
 
 `npm install` is optional: Node + puppeteer only power the frame checks and MP4 export (see [Requirements](#requirements)), and a Chrome or Edge you already have is found automatically, with no environment variable to set. Update later with `git -C <that folder> pull`.
 
+Already have a checkout elsewhere? Don't link it with a Windows junction: Antigravity skipped a junctioned skill folder when tested with `agy` 1.5.0. Point `~/.gemini/config/skills.json` at the folder that contains the checkout instead (the checkout must be named `wevai`):
+
+```json
+{ "entries": [ { "path": "E:/projects", "include_only": ["wevai"] } ] }
+```
+
+Start a new conversation afterwards; a skill added later did not show up in the test until a new session started. To check, ask the agent whether `wevai` is in its skill list.
+
+If every tool call fails with `Cannot find module` and a path cut off at a space (for example `..."C:\Users\IT'`), the `PreToolUse` hook of the `googlecloudtools.datacloud_telemetry` plugin is breaking on a Windows user name with a space, and the agent falls back to replying with text only. `agy plugin disable googlecloudtools.datacloud_telemetry` clears it.
+
 Call it with `/wevai` in the App (for example `/wevai make a 20-second opener for a coffee app`), or just ask for an opener, promo, or explainer and let the agent pick the skill.
 
 Image and video generation is optional: register the MCP server you use in `~/.gemini/config/mcp_config.json` (Windows: `%USERPROFILE%\.gemini\config\mcp_config.json`) under `mcpServers`. Higgsfield's endpoint is usually quoted as `https://mcp.higgsfield.ai/mcp`, but that URL is **unverified** (only third-party write-ups give it): confirm it in Higgsfield's own docs first.

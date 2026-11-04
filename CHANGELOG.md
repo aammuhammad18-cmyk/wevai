@@ -2,7 +2,7 @@
 
 ## Belum dirilis
 
-**Status penerimaan rilis ini**: pemilik menerima kesembilan butir vonis visual pada 4 Nov (siluet dan babak sinematik, mata elang, relief, painterly, peta relief, wayang, diorama, tokoh dan pustaka), dengan satu jawaban "terima" tanpa catatan per butir. Celah yang dicatat per gaya di bawah tetap terbuka. Uji langsung Antigravity dan VO Gemini serta tinjauan dalang dan ahli arsitektur pura belum dilakukan.
+**Status penerimaan rilis ini**: pemilik menerima kesembilan butir vonis visual pada 4 Nov (siluet dan babak sinematik, mata elang, relief, painterly, peta relief, wayang, diorama, tokoh dan pustaka), dengan satu jawaban "terima" tanpa catatan per butir. Celah yang dicatat per gaya di bawah tetap terbuka. Uji langsung VO Gemini serta tinjauan dalang dan ahli arsitektur pura belum dilakukan; uji Antigravity gagal pada percobaan pertama pemilik dan menunggu uji ulang (lihat "Uji lapangan Antigravity").
 
 Gaya "Siluet sinematik" (sub-proyek 3 dari `docs/peta-peningkatan-gaya-2026-11-01.md`), langkah pertama: starter sendiri.
 Versi belum dinaikkan; rilisnya langkah terpisah.
@@ -471,6 +471,11 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
 - **Rig tokoh lebih hemat**: blur rim dan pendar diklip ke kotak tokoh, sebelumnya memproses selebar kanvas. Tableau 6 tokoh detail 2 turun dari ±371 ke ±288 ms/frame di HD 4000 (batas 350; mesin senggang, belum diukur saat render berjalan), biaya per tokoh ±27 → ±14 ms, babak ±231 → ±222 ms. Rupa tetap: 0 % piksel beda > 16 level, maks. 7. Bukti: `evals/bukti/2026-11-04-tokoh-hemat/`. Angka 437 ms di catatan bench di atas berasal dari sebelum perbaikan ini.
 - **Segmen motion blur mata elang**: terukur 1294 ms/frame (maks. 1646), di luar segmen itu 299 ms. Pengecualian yang disengaja terhadap batas 350 ms: 27 dari 345 frame, tambahan ±30 dtk per shot saat render, gambar tidak terdampak.
 - **Bench akhir sesudah semua perbaikan rupa** (4 Nov, HD 4000, 3 putaran, median ms/frame, 20 frame mulai t = 2, semua deterministik): panggung 176, lukis 193, pustaka 212, relief 220, wayang bayang 228, babak 230, sinematik 234, diorama 237, peta 275, elang 295, wayang dalang 310, katalog tokoh 319. Menggantikan angka bench sebelumnya. `test-starters` 18 dari 18 lolos. Still `docs/gallery/14`–`20` diambil ulang dari starter terbaru.
+- **Uji lapangan Antigravity** (4 Nov, `agy` 1.5.0). Pemilik mengirim brief video di IDE dan agen hanya membalas panduan teks untuk editor manual, tanpa WeVai. Tiga penyebab:
+  - **Skill tak termuat.** Junction yang direkomendasikan riset tidak dikenali (uji banding: folder biasa terbaca, junction tidak; CRLF dan LF sama-sama terbaca). Diganti manifest `~/.gemini/config/skills.json`; dicatat di README.
+  - **Semua alat agen gagal.** Hook `PreToolUse` plugin `googlecloudtools.datacloud_telemetry` patah pada nama pengguna Windows berspasi, sehingga agen tak bisa membaca atau menulis apa pun. Plugin dinonaktifkan di mesin pemilik; jalan keluarnya dicatat di README.
+  - **Deskripsi skill tak mencakup permintaan dokumenter.** Kini memuat "video dokumenter" dan video sejarah/budaya panjang (932 dari 1024 karakter, ukuran total tak bertambah). Efeknya pada pemilihan skill belum teruji.
+  - **Celah**: uji video penuh di Antigravity belum ada, jadi perilaku agen sesudah skill termuat masih belum diketahui.
 - **Rupa budaya ditingkatkan** sesudah tinjauan pemilik (bukti `evals/bukti/2026-11-04-rupa-budaya/`).
   - **Wayang**: raksasa digambar ulang dari ikonografi bersumber (plelengan, pelokan, gusen, gembel); sisi dalang mendapat lapis sungging dipanggang, kelat bahu, gelang, dan uncal; simpingan diurutkan menurut sumber. Bench bayang 209, dalang 298 ms/frame (terburuk 314).
   - **Diorama**: pola bata, paras, ijuk, dan alang di shader toon; padmasana tepas–batur–sari dari sumber jurnal, tanpa arca; legenda mengikuti kata sumber dan menandai "Denah generik, bukan pura tertentu". Bench 233 ms/frame.

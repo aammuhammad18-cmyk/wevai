@@ -69,8 +69,8 @@ Temuan lain:
 
 **Rekomendasi singkat:**
 
-- Pasang lewat **junction** `%USERPROFILE%\.gemini\config\skills\wevai → E:\mila\wevai`, lalu
-  `setx PUPPETEER_EXECUTABLE_PATH …`.
+- **Koreksi 4 Nov (uji lapangan, `agy` 1.5.0):** junction **tidak dikenali**. Skill di folder biasa terbaca, skill lewat junction tidak.
+  Pasang lewat manifest `%USERPROFILE%\.gemini\config\skills.json` (lihat C4). `setx PUPPETEER_EXECUTABLE_PATH` tak perlu lagi sejak Chrome ditemukan otomatis.
 - Tambah 6 perbaikan kecil yang netral-agen di repo (bagian C2).
 - Tanpa workflow, AGENTS.md/GEMINI.md, MCP, hook, atau skrip instal.
 - Manifest plugin `.antigravity-plugin/` **ditunda** sampai `agy plugin validate` membuktikan SKILL.md di akar terbaca.
@@ -429,17 +429,15 @@ Claude Code tidak dirugikan.
 **1. Pasang** (PowerShell; aman diulang):
 
 ```powershell
-New-Item -ItemType Junction -Path "$env:USERPROFILE\.gemini\config\skills\wevai" -Target "E:\mila\wevai"
-setx PUPPETEER_EXECUTABLE_PATH "C:\Program Files\Google\Chrome\Application\chrome.exe"
+'{ "entries": [ { "path": "E:/mila", "include_only": ["wevai"] } ] }' | Set-Content -Encoding ascii "$env:USERPROFILE\.gemini\config\skills.json"
+agy plugin disable googlecloudtools.datacloud_telemetry   # hook-nya patah pada nama pengguna berspasi dan memblokir SEMUA alat agen
 Test-Path "E:\mila\wevai\scripts\node_modules\puppeteer"   # harus True; bila False:
 #   $env:PUPPETEER_SKIP_DOWNLOAD='1'; npm install --prefix "E:\mila\wevai\scripts"
 ```
 
-Bila junction tidak dikenali, ada dua cadangan:
+Terbukti di mesin ini 4 Nov: `agy` melaporkan `wevai` dari `E:\mila\wevai\SKILL.md`. Cadangan:
 
-- Manifest global `%USERPROFILE%\.gemini\config\skills.json`:
-  `{"entries":[{"path":"E:/mila","include_only":["wevai"]}]}`.
-- Clone terpisah ke folder itu:
+- Clone terpisah ke folder skill:
   `git clone https://github.com/aammuhammad18-cmyk/wevai "$env:USERPROFILE\.gemini\config\skills\wevai"`, lalu
   `npm install --prefix …\scripts`.
 

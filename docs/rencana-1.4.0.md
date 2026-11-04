@@ -15,7 +15,7 @@ Sumber rincian:
 |---|---|---|---|
 | A | Starter siluet sinematik (sub-proyek 3, langkah 1) | selesai | 55ffc71..7e1f814 |
 | B | Aturan rilis (`docs/aturan-rilis.md`, `scripts/rilis.mjs`) | selesai | 6ab34c8 |
-| C | Dukungan Antigravity: Chrome otomatis, `--help`, `SKILL.md` ≤ 24 KB, plugin | kode selesai; uji pemilik menunggu | f414a57, dfedd42, d80eb56 |
+| C | Dukungan Antigravity: Chrome otomatis, `--help`, `SKILL.md` ≤ 24 KB, plugin | uji pemilik 4 Nov GAGAL: skill tak termuat (junction tak dikenali) dan hook plugin telemetri memblokir semua alat; pemasangan mesin ini diperbaiki, skill terdaftar dan alat baca jalan; uji ulang video oleh pemilik menunggu | f414a57, dfedd42, d80eb56 |
 | D | Alat VO Gemini (hingga 10 kunci, failover aman) | kode selesai; uji langsung pemilik menunggu | 73eb11f |
 | E | Sub-proyek 3, sisa: babak multi-adegan 60 dtk + `CAM` di kartun panggung | babak: selesai, diterima pemilik 4 Nov (`starter-babak.html`); `CAM` panggung selesai | babak: fa45908..cac5ded; panggung: 50217ff..652c73a |
 | F | Sub-proyek 4a: pustaka aset prosedural Jawa kuno | selesai, diterima pemilik 4 Nov | 31172c7..0f1bef0 |

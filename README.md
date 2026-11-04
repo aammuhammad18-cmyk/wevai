@@ -279,7 +279,7 @@ Already have a checkout elsewhere? Don't link it with a Windows junction: Antigr
 { "entries": [ { "path": "E:/projects", "include_only": ["wevai"] } ] }
 ```
 
-Start a new conversation afterwards; a skill added later did not show up in the test until a new session started. To check, ask the agent whether `wevai` is in its skill list.
+Start a new conversation afterwards, then ask the agent whether `wevai` is in its skill list.
 
 If every tool call fails with `Cannot find module` and a path cut off at a space (for example `..."C:\Users\IT'`), the `PreToolUse` hook of the `googlecloudtools.datacloud_telemetry` plugin is breaking on a Windows user name with a space, and the agent falls back to replying with text only. `agy plugin disable googlecloudtools.datacloud_telemetry` clears it.
 

@@ -1282,7 +1282,7 @@ function katalog(){
   svgDi(A0,PU.gunungBerlapis({x:1100,y:700,lebar:3600,tinggi:430,lapis:2,puncak:2,seed:4,jarak:-1500,cahaya:{arah:270,warna:MA.warna,kuat:.8}})+
     PU.asap({x:967,y:320,tinggi:260,angin:-.8,seed:2,jarak:-1000,warna:'#efdcdc',cahaya:{arah:270,warna:MA.warna,kuat:.6}}));   // kepul kawah (asap statis): puncak gunung api seed 4 di (967, 314)
   svgDi(A1,PU.gunungBerlapis({x:960,y:800,lebar:3200,tinggi:230,lapis:2,puncak:0,seed:9,jarak:-800,cahaya:{arah:270,warna:MA.warna,kuat:.8}})+
-    PU.candi({x:1150,y:705,tinggi:300,jarak:-100,cahaya:{arah:285,warna:'#ffb060',kuat:1},detail:1,warna:'#141118'}));   // subjek senja: warna jarak dekat (siluet berlatar lereng terang), kabut jauh tak melarutkannya
+    '<path d="M820,770 C960,716 1040,706 1150,704 S1370,712 1500,772 V860 H820Z" fill="#5c3a50"/>'+PU.candi({x:1150,y:705,tinggi:300,jarak:-100,cahaya:{arah:285,warna:'#ffb060',kuat:.9},detail:1,warna:'#100e14'})+'<path d="M1135,653 V590 H1165 V653Z" fill="#ffae5c" opacity=".8"/>');   // pelita di bilik candi: titik fokus senja   // subjek senja: warna jarak dekat (siluet berlatar lereng terang), kabut jauh tak melarutkannya
   LANGIT.horizon=LA.horizon;svgDi(A2,PU.sawahTerasering({x:960,y:1110,lebar:2700,tinggi:320,baris:9,seed:3,jarak:-380,cahaya:MA}));   // air memantulkan cakrawala terang
   LANGIT.horizon='#8e5466';
   svgDi(A2,PU.rumahPanggung({x:800,y:872,tinggi:250,jarak:-380,lampu:1,cahaya:MA})+
@@ -1290,7 +1290,7 @@ function katalog(){
   PU.asapHidup(A2,{x:825,y:660,tinggi:330,angin:.45,seed:3,jarak:-380});
   partikel(A2,{jenis:'kunang',n:50,area:[80,800,1760,240],seed:5});
   svgDi(A3,'<path d="M-400,1046 C300,1028 900,1058 2320,1036 V1200 H-400Z" fill="#0b0810"/>'+PU.beringin({x:40,y:1100,tinggi:920,seed:5,cahaya:MA}));
-  kabut(A0,{y:690,tebal:280,warna:pudar('#f2a27a',-1500),rapat:.7,hanyut:4,seed:2});   // kabut di BELAKANG candi: siluetnya terpisah
+  kabut(A0,{y:680,tebal:300,warna:'#e8ac92',rapat:.8,hanyut:4,seed:2});   // kabut di BELAKANG candi: siluetnya terpisah
   kabut(A1,{y:806,tebal:160,warna:pudar('#d98a7a',-800),rapat:.35,hanyut:7,seed:4});
   kabut(A2,{y:1010,tebal:150,warna:pudar('#a87080',-380),rapat:.3,hanyut:10,seed:6});
 

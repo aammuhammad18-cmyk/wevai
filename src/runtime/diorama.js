@@ -25,13 +25,13 @@ const diorama=(()=>{
 
   /* ---------- rakit: kepingan kotak/prisma → satu mesh toon + satu mesh lambung (2 draw call, berapa pun kepingannya) ---------- */
   const warnaC=c=>new THREE.Color(c),LAMBUNG=[];
-  function rakit({seed=1,alas=.8,beda=.05}={}){const isi=[],lambung=[];let n=0;
+  function rakit({seed=1,alas=.8,beda=.05,bahan={}}={}){const isi=[],lambung=[];let n=0;
     /* warna verteks: warna ± beda (acak per keping) dan dasar lebih gelap (cuci kotor maket: mengikat benda ke tanah) */
     const tambah=(g0,warna,{garis=true,kotor=alas}={})=>{const g=g0.toNonIndexed();g.deleteAttribute('uv');g.computeVertexNormals();n++;
       const p=g.attributes.position,col=new Float32Array(p.count*3),c=warnaC(warna),v=1+beda*(2*hash(n,seed)-1);let y0=Infinity,y1=-Infinity;
       for(let i=0;i<p.count;i++){const y=p.getY(i);y0=Math.min(y0,y);y1=Math.max(y1,y);}
       for(let i=0;i<p.count;i++){const k=v*(kotor+(1-kotor)*(p.getY(i)-y0)/((y1-y0)||1));col.set([c.r*k,c.g*k,c.b*k],i*3);}
-      g.setAttribute('color',new THREE.BufferAttribute(col,3));isi.push(g);
+      g.setAttribute('color',new THREE.BufferAttribute(col,3));g.setAttribute('bahan',new THREE.BufferAttribute(new Float32Array(p.count).fill(bahan[warna]||0),1));isi.push(g);
       if(garis){const h=new THREE.BufferGeometry();h.setAttribute('position',p);h.setAttribute('arah',new THREE.BufferAttribute(arahLambung(p.array,g.attributes.normal.array),3));lambung.push(h);}
       g0.dispose();};
     /* (x,z) = tengah, y = dasar. prisma: alas wb×db, atas wa×da setinggi h (wa,da → 0 = limas) */
@@ -40,11 +40,20 @@ const diorama=(()=>{
         for(let i=0;i<p.count;i++)if(p.getY(i)>0)p.setXYZ(i,p.getX(i)*wa/wb,h/2,p.getZ(i)*da/db);
         tambah(g.translate(x,y+h/2,z),warna,o);},
       selesai(nama='diorama'){const G=new THREE.Group();G.name=nama;
-        const m=new THREE.Mesh(mergeGeometries(isi),new THREE.MeshToonMaterial({vertexColors:true,gradientMap:gradasi()}));m.castShadow=m.receiveShadow=true;
+        const mt=new THREE.MeshToonMaterial({vertexColors:true,gradientMap:gradasi()});mt.onBeforeCompile=pasangPola;const m=new THREE.Mesh(mergeGeometries(isi),mt);m.castShadow=m.receiveShadow=true;
         const l=new THREE.Mesh(mergeGeometries(lambung),new THREE.ShaderMaterial({side:THREE.BackSide,
           uniforms:{tebal:{value:GARIS.tebal},acuan:{value:GARIS.acuan},warna:{value:warnaC(GARIS.warna)},piksel:{value:new THREE.Vector2(1/W,1/H)}},vertexShader:LAMBUNG_VS,fragmentShader:LAMBUNG_FS}));
         LAMBUNG.push(l.material.uniforms);l.name='lambung';G.add(m,l);G.userData.toon=m;G.userData.lambung=l;for(const g of [...isi,...lambung])g.dispose();return G;}};
     return R;}
+  /* pola bahan: 1 bata, 2 paras, 4 ijuk, 5 alang. Fungsi murni posisi dunia (tanpa tekstur, tanpa geometri tambahan); memudar saat pola lebih rapat dari piksel supaya tidak berkilau */
+  const POLA_FS=`varying float vB;varying vec3 vP,vN;float hB(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+float natB(float v,float t){float d=min(fract(v),1.-fract(v));return 1.-smoothstep(t,t+fwidth(v),d);}
+float polaB(){if(vB<.5)return 1.;vec3 n=abs(normalize(vN));float u=n.x>n.z?vP.z:vP.x;
+if(vB>3.5){float b=vP.y/.2,a=u/(vB<4.5?.06:.1)+hB(vec2(floor(b),vB)),k=1.-smoothstep(.25,.7,fwidth(a));return mix(1.,(.8+.4*hB(vec2(floor(a),floor(b))))*(1.-.2*natB(b,.06)),k);}
+if(n.y>.6)return 1.;float c=vB<1.5?.12:.4,l=vB<1.5?.34:.9,b=vP.y/c,r=floor(b),a=u/l+.5*mod(r,2.),k=1.-smoothstep(.2,.55,max(fwidth(b),fwidth(a)));
+return mix(.97,(vB<1.5?.9+.2*hB(vec2(r,floor(a))):.95+.1*hB(vec2(r,floor(a))))*(1.-(vB<1.5?.3:.3)*max(natB(b,vB<1.5?.05:.025),natB(a,vB<1.5?.02:.012))),k);}`,
+    pasangPola=sh=>{sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nattribute float bahan;varying float vB;varying vec3 vP,vN;').replace('#include <begin_vertex>','#include <begin_vertex>\nvB=bahan;vP=position;vN=normal;');
+      sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\n'+POLA_FS).replace('#include <color_fragment>','#include <color_fragment>\ndiffuseColor.rgb*=polaB();');};
   /* lambung di ruang klip: geser sepanjang normal layar tebal px (tetap setebal pena di lensa apa pun), lalu mundur sedikit agar tidak menusuk muka depan */
   const LAMBUNG_VS=`attribute vec3 arah;uniform float tebal,acuan;uniform vec2 piksel;
 void main(){vec4 v=modelViewMatrix*vec4(position,1.),c=projectionMatrix*v;vec2 n=(normalMatrix*arah).xy;float l=length(n);

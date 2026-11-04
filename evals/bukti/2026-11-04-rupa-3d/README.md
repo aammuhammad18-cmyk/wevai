@@ -39,7 +39,7 @@ diganti ubin bertekstur. Deterministik `true` di semua putaran.
 
 ## `nilai-visual`
 
-Elang, tanpa subjek: 0 dtk rentang 72,7, kontras 11,3 (dulu peringatan 9,1); 2,5 dtk 77,3 / 14,2; 6,5 dtk 77,1 / 13,2. Dengan subjek: 4,3 dtk
+Elang, tanpa subjek: 0 dtk rentang 72,7, kontras 11,3 (dulu peringatan 9,1); 2,5 dtk 77,3 / 14; 6,5 dtk 77,1 / 13,2. Dengan subjek: 4,3 dtk
 gapura kontras 60,1, api +66,9 +66,9; 11 dtk gunung kontras 24,7. Peringatan tersisa sama dengan dulu dan sengaja: 4,7 dtk di dalam celah
 (rentang 17,5, dulu 15,3).
 

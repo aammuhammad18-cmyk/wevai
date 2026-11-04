@@ -175,13 +175,13 @@ varying float vH;varying vec3 vDunia;flat varying float vG;
 float iso(float v,float px){float f=max(fwidth(v),1e-6),d=abs(fract(v+.5)-.5)/f;return(1.-smoothstep(px*.5,px*.5+1.,d))*(1.-smoothstep(.1,.3,f));}
 float jurang(vec2 p,int i){vec4 g=uG[i],h=uG2[i];float w=h.w;vec2 d=p-g.xy;float a=atan(d.y,d.x),R=g.z*(1.+(.09+.035*sin(3.*w))*sin(2.*a+w)+(.04+.015*cos(5.*w))*sin(3.*a+2.*w)),r0=(length(d)-g.w)/(R-g.w),
     r=(sqrt(r0*r0+h.x*h.x)-h.x)/(sqrt(1.+h.x*h.x)-h.x),q=h.z*a*.5+.9*sin(3.*a+w)+.45*sin(7.*a+2.*w+2.3*r)+.5*r*sin(5.*a+w),s=.06+.3*(.5+.25*sin(4.*a+1.7*w)+.25*sin(9.*a+w));
-  return h.y*(1.-smoothstep(.82,1.,r))*(uJurang*smoothstep(s,s+.3,r)*pow(1.-abs(sin(q)),2.5)*(.3+.7*(.5+.25*sin(5.*a+2.1*w)+.25*sin(11.*a+w)))+.3*smoothstep(.3,.6,r)*pow(1.-abs(sin(3.*q+1.3*r)),4.));}`)
+  return h.y*(1.-smoothstep(.82,1.,r))*(uJurang*smoothstep(s,s+.3,r)*pow(1.-abs(sin(q)),2.5)*(.3+.7*(.5+.25*sin(5.*a+2.1*w)+.25*sin(11.*a+w)))+.2*smoothstep(.3,.6,r)*pow(1.-abs(sin(3.*q+1.3*r)),6.)*(.5+.5*sin(7.*a+3.*w)));}`)
       .replace('#include <color_fragment>',`#include <color_fragment>
 float fh=max(fwidth(vH),1e-6),darat=smoothstep(-fh,fh,vH),paparan=smoothstep(-.2-fh,-.2+fh,vH);
 vec2 pw=vDunia.xz;vec4 n1=texture2D(uUbin,pw/163.),n2=texture2D(uUbin,pw/23.+.31),n3=texture2D(uUbin,pw/5.1+.7);
 {float hl=clamp(vH,0.,3.);   // tata lahan (nada, bukan data): sawah bertambal, tegal, bercak permukiman, hutan makin rapat ke atas. Tanpa nama, tanpa batas sungguhan
  vec3 lu=mix(mix(vec3(.26,.34,.09),vec3(.2,.31,.1),smoothstep(.36,.64,n2.b)),vec3(.36,.35,.12),.7*smoothstep(.5,.7,.6*n1.b+.4*n2.r));lu=mix(lu,vec3(.4,.33,.27),.55*smoothstep(.6,.68,.7*n2.g+.3*n3.g)*smoothstep(.5,.62,n1.r)*(1.-smoothstep(.15,.45,hl)));
- lu=mix(lu,vec3(.09,.16,.06)*(.75+.5*n3.r),smoothstep(.46,.72,.25*n1.r+.25*n2.r+.2*n3.b+.5*smoothstep(.1,1.,hl)));
+ lu=mix(lu,vec3(.09,.16,.06)*(.75+.5*n3.r),smoothstep(.54,.72,.3*n1.r+.32*n2.r+.18*n3.b+.45*smoothstep(.08,1.1,hl)));
  diffuseColor.rgb=mix(diffuseColor.rgb,lu*(.82+.36*n3.g),(1.-smoothstep(.95,1.9,hl))*(1.-.65*uCetak));}
 diffuseColor.rgb=mix(mix(mix(uLaut,uLautDalam,smoothstep(.2,2.6,-vH)),mix(uPantai,uDangkal,smoothstep(0.,.2,-vH)),paparan),diffuseColor.rgb,darat);
 float kontur=max(iso(vH*10.,1.)*.14*(1.-smoothstep(.04,.08,fwidth(vH*10.))),iso(vH*2.,1.6)*.32)*step(0.,vH)*uKontur*(.22+.78*uCetak),pantai=1.-smoothstep(.6,1.6,abs(vH)/fh),g200=1.-smoothstep(.5,1.5,abs(vH+.2)/fh);

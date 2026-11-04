@@ -656,7 +656,7 @@ function gapuraBentar(){const box=[],c=new THREE.Color(),lis=[2.4,3.4,4.4,5.4]; 
   /* bata per piksel (lapis .11 m, ±.34 m, spesi, lapuk dari ubin): sisi datar Box tak lagi terbaca kotak game */
   b.onBeforeCompile=s=>{s.uniforms.uUbin={value:D.ubin};s.vertexShader=s.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 vB;').replace('#include <begin_vertex>','#include <begin_vertex>\nvB=position;');
     s.fragmentShader=s.fragmentShader.replace('#include <common>','#include <common>\nuniform sampler2D uUbin;varying vec3 vB;').replace('#include <color_fragment>',`#include <color_fragment>
-float by=vB.y/.11,br=floor(by),bx=(vB.x+vB.z)/.34+.5*mod(br,2.),px=max(fwidth(by),fwidth(bx)),sp=(1.-smoothstep(.04,.1+px,min(min(fract(by),1.-fract(by)),min(fract(bx),1.-fract(bx))*.4)))*(1.-smoothstep(.25,.6,px));
+float by=vB.y/.11,br=floor(by),bx=(vB.x+vB.z)/.34+.5*mod(br,2.),px=max(fwidth(by),fwidth(bx)),sp=(1.-smoothstep(.04,.1+px,min(min(fract(by),1.-fract(by)),min(fract(bx),1.-fract(bx))*3.1)))*(1.-smoothstep(.25,.6,px));
 vec4 nb=texture2D(uUbin,vec2(vB.x+vB.z,vB.y)*.11);vec3 bh=fract(vec3(floor(bx),br,floor(bx)+br)*.1031);bh+=dot(bh,bh.yzx+33.33);diffuseColor.rgb*=(.9+.2*fract((bh.x+bh.y)*bh.z))*(.68+.64*nb.r)*(1.-.5*sp);diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.05,.055,.035),.35*smoothstep(.5,.75,nb.r)*smoothstep(3.5,0.,vB.y));`)
       .replace('#include <normal_fragment_maps>','#include <normal_fragment_maps>\nnormal=normalize(normal+.5*sp*normal.yzx+.25*vec3(nb.g-.5,nb.b-.5,0.));');};
   m.castShadow=m.receiveShadow=true;m.name='gapura';return m;}

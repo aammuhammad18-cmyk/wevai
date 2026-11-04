@@ -45,10 +45,10 @@ terang/bayang di bawah tonjolan.
 | `candi(o)` | `varian` `'andesit'`/`'bata'` | andesit = Mataram Kuno: kaki + tangga, tubuh berpintu, kala tanpa rahang + makara, atap 3 tingkat ber-ratna. bata = Majapahit: kaki berteras, ramping, kala berahang, atap 6 tingkat bersimbar. Detail 2 = pola nat |
 | `gapura(o)` | `varian` `'bentar'`/`'paduraksa'`, `celah` 170 | bentar ala Wringin Lawang (sisi dalam rata); paduraksa ala Bajang Ratu (pintu tembus, kala, sayap) |
 | `rumahPanggung(o)` | `tangga` 1, `lampu` 0 | ala relief Borobudur: umpak, atap pelana ijuk berbubungan melengkung; `lampu:1` = pintu/jendela menyala |
-| `beringin(o)` | — | banir, dahan, tajuk bergerigi daun, akar gantung (yang sampai tanah menebal) |
-| `lontar(o)` | — | daun kipas menjari (bukan kelapa), daun kering menjuntai, bekas pelepah |
+| `beringin(o)` | — | banir, dahan, tajuk gumpal berlobus, akar gantung (yang sampai tanah menebal) |
+| `lontar(o)` | — | kipas bertangkai menjari (bukan kelapa), tepi bergerigi halus, daun kering menjuntai, bekas pelepah |
 | `gunungBerlapis(o)` | `lebar` 2880, `lapis` 3, `puncak` 2 | lapis jauh = gunung api (kawah, alur lereng), lapis dekat = bukit; kaki tiap lapis berkabut. `puncak:0` = bukit saja |
-| `sawahTerasering(o)` | `lebar` 1800, `baris` 9 | petak air memantulkan langit (± 60 %) dan petak tanam bergaris padi, pematang gelap, kilau di tepi jauh air |
+| `sawahTerasering(o)` | `lebar` 1800, `baris` 9, `air` .6 | petak air (fraksi `air`) memantulkan langit lewat pita searah kontur: garis tepi jauh = warna cakrawala, badan = langit, tepi dekat = zenit; petak hijau; bibit padi; pematang + pantulannya; `cahaya:{x,y}` = kilau di bawah sumber |
 | `obor(o)` | `jenis` `'tiang'`/`'dinding'`, `kolam` 0 | badan saja; nyala di `(x, y − tinggi)` lewat `api`. Cahaya bawaan dari atas (nyalanya sendiri) |
 | `asap(o)` | `angin` .35 | kepulan statis (gumpal bergradien); untuk kejauhan/still |
 | `relief(o)` | `lebar` 900, `isi` `'prosesi'`/`'kalpataru'`/`'perahu'` | panel batu berbingkai, pahatan timbul dengan bevel dipanggang (detail 0 = panel polos); `(x, y)` = tengah bawah. BUKAN `relief()` cahaya-2d (filter) — keduanya bisa ditumpuk |
@@ -84,9 +84,13 @@ svgDi(bidang(-900),pustaka.candi({x:1500,y:790,tinggi:460,varian:'bata',jarak:-9
   pergantian sungguhan = `tl.set(LANGIT, …, t)` (katalog).
 - **Senja**: cakrawala terang ≠ warna kabut. Set `LANGIT.horizon` ke kabut kusam selama membangun aset jauh, lalu kembalikan;
   kalau tidak gunung dan sawah larut jadi satu warna jingga datar.
+- **Subjek senja jangan memakai `jarak` bidangnya.** Warna jarak mencampur ke `LANGIT.horizon`: candi larut ke lereng. Katalog tableau A: `jarak`
+  −100 di bidang −800, cahaya `{arah:285}` (lis atas terang), bukit di kakinya, kabut terang di BELAKANG, pelita di bilik (`nilai-visual` 3,6 → 11,5).
+- **Bidang jauh butuh dasar.** Kamera turun atau mendarat, langit (`horizon`) tampak di bawah sawah/gunung sebagai bercak rata: isi `path` gelap
+  sampai bawah frame (babak dunia 2, katalog tableau B, katalog tokoh D).
 - **Dipanggang dalam keadaan tampil**: `relief()`/`rim()` cahaya-2d membaca kotak elemen. Sembunyikan adegan lain SESUDAHNYA,
   dengan `display:none` pada bidang — bukan opacity (meratakan paralaks).
-- Ukuran markup (detail 0/1/2): beringin 24/64/91 KB, sawah 20/30/42 KB, gunung 8/15/24 KB, lainnya ≤ 12 KB. Statis = dirasterisasi
+- Ukuran markup (detail 0/1/2): beringin 24/64/91 KB, sawah 26/71/98 KB, gunung 8/15/24 KB, lainnya ≤ 12 KB. Statis = dirasterisasi
   sekali, tetapi DOM besar memperlambat setup: pakai detail rendah untuk yang jauh/kecil (bawaan dari `jarak` sudah begitu).
 
 ## Akurasi budaya — yang pasti dan yang diragukan

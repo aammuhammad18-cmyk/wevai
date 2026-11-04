@@ -170,6 +170,7 @@ test('SVG buat() well-formed dan mandiri untuk semua arketipe × pandang × deta
   assert.match(s, /^<g id="rajaKu"/);
   assert.equal(tokoh.buat({ arketipe: 'raja' }), tokoh.buat({ arketipe: 'raja' }), 'opsi sama → string sama');
   assert.match(s, /<pattern id="rajaKu-kain"/, 'kain raja bermotif pustaka.kain (detail 2)');
+  assert.match(s, /fill="url\(#rajaKu-kain\)"/, 'kain harus memakai polanya, bukan warna tak sah');
   assert.equal((s.match(/data-tangan="/g) || []).length, 8, 'empat varian tangan × dua tangan');
   assert.equal((s.match(/data-tangan="[^"]+"(?! display)/g) || []).length, 2, 'hanya satu varian tampil per tangan');
 });

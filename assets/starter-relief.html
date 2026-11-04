@@ -738,12 +738,9 @@ window.PASCA_UJI=()=>{const r={},O=window.OPENER,st=$('#stage'),ind=document.cre
 /* </wv:pasca> */
 /* <wv:pustaka> dibangun dari src/runtime/pustaka.js — JANGAN edit di sini;
    ubah sumbernya lalu jalankan: node scripts/build-starters.mjs */
-/* PUSTAKA ASET JAWA KUNO (sub-proyek 4a) — kontrak, API, jebakan, catatan budaya: references/pustaka.md. Satu global `pustaka`.
-   Generator = fungsi murni opsi → string SVG untuk <svg viewBox="0 0 1920 1080" style="will-change:transform"> bidang [data-z]:
-   <g class="wv-pustaka" transform="translate(x,y) scale(tinggi/1000)">, dipanggang sekali; sama seed/opsi/cahaya/LANGIT → sama
-   byte. api, asapHidup = kait kanvas dari tl.time(). pustaka.relief = panel batu, BUKAN relief() cahaya-2d. dindingRelief = DATA
-   pahatan (bukan SVG) untuk reliefHidup() (references/relief-candi.md). Butuh atmosfer (+ cahaya-2d bila cahaya = nama SUMBER).
-   Diuji tanpa browser: scripts/test-pustaka.mjs, scripts/test-relief.mjs (dindingRelief). */
+/* PUSTAKA ASET JAWA KUNO: kontrak, API, jebakan, catatan budaya: references/pustaka.md. Satu global `pustaka`. Generator = fungsi murni
+   opsi → string SVG; api, asapHidup = kait kanvas dari tl.time(); dindingRelief = DATA untuk reliefHidup(). Butuh atmosfer (+ cahaya-2d).
+   Uji tanpa browser: scripts/test-pustaka.mjs, scripts/test-relief.mjs. */
 const pustaka=(()=>{
 const{PI:P,round,cos,sin,max,min,hypot,imul,atan2,sqrt,abs,floor,ceil}=Math,f=v=>round(v*10)/10,tk=(x,y)=>f(x)+','+f(y),
   /* searah jarum jam: tumpukan menyatu (nonzero); cw=false = lubang */
@@ -879,7 +876,7 @@ function beringin(o){o=opsi('beringin',{x:960,y:1000,tinggi:800,...OPS},o);
     K.S+=ruas(p,w,w*.62);p.forEach(q=>pt.push([q[0],q[1],k]));
     if(k)for(const d of SG)dahan(b[0],b[1],a+d*r(.3,.65),len*r(.55,.7),w*.6,k-1);else uj.push(b);};
   for(const a of[-2.8,-2.3,-1.85,-1.3,-.85,-.35])dahan(r(-25,25),-350,a+r(-.1,.1),r(250,330),r(56,76),dt?2:1);
-  const semak=(x,y,rx,ry)=>{const p=[];for(let i=0;i<40;i++){const a=i/40*2*P,k=(1+(R()-.5)*.2)*(i%2?.88:1.04);p.push([x+cos(a)*rx*k,y+sin(a)*ry*k]);}K.S+=poly(p);};
+  const semak=(x,y,rx,ry)=>{const p=[];for(let i=0;i<40;i++){const a=i/40*2*P,k=1+.1*sin(a*5+x)+.05*sin(a*13+y)+(R()-.5)*.1;p.push([x+cos(a)*rx*k,y+sin(a)*ry*k]);}K.S+=poly(p);};
   for(const[x,y]of uj){for(let j=0;j<3;j++)semak(x+r(-55,55),y+r(-55,15),r(60,100),r(42,66));   // gumpal tajuk bertepi daun
     for(let j=0;j<[0,8,22][dt];j++){const a=r(0,2*P),d=r(70,125),l=dt>1?r(8,13):r(13,20);K.S+=el(x+cos(a)*d,y+sin(a)*d*.75-20,l,l*.5,r(0,P));}}
   const ak=pt.filter(p=>p[2]>(dt?1:0)&&p[1]>-760&&p[1]<-420);
@@ -892,10 +889,10 @@ function lontar(o){o=opsi('lontar',{x:960,y:1000,tinggi:640,...OPS},o);
   const A=siap('lontar',o,BAHAN.daun),{r,dt}=A,K=lapis(),lx=r(-40,40),C=[lx,-870],bt=qb([0,0],[lx*.15,-450],C,14);
   K.S+=ruas(bt,46,30)+el(0,-10,30,16);
   const kipas=(a,p,rr,q,tn)=>{const F=[C[0]+cos(a)*p,C[1]+sin(a)*p+(tn?0:p*.2*(1+sin(a)))],ax=a+r(-.25,.25),sp=r(2.8,3.5),pts=[F];
-    for(let j=0;j<=26;j++){const b=sp*(j/26-.5),rad=rr*(j%2?.72:1),u=cos(b)*rad,v=sin(b)*rad*q;pts.push([F[0]+cos(ax)*u-sin(ax)*v,F[1]+sin(ax)*u+cos(ax)*v]);}
+    for(let j=0;j<=26;j++){const b=sp*(j/26-.5),rad=rr*(j%2?.86:1),u=cos(b)*rad,v=sin(b)*rad*q;pts.push([F[0]+cos(ax)*u-sin(ax)*v,F[1]+sin(ax)*u+cos(ax)*v]);}
     K.S+=ruas([C,F],9,5)+poly(pts);};
-  const n=[10,15,21][dt];for(let i=0;i<n;i++)kipas(-P/2+(i/n-.5)*2*P*.94+r(-.15,.15),r(12,40),r(60,86),r(.35,1));
-  if(dt)for(let i=0;i<3;i++)kipas(-P/2+r(-1.3,1.3),r(70,100),r(52,70),r(.4,.9));
+  const n=[8,10,12][dt];for(let i=0;i<n;i++)kipas(-P/2+(i/n-.5)*2*P*.94+r(-.1,.1),r(18,66),r(42,80),r(.6,1));
+  if(dt)for(let i=0;i<4;i++)kipas(-P/2+r(-1.6,1.6),r(8,24),r(40,52),r(.6,1));
   if(dt)for(let i=0;i<3;i++)kipas(P/2+r(-.7,.7),r(30,50),r(36,48),r(.3,.5),1);
   if(dt)for(let i=1;i<12;i++){const p=bt[i];K.G+=kotak(p[0]-21,p[1],42,2.5);}
   return rakit('lontar',o,A,K);}
@@ -918,20 +915,28 @@ function gunungBerlapis(o){o=opsi('gunungBerlapis',{x:960,y:700,lebar:2880,tingg
       D+=ruas([[gx+a*14,-gh+30],[gx+sin(a)*l*1.5,-gh+30+l*cos(a*.5)]],5,1);}isi+=lap(D,N.gelap,.35);}}
   return`<g id="${id}" class="wv-pustaka" data-pustaka="gunungBerlapis" transform="${T}"><defs>${defs}<clipPath id="${id}-k">${kl}</clipPath></defs>${isi}</g>`;}
 
-/* sawah: petak air memantulkan langit / petak tanam, pematang, kilau */
-function sawahTerasering(o){o=opsi('sawahTerasering',{x:960,y:1080,lebar:1800,tinggi:380,baris:9,...OPS},o);
-  const A=siap('sawahTerasering',o,'#1d261f'),{s,R,dt,N,id}=A,Wl=o.lebar/s/2,n=round(o.baris),sd=o.seed*13,xs=[],
+/* sawah: pita searah kontur (air memantulkan langit, petak hijau), baris padi, pematang */
+function sawahTerasering(o){o=opsi('sawahTerasering',{x:960,y:1080,lebar:1800,tinggi:380,baris:9,air:.6,...OPS},o);
+  const A=siap('sawahTerasering',o,'#2f4a28'),{s,R,dt,N,id}=A,Wl=o.lebar/s/2,n=round(o.baris),sd=o.seed*13,xs=[],
     pc=x=>-1000*(.62+.38*vnoise(x*s/480,sd))*(1-.8*(abs(x)/Wl)**2.5),   // skala derau dalam px: halus di ukuran berapa pun
     e=(k,x)=>k?pc(x)*(k/n)**1.25+(k<n?(6*sin(x*s/110+k*1.7)+8*(vnoise(x*s/120,sd+k)-.5))/s:0):0,
-    air=campur(LANGIT.horizon,LANGIT.tengah,.25),J=c=>warnaJarak(c,o.jarak,-2000),
+    J=c=>warnaJarak(c,o.jarak,-2000),tg=LANGIT.tengah,R2=mulberry32(sd),lx=o.cahaya&&o.cahaya.x!=null?(o.cahaya.x-o.x)/s:null,
     kv=p=>p.slice(1,-1).map((q,i)=>'Q'+tk(...q)+' '+tk((q[0]+p[i+2][0])/2,(q[1]+p[i+2][1])/2)).join('')+'L'+tk(...p[p.length-1]),   // kurva halus lewat titik tengah
     gs=(p,c,w,op)=>`<path d="M${tk(...p[0])+kv(p)}" fill="none" stroke="${c}" stroke-width="${f(w/s)}"${op?` opacity="${op}"`:''}/>`;
   for(let x=-Wl;x<=Wl;x+=[80,52,36][dt]/s)xs.push(x);
   const K=lapis();let isi='';K.S=poly(xs.map(x=>[x,pc(x)]).concat([[Wl,40],[-Wl,40]]));
-  for(let k=0;k<n;k++){const a=xs.map(x=>[x,e(k+1,x)]),b=xs.map(x=>[x,e(k,x)]).reverse(),bj=R()<.6;   // petak air (memantulkan langit) / tanam
-    isi+=`<path d="M${tk(...a[0])+kv(a)}L${tk(...b[0])+kv(b)}Z" fill="${bj?`url(#${id}-a)`:dt?`url(#${id}-p)`:N.dasar}"/>`+gs(b,N.gelap,3.4-2*k/n)+(bj?gs(a,N.rim,1.5,(.55-.3*k/n).toFixed(2)):'');}
-  return rakit('sawahTerasering',o,A,K,{isi,ekstra:`<linearGradient id="${id}-a" x2="0" y2="1">${stop(0,J(campur(air,'#fff',.1)))+stop(1,J(campur(air,N.dasar,.6)))}</linearGradient>`+
-    `<pattern id="${id}-p" patternUnits="userSpaceOnUse" width="${f(11/s)}" height="${f(9/s)}"><rect width="${f(11/s)}" height="${f(9/s)}" fill="${N.dasar}"/><rect width="${f(2/s)}" height="${f(5/s)}" fill="${N.gelap}" opacity=".7"/></pattern>`});}
+  for(let k=0;k<n;k++){const a=xs.map(x=>[x,e(k+1,x)]),b=xs.map(x=>[x,e(k,x)]).reverse(),bj=R()<o.air,d=`M${tk(...a[0])+kv(a)}L${tk(...b[0])+kv(b)}Z`,w=(2+4*(1-k/n)),
+      ret=q=>xs.filter((_,i)=>i%2<1).map(x=>[x,e(k,x)+(e(k+1,x)-e(k,x))*q]);   // garis searah kontur petak
+    isi+=`<path d="${d}" fill="${bj?J(campur(LANGIT.horizon,tg,.72)):N.dasar}"/>`;
+    if(dt){const hp=abs(e(k+1,0)-e(k,0))*s,[jh,dk]=bj?[J(campur(LANGIT.horizon,tg,.15)),J(campur(tg,LANGIT.zenit||tg,.5))]:[J(campur(N.dasar,'#b8c060',.34)),N.gelap];
+      isi+=(bj?gs(ret(.93),jh,hp*.14,.85):gs(ret(.76),jh,hp*.46,.55)+gs(ret(.92),jh,hp*.16,.8))+gs(ret(.26),dk,hp*.52,bj?.75:.6);
+      if(!bj||R2()<.5)isi+=`<path d="${d}" fill="url(#${id}-p)"${bj?'':' opacity=".7"'}/>`;
+      if(!bj)for(const q of[.3,.62])isi+=gs(ret(q),N.gelap,1.5,.4);
+      else{let c='',g='';for(let i=0;i<6;i++){const x=(R2()-.5)*1.8*Wl,q=.2+.6*R2();c+=el(x,e(k,x)+(e(k+1,x)-e(k,x))*q,(14+30*R2())/s,1/s);}
+        if(lx!=null&&abs(lx)<Wl)for(let i=0;i<3;i++)g+=el(lx+(R2()-.5)*50/s,e(k,lx)+(e(k+1,lx)-e(k,lx))*(.2+.25*i),(24+40*R2())/s,1.5/s);
+        isi+=lap(c,N.rim,.3)+lap(g,N.cahaya,.75);}}
+    isi+=gs(ret(.06),'#05040a',w*.8,.28)+gs(b,N.gelap,w)+gs(b.map(([x,y])=>[x,y-w*.4/s]),N.lis,.9,.5);}
+  return rakit('sawahTerasering',o,A,K,{isi,ekstra:`<pattern id="${id}-p" patternUnits="userSpaceOnUse" width="${f(13/s)}" height="${f(10/s)}"><path d="M0,0h${f(1.6/s)}v${f(4/s)}h${f(-1.6/s)}zM${f(6.5/s)},${f(5/s)}h${f(1.6/s)}v${f(4/s)}h${f(-1.6/s)}z" fill="${J('#26401f')}" opacity=".55"/></pattern>`});}
 
 /* obor: badan saja; nyala = api di (x, y − tinggi) */
 function obor(o){o=opsi('obor',{x:960,y:900,tinggi:260,jenis:['tiang','dinding'],kolam:0,...OPS},o);

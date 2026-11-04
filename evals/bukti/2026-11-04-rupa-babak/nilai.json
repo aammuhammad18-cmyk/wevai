@@ -1,0 +1,792 @@
+[
+ {
+  "bingkai": "babak/t2_00",
+  "perintah": "node scripts/nilai-visual.mjs shots/t2_00.png --json --sumber '[{\"x\":509,\"y\":597},{\"x\":777,\"y\":598}]' --subjek 1252,116,390,911",
+  "keluar": 0,
+  "berkas": "E:/mila/tmp-rupababak/f4/babak/t2_00.png",
+  "lebar": 1920,
+  "tinggi": 1080,
+  "luminans": {
+   "p5": 15.4,
+   "p50": 25.9,
+   "p95": 52.9,
+   "rentang": 37.5,
+   "status": "ok"
+  },
+  "kontras": {
+   "mode": "subjek",
+   "a": 29.8,
+   "b": 27.3,
+   "dL": 2.5,
+   "sorot": 25.1,
+   "nilai": 25.1,
+   "status": "ok"
+  },
+  "sumber": [
+   {
+    "x": 509,
+    "y": 597,
+    "r": 76,
+    "puncak": 96.4,
+    "median": 25.9,
+    "selisih": 70.5,
+    "status": "ok"
+   },
+   {
+    "x": 777,
+    "y": 598,
+    "r": 76,
+    "puncak": 96.7,
+    "median": 25.9,
+    "selisih": 70.8,
+    "status": "ok"
+   }
+  ],
+  "warna": {
+   "jumlah": 3,
+   "dominan": [
+    {
+     "hex": "#1e1225",
+     "persen": 58.8
+    },
+    {
+     "hex": "#3f2c45",
+     "persen": 24.1
+    },
+    {
+     "hex": "#77494c",
+     "persen": 13.2
+    }
+   ],
+   "status": "ok"
+  },
+  "status": "ok"
+ },
+ {
+  "bingkai": "babak/t7_00",
+  "perintah": "node scripts/nilai-visual.mjs shots/t7_00.png --json --sumber '[{\"x\":527,\"y\":601},{\"x\":805,\"y\":601}]' --subjek 1300,101,406,944",
+  "keluar": 0,
+  "berkas": "E:/mila/tmp-rupababak/f4/babak/t7_00.png",
+  "lebar": 1920,
+  "tinggi": 1080,
+  "luminans": {
+   "p5": 15.4,
+   "p50": 25.9,
+   "p95": 52.3,
+   "rentang": 36.9,
+   "status": "ok"
+  },
+  "kontras": {
+   "mode": "subjek",
+   "a": 29.2,
+   "b": 27.1,
+   "dL": 2.1,
+   "sorot": 26.2,
+   "nilai": 26.2,
+   "status": "ok"
+  },
+  "sumber": [
+   {
+    "x": 527,
+    "y": 601,
+    "r": 76,
+    "puncak": 96.4,
+    "median": 25.9,
+    "selisih": 70.5,
+    "status": "ok"
+   },
+   {
+    "x": 805,
+    "y": 601,
+    "r": 76,
+    "puncak": 96.3,
+    "median": 25.9,
+    "selisih": 70.4,
+    "status": "ok"
+   }
+  ],
+  "warna": {
+   "jumlah": 3,
+   "dominan": [
+    {
+     "hex": "#1f1225",
+     "persen": 60.6
+    },
+    {
+     "hex": "#402d46",
+     "persen": 22.4
+    },
+    {
+     "hex": "#78494c",
+     "persen": 13.7
+    }
+   ],
+   "status": "ok"
+  },
+  "status": "ok"
+ },
+ {
+  "bingkai": "babak/t16_00",
+  "perintah": "node scripts/nilai-visual.mjs shots/t16_00.png --json --sumber '[{\"x\":859,\"y\":776},{\"x\":1147,\"y\":776}]' --subjek 949,613,132,305",
+  "keluar": 0,
+  "berkas": "E:/mila/tmp-rupababak/f4/babak/t16_00.png",
+  "lebar": 1920,
+  "tinggi": 1080,
+  "luminans": {
+   "p5": 12.3,
+   "p50": 23.1,
+   "p95": 42.5,
+   "rentang": 30.2,
+   "status": "ok"
+  },
+  "kontras": {
+   "mode": "subjek",
+   "a": 44.2,
+   "b": 29.8,
+   "dL": 14.3,
+   "sorot": 30.9,
+   "nilai": 30.9,
+   "status": "ok"
+  },
+  "sumber": [
+   {
+    "x": 859,
+    "y": 776,
+    "r": 76,
+    "puncak": 97.3,
+    "median": 23.1,
+    "selisih": 74.2,
+    "status": "ok"
+   },
+   {
+    "x": 1147,
+    "y": 776,
+    "r": 76,
+    "puncak": 97.3,
+    "median": 23.1,
+    "selisih": 74.2,
+    "status": "ok"
+   }
+  ],
+  "warna": {
+   "jumlah": 3,
+   "dominan": [
+    {
+     "hex": "#130f1a",
+     "persen": 57.3
+    },
+    {
+     "hex": "#302441",
+     "persen": 30.5
+    },
+    {
+     "hex": "#553d4e",
+     "persen": 8.5
+    }
+   ],
+   "status": "ok"
+  },
+  "status": "ok"
+ },
+ {
+  "bingkai": "babak/t23_50",
+  "perintah": "node scripts/nilai-visual.mjs shots/t23_50.png --json --sumber '[{\"x\":876,\"y\":675},{\"x\":759,\"y\":752},{\"x\":1060,\"y\":752}]' --subjek 886,593,139,323",
+  "keluar": 0,
+  "berkas": "E:/mila/tmp-rupababak/f4/babak/t23_50.png",
+  "lebar": 1920,
+  "tinggi": 1080,
+  "luminans": {
+   "p5": 13.6,
+   "p50": 22.2,
+   "p95": 45.4,
+   "rentang": 31.8,
+   "status": "ok"
+  },
+  "kontras": {
+   "mode": "subjek",
+   "a": 49.8,
+   "b": 31.2,
+   "dL": 18.6,
+   "sorot": 42.5,
+   "nilai": 42.5,
+   "status": "ok"
+  },
+  "sumber": [
+   {
+    "x": 876,
+    "y": 675,
+    "r": 76,
+    "puncak": 93.9,
+    "median": 22.2,
+    "selisih": 71.7,
+    "status": "ok"
+   },
+   {
+    "x": 759,
+    "y": 752,
+    "r": 76,
+    "puncak": 96,
+    "median": 22.2,
+    "selisih": 73.8,
+    "status": "ok"
+   },
+   {
+    "x": 1060,
+    "y": 752,
+    "r": 76,
+    "puncak": 95.9,
+    "median": 22.2,
+    "selisih": 73.7,
+    "status": "ok"
+   }
+  ],
+  "warna": {
+   "jumlah": 3,
+   "dominan": [
+    {
+     "hex": "#180f22",
+     "persen": 70.3
+    },
+    {
+     "hex": "#3c2b43",
+     "persen": 22.3
+    },
+    {
+     "hex": "#7d463d",
+     "persen": 5.1
+    }
+   ],
+   "status": "ok"
+  },
+  "status": "ok"
+ },
+ {
+  "bingkai": "babak/t27_30",
+  "perintah": "node scripts/nilai-visual.mjs shots/t27_30.png --json",
+  "keluar": 0,
+  "berkas": "E:/mila/tmp-rupababak/f4/babak/t27_30.png",
+  "lebar": 1920,
+  "tinggi": 1080,
+  "luminans": {
+   "p5": 16.3,
+   "p50": 26.3,
+   "p95": 59.7,
+   "rentang": 43.4,
+   "status": "ok"
+  },
+  "kontras": {
+   "mode": "tengah",
+   "a": 37.5,
+   "b": 23,
+   "dL": 14.5,
+   "nilai": 14.5,
+   "status": "ok"
+  },
+  "sumber": [],
+  "warna": {
+   "jumlah": 4,
+   "dominan": [
+    {
+     "hex": "#231220",
+     "persen": 57.6
+    },
+    {
+     "hex": "#4e2a2f",
+     "persen": 22.6
+    },
+    {
+     "hex": "#814237",
+     "persen": 9.6
+    },
+    {
+     "hex": "#a86445",
+     "persen": 6.9
+    }
+   ],
+   "status": "ok"
+  },
+  "status": "ok"
+ },
+ {
+  "bingkai": "babak/t28_50",
+  "perintah": "node scripts/nilai-visual.mjs shots/t28_50.png --json",
+  "keluar": 0,
+  "berkas": "E:/mila/tmp-rupababak/f4/babak/t28_50.png",
+  "lebar": 1920,
+  "tinggi": 1080,
+  "luminans": {
+   "p5": 24.3,
+   "p50": 42.8,
+   "p95": 69.1,
+   "rentang": 44.7,
+   "status": "ok"
+  },
+  "kontras": {
+   "mode": "tengah",
+   "a": 53,
+   "b": 35.1,
+   "dL": 17.9,
+   "nilai": 17.9,
+   "status": "ok"
+  },
+  "sumber": [],
+  "warna": {
+   "jumlah": 4,
+   "dominan": [
+    {
+     "hex": "#5b2c26",
+     "persen": 50.2
+    },
+    {
+     "hex": "#8e4c39",
+     "persen": 29
+    },
+    {
+     "hex": "#c16740",
+     "persen": 11.3
+    },
+    {
+     "hex": "#e78649",
+     "persen": 5
+    }
+   ],
+   "status": "ok"
+  },
+  "status": "ok"
+ },
+ {
+  "bingkai": "babak/t33_60",
+  "perintah": "node scripts/nilai-visual.mjs shots/t33_60.png --json --sumber '[{\"x\":677,\"y\":240}]' --subjek 700,0,420,1012",
+  "keluar": 0,
+  "berkas": "E:/mila/tmp-rupababak/f4/babak/t33_60.png",
+  "lebar": 1920,
+  "tinggi": 1080,
+  "luminans": {
+   "p5": 20.3,
+   "p50": 28.3,
+   "p95": 56.3,
+   "rentang": 36,
+   "status": "ok"
+  },
+  "kontras": {
+   "mode": "subjek",
+   "a": 40.6,
+   "b": 35.6,
+   "dL": 5.1,
+   "sorot": 33.2,
+   "nilai": 33.2,
+   "status": "ok"
+  },
+  "sumber": [
+   {
+    "x": 677,
+    "y": 240,
+    "r": 76,
+    "puncak": 94.6,
+    "median": 28.3,
+    "selisih": 66.4,
+    "status": "ok"
+   }
+  ],
+  "warna": {
+   "jumlah": 3,
+   "dominan": [
+    {
+     "hex": "#301a26",
+     "persen": 66.2
+    },
+    {
+     "hex": "#5e3836",
+     "persen": 23.2
+    },
+    {
+     "hex": "#9e5d43",
+     "persen": 8.7
+    }
+   ],
+   "status": "ok"
+  },
+  "status": "ok"
+ },
+ {
+  "bingkai": "babak/t38_00",
+  "perintah": "node scripts/nilai-visual.mjs shots/t38_00.png --json --sumber '[{\"x\":222,\"y\":408}]' --subjek 884,0,680,1079",
+  "keluar": 0,
+  "berkas": "E:/mila/tmp-rupababak/f4/babak/t38_00.png",
+  "lebar": 1920,
+  "tinggi": 1080,
+  "luminans": {
+   "p5": 20.2,
+   "p50": 32.6,
+   "p95": 52.3,
+   "rentang": 32.1,
+   "status": "ok"
+  },
+  "kontras": {
+   "mode": "subjek",
+   "a": 32.2,
+   "b": 30.7,
+   "dL": 1.5,
+   "sorot": 14.6,
+   "nilai": 14.6,
+   "status": "ok"
+  },
+  "sumber": [
+   {
+    "x": 222,
+    "y": 408,
+    "r": 76,
+    "puncak": 92.6,
+    "median": 32.6,
+    "selisih": 59.9,
+    "status": "ok"
+   }
+  ],
+  "warna": {
+   "jumlah": 2,
+   "dominan": [
+    {
+     "hex": "#332234",
+     "persen": 63.4
+    },
+    {
+     "hex": "#6d4348",
+     "persen": 32.4
+    }
+   ],
+   "status": "ok"
+  },
+  "status": "ok"
+ },
+ {
+  "bingkai": "babak/t43_00",
+  "perintah": "node scripts/nilai-visual.mjs shots/t43_00.png --json --sumber '[{\"x\":163,\"y\":402}]' --subjek 827,162,720,917",
+  "keluar": 0,
+  "berkas": "E:/mila/tmp-rupababak/f4/babak/t43_00.png",
+  "lebar": 1920,
+  "tinggi": 1080,
+  "luminans": {
+   "p5": 20.2,
+   "p50": 33.4,
+   "p95": 57.9,
+   "rentang": 37.6,
+   "status": "ok"
+  },
+  "kontras": {
+   "mode": "subjek",
+   "a": 33.6,
+   "b": 31.4,
+   "dL": 2.2,
+   "sorot": 17.3,
+   "nilai": 17.3,
+   "status": "ok"
+  },
+  "sumber": [
+   {
+    "x": 163,
+    "y": 402,
+    "r": 76,
+    "puncak": 92.4,
+    "median": 33.4,
+    "selisih": 58.9,
+    "status": "ok"
+   }
+  ],
+  "warna": {
+   "jumlah": 3,
+   "dominan": [
+    {
+     "hex": "#332234",
+     "persen": 59.7
+    },
+    {
+     "hex": "#663e41",
+     "persen": 24.9
+    },
+    {
+     "hex": "#966050",
+     "persen": 13.3
+    }
+   ],
+   "status": "ok"
+  },
+  "status": "ok"
+ },
+ {
+  "bingkai": "babak/t47_50",
+  "perintah": "node scripts/nilai-visual.mjs shots/t47_50.png --json --sumber '[{\"x\":572,\"y\":640},{\"x\":873,\"y\":640}]' --subjek 1418,101,440,978",
+  "keluar": 0,
+  "berkas": "E:/mila/tmp-rupababak/f4/babak/t47_50.png",
+  "lebar": 1920,
+  "tinggi": 1080,
+  "luminans": {
+   "p5": 15.5,
+   "p50": 26.2,
+   "p95": 54.5,
+   "rentang": 39,
+   "status": "ok"
+  },
+  "kontras": {
+   "mode": "subjek",
+   "a": 27.4,
+   "b": 26.3,
+   "dL": 1.1,
+   "sorot": 28.4,
+   "nilai": 28.4,
+   "status": "ok"
+  },
+  "sumber": [
+   {
+    "x": 572,
+    "y": 640,
+    "r": 76,
+    "puncak": 96.5,
+    "median": 26.2,
+    "selisih": 70.3,
+    "status": "ok"
+   },
+   {
+    "x": 873,
+    "y": 640,
+    "r": 76,
+    "puncak": 96.7,
+    "median": 26.2,
+    "selisih": 70.5,
+    "status": "ok"
+   }
+  ],
+  "warna": {
+   "jumlah": 3,
+   "dominan": [
+    {
+     "hex": "#1f1327",
+     "persen": 60.1
+    },
+    {
+     "hex": "#432d42",
+     "persen": 22.1
+    },
+    {
+     "hex": "#7c4c4e",
+     "persen": 13.5
+    }
+   ],
+   "status": "ok"
+  },
+  "status": "ok"
+ },
+ {
+  "bingkai": "babak/t52_50",
+  "perintah": "node scripts/nilai-visual.mjs shots/t52_50.png --json --sumber '[{\"x\":559,\"y\":678},{\"x\":834,\"y\":678}]' --subjek 1329,191,400,888",
+  "keluar": 0,
+  "berkas": "E:/mila/tmp-rupababak/f4/babak/t52_50.png",
+  "lebar": 1920,
+  "tinggi": 1080,
+  "luminans": {
+   "p5": 15.7,
+   "p50": 26.7,
+   "p95": 54.1,
+   "rentang": 38.4,
+   "status": "ok"
+  },
+  "kontras": {
+   "mode": "subjek",
+   "a": 28.7,
+   "b": 26.7,
+   "dL": 2,
+   "sorot": 29.5,
+   "nilai": 29.5,
+   "status": "ok"
+  },
+  "sumber": [
+   {
+    "x": 559,
+    "y": 678,
+    "r": 76,
+    "puncak": 96.7,
+    "median": 26.7,
+    "selisih": 69.9,
+    "status": "ok"
+   },
+   {
+    "x": 834,
+    "y": 678,
+    "r": 76,
+    "puncak": 96.5,
+    "median": 26.7,
+    "selisih": 69.8,
+    "status": "ok"
+   }
+  ],
+  "warna": {
+   "jumlah": 3,
+   "dominan": [
+    {
+     "hex": "#1e1227",
+     "persen": 55.6
+    },
+    {
+     "hex": "#402c43",
+     "persen": 25.9
+    },
+    {
+     "hex": "#79494d",
+     "persen": 14.3
+    }
+   ],
+   "status": "ok"
+  },
+  "status": "ok"
+ },
+ {
+  "bingkai": "babak/t57_80",
+  "perintah": "node scripts/nilai-visual.mjs shots/t57_80.png --json --sumber '[{\"x\":555,\"y\":709},{\"x\":802,\"y\":709}]' --subjek 1242,276,360,803",
+  "keluar": 0,
+  "berkas": "E:/mila/tmp-rupababak/f4/babak/t57_80.png",
+  "lebar": 1920,
+  "tinggi": 1080,
+  "luminans": {
+   "p5": 16,
+   "p50": 26.6,
+   "p95": 52.2,
+   "rentang": 36.2,
+   "status": "ok"
+  },
+  "kontras": {
+   "mode": "subjek",
+   "a": 29.9,
+   "b": 27.6,
+   "dL": 2.2,
+   "sorot": 28.6,
+   "nilai": 28.6,
+   "status": "ok"
+  },
+  "sumber": [
+   {
+    "x": 555,
+    "y": 709,
+    "r": 76,
+    "puncak": 96.4,
+    "median": 26.6,
+    "selisih": 69.7,
+    "status": "ok"
+   },
+   {
+    "x": 802,
+    "y": 709,
+    "r": 76,
+    "puncak": 96.3,
+    "median": 26.6,
+    "selisih": 69.7,
+    "status": "ok"
+   }
+  ],
+  "warna": {
+   "jumlah": 3,
+   "dominan": [
+    {
+     "hex": "#1e1329",
+     "persen": 57.6
+    },
+    {
+     "hex": "#402b45",
+     "persen": 25.9
+    },
+    {
+     "hex": "#784850",
+     "persen": 13.2
+    }
+   ],
+   "status": "ok"
+  },
+  "status": "ok"
+ },
+ {
+  "bingkai": "pustaka/t3_00",
+  "perintah": "node scripts/nilai-visual.mjs shots/t3_00.png --json --subjek 1012,400,273,312",
+  "keluar": 0,
+  "berkas": "E:/mila/tmp-rupababak/f4/pustaka/t3_00.png",
+  "lebar": 1920,
+  "tinggi": 1080,
+  "luminans": {
+   "p5": 23.3,
+   "p50": 38.7,
+   "p95": 57.7,
+   "rentang": 34.4,
+   "status": "ok"
+  },
+  "kontras": {
+   "mode": "subjek",
+   "a": 37.6,
+   "b": 46.4,
+   "dL": 8.9,
+   "sorot": 11.5,
+   "nilai": 11.5,
+   "status": "ok"
+  },
+  "sumber": [],
+  "warna": {
+   "jumlah": 3,
+   "dominan": [
+    {
+     "hex": "#654456",
+     "persen": 58.4
+    },
+    {
+     "hex": "#2a2335",
+     "persen": 31.3
+    },
+    {
+     "hex": "#986e64",
+     "persen": 7
+    }
+   ],
+   "status": "ok"
+  },
+  "status": "ok"
+ },
+ {
+  "bingkai": "pustaka/t7_00",
+  "perintah": "node scripts/nilai-visual.mjs shots/t7_00.png --json --subjek 1065,398,282,316",
+  "keluar": 0,
+  "berkas": "E:/mila/tmp-rupababak/f4/pustaka/t7_00.png",
+  "lebar": 1920,
+  "tinggi": 1080,
+  "luminans": {
+   "p5": 23.4,
+   "p50": 38.5,
+   "p95": 56.8,
+   "rentang": 33.5,
+   "status": "ok"
+  },
+  "kontras": {
+   "mode": "subjek",
+   "a": 37.8,
+   "b": 46,
+   "dL": 8.2,
+   "sorot": 12.1,
+   "nilai": 12.1,
+   "status": "ok"
+  },
+  "sumber": [],
+  "warna": {
+   "jumlah": 3,
+   "dominan": [
+    {
+     "hex": "#664557",
+     "persen": 58.1
+    },
+    {
+     "hex": "#292233",
+     "persen": 34.3
+    },
+    {
+     "hex": "#996e63",
+     "persen": 6.8
+    }
+   ],
+   "status": "ok"
+  },
+  "status": "ok"
+ }
+]

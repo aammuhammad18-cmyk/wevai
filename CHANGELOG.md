@@ -468,6 +468,11 @@ Versi belum dinaikkan; rilisnya langkah terpisah.
   - **Diukur ulang pada babak** (PNG, FPS=10): 560/600 frame identik, 1,59× lebih cepat; sisanya t 30–34, maks. 3 level di 6 frame terburuk, ≤ 0,2 % piksel (`bukti.txt` §8). Halaman lain belum diukur ulang.
 - **Rig tokoh lebih hemat**: blur rim dan pendar diklip ke kotak tokoh, sebelumnya memproses selebar kanvas. Tableau 6 tokoh detail 2 turun dari ±371 ke ±288 ms/frame di HD 4000 (batas 350; mesin senggang, belum diukur saat render berjalan), biaya per tokoh ±27 → ±14 ms, babak ±231 → ±222 ms. Rupa tetap: 0 % piksel beda > 16 level, maks. 7. Bukti: `evals/bukti/2026-11-04-tokoh-hemat/`. Angka 437 ms di catatan bench di atas berasal dari sebelum perbaikan ini.
 - **Segmen motion blur mata elang**: terukur 1294 ms/frame (maks. 1646), di luar segmen itu 299 ms. Pengecualian yang disengaja terhadap batas 350 ms: 27 dari 345 frame, tambahan ±30 dtk per shot saat render, gambar tidak terdampak.
+- **Rupa 3D ditingkatkan** sesudah tinjauan pemilik (bukti `evals/bukti/2026-11-04-rupa-3d/`).
+  - **Mata elang** (±286 ms/frame, dari ±262): tiga ragam pohon dengan bahan daun tembus cahaya, sawah lembah per piksel, air beriak tanpa bercak putih, gapura berbata dan api bergradien, awan, gunung berpunggung.
+  - **Peta relief** (±249 ms/frame, dari ±283): bentuk gunung beragam dengan puncak tetap GVP (±20 m), tata lahan lewat shader (nada acak, bukan data; `peta-relief.md` menyatakannya), kontur memudar saat relief naik.
+  - **Anggaran**: batas tidak dinaikkan; `mata-elang.md` dipangkas ±3 KB (alasan dan angka kalibrasi tetap di bukti `2026-11-03-mata-elang`). Mata elang 155/155, Peta 176/176.
+  - **Celah**: gerak belum dinilai (mungkin ada kilau di tepi daun); pohon sangat dekat kamera masih halus; sawah basah dekat masih seperti tambalan; lereng kiri bertangga tipis pada grid kasar.
 - **Galeri gaya sinematik** (sub-proyek 8, K2): `docs/gallery/14`–`20` dan tabel baru di README, satu still per gaya dari adegan bawaan starternya (babak, mata elang, relief candi, painterly, peta relief, wayang, diorama). Rekomendasi "sejarah → 4 atau 1" di `explainer.md` sudah bersyarat izin raster.
 
 ## 1.3.0 — 2026-11-02

@@ -93,9 +93,9 @@ kuda-kuda jaga. `jalan`: lengan pembawa benda tak mengayun, tombak tak memotong 
 - Benda selalu tegak. `tongkat`/`cangkul` selalu bertumpu di tanah; `tombak`/`payung` di tanah pada pose `tombak`, ikut genggaman
   di pose lain; `perisai` (640, daun memanjang setinggi dada)/`sesaji` ikut genggaman. Belum ada: mendayung, menunggang (butuh benda bersudut).
 - Panel kain menempel di paha (ikut ayun); pose `duduk` menukarnya dengan `pangku` dan menyembunyikan wiron + sampur.
-- Biaya (HD 4000, mesin senggang, 4 Nov 2026): tokoh detail 2 = ±14 ms/frame (±60 isi dua kali, 2 blur diklip ke kotaknya); kerumunan
-  detail 0 tanpa blur. Tableau 6 tokoh detail 2 = 290 ms/frame (tanpa tokoh 208, batas 350); babak 1 tokoh = 222 ms. Mesin sibuk menaikkan
-  angka ini (tableau yang sama sebelum klip: 371 senggang, 361–473 lintas run). Tanpa klip tiap blur memproses selebar kanvas (+80 ms di
+- Biaya (HD 4000, 4 Nov 2026, sesudah wajah + sabit + perisai, 3 run): tableau 6 tokoh detail 2 = 317–337 ms/frame (sebelumnya ±288; tanpa tokoh 208,
+  batas 350); babak 1 tokoh besar = 280–293 ms (sebelumnya 222–251). Ruang tersisa kecil: tableau > 6 tokoh detail 2 = ukur dulu. Kerumunan detail 0 tanpa blur.
+  Mesin sibuk menaikkan angka ini (tableau sebelum klip: 371 senggang, 361–473 lintas run). Tanpa klip tiap blur memproses selebar kanvas (+80 ms di
   tableau, `evals/bukti/2026-11-04-tokoh-hemat`): blur kanvas baru selalu diklip ke kotak isinya. Batas jumlah tokoh per bingkai belum diukur.
 
 ## Akurasi budaya — yang pasti dan yang diragukan

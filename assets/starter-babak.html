@@ -937,7 +937,7 @@ function lontar(o){o=opsi('lontar',{x:960,y:1000,tinggi:640,...OPS},o);
   const kipas=(a,p,rr,q,tn)=>{const F=[C[0]+cos(a)*p,C[1]+sin(a)*p+(tn?0:p*.2*(1+sin(a)))],ax=a+r(-.25,.25),sp=r(2.8,3.5),pts=[F];
     for(let j=0;j<=26;j++){const b=sp*(j/26-.5),rad=rr*(j%2?.86:1),u=cos(b)*rad,v=sin(b)*rad*q;pts.push([F[0]+cos(ax)*u-sin(ax)*v,F[1]+sin(ax)*u+cos(ax)*v]);}
     K.S+=ruas([C,F],9,5)+poly(pts);};
-  const n=[8,10,12][dt];for(let i=0;i<n;i++)kipas(-P/2+(i/n-.5)*2*P*.94+r(-.1,.1),r(26,54),r(54,74),r(.6,1));
+  const n=[8,10,12][dt];for(let i=0;i<n;i++)kipas(-P/2+(i/n-.5)*2*P*.94+r(-.1,.1),r(18,66),r(42,80),r(.6,1));
   if(dt)for(let i=0;i<4;i++)kipas(-P/2+r(-1.6,1.6),r(8,24),r(40,52),r(.6,1));
   if(dt)for(let i=0;i<3;i++)kipas(P/2+r(-.7,.7),r(30,50),r(36,48),r(.3,.5),1);
   if(dt)for(let i=1;i<12;i++){const p=bt[i];K.G+=kotak(p[0]-21,p[1],42,2.5);}
@@ -966,7 +966,7 @@ function sawahTerasering(o){o=opsi('sawahTerasering',{x:960,y:1080,lebar:1800,ti
   const A=siap('sawahTerasering',o,'#2f4a28'),{s,R,dt,N,id}=A,Wl=o.lebar/s/2,n=round(o.baris),sd=o.seed*13,xs=[],
     pc=x=>-1000*(.62+.38*vnoise(x*s/480,sd))*(1-.8*(abs(x)/Wl)**2.5),   // skala derau dalam px: halus di ukuran berapa pun
     e=(k,x)=>k?pc(x)*(k/n)**1.25+(k<n?(6*sin(x*s/110+k*1.7)+8*(vnoise(x*s/120,sd+k)-.5))/s:0):0,
-    J=c=>warnaJarak(c,o.jarak,-2000),tg=LANGIT.tengah,lx=o.cahaya&&o.cahaya.x!=null?(o.cahaya.x-o.x)/s:null,
+    J=c=>warnaJarak(c,o.jarak,-2000),tg=LANGIT.tengah,R2=mulberry32(sd),lx=o.cahaya&&o.cahaya.x!=null?(o.cahaya.x-o.x)/s:null,
     kv=p=>p.slice(1,-1).map((q,i)=>'Q'+tk(...q)+' '+tk((q[0]+p[i+2][0])/2,(q[1]+p[i+2][1])/2)).join('')+'L'+tk(...p[p.length-1]),   // kurva halus lewat titik tengah
     gs=(p,c,w,op)=>`<path d="M${tk(...p[0])+kv(p)}" fill="none" stroke="${c}" stroke-width="${f(w/s)}"${op?` opacity="${op}"`:''}/>`;
   for(let x=-Wl;x<=Wl;x+=[80,52,36][dt]/s)xs.push(x);
@@ -976,10 +976,10 @@ function sawahTerasering(o){o=opsi('sawahTerasering',{x:960,y:1080,lebar:1800,ti
     isi+=`<path d="${d}" fill="${bj?J(campur(LANGIT.horizon,tg,.72)):N.dasar}"/>`;
     if(dt){const hp=abs(e(k+1,0)-e(k,0))*s,[jh,dk]=bj?[J(campur(LANGIT.horizon,tg,.15)),J(campur(tg,LANGIT.zenit||tg,.5))]:[J(campur(N.dasar,'#b8c060',.34)),N.gelap];
       isi+=gs(ret(.76),jh,hp*.46,.55)+gs(ret(.92),jh,hp*.16,.8)+gs(ret(.16),dk,hp*.34,.6);
-      if(!bj||R()<.5)isi+=`<path d="${d}" fill="url(#${id}-p)"${bj?'':' opacity=".7"'}/>`;
+      if(!bj||R2()<.5)isi+=`<path d="${d}" fill="url(#${id}-p)"${bj?'':' opacity=".7"'}/>`;
       if(!bj)for(const q of[.3,.62])isi+=gs(ret(q),N.gelap,1.5,.4);
-      else{let c='',g='';for(let i=0;i<6;i++){const x=(R()-.5)*1.8*Wl,q=.2+.6*R();c+=el(x,e(k,x)+(e(k+1,x)-e(k,x))*q,(14+30*R())/s,1/s);}
-        if(lx!=null&&abs(lx)<Wl)for(let i=0;i<3;i++)g+=el(lx+(R()-.5)*50/s,e(k,lx)+(e(k+1,lx)-e(k,lx))*(.2+.25*i),(24+40*R())/s,1.5/s);
+      else{let c='',g='';for(let i=0;i<6;i++){const x=(R2()-.5)*1.8*Wl,q=.2+.6*R2();c+=el(x,e(k,x)+(e(k+1,x)-e(k,x))*q,(14+30*R2())/s,1/s);}
+        if(lx!=null&&abs(lx)<Wl)for(let i=0;i<3;i++)g+=el(lx+(R2()-.5)*50/s,e(k,lx)+(e(k+1,lx)-e(k,lx))*(.2+.25*i),(24+40*R2())/s,1.5/s);
         isi+=lap(c,N.rim,.3)+lap(g,N.cahaya,.75);}}
     isi+=gs(ret(.06),'#05040a',w*.8,.28)+gs(b,N.gelap,w)+gs(b.map(([x,y])=>[x,y-w*.4/s]),N.lis,.9,.5);}
   return rakit('sawahTerasering',o,A,K,{isi,ekstra:`<pattern id="${id}-p" patternUnits="userSpaceOnUse" width="${f(13/s)}" height="${f(10/s)}"><path d="M0,0h${f(1.6/s)}v${f(4/s)}h${f(-1.6/s)}zM${f(6.5/s)},${f(5/s)}h${f(1.6/s)}v${f(4/s)}h${f(-1.6/s)}z" fill="${J('#26401f')}" opacity=".55"/></pattern>`});}

@@ -1,6 +1,6 @@
 # Changelog
 
-## Belum dirilis
+## 1.4.0 — 2026-11-05
 
 **Status penerimaan rilis ini**: pemilik menerima kesembilan butir vonis visual pada 4 Nov (siluet dan babak sinematik, mata elang, relief, painterly, peta relief, wayang, diorama, tokoh dan pustaka), dengan satu jawaban "terima" tanpa catatan per butir. Celah yang dicatat per gaya di bawah tetap terbuka. Uji langsung VO Gemini serta tinjauan dalang dan ahli arsitektur pura belum dilakukan; uji Antigravity pemilik baru mencakup satu opener 20 detik sampai MP4, bukan video panjang (lihat "Uji lapangan Antigravity").
 

@@ -1,5 +1,17 @@
 # Changelog
 
+## Belum dirilis
+
+- **Notifikasi update**: sekali per sesi agen menjalankan `node scripts/wevai.mjs versi`. Perintah ini mengecek rilis GitHub
+  paling sering sekali per 24 jam, diam saat offline atau dibatasi API, dan menampilkan pilihan update sekarang, nanti
+  (`--nanti`), atau lewati versi itu (`--lewati`). `update` menolak (kode 3) bila render berjalan, ada perubahan berkas
+  terlacak, atau cabang bukan `main`. Untuk git clone: maju lurus ke tag rilis, bisa dibatalkan dengan `--kembali`. Untuk plugin
+  Claude Code: `claude plugin update`. Untuk Antigravity dan ZIP: hanya mencetak perintah pasang ulang atau tautan unduh. Matikan
+  dengan `WEVAI_CEK_UPDATE=0` atau `~/.wevai/pengaturan.json` `{"cekUpdate": false}`. Uji: `scripts/test-pembaruan.mjs`
+  (gerbang rilis + CI).
+- `lint-motion.mjs --help` kini memakai `scripts/bantuan.mjs` seperti skrip lain (mencetak seluruh komentar kepala).
+- `SKILL.md` langkah 0 dan 3 diringkas agar kalimat cek versi muat tanpa menambah ukuran badan.
+
 ## 1.4.1 — 2026-11-06
 
 - `lint-motion.mjs --help` (atau `-h`) kini mencetak cara pakai dan keluar dengan kode 0. Sebelumnya `--help` diabaikan lalu

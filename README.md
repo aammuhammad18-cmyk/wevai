@@ -287,6 +287,16 @@ Call it with `/wevai` in the App (for example `/wevai make a 20-second opener fo
 
 Image and video generation is optional: register the MCP server you use in `~/.gemini/config/mcp_config.json` (Windows: `%USERPROFILE%\.gemini\config\mcp_config.json`) under `mcpServers`. Higgsfield's endpoint is usually quoted as `https://mcp.higgsfield.ai/mcp`, but that URL is **unverified** (only third-party write-ups give it): confirm it in Higgsfield's own docs first.
 
+### Updates
+
+Once per session the agent runs `node "<skill folder>/scripts/wevai.mjs" versi`. It checks GitHub for a new release at most once every 24 hours, stays silent when offline, and tells you in the conversation when a new version is out. You choose: `wevai.mjs update` (now), `update --nanti` (remind me tomorrow), or `update --lewati` (skip this version). Nothing is updated unless you pick it.
+
+- **git clone:** fast-forwards to the release tag. It refuses while a render is running, when tracked files are modified, or when the branch is not `main`. `update --kembali` undoes the last update.
+- **Claude Code plugin:** runs `claude plugin marketplace update` and `claude plugin update wevai@<marketplace>`; restart the session afterwards.
+- **Antigravity plugin / ZIP:** `agy` has no update command, so WeVai only prints the reinstall command (or the download link).
+
+To turn the check off, set `WEVAI_CEK_UPDATE=0`, or put `{"cekUpdate": false}` in `~/.wevai/pengaturan.json`. Versions 1.4.1 and older don't have this check: update them by hand once.
+
 ## Requirements
 
 | To… | You need |

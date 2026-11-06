@@ -282,12 +282,12 @@ bagian 1 dan 1b. Ringkasnya:
 
 ## Alur kerja
 
-0. **Kenali jenisnya** (tabel "Jenis pekerjaan"). Explainer → buka
-   `references/explainer.md` dan ikuti "Langkah nol" di sana: SATU
-   pertanyaan berisi gaya (enam pilihan + rekomendasi), rasio, durasi,
-   suara, plus pagar durasi. Jenis lain → lanjut; tanya hanya hal yang
-   benar-benar tidak bisa diturunkan dari brief (rasio, durasi, ada
-   musik/VO atau tidak), dalam satu pertanyaan.
+0. **Kenali jenisnya** (tabel "Jenis pekerjaan"). Explainer → ikuti
+   "Langkah nol" `references/explainer.md`: SATU pertanyaan (gaya: enam
+   pilihan + rekomendasi; rasio, durasi, suara, pagar durasi). Jenis lain:
+   satu pertanyaan, hanya yang tak bisa diturunkan dari brief (rasio,
+   durasi, musik/VO). Sekali per sesi jalankan `node "<folder skill>/scripts/wevai.mjs" versi`;
+   bila ada versi baru, sampaikan pesannya apa adanya dan lanjutkan tugas. Jalankan `update` hanya bila user memilihnya.
 0b. **Tulis style brief** (Hukum #3); ditunjukkan bersama rundown di langkah 2.
 1. **Serap referensi & sumber brand.** Minta screenshot/potongan video
    referensi bila ada; petakan per shot (durasi, gerakan, jenis transisi,
@@ -302,18 +302,16 @@ bagian 1 dan 1b. Ringkasnya:
    **BERHENTI di sini: kirim style brief + rundown, akhiri giliranmu, tunggu balasan user.** Permintaan awal ("buatkan …") dan mode otomatis agen BUKAN persetujuan. Sebelum ada balasan, jangan membuat berkas apa pun; merombak rundown murah, merombak kode mahal. Lewati hanya bila user sudah menulis "langsung buat" atau sejenisnya.
 3. **Scaffold arsitektur.** Salin starter dengan perintah salin berkas
    (`Copy-Item`/`cp`) ke `index.html` di folder proyek — jangan diketik ulang.
-   Opener/promo/bumper/typography: `assets/starter-opener.html` (stage 1920×1080,
-   rig kamera `#world`, scene Three.js ber-state, helper timeline), lalu SEGERA
+   Opener/promo/bumper/typography: `assets/starter-opener.html` (rig kamera
+   `#world`, scene Three.js ber-state), lalu SEGERA
    ganti token warna, font, dan bahasa latarnya sesuai style brief — starter
    sengaja abu-abu. Explainer: starter sesuai gaya —
-   `starter-explainer-kartun/-jurnalisme/-katalog/-sketsa.html` (mode
-   kolase: kamera into/settle/look/home di atas cutout/foto, say/unsay per
-   kata, draw anotasi, push-through antar adegan) atau
+   `starter-explainer-kartun/-jurnalisme/-katalog/-sketsa.html` (kolase:
+   kamera di atas cutout/foto, say/unsay per kata, push-through) atau
    `starter-explainer.html` (aksi kontinu: dunia mengalir, hero, objek
    dunia, view peta, whip) atau `starter-sinematik.html` (siluet sinematik satu adegan, `techniques.md` §7d) atau
    `starter-babak.html` (babak multi-adegan, `sinematografi.md` §5; sudah memuat aset Jawa kuno `pustaka.*` dan tokoh
-   `tokoh.*`: `references/pustaka.md`, `references/tokoh.md`). Struktur multi-file dan
-   penjelasan tiap keputusan ada di `references/architecture.md`.
+   `tokoh.*`: `references/pustaka.md`, `references/tokoh.md`). Multi-file: `references/architecture.md`.
 4. **Bangun adegan satu per satu** dengan resep di
    `references/techniques.md` (split per huruf + motion blur berarah,
    pan 3D per kata, menu transisi, mockup UI). Resep adalah perkakas, bukan

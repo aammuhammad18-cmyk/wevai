@@ -26,6 +26,9 @@ jobs:
       - name: Uji VO Gemini (node:test, tanpa jaringan dan tanpa kunci)
         run: node --test scripts/test-vo.mjs
 
+      - name: Uji notifikasi dan pembaruan (node:test, git sementara, server http lokal)
+        run: node --test scripts/test-pembaruan.mjs
+
       - name: Uji mata elang (node:test, matematika terbang murni, tanpa browser)
         run: node --test scripts/test-elang.mjs
 

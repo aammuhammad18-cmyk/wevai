@@ -38,6 +38,7 @@ const sintaksGagal = skrip.filter(f => node('--check', f).status !== 0);
 cek('sintaks skrip', !sintaksGagal.length, sintaksGagal.join('\n'));
 jalan('test-kamera', '--test', 'scripts/test-kamera.mjs');
 jalan('test-vo', '--test', 'scripts/test-vo.mjs');
+jalan('test-pembaruan', '--test', 'scripts/test-pembaruan.mjs');
 jalan('test-elang', '--test', 'scripts/test-elang.mjs');
 jalan('test-peta', '--test', 'scripts/test-peta.mjs');
 jalan('test-nilai', '--test', 'scripts/test-nilai.mjs');
@@ -59,7 +60,7 @@ cek('fixture lint-relatif-buruk wajib WARN', relatif.status === 0 && /WARN gsap-
 const dalamSkill = node('scripts/lint-motion.mjs', 'index.html');
 cek('lint menolak keluaran di dalam folder skill', dalamSkill.status === 1 && /FAIL folder-proyek/.test(dalamSkill.stdout), dalamSkill.stdout);
 const bantuan = node('scripts/lint-motion.mjs', '--help');
-cek('lint --help mencetak cara pakai', bantuan.status === 0 && /^Pakai/.test(bantuan.stdout) && !/FAIL folder-proyek/.test(bantuan.stdout), bantuan.stdout);
+cek('lint --help mencetak cara pakai', bantuan.status === 0 && /Pakai/.test(bantuan.stdout) && !/FAIL folder-proyek/.test(bantuan.stdout), bantuan.stdout);
 jalan('cdn-integrity --check', 'scripts/cdn-integrity.mjs', '--check', ...starter);
 if (tanpaBrowser) console.log('lewat  test-starters (--tanpa-browser): jalankan terpisah sebelum membuat tag');
 else jalan('test-starters', 'scripts/test-starters.mjs');

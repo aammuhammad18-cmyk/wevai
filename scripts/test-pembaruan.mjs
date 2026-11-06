@@ -7,7 +7,9 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, writeFileSync, readFileSync, existsSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { spawnSync } from 'node:child_process';
+import { spawnSync, spawn } from 'node:child_process';
+import { createServer } from 'node:http';
+import { fileURLToPath } from 'node:url';
 import * as p from './pembaruan.mjs';
 
 const dibuat = [];
@@ -216,4 +218,38 @@ test('jalankanUpdate antigravity/claude: antigravity tak menjalankan apa pun; cl
   assert.equal(await p.jalankanUpdate({ ...dasar, akar: cl, jalan: () => ({ status: 1, stdout: '', stderr: 'not found' }) }), 1);
   assert.match(log.join('\n'), /claude plugin update wevai@mp/);
   assert.equal(await p.jalankanUpdate({ ...dasar, akar: cl, daftarProses: () => 'node export-frames.mjs' }), 3);
+});
+
+/* ---------- Task 4: CLI wevai.mjs ---------- */
+const CLI = fileURLToPath(new URL('./wevai.mjs', import.meta.url));
+const cli = (args, env) => new Promise(selesai => {                 // async: server http di proses ini harus tetap bisa membalas
+  const c = spawn(process.execPath, [CLI, ...args], { env: { ...process.env, WEVAI_CEK_UPDATE: '', ...env } });
+  let out = ''; c.stdout.on('data', b => out += b); c.stderr.on('data', b => out += b);
+  c.on('close', kode => selesai({ kode, out }));
+});
+
+test('CLI: versi memberi notifikasi, opt-out tanpa permintaan, port mati diam, --lewati, subperintah salah', async () => {
+  let diminta = 0;
+  const server = createServer((q, r) => { diminta++; r.setHeader('content-type', 'application/json');
+    r.end(JSON.stringify({ tag_name: 'v9.9.9', body: '- baru', html_url: 'http://x' })); });
+  await new Promise(ok => server.listen(0, '127.0.0.1', ok));
+  const url = `http://127.0.0.1:${server.address().port}/`;
+  const rumah = () => { const d = folder(); return { HOME: d, USERPROFILE: d, WEVAI_RILIS_URL: url }; };
+  try {
+    const env = rumah();
+    let r = await cli(['versi'], env);
+    assert.equal(r.kode, 0); assert.match(r.out, /^WeVai \d+\.\d+\.\d+ \(/); assert.match(r.out, /WeVai 9\.9\.9 tersedia/);
+    assert.equal(diminta, 1);
+    r = await cli(['versi'], { ...rumah(), WEVAI_CEK_UPDATE: '0' });
+    assert.equal(r.kode, 0); assert.doesNotMatch(r.out, /tersedia/); assert.equal(diminta, 1);
+    r = await cli(['versi'], { ...rumah(), WEVAI_RILIS_URL: 'http://127.0.0.1:1/' });
+    assert.equal(r.kode, 0); assert.equal(r.out.trim().split('\n').length, 1, r.out);
+    r = await cli(['update', '--lewati'], env);
+    assert.equal(r.kode, 0, r.out);
+    r = await cli(['versi'], env);
+    assert.doesNotMatch(r.out, /tersedia/);
+    assert.equal((await cli(['xyz'], env)).kode, 2);
+    r = await cli(['--help'], env);
+    assert.equal(r.kode, 0); assert.match(r.out, /wevai\.mjs versi/);
+  } finally { server.close(); }
 });

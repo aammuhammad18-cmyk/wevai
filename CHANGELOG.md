@@ -1,6 +1,6 @@
 # Changelog
 
-## Belum dirilis
+## 1.4.1 — 2026-11-06
 
 - `lint-motion.mjs --help` (atau `-h`) kini mencetak cara pakai dan keluar dengan kode 0. Sebelumnya `--help` diabaikan lalu
   lint memeriksa `./index.html`, jadi dari folder skill ia melapor `FAIL folder-proyek` dengan kode 1. Gerbang rilis dan CI

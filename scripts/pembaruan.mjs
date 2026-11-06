@@ -7,6 +7,7 @@
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { spawnSync } from 'node:child_process';
 
 export const AKAR = join(dirname(fileURLToPath(import.meta.url)), '..');
 const perintah = () => `node "${AKAR.replace(/\\/g, '/')}/scripts/wevai.mjs" update`;
@@ -95,4 +96,84 @@ export function pesanNotifikasi(status, terpasang, sekarang) {
     `- nanti (ingatkan besok): ${perintah()} --nanti`,
     `- lewati versi ini: ${perintah()} --lewati`,
   ].join('\n');
+}
+
+const HARI = 86_400_000;
+export const REPO = 'https://github.com/aammuhammad18-cmyk/wevai';
+
+export const daftarProsesBawaan = () => {
+  const r = process.platform === 'win32'
+    ? spawnSync('powershell', ['-NoProfile', '-Command', 'Get-CimInstance Win32_Process | % CommandLine'], { encoding: 'utf8' })
+    : spawnSync('ps', ['-eo', 'args'], { encoding: 'utf8' });
+  if (r.status !== 0 || !r.stdout) throw new Error(r.error?.message || r.stderr || 'daftar proses kosong');
+  return r.stdout;
+};
+
+// `claude` di Windows adalah .cmd: perlu shell. Argumen di sini tanpa spasi, jadi aman.
+export const jalanBawaan = (cmd, args, { cwd } = {}) =>
+  spawnSync(cmd, args, { cwd, encoding: 'utf8', shell: process.platform === 'win32' && cmd === 'claude' });
+
+export function renderBerjalan({ daftarProses = daftarProsesBawaan, log = console.log } = {}) {
+  try { return /export-frames\.mjs|antre-render\.mjs/.test(daftarProses()); }
+  catch (e) { log(`Daftar proses tidak terbaca (${String(e.message).trim()}); dianggap ada render berjalan.`); return true; }
+}
+
+export async function jalankanUpdate({ akar, status, pilihan, jalan = jalanBawaan, daftarProses = daftarProsesBawaan,
+  sekarang = Date.now(), berkas, log = console.log }) {
+  const jenis = jenisPasang(akar), terpasang = versiTerpasang(akar), { terbaru } = status;
+  const simpan = ubah => simpanStatus(berkas, { ...muatStatus(berkas, sekarang), ...ubah });
+  const render = () => renderBerjalan({ daftarProses, log }) && (log('Ada render berjalan (export-frames/antre-render). Update ditolak; coba lagi sesudah render selesai.'), true);
+  const g = (...a) => jalan('git', a, { cwd: akar });
+  const pengamanGit = () => {
+    if (render()) return 3;
+    const kotor = g('status', '--porcelain', '--untracked-files=no');
+    if (kotor.status !== 0 || kotor.stdout.trim()) { log(`Ada perubahan berkas terlacak di ${akar}. Update ditolak; simpan atau buang perubahan itu dulu.\n${kotor.stdout}${kotor.stderr ?? ''}`.trimEnd()); return 3; }
+    const cabang = g('rev-parse', '--abbrev-ref', 'HEAD').stdout?.trim();
+    if (cabang !== 'main') { log(`Cabang aktif "${cabang}", bukan main. Update ditolak.`); return 3; }
+    return 0;
+  };
+
+  if (pilihan === 'kembali') {
+    if (jenis !== 'git') { log('--kembali hanya untuk WeVai yang dipasang lewat git clone.'); return 1; }
+    if (!status.sebelumnya) { log('Belum ada update yang bisa dibatalkan.'); return 1; }
+    const tolak = pengamanGit(); if (tolak) return tolak;
+    const r = g('reset', '--keep', status.sebelumnya);
+    if (r.status !== 0) { log(`Gagal kembali ke ${status.sebelumnya}: ${r.stderr}`.trimEnd()); return 1; }
+    const { sebelumnya, ...sisa } = muatStatus(berkas, sekarang);
+    simpanStatus(berkas, { ...sisa, lewati: terpasang });
+    log(`WeVai kembali ke ${versiTerpasang(akar)}. Versi ${terpasang} dilewati.`);
+    return 0;
+  }
+  if (!terbaru) { log('Belum bisa memeriksa rilis WeVai (offline atau GitHub membatasi permintaan). Coba lagi nanti.'); return 0; }
+  if (!lebihBaru(terbaru, terpasang)) { log(`WeVai ${terpasang} sudah versi terbaru.`); return 0; }
+  if (pilihan === 'nanti') { simpan({ tundaSampai: sekarang + HARI }); log(`Baik, WeVai ${terbaru} diingatkan lagi besok.`); return 0; }
+  if (pilihan === 'lewati') { simpan({ lewati: terbaru }); log(`Versi ${terbaru} dilewati; notifikasi muncul lagi saat ada rilis yang lebih baru.`); return 0; }
+
+  if (jenis === 'antigravity') {
+    log(`Antigravity belum punya perintah update plugin. Untuk memasang WeVai ${terbaru}, jalankan sendiri:\n  agy plugin install ${REPO}\n(Perilaku menimpa versi lama belum diverifikasi.)`);
+    return 0;
+  }
+  if (jenis === 'zip') { log(`WeVai ini dipasang dari ZIP. Unduh ${terbaru} di: ${status.url || REPO + '/releases/latest'}`); return 0; }
+  if (jenis === 'claude') {
+    if (render()) return 3;
+    const mp = marketplaceClaude(akar), cmd = [['plugin', 'marketplace', 'update', mp], ['plugin', 'update', `wevai@${mp}`]];
+    for (const a of cmd) {
+      const r = jalan('claude', a, {});
+      if (r.status !== 0) { log(`Perintah claude gagal (${(r.error?.message || r.stderr || '').trim()}). Jalankan manual:\n${cmd.map(c => '  claude ' + c.join(' ')).join('\n')}`); return 1; }
+    }
+    log(`WeVai ${terbaru} terpasang. Mulai ulang sesi Claude Code agar versi baru dimuat.`);
+    return 0;
+  }
+
+  const tolak = pengamanGit(); if (tolak) return tolak;
+  const ambil = g('fetch', '--tags', 'origin');
+  if (ambil.status !== 0) { log(`Gagal mengambil rilis dari origin: ${ambil.stderr}`.trimEnd()); return 1; }
+  const sebelumnya = g('rev-parse', 'HEAD').stdout.trim();
+  if (g('merge', '--ff-only', `v${terbaru}`).status !== 0) { log(`main lokal tidak bisa maju lurus ke v${terbaru}; tidak ada yang diubah.`); return 1; }
+  simpan({ sebelumnya });
+  const cek = jalan('node', ['scripts/bump-version.mjs', '--check'], { cwd: akar });
+  if (cek.status !== 0) log(`Peringatan: pemeriksaan versi gagal sesudah update.\n${cek.stdout}${cek.stderr}`.trimEnd());
+  log(`WeVai diperbarui ${terpasang} → ${versiTerpasang(akar)}. Batalkan dengan: ${perintah()} --kembali`);
+  if (status.catatan) log(status.catatan.trim());
+  return cek.status === 0 ? 0 : 1;
 }

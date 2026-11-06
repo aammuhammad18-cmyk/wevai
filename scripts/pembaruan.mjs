@@ -51,7 +51,36 @@ export function simpanStatus(berkas, status) {
   writeFileSync(berkas, JSON.stringify(status, null, 2) + '\n');
 }
 
-const lebihBaru = (terbaru, terpasang) => { try { return bandingVersi(terbaru, terpasang) > 0; } catch { return false; } };
+export const BERKAS_STATUS = rumah => join(rumah, '.wevai', 'pembaruan.json');
+export const URL_RILIS = 'https://api.github.com/repos/aammuhammad18-cmyk/wevai/releases/latest';
+
+export function cekAktif({ env, rumah }) {
+  if (env.WEVAI_CEK_UPDATE === '0') return false;
+  try { return JSON.parse(readFileSync(join(rumah, '.wevai', 'pengaturan.json'), 'utf8'))?.cekUpdate !== false; }
+  catch { return true; }
+}
+
+// Gagal apa pun (offline, batas waktu, 403/429 batas laju, HTML, tanpa tag_name) → status lama, tanpa menulis, tanpa melempar.
+export async function cekRilis({ fetch, sekarang, berkas, url, paksa = false }) {
+  const status = muatStatus(berkas, sekarang);
+  if (!paksa && status.dicek != null && sekarang - status.dicek < 86_400_000) return status;
+  try {
+    const r = await fetch(url, {
+      signal: AbortSignal.timeout(3000),
+      headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'wevai-cek-update' },
+    });
+    if (!r.ok) return status;
+    const j = await r.json();
+    const terbaru = String(j?.tag_name ?? '').replace(/^v/, '');
+    urai(terbaru);
+    const baru = { ...status, terbaru, catatan: j.body ?? '', url: j.html_url ?? '', dicek: sekarang };
+    if (terbaru !== status.terbaru) delete baru.tundaSampai;
+    simpanStatus(berkas, baru);
+    return baru;
+  } catch { return status; }
+}
+
+const lebihBaru =(terbaru, terpasang) => { try { return bandingVersi(terbaru, terpasang) > 0; } catch { return false; } };
 
 export function pesanNotifikasi(status, terpasang, sekarang) {
   const { terbaru } = status;

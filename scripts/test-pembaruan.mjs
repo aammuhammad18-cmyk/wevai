@@ -62,3 +62,59 @@ test('pesanNotifikasi: tampil, lewati, tunda, tidak lebih baru', () => {
   assert.equal(p.pesanNotifikasi(s, '1.5.0', 0), null);
   assert.equal(p.pesanNotifikasi({}, '1.5.0', 0), null);
 });
+
+/* ---------- Task 2: cek rilis, cache 24 jam, opt-out ---------- */
+const HARI = 86_400_000;
+const balas = (status, isi, jenis = 'application/json') => async () => ({
+  ok: status >= 200 && status < 300, status, headers: { get: () => jenis },
+  json: async () => (typeof isi === 'string' ? JSON.parse(isi) : isi),
+});
+const hitung = f => { const g = async (...a) => { g.n++; g.args = a; return f(...a); }; g.n = 0; return g; };
+const RILIS = { tag_name: 'v1.5.0', body: '- baru', html_url: 'https://x/v1.5.0' };
+
+test('cekRilis: sekali per 24 jam, paksa memanggil lagi, header benar', async () => {
+  const berkas = join(folder(), 'pembaruan.json'), fetch = hitung(balas(200, RILIS));
+  const s = await p.cekRilis({ fetch, sekarang: 1000, berkas, url: 'https://api/x' });
+  assert.deepEqual(s, { terbaru: '1.5.0', catatan: '- baru', url: 'https://x/v1.5.0', dicek: 1000 });
+  assert.deepEqual(p.muatStatus(berkas, 1000), s);
+  assert.equal(fetch.args[0], 'https://api/x');
+  assert.equal(fetch.args[1].headers['User-Agent'], 'wevai-cek-update');
+  assert.equal(fetch.args[1].headers.Accept, 'application/vnd.github+json');
+  assert.ok(fetch.args[1].signal);
+  await p.cekRilis({ fetch, sekarang: 1000 + HARI - 1, berkas, url: 'https://api/x' });
+  assert.equal(fetch.n, 1);
+  await p.cekRilis({ fetch, sekarang: 1000 + HARI, berkas, url: 'https://api/x' });
+  assert.equal(fetch.n, 2);
+  await p.cekRilis({ fetch, sekarang: 1000 + HARI, berkas, url: 'https://api/x', paksa: true });
+  assert.equal(fetch.n, 3);
+});
+
+test('cekRilis: 403, HTML, tanpa tag_name, offline → status lama, berkas tak berubah, tak melempar', async () => {
+  const berkas = join(folder(), 'pembaruan.json'), lama = { terbaru: '1.4.1', dicek: 1 };
+  p.simpanStatus(berkas, lama);
+  const isiLama = readFileSync(berkas, 'utf8');
+  const gagal = [balas(403, { message: 'rate limit' }), balas(429, {}), balas(200, '<html>', 'text/html'),
+    balas(200, { name: 'x' }), async () => { throw new Error('ENOTFOUND'); }];
+  for (const fetch of gagal) {
+    assert.deepEqual(await p.cekRilis({ fetch, sekarang: 10 * HARI, berkas, url: 'u' }), lama);
+    assert.equal(readFileSync(berkas, 'utf8'), isiLama);
+  }
+});
+
+test('cekRilis: terbaru berganti → tundaSampai hilang, lewati tetap, notifikasi versi baru muncul', async () => {
+  const berkas = join(folder(), 'pembaruan.json');
+  p.simpanStatus(berkas, { terbaru: '1.5.0', lewati: '1.5.0', tundaSampai: 99 * HARI, dicek: 1 });
+  const s = await p.cekRilis({ fetch: balas(200, { ...RILIS, tag_name: 'v1.5.1' }), sekarang: 2 * HARI, berkas, url: 'u' });
+  assert.equal(s.terbaru, '1.5.1'); assert.equal(s.lewati, '1.5.0'); assert.equal('tundaSampai' in s, false);
+  assert.match(p.pesanNotifikasi(s, '1.4.1', 2 * HARI), /WeVai 1\.5\.1 tersedia/);
+});
+
+test('cekAktif: env 0 atau pengaturan cekUpdate false → mati; berkas rusak → hidup', () => {
+  const rumah = folder();
+  assert.equal(p.cekAktif({ env: {}, rumah }), true);
+  assert.equal(p.cekAktif({ env: { WEVAI_CEK_UPDATE: '0' }, rumah }), false);
+  p.simpanStatus(join(rumah, '.wevai', 'pengaturan.json'), { cekUpdate: false });
+  assert.equal(p.cekAktif({ env: {}, rumah }), false);
+  writeFileSync(join(rumah, '.wevai', 'pengaturan.json'), '{rusak');
+  assert.equal(p.cekAktif({ env: {}, rumah }), true);
+});

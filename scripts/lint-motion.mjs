@@ -18,6 +18,11 @@ import { dirname, isAbsolute, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const argv = process.argv.slice(2);
+if (argv.some(a => a === '--help' || a === '-h')) {           // bantuan = blok "Pakai" di atas; jangan dianggap nama berkas
+  const src = await readFile(fileURLToPath(import.meta.url), 'utf8');
+  console.log(src.slice(src.indexOf('   Pakai'), src.indexOf('   ===', src.indexOf('   Pakai'))).replace(/^   /gm, '').trimEnd());
+  process.exit(0);
+}
 const asJson = argv.includes('--json');
 const files = argv.filter(a => !a.startsWith('--'));
 if (!files.length) files.push('index.html');

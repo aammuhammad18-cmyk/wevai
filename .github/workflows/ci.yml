@@ -68,6 +68,9 @@ jobs:
           # fixture relatif hanya WARN: exit 0 dan harus memuat gsap-relatif
           out=$(node scripts/lint-motion.mjs evals/bukti/lint-relatif-buruk.html)
           grep -q 'WARN gsap-relatif' <<<"$out" || { echo '::error::lint-relatif-buruk.html tidak lagi memicu gsap-relatif'; exit 1; }
+          # --help: cara pakai, exit 0, bukan lint ./index.html
+          out=$(node scripts/lint-motion.mjs --help)
+          grep -q 'Pakai' <<<"$out" || { echo '::error::lint-motion --help tidak mencetak cara pakai'; exit 1; }
 
       - name: SRI library CDN masih cocok
         run: node scripts/cdn-integrity.mjs --check assets/*.html

@@ -1,5 +1,13 @@
 # Changelog
 
+## Belum dirilis
+
+- `lint-motion.mjs --help` (atau `-h`) kini mencetak cara pakai dan keluar dengan kode 0. Sebelumnya `--help` diabaikan lalu
+  lint memeriksa `./index.html`, jadi dari folder skill ia melapor `FAIL folder-proyek` dengan kode 1. Gerbang rilis dan CI
+  kini memeriksanya.
+- `references/alat-kerja.md` tidak lagi menawarkan `gemini-3.1-flash-tts-preview` untuk VO Gemini: Google menjadwalkan
+  penutupannya paling cepat 17 Nov 2026 dan menyarankan `gemini-3.8-flash-tts` (bawaan) atau `gemini-3.8-flash-lite-tts`.
+
 ## 1.4.0 — 2026-11-05
 
 **Status penerimaan rilis ini**: pemilik menerima kesembilan butir vonis visual pada 4 Nov (siluet dan babak sinematik, mata elang, relief, painterly, peta relief, wayang, diorama, tokoh dan pustaka), dengan satu jawaban "terima" tanpa catatan per butir. Celah yang dicatat per gaya di bawah tetap terbuka. Uji langsung VO Gemini serta tinjauan dalang dan ahli arsitektur pura belum dilakukan; uji Antigravity pemilik baru mencakup satu opener 20 detik sampai MP4, bukan video panjang (lihat "Uji lapangan Antigravity").

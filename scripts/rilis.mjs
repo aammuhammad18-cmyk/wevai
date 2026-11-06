@@ -58,6 +58,8 @@ cek('fixture lint-three-buruk wajib gagal', tiga.status === 1 && /FAIL determini
 cek('fixture lint-relatif-buruk wajib WARN', relatif.status === 0 && /WARN gsap-relatif/.test(relatif.stdout), relatif.stdout);
 const dalamSkill = node('scripts/lint-motion.mjs', 'index.html');
 cek('lint menolak keluaran di dalam folder skill', dalamSkill.status === 1 && /FAIL folder-proyek/.test(dalamSkill.stdout), dalamSkill.stdout);
+const bantuan = node('scripts/lint-motion.mjs', '--help');
+cek('lint --help mencetak cara pakai', bantuan.status === 0 && /Pakai/.test(bantuan.stdout) && !/FAIL/.test(bantuan.stdout), bantuan.stdout);
 jalan('cdn-integrity --check', 'scripts/cdn-integrity.mjs', '--check', ...starter);
 if (tanpaBrowser) console.log('lewat  test-starters (--tanpa-browser): jalankan terpisah sebelum membuat tag');
 else jalan('test-starters', 'scripts/test-starters.mjs');

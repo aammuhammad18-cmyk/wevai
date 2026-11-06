@@ -258,7 +258,7 @@ satu permintaan, masukan maksimal 8.192 token: pecah per paragraf.
 | Opsi | Arti |
 |---|---|
 | `--keluar <folder>` | folder keluaran (bawaan `audio/vo`) |
-| `--model` | bawaan `gemini-3.8-flash-tts`; ada juga `gemini-3.8-flash-lite-tts` dan `gemini-3.1-flash-tts-preview` |
+| `--model` | bawaan `gemini-3.8-flash-tts`; ada juga `gemini-3.8-flash-lite-tts`. Jangan pakai `gemini-3.1-flash-tts-preview`: Google menjadwalkan penutupannya paling cepat 17 Nov 2026 |
 | `--suara` | bawaan `Iapetus` (narator); `Kore` cocok untuk pencerita |
 | `--gaya "<teks>"` | gaya per giliran bicara: emosi, tempo, volume (dikirim sebagai `speech_metadata.style`) |
 | `--paralel N` | N segmen sekaligus (bawaan 1, maksimal 10; makin besar makin cepat menabrak batas per menit) |

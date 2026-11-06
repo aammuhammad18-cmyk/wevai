@@ -281,7 +281,7 @@ Already have a checkout elsewhere? Don't link it with a Windows junction: Antigr
 
 Start a new conversation afterwards, then ask the agent whether `wevai` is in its skill list.
 
-If every tool call fails with `Cannot find module` and a path cut off at a space (for example `..."C:\Users\IT'`), the `PreToolUse` hook of the `googlecloudtools.datacloud_telemetry` plugin is breaking on a Windows user name with a space, and the agent falls back to replying with text only. `agy plugin disable googlecloudtools.datacloud_telemetry` clears it.
+If every tool call fails with `Cannot find module` and a path cut off at a space (for example `..."C:\Users\Jane'` for the user `Jane Doe`), the `PreToolUse` hook of the `googlecloudtools.datacloud_telemetry` plugin is breaking on a Windows user name with a space, and the agent falls back to replying with text only. `agy plugin disable googlecloudtools.datacloud_telemetry` clears it.
 
 Call it with `/wevai` in the App (for example `/wevai make a 20-second opener for a coffee app`), or just ask for an opener, promo, or explainer and let the agent pick the skill.
 

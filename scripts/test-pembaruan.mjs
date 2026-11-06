@@ -64,6 +64,8 @@ test('pesanNotifikasi: tampil, lewati, tunda, tidak lebih baru', () => {
   assert.notEqual(p.pesanNotifikasi({ ...s, tundaSampai: 10 }, '1.4.1', 11), null);
   assert.equal(p.pesanNotifikasi(s, '1.5.0', 0), null);
   assert.equal(p.pesanNotifikasi({}, '1.5.0', 0), null);
+  const bungkus = p.pesanNotifikasi({ terbaru: '1.5.0', catatan: '- satu panjang\r\n  sambungan.\r\n- dua' }, '1.4.1', 0);
+  assert.match(bungkus, /^- satu panjang sambungan\.$/m);              // butir CHANGELOG yang dipatah baris disatukan
 });
 
 /* ---------- Task 2: cek rilis, cache 24 jam, opt-out ---------- */
@@ -150,6 +152,8 @@ test('renderBerjalan: export-frames/antre-render terdeteksi; daftar tak terbaca 
   assert.equal(p.renderBerjalan({ daftarProses: () => 'node E:/x/scripts/export-frames.mjs a.html\n' }), true);
   assert.equal(p.renderBerjalan({ daftarProses: () => 'node antre-render.mjs\n' }), true);
   assert.equal(p.renderBerjalan({ daftarProses: () => 'node lain.mjs\n' }), false);
+  assert.equal(p.renderBerjalan({ daftarProses: () => 'bash alat/antre-render.sh\nsleep 30\n' }), true);   // antrean proyek menunggu antarbabak
+  assert.equal(p.renderBerjalan({ daftarProses: () => 'C:\\ff\\ffmpeg.exe -i a.mp4 b.mp4\n' }), true);
   assert.equal(p.renderBerjalan({ daftarProses: () => { throw new Error('x'); }, log: () => {} }), true);
 });
 
@@ -162,6 +166,18 @@ test('jalankanUpdate git: sukses maju ke tag, sebelumnya tersimpan; lalu kembali
   assert.equal(await p.jalankanUpdate({ ...o, status: s, pilihan: 'kembali' }), 0, log.join('\n'));
   assert.equal(git(r.akar, 'rev-parse', 'HEAD'), r.v100);
   assert.equal(p.muatStatus(r.berkas, 1000).lewati, '1.0.1');
+});
+
+test('jalankanUpdate kembali: ditolak bila HEAD sudah bergerak sesudah update atau clone lain', async () => {
+  const r = siapkanRepo(), { o, log } = opsi(r);
+  assert.equal(await p.jalankanUpdate(o), 0, log.join('\n'));
+  writeFileSync(join(r.akar, 'lokal.txt'), 'x'); git(r.akar, 'add', '.'); git(r.akar, 'commit', '-qm', 'kerja lokal');
+  const kepala = git(r.akar, 'rev-parse', 'HEAD');
+  assert.equal(await p.jalankanUpdate({ ...o, status: p.muatStatus(r.berkas, 1000), pilihan: 'kembali' }), 1);
+  assert.equal(git(r.akar, 'rev-parse', 'HEAD'), kepala);
+  const lain = siapkanRepo();
+  assert.equal(await p.jalankanUpdate({ ...o, akar: lain.akar, status: p.muatStatus(r.berkas, 1000), pilihan: 'kembali' }), 1);
+  assert.equal(git(lain.akar, 'rev-parse', 'HEAD'), lain.v100);
 });
 
 test('jalankanUpdate git: ditolak (kode 3) bila berkas terlacak berubah, cabang lain, render jalan, proses tak terbaca', async () => {
@@ -229,9 +245,9 @@ const cli = (args, env) => new Promise(selesai => {                 // async: se
 });
 
 test('CLI: versi memberi notifikasi, opt-out tanpa permintaan, port mati diam, --lewati, subperintah salah', async () => {
-  let diminta = 0;
+  let diminta = 0, tag = 'v9.9.9';
   const server = createServer((q, r) => { diminta++; r.setHeader('content-type', 'application/json');
-    r.end(JSON.stringify({ tag_name: 'v9.9.9', body: '- baru', html_url: 'http://x' })); });
+    r.end(JSON.stringify({ tag_name: tag, body: '- baru', html_url: 'http://x' })); });
   await new Promise(ok => server.listen(0, '127.0.0.1', ok));
   const url = `http://127.0.0.1:${server.address().port}/`;
   const rumah = () => { const d = folder(); return { HOME: d, USERPROFILE: d, WEVAI_RILIS_URL: url }; };
@@ -244,8 +260,10 @@ test('CLI: versi memberi notifikasi, opt-out tanpa permintaan, port mati diam, -
     assert.equal(r.kode, 0); assert.doesNotMatch(r.out, /tersedia/); assert.equal(diminta, 1);
     r = await cli(['versi'], { ...rumah(), WEVAI_RILIS_URL: 'http://127.0.0.1:1/' });
     assert.equal(r.kode, 0); assert.equal(r.out.trim().split('\n').length, 1, r.out);
+    tag = 'v9.9.10';                                                  // rilis baru terbit sesudah notifikasi 9.9.9 dilihat
     r = await cli(['update', '--lewati'], env);
     assert.equal(r.kode, 0, r.out);
+    assert.equal(JSON.parse(readFileSync(join(env.HOME, '.wevai', 'pembaruan.json'), 'utf8')).lewati, '9.9.9');
     r = await cli(['versi'], env);
     assert.doesNotMatch(r.out, /tersedia/);
     assert.equal((await cli(['xyz'], env)).kode, 2);

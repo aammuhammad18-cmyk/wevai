@@ -285,7 +285,7 @@ bagian 1 dan 1b. Ringkasnya:
 0. **Kenali jenisnya** (tabel "Jenis pekerjaan"). Explainer → ikuti
    "Langkah nol" `references/explainer.md`: SATU pertanyaan (gaya: enam
    pilihan + rekomendasi; rasio, durasi, suara, pagar durasi). Jenis lain:
-   satu pertanyaan, hanya yang tak bisa diturunkan dari brief (rasio,
+   tanya (sekali) hanya yang tak bisa diturunkan dari brief (rasio,
    durasi, musik/VO). Sekali per sesi jalankan `node "<folder skill>/scripts/wevai.mjs" versi`;
    bila ada versi baru, sampaikan pesannya apa adanya dan lanjutkan tugas. Jalankan `update` hanya bila user memilihnya.
 0b. **Tulis style brief** (Hukum #3); ditunjukkan bersama rundown di langkah 2.

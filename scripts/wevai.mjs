@@ -34,7 +34,8 @@ if (sub === 'versi') {
   const pilihan = { '--nanti': 'nanti', '--lewati': 'lewati', '--kembali': 'kembali' }[opsi[0]] ?? (opsi.length ? null : 'sekarang');
   if (!pilihan) { console.log(`Opsi tidak dikenal: ${opsi.join(' ')}. Lihat: node scripts/wevai.mjs --help`); process.exit(2); }
   const sekarang = Date.now();
-  const status = pilihan === 'kembali' ? p.muatStatus(berkas, sekarang) : await p.cekRilis({ fetch, sekarang, berkas, url, paksa: true });
+  // nanti/lewati/kembali berlaku untuk versi yang terakhir diberitahukan; hanya "sekarang" mengambil rilis terbaru
+  const status = pilihan === 'sekarang' ? await p.cekRilis({ fetch, sekarang, berkas, url, paksa: true }) : p.muatStatus(berkas, sekarang);
   process.exit(await p.jalankanUpdate({ akar: p.AKAR, status, pilihan, sekarang, berkas }));
 } else {
   console.log('Pakai: node scripts/wevai.mjs versi | update [--nanti|--lewati|--kembali] | --help');

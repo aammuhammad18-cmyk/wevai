@@ -86,7 +86,8 @@ const lebihBaru =(terbaru, terpasang) => { try { return bandingVersi(terbaru, te
 export function pesanNotifikasi(status, terpasang, sekarang) {
   const { terbaru } = status;
   if (!terbaru || !lebihBaru(terbaru, terpasang) || status.lewati === terbaru || status.tundaSampai > sekarang) return null;
-  const catatan = String(status.catatan ?? '').split(/\r?\n/).map(b => b.trimEnd()).filter(b => b.trim()).slice(0, 5);
+  // butir CHANGELOG yang dipatah baris (lanjutan berindentasi) → satu baris; ambil ≤ 5 baris tak kosong
+  const catatan = String(status.catatan ?? '').replace(/\r?\n[ \t]+/g, ' ').split(/\r?\n/).map(b => b.trimEnd()).filter(b => b.trim()).slice(0, 5);
   return [
     `WeVai ${terbaru} tersedia (terpasang ${terpasang}).`,
     ...catatan,
@@ -114,7 +115,9 @@ export const jalanBawaan = (cmd, args, { cwd } = {}) =>
   spawnSync(cmd, args, { cwd, encoding: 'utf8', shell: process.platform === 'win32' && cmd === 'claude' });
 
 export function renderBerjalan({ daftarProses = daftarProsesBawaan, log = console.log } = {}) {
-  try { return /export-frames\.mjs|antre-render\.mjs/.test(daftarProses()); }
+  // antre-render.sh/.mjs: antrean proyek yang menunggu antarbabak (hanya bash + sleep, tanpa export-frames); ffmpeg: rakit/encode.
+  // ponytail: Windows tidak menampilkan baris perintah proses admin ke shell biasa; render dari terminal admin tak terlihat.
+  try { return /export-frames\.mjs|antre-render\b|\bffmpeg(\.exe)?\b/i.test(daftarProses()); }
   catch (e) { log(`Daftar proses tidak terbaca (${String(e.message).trim()}); dianggap ada render berjalan.`); return true; }
 }
 
@@ -122,7 +125,8 @@ export async function jalankanUpdate({ akar, status, pilihan, jalan = jalanBawaa
   sekarang = Date.now(), berkas, log = console.log }) {
   const jenis = jenisPasang(akar), terpasang = versiTerpasang(akar), { terbaru } = status;
   const simpan = ubah => simpanStatus(berkas, { ...muatStatus(berkas, sekarang), ...ubah });
-  const render = () => renderBerjalan({ daftarProses, log }) && (log('Ada render berjalan (export-frames/antre-render). Update ditolak; coba lagi sesudah render selesai.'), true);
+  const render = () => renderBerjalan({ daftarProses, log }) && (log('Ada render berjalan (export-frames, antre-render, atau ffmpeg). Update ditolak; coba lagi sesudah render selesai.'), true);
+  const samaAkar = (a, b) => String(a).replace(/\\/g, '/').toLowerCase() === String(b).replace(/\\/g, '/').toLowerCase();
   const g = (...a) => jalan('git', a, { cwd: akar });
   const pengamanGit = () => {
     if (render()) return 3;
@@ -137,9 +141,13 @@ export async function jalankanUpdate({ akar, status, pilihan, jalan = jalanBawaa
     if (jenis !== 'git') { log('--kembali hanya untuk WeVai yang dipasang lewat git clone.'); return 1; }
     if (!status.sebelumnya) { log('Belum ada update yang bisa dibatalkan.'); return 1; }
     const tolak = pengamanGit(); if (tolak) return tolak;
+    if (!samaAkar(status.akarUpdate, akar) || g('rev-parse', 'HEAD').stdout?.trim() !== status.sesudah) {
+      log('main sudah berubah sesudah update terakhir (commit lain, pull, atau clone lain). --kembali ditolak agar commit itu tidak hilang.');
+      return 1;
+    }
     const r = g('reset', '--keep', status.sebelumnya);
     if (r.status !== 0) { log(`Gagal kembali ke ${status.sebelumnya}: ${r.stderr}`.trimEnd()); return 1; }
-    const { sebelumnya, ...sisa } = muatStatus(berkas, sekarang);
+    const { sebelumnya, sesudah, akarUpdate, ...sisa } = muatStatus(berkas, sekarang);
     simpanStatus(berkas, { ...sisa, lewati: terpasang });
     log(`WeVai kembali ke ${versiTerpasang(akar)}. Versi ${terpasang} dilewati.`);
     return 0;
@@ -170,7 +178,7 @@ export async function jalankanUpdate({ akar, status, pilihan, jalan = jalanBawaa
   if (ambil.status !== 0) { log(`Gagal mengambil rilis dari origin: ${ambil.stderr}`.trimEnd()); return 1; }
   const sebelumnya = g('rev-parse', 'HEAD').stdout.trim();
   if (g('merge', '--ff-only', `v${terbaru}`).status !== 0) { log(`main lokal tidak bisa maju lurus ke v${terbaru}; tidak ada yang diubah.`); return 1; }
-  simpan({ sebelumnya });
+  simpan({ sebelumnya, sesudah: g('rev-parse', 'HEAD').stdout.trim(), akarUpdate: akar });
   const cek = jalan('node', ['scripts/bump-version.mjs', '--check'], { cwd: akar });
   if (cek.status !== 0) log(`Peringatan: pemeriksaan versi gagal sesudah update.\n${cek.stdout}${cek.stderr}`.trimEnd());
   log(`WeVai diperbarui ${terpasang} → ${versiTerpasang(akar)}. Batalkan dengan: ${perintah()} --kembali`);

@@ -5,14 +5,14 @@ license: MIT
 metadata:
   author: aammuhammad18
   author_url: https://github.com/aammuhammad18-cmyk/wevai
-  version: "1.4.1"
+  version: "1.4.2"
   updated: "2026-11-06"
   homepage: https://github.com/aammuhammad18-cmyk/wevai
 ---
 
 # WeVai — motion graphic web yang bukan PPT
 
-**v1.4.1 · by [aammuhammad18](https://github.com/aammuhammad18-cmyk/wevai) · MIT.** Riwayat perubahan di `CHANGELOG.md`;
+**v1.4.2 · by [aammuhammad18](https://github.com/aammuhammad18-cmyk/wevai) · MIT.** Riwayat perubahan di `CHANGELOG.md`;
 cara pasang di `README.md`.
 
 Skill ini untuk AI coding agent apa pun (format Agent Skills terbuka).

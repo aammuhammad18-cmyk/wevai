@@ -1,6 +1,6 @@
 # Changelog
 
-## Belum dirilis
+## 1.4.2 — 2026-11-06
 
 - **Notifikasi update**: sekali per sesi agen menjalankan `node scripts/wevai.mjs versi`. Perintah ini mengecek rilis GitHub
   paling sering sekali per 24 jam, diam saat offline atau dibatasi API, dan menampilkan pilihan update sekarang, nanti
